@@ -85,6 +85,7 @@ void __cdecl Print_Win32Error(unsigned long win32Error);
 #endif // _DEBUG
 
 #else // _WINDOWS
+#define HANDLE void*
 //#include <unistd.h>	// file does not exist
 #endif // _WINDOWS
 

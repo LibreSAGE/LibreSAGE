@@ -77,7 +77,11 @@ void Convert_System_Error_To_String(int id, char* buffer, int buf_len)
 
 int Get_Last_System_Error()
 {
+#ifndef _UNIX
 	return GetLastError();
+#else
+	return 0;
+#endif
 }
 
 /***********************************************************************************************

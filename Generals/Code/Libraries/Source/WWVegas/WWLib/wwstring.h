@@ -117,8 +117,8 @@ public:
 	bool			Is_Empty (void) const;
 
 	void			Erase (int start_index, int char_count);
-	int _cdecl  Format (const TCHAR *format, ...);
-	int _cdecl  Format_Args (const TCHAR *format, const va_list & arg_list );
+	int  Format (const TCHAR *format, ...);
+	int  Format_Args (const TCHAR *format, va_list arg_list );
 
 	TCHAR *		Get_Buffer (int new_length);
 	TCHAR *		Peek_Buffer (void);

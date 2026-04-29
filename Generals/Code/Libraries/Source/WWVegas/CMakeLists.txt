@@ -1,0 +1,2 @@
+add_subdirectory(WWDebug)
+add_subdirectory(WWLib)

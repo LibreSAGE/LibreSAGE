@@ -42,7 +42,9 @@
 #pragma warning (push,3)
 #endif
 
+#ifdef _WIN32
 #include <mmsystem.h>
+#endif
 
 #ifdef _MSC_VER
 #pragma warning (pop)

@@ -20,12 +20,16 @@
 
 #include "thread.h"
 #include "wwdebug.h"
+#ifdef _WINDOWS
 #include <process.h>
 #include <windows.h>
 #pragma warning ( push )
 #pragma warning ( disable : 4201 ) 
 #include <mmsystem.h>
 #pragma warning ( pop )
+#elif defined(_UNIX)
+#include <unistd.h>
+#endif
 
 ThreadClass::ThreadClass() : handle(0), running(false), thread_priority(0)
 {
@@ -89,7 +93,11 @@ void ThreadClass::Stop(unsigned ms)
 
 void ThreadClass::Sleep_Ms(unsigned ms)
 {
-	Sleep(ms);
+#ifdef _WINDOWS
+	Sleep(ms)
+#else
+	usleep(ms * 1000);
+#endif
 }
 
 #ifndef _UNIX

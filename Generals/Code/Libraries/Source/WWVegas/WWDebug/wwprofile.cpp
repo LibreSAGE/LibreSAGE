@@ -69,7 +69,7 @@
  * HISTORY:                                                                                    *
  *   9/24/2000  gth : Created.                                                                 *
  *=============================================================================================*/
-inline void WWProfile_Get_Ticks(_int64 * ticks)
+inline void WWProfile_Get_Ticks(int64_t * ticks)
 {
 #ifdef _UNIX
 	*ticks = 0;
@@ -110,7 +110,7 @@ inline float WWProfile_Get_Tick_Rate(void)
 	static float _CPUFrequency = -1.0f;
 	
 	if (_CPUFrequency == -1.0f) {
-		__int64 curr_rate = 0;
+		int64_t curr_rate = 0;
 		::QueryPerformanceFrequency ((LARGE_INTEGER *)&curr_rate);
 		_CPUFrequency = (float)curr_rate;
 	} 
@@ -269,7 +269,7 @@ bool	WWProfileHierachyNodeClass::Return( void )
 	if (--RecursionCounter == 0) {
 		if ( TotalCalls != 0 ) {
 			
-			__int64 time;
+			int64_t time;
 			WWProfile_Get_Ticks(&time);
 			time-=StartTime;
 
@@ -293,7 +293,7 @@ bool	WWProfileHierachyNodeClass::Return( void )
 WWProfileHierachyNodeClass		WWProfileManager::Root( "Root", NULL );
 WWProfileHierachyNodeClass	*	WWProfileManager::CurrentNode = &WWProfileManager::Root;
 int									WWProfileManager::FrameCounter = 0;
-__int64								WWProfileManager::ResetTime = 0;
+int64_t								WWProfileManager::ResetTime = 0;
 
 static unsigned int				ThreadID = static_cast<unsigned int>(-1);
 
@@ -318,9 +318,11 @@ static unsigned int				ThreadID = static_cast<unsigned int>(-1);
  *=============================================================================================*/
 void	WWProfileManager::Start_Profile( const char * name )
 {
+#ifdef _WINDOWS
 	if (::GetCurrentThreadId() != ThreadID) {
 		return;
 	}
+#endif
 
 //	int current_thread = ::GetCurrentThreadId();
 	if (name != CurrentNode->Get_Name()) {
@@ -345,9 +347,11 @@ void	WWProfileManager::Start_Profile( const char * name )
  *=============================================================================================*/
 void	WWProfileManager::Stop_Profile( void )
 {
+#ifdef _WINDOWS
 	if (::GetCurrentThreadId() != ThreadID) {
 		return;
 	}
+#endif
 
 	// Return will indicate whether we should back up to our parent (we may
 	// be profiling a recursive function)
@@ -374,7 +378,9 @@ void	WWProfileManager::Stop_Profile( void )
  *=============================================================================================*/
 void	WWProfileManager::Reset( void )
 { 
+#ifdef _WINDOWS
 	ThreadID = ::GetCurrentThreadId();
+#endif
 
 	Root.Reset(); 
 	FrameCounter = 0;
@@ -414,7 +420,7 @@ void WWProfileManager::Increment_Frame_Counter( void )
  *=============================================================================================*/
 float WWProfileManager::Get_Time_Since_Reset( void )
 {
-	__int64 time;
+	int64_t time;
 	WWProfile_Get_Ticks(&time);
 	time -= ResetTime;
 
@@ -604,7 +610,7 @@ WWTimeItClass::WWTimeItClass( const char * name )
 
 WWTimeItClass::~WWTimeItClass( void ) 
 { 
-	__int64 End; 
+	int64_t End; 
 	WWProfile_Get_Ticks( &End );	
 	End -= Time; 
 #ifdef WWDEBUG
@@ -626,7 +632,7 @@ WWMeasureItClass::WWMeasureItClass( float * p_result )
 
 WWMeasureItClass::~WWMeasureItClass( void ) 
 { 
-	__int64 End; 
+	int64_t End; 
 	WWProfile_Get_Ticks( &End );	
 	End -= Time; 
 	WWASSERT(PResult != NULL);

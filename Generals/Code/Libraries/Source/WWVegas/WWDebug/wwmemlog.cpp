@@ -57,7 +57,7 @@ static unsigned FreeCount;
 ** Name for each memory category.  I'm padding the array with some "undefined" strings in case
 ** someone forgets to set the name when adding a new category.
 */
-static char * _MemoryCategoryNames[] =
+static const char * _MemoryCategoryNames[] =
 {
 	"UNKNOWN",
 	"Geometry",
@@ -215,8 +215,10 @@ static bool							_MemLogAllocated = false;
 void * Get_Mem_Log_Mutex(void)
 {
 	if (_MemLogMutex == NULL) {
+#ifdef _WINDOWS
 		_MemLogMutex=CreateMutex(NULL,false,NULL);
 		WWASSERT(_MemLogMutex);
+#endif
 	}
 	return _MemLogMutex;
 }
@@ -227,7 +229,9 @@ void Lock_Mem_Log_Mutex(void)
 #ifdef DEBUG_CRASHING
 	int res =
 #endif
+#ifdef _WINDOWS
 		WaitForSingleObject(mutex,INFINITE);
+#endif
 	WWASSERT(res==WAIT_OBJECT_0);
 	_MemLogLockCounter++;
 }
@@ -239,7 +243,9 @@ void Unlock_Mem_Log_Mutex(void)
 #ifdef DEBUG_CRASHING
 	int res=
 #endif
+#ifdef _WINDOWS
 		ReleaseMutex(mutex);
+#endif
 	WWASSERT(res);
 }
 
@@ -276,8 +282,11 @@ ActiveCategoryStackClass::operator = (const ActiveCategoryStackClass & that)
 ***************************************************************************************************/
 ActiveCategoryStackClass & ActiveCategoryClass::Get_Active_Stack(void)
 {
+#if _WINDOWS
 	int current_thread = ::GetCurrentThreadId();
-
+#else
+	int current_thread = 0;		// for non-windows platforms, just use a single category stack
+#endif
 	/*
 	** If we already have an allocated category stack for the current thread,
 	** just return its active category.

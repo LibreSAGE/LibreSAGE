@@ -40,7 +40,10 @@
 #ifndef ALWAYS_H
 #define ALWAYS_H
 
+#include <compat.h>
+
 #include <assert.h>
+#include <new>
 
 // Disable warning about exception handling not being enabled. It's used as part of STL - in a part of STL we don't use.
 #pragma warning(disable : 4530)
@@ -76,23 +79,23 @@
 	#define _OPERATOR_NEW_DEFINED_
 
 	extern void * __cdecl operator new		(size_t size);
-	extern void __cdecl operator delete		(void *p);
+	extern void __cdecl operator delete		(void *p) noexcept;
 
 	extern void * __cdecl operator new[]	(size_t size);
-	extern void __cdecl operator delete[]	(void *p);
+	extern void __cdecl operator delete[]	(void *p) noexcept;
 
 	// additional overloads to account for VC/MFC funky versions
 	extern void* __cdecl operator new			(size_t nSize, const char *, int);
-	extern void __cdecl operator delete		(void *, const char *, int);
+	extern void __cdecl operator delete		(void *, const char *, int) noexcept;
 
 	extern void* __cdecl operator new[]		(size_t nSize, const char *, int);
-	extern void __cdecl operator delete[]	(void *, const char *, int);
+	extern void __cdecl operator delete[]	(void *, const char *, int) noexcept;
 
 	// additional overloads for 'placement new'
 	//inline void* __cdecl operator new							(size_t s, void *p) { return p; }
 	//inline void __cdecl operator delete						(void *, void *p)		{ }
-	inline void* __cdecl operator new[]						(size_t s, void *p) { return p; }
-	inline void __cdecl operator delete[]					(void *, void *p)		{ }
+	// inline void* __cdecl operator new[]						(size_t s, void *p) { return p; }
+	// inline void __cdecl operator delete[]					(void *, void *p)	noexcept	{ } 
 
 #endif
 

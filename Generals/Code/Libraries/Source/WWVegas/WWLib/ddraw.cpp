@@ -50,6 +50,7 @@
 #include	"_timer.h"
 #include	<assert.h>
 #include <stdio.h>
+#include <string.h>
 
 
 LPDIRECTDRAW DirectDrawObject = NULL;	// Pointer to the direct draw object

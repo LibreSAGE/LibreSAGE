@@ -37,7 +37,9 @@
 #include	"always.h"
 #include	"blitblit.h"
 #include	"convert.h"
+#ifdef _WINDOWS
 #include	"dsurface.h"
+#endif
 #include	"hsv.h"
 #include	"rlerle.h"
 
@@ -121,6 +123,7 @@ ConvertClass::ConvertClass(PaletteClass const & artpalette, PaletteClass const &
 		*/
 		//assert(surface.Is_Direct_Draw());
 		Translator = W3DNEWARRAY unsigned short [256];
+#ifdef _WINDOWS
 		((DSurface &)surface).Build_Remap_Table((unsigned short *)Translator, artpalette);
 
 		/*
@@ -129,7 +132,10 @@ ConvertClass::ConvertClass(PaletteClass const & artpalette, PaletteClass const &
 		*/
 		int maskhalf = ((DSurface &)surface).Get_Halfbright_Mask();
 		int maskquarter = ((DSurface &)surface).Get_Quarterbright_Mask();
-
+#else
+		int maskhalf = 0x7bde;
+		int maskquarter = 0x39ce;
+#endif
 		/*
 		**	Construct all the blitter objects necessary to support the functionality
 		**	required for the draw permutations.

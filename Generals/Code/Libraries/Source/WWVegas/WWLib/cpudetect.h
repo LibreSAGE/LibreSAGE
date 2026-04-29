@@ -46,12 +46,6 @@
 #include "always.h"
 #include "wwstring.h"
 
-#ifdef WIN32
-typedef signed __int64 sint64;
-#elif defined (_UNIX)
-typedef signed long long sint64;
-#endif
-
 class CPUDetectInitClass;
 
 class CPUDetectClass
@@ -168,7 +162,7 @@ public:
 	// Note that processor speed is only calculated at start and could change during execution, so
 	// this number is not to be relied on!
 	inline static int Get_Processor_Speed() { return ProcessorSpeed; }
-	inline static sint64 Get_Processor_Ticks_Per_Second() { return ProcessorTicksPerSecond; }	// Ticks per second
+	inline static int64_t Get_Processor_Ticks_Per_Second() { return ProcessorTicksPerSecond; }	// Ticks per second
 	inline static double Get_Inv_Processor_Ticks_Per_Second() { return InvProcessorTicksPerSecond; }	// 1.0 / Ticks per second
 
 	static unsigned Get_Feature_Bits() { return FeatureBits; }
@@ -248,7 +242,7 @@ private:
 	static int ProcessorModel;
 	static int ProcessorRevision;
 	static int ProcessorSpeed;
-	static sint64 ProcessorTicksPerSecond;	// Ticks per second
+	static int64_t ProcessorTicksPerSecond;	// Ticks per second
 	static double InvProcessorTicksPerSecond;	// 1.0 / Ticks per second
 
 	static ProcessorManufacturerType ProcessorManufacturer;
