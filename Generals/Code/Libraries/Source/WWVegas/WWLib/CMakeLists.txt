@@ -191,13 +191,13 @@ if(WIN32)
             rcfile.h
             registry.cpp
             registry.h
-                      wwcomutil.cpp
-          wwcomutil.h)
+            wwcomutil.cpp
+            wwcomutil.h)
 endif()
 
 set_target_properties(g_wwlib PROPERTIES OUTPUT_NAME "WWLib")
 
-target_link_libraries(g_wwlib PRIVATE g_library_include g_wwdebug)
+target_include_directories(g_wwlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(g_wwlib PUBLIC g_library_include g_wwdebug)
 
-# DirectDraw
-# target_link_libraries(g_wwlib PRIVATE dxlib::ddraw)
+# DirectDraw target_link_libraries(g_wwlib PRIVATE dxlib::ddraw)

@@ -1,6 +1,7 @@
 {
-    "name": "rts",
-    "dependencies": [
-        "zlib"
-    ]
+  "name": "rts",
+  "dependencies": [
+    "zlib",
+    "glm"
+  ]
 }

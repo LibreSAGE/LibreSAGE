@@ -44,7 +44,7 @@
 #define POINTERREMAP_H
 
 #ifdef _UNIX
-#include "osdep/osdep.h"
+#include "osdep.h"
 #endif
 
 #include "always.h"
