@@ -3,8 +3,7 @@ add_library(g_wwmath)
 
 target_sources(
   g_wwmath
-  PRIVATE Vector3i.h
-          aabox.cpp
+  PRIVATE aabox.cpp
           aabox.h
           aabtreecull.cpp
           aabtreecull.h
@@ -72,6 +71,7 @@ target_sources(
           vector2.h
           vector2i.h
           vector3.h
+          vector3i.h
           vector4.h
           vehiclecurve.cpp
           vehiclecurve.h

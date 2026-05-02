@@ -36,16 +36,3 @@ int GetLastError()
 #include "time_compat.h"
 #include "wchar_compat.h"
 #include "intrin_compat.h"
-
-#ifndef _WIN32
-#include <stdio.h>
-#define MB_OK 0
-#define MB_ICONEXCLAMATION 0
-
-// MessageBox stub
-inline int MessageBox(void *, const char *text, const char *caption, unsigned int type)
-{
-    fprintf(stderr, "%s: %s\n", caption, text);
-    return 0;
-}
-#endif

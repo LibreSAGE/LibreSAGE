@@ -31,7 +31,6 @@
 #include "dx8caps.h"
 #include "missingtexture.h"
 #include "targa.h"
-#include <D3dx8tex.h>
 #include <cstdio>
 #include "wwmemlog.h"
 #include "texture.h"
@@ -91,7 +90,7 @@ static class LoaderThreadClass : public ThreadClass
 	static void Add_Task_To_Finished_List(TextureLoadTaskClass* task);
 
 public:
-	LoaderThreadClass::LoaderThreadClass() : ThreadClass() {}
+	LoaderThreadClass() : ThreadClass() {}
 
 	void Thread_Function();
 
@@ -766,16 +765,6 @@ void TextureLoader::Update()
 }
 
 // ----------------------------------------------------------------------------
-
-static DWORD VectortoRGBA( D3DXVECTOR3* v, FLOAT fHeight )
-{
-    DWORD r = (DWORD)( 127.0f * v->x + 128.0f );
-    DWORD g = (DWORD)( 127.0f * v->y + 128.0f );
-    DWORD b = (DWORD)( 127.0f * v->z + 128.0f );
-    DWORD a = (DWORD)( 255.0f * fHeight );
-    
-    return( (a<<24L) + (r<<16L) + (g<<8L) + (b<<0L) );
-}
 
 IDirect3DTexture8* TextureLoader::Generate_Bumpmap(TextureClass* texture)
 {

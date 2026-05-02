@@ -109,7 +109,6 @@
 #include <ini.h>
 #include <windows.h>
 #include <stdio.h>
-#include <D3dx8core.h>
 
 #include "texture.h"
 #include "wwprofile.h"
@@ -548,7 +547,7 @@ void WW3DAssetManager::Free_Assets_With_Exclusion_List(const DynamicVectorClass<
 	memset(PrototypeHashTable,0,sizeof(PrototypeClass *) * PROTOTYPE_HASH_TABLE_SIZE);	
 
 	// re-add the prototypes that we saved
-	for (i=0; i<exclude_array.Count(); i++) {
+	for (int i=0; i<exclude_array.Count(); i++) {
 		Add_Prototype(exclude_array[i]);
 	}
 
@@ -790,9 +789,9 @@ RenderObjClass * WW3DAssetManager::Create_Render_Obj(const char * name)
 
 	if (WW3D_Load_On_Demand && proto == NULL) {	// If we didn't find one, try to load on demand
 		char filename [MAX_PATH];
-		char *mesh_name = ::strchr (name, '.');
+		const char *mesh_name = ::strchr (name, '.');
 		if (mesh_name != NULL) {
-			::lstrcpyn (filename, name, ((int)mesh_name) - ((int)name) + 1);
+			::lstrcpyn (filename, name, ((intptr_t)mesh_name) - ((intptr_t)name) + 1);
 			::lstrcat (filename, ".w3d");
 		} else {
 			sprintf( filename, "%s.w3d", name);
@@ -967,7 +966,7 @@ HAnimClass *	WW3DAssetManager::Get_HAnim(const char * name)
 		if ( !HAnimManager.Is_Missing( name ) ) {	// if this is NOT a known missing anim
 
 			char filename[ MAX_PATH ];
-			char *animname = strchr( name, '.');
+			const char *animname = strchr( name, '.');
 			if (animname != NULL) {
 				sprintf( filename, "%s.w3d", animname+1);
 			} else {

@@ -118,6 +118,7 @@ struct VertexFormatXYZNDUV2;
 ** 
 */
 
+class MeshModelClass;
 class GapFillerClass : public W3DMPO
 {
 	W3DMPO_GLUE(GapFillerClass)

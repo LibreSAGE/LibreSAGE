@@ -43,6 +43,7 @@
 #include "texture.h"
 #include "wwstring.h"
 
+#include "always.h"
 #include <windows.h>
 
 
@@ -347,7 +348,7 @@ AggregateDefClass::Load_Assets (const char *passet_name)
 
 	// Param OK?
 	if (passet_name != NULL) {
-		
+#ifdef _WINDOWS
 		// Determine what the current working directory is
 		char path[MAX_PATH];
 		::GetCurrentDirectory (sizeof (path), path);
@@ -365,6 +366,14 @@ AggregateDefClass::Load_Assets (const char *passet_name)
 		if (::GetFileAttributes (path) != 0xFFFFFFFF) {
 			retval = WW3DAssetManager::Get_Instance()->Load_3D_Assets (path);
 		}
+#else
+		// Non-windows platform, so just assume the filename is the asset name + the w3d extension
+		{
+			char filename[256];
+			snprintf (filename, sizeof(filename), "%s.w3d", passet_name);
+			retval = WW3DAssetManager::Get_Instance()->Load_3D_Assets (filename);
+		}
+#endif
 	}
 
 	// Return the true/false result code

@@ -285,8 +285,7 @@ WW3DErrorType WW3D::Init(void *hwnd, char *defaultpal)
 		return WW3D_ERROR_INITIALIZATION_FAILED;
 	Allocate_Debug_Resources();
 
- 	MMRESULT r=timeBeginPeriod(1);
-	WWASSERT(r==TIMERR_NOERROR);
+ 	timeBeginPeriod(1);
 
 	/*
 	** Initialize the dazzle system
@@ -334,8 +333,7 @@ WW3DErrorType WW3D::Shutdown(void)
 #endif //WW3D_DX8
 
 	//restore the previous timer resolution
-	MMRESULT r=timeEndPeriod(1);
-	WWASSERT(r==TIMERR_NOERROR);
+	timeEndPeriod(1);
 
 	/*
 	** Free memory in predictive LOD optimizer
