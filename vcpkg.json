@@ -2,6 +2,8 @@
   "name": "rts",
   "dependencies": [
     "zlib",
-    "glm"
+    "glm",
+    "sdl3",
+    "sdl3-image"
   ]
 }

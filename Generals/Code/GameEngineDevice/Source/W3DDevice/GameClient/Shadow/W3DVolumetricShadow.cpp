@@ -40,24 +40,24 @@
 // USER INCLUDES //////////////////////////////////////////////////////////////
 #include "always.h"
 #include "GameClient/View.h"
-#include "WW3D2/Camera.h"
-#include "WW3D2/Light.h"
-#include "WW3D2/DX8Wrapper.h"
-#include "WW3D2/HLod.h"
+#include "WW3D2/camera.h"
+#include "WW3D2/light.h"
+#include "WW3D2/dx8wrapper.h"
+#include "WW3D2/hlod.h"
 #include "WW3D2/mesh.h"
 #include "WW3D2/meshmdl.h"
 #include "Lib/BaseType.h"
 #include "W3DDevice/GameClient/W3DGranny.h"
-#include "W3DDevice/GameClient/Heightmap.h"
-#include "D3dx8math.h"
-#include "common/GlobalData.h"
-#include "common/drawmodule.h"
+#include "W3DDevice/GameClient/HeightMap.h"
+#include "Common/GlobalData.h"
+#include "Common/DrawModule.h"
 #include "W3DDevice/GameClient/W3DVolumetricShadow.h"
 #include "W3DDevice/GameClient/W3DShadow.h"
 #include "WW3D2/statistics.h"
 #include "GameLogic/TerrainLogic.h"
-#include "WW3D2/DX8Caps.h"
+#include "WW3D2/dx8caps.h"
 #include "GameClient/Drawable.h"
+#include "d3dx8math.h"
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -273,8 +273,8 @@ class W3DShadowGeometryMesh
 	friend class W3DVolumetricShadow;
 	
 public:
-	W3DShadowGeometryMesh::W3DShadowGeometryMesh( void );
-	W3DShadowGeometryMesh::~W3DShadowGeometryMesh( void );
+	W3DShadowGeometryMesh( void );
+	~W3DShadowGeometryMesh( void );
 
 	/// @todo: Cache/Store face normals someplace so they are not recomputed when lights move.
 	Vector3 *GetPolygonNormal (long dwPolyNormId, Vector3 *pvNorm)
@@ -1297,10 +1297,10 @@ void W3DVolumetricShadow::RenderMeshVolume(Int meshIndex, Int lightIndex, const 
 		return;
 
 	Matrix4 mWorld(*meshXform);
-
+	Matrix4 mWorldTranspose=mWorld.Transpose();
 	///@todo: W3D always does transpose on all of matrix sets.  Slow???  Better to hack view matrix.
-	m_pDev->SetTransform(D3DTS_WORLD,(_D3DMATRIX *)&mWorld.Transpose());
-	
+	m_pDev->SetTransform(D3DTS_WORLD,(_D3DMATRIX *)&mWorldTranspose);
+
 	W3DBufferManager::W3DVertexBufferSlot *vbSlot=m_shadowVolumeVB[lightIndex][ meshIndex ];
 	if (!vbSlot)
 		return;
@@ -1413,8 +1413,9 @@ void W3DVolumetricShadow::RenderDynamicMeshVolume(Int meshIndex, Int lightIndex,
 	m_pDev->SetIndices(shadowIndexBufferD3D,nShadowStartBatchVertex);
 	
 	Matrix4 mWorld(*meshXform);
+	Matrix4 mWorldTranspose=mWorld.Transpose();
 
-	m_pDev->SetTransform(D3DTS_WORLD,(_D3DMATRIX *)&mWorld.Transpose());
+	m_pDev->SetTransform(D3DTS_WORLD,(_D3DMATRIX *)&mWorldTranspose);
 
 	if (shadowVertexBufferD3D != lastActiveVertexBuffer)
 	{	m_pDev->SetStreamSource(0,shadowVertexBufferD3D,sizeof(SHADOW_DYNAMIC_VOLUME_VERTEX));
@@ -1568,8 +1569,9 @@ void W3DVolumetricShadow::RenderMeshVolumeBounds(Int meshIndex, Int lightIndex, 
 
 	//todo: replace this with mesh transform
 	Matrix4 mWorld(1);	//identity since boxes are pre-transformed to world space.
+	Matrix4 mWorldTranspose=mWorld.Transpose();
 
-	m_pDev->SetTransform(D3DTS_WORLD,(_D3DMATRIX *)&mWorld.Transpose());
+	m_pDev->SetTransform(D3DTS_WORLD,(_D3DMATRIX *)&mWorldTranspose);
 	
 	m_pDev->SetStreamSource(0,shadowVertexBufferD3D,sizeof(SHADOW_DYNAMIC_VOLUME_VERTEX));
 	m_pDev->SetVertexShader(SHADOW_DYNAMIC_VOLUME_FVF);
@@ -3244,16 +3246,16 @@ void W3DVolumetricShadowManager::renderStencilShadows( void )
 	if (!m_pDev)
 		return;	//need device to render anything.
 
-	struct _TRANSLITVERTEX {
-	    D3DXVECTOR4 p;
-		DWORD color;   // diffuse color    
-	} v[4];
-
 	Int xpos, ypos, width, height;
 
 	TheTacticalView->getOrigin(&xpos,&ypos);
 	width=TheTacticalView->getWidth();
 	height=TheTacticalView->getHeight();
+
+	struct _TRANSLITVERTEX {
+	    D3DXVECTOR4 p;
+		DWORD color;   // diffuse color    
+	} v[4];
 
     v[0].p = D3DXVECTOR4( xpos+width, ypos+height, 0.0f, 1.0f );
     v[1].p = D3DXVECTOR4( xpos+width, 0, 0.0f, 1.0f );

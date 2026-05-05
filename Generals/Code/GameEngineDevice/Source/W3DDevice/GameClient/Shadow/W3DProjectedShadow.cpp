@@ -34,10 +34,10 @@
 // USER INCLUDES //////////////////////////////////////////////////////////////
 #include "always.h"
 #include "GameClient/View.h"
-#include "WW3D2/Camera.h"
-#include "WW3D2/Light.h"
-#include "WW3D2/DX8Wrapper.h"
-#include "WW3D2/HLod.h"
+#include "WW3D2/camera.h"
+#include "WW3D2/light.h"
+#include "WW3D2/dx8wrapper.h"
+#include "WW3D2/hlod.h"
 #include "WW3D2/mesh.h"
 #include "WW3D2/meshmdl.h"
 #include "WW3D2/assetmgr.h"
@@ -45,19 +45,18 @@
 #include "WW3D2/dx8renderer.h"
 #include "Lib/BaseType.h"
 #include "W3DDevice/GameClient/W3DGranny.h"
-#include "W3DDevice/GameClient/Heightmap.h"
-#include "D3dx8math.h"
-#include "common/GlobalData.h"
+#include "W3DDevice/GameClient/HeightMap.h"
+#include "Common/GlobalData.h"
 #include "W3DDevice/GameClient/W3DProjectedShadow.h"
 #include "WW3D2/statistics.h"
 #include "Common/Debug.h"
 #include "GameLogic/Object.h"
 #include "GameLogic/PartitionManager.h"
 #include "GameLogic/TerrainLogic.h"
-#include "GameClient/drawable.h"
+#include "GameClient/Drawable.h"
 #include "W3DDevice/GameClient/Module/W3DModelDraw.h"
 #include "W3DDevice/GameClient/W3DShadow.h"
-#include "W3DDevice/GameClient/Heightmap.h"
+#include "W3DDevice/GameClient/HeightMap.h"
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -135,11 +134,11 @@ class W3DProjectedShadow	: public Shadow
 		W3DProjectedShadow(void);
 		~W3DProjectedShadow(void);
 		void setRenderObject( RenderObjClass	*robj) {m_robj=robj;}
-		void setObjPosHistory(Vector3 &pos)	{m_lastObjPosition=pos;}	///<position of object when projection matrix was updated.
+		void setObjPosHistory(const Vector3 &pos)	{m_lastObjPosition=pos;}	///<position of object when projection matrix was updated.
 		void setTexture(Int lightIndex,W3DShadowTexture *texture)	{m_shadowTexture[lightIndex]=texture;}	///<textur with light's shadow
 		void update(void);	///<updates the texture and/or projection parameters when the object or light moves.
 		void init(void);		///<allocates local member variables used for projection
-		void updateTexture(Vector3 &lightPos);	///<updates the shadow texture image using render object and given light position.
+		void updateTexture(const Vector3 &lightPos);	///<updates the shadow texture image using render object and given light position.
 		void updateProjectionParameters(const Matrix3D &cameraXform);	///<recompute projection matrix - needed when light or object moves.
 		TexProjectClass *getShadowProjector(void)	{return m_shadowProjector;}
 		#if defined(_DEBUG) || defined(_INTERNAL)	
@@ -210,7 +209,7 @@ class W3DShadowTexture : public RefCountClass, public	HashableClass
 		}
 		TextureClass	*getTexture(void)	{ return m_texture;}
 		void					 setTexture(TextureClass *texture)	{m_texture = texture;}
-		void					 setLightPosHistory(Vector3 &pos) {m_lastLightPosition=pos;}	///<updates the last position of light
+		void					 setLightPosHistory(const Vector3 &pos) {m_lastLightPosition=pos;}	///<updates the last position of light
 		Vector3&			 getLightPosHistory(void) {return m_lastLightPosition;}
 		void					 setObjectOrientationHistory(Matrix3 &mat) {m_lastObjectOrientation=mat;}	///<updates the last position of light
 		Matrix3&			 getObjectOrientationHistory(void) {return m_lastObjectOrientation;}
@@ -421,10 +420,10 @@ Int W3DProjectedShadowManager::renderProjectedTerrainShadow(W3DProjectedShadow *
 		Int endY=REAL_TO_INT_CEIL(((cy + dy)*mapScaleInv));
 
 		//clip bounds to extents of heightmap
-		startX = __max(startX,0);
-		endX = __min(endX,hmap->getXExtent()-1);
-		startY = __max(startY,0);
-		endY = __min(endY,hmap->getYExtent()-1);
+		startX = max(startX,0);
+		endX = min(endX,hmap->getXExtent()-1);
+		startY = max(startY,0);
+		endY = min(endY,hmap->getYExtent()-1);
 
 		Int vertsPerRow=endX - startX+1;	//number of cells +1
 		Int vertsPerColumn=endY-startY+1;	//number of cells +1
@@ -933,10 +932,10 @@ void W3DProjectedShadowManager::queueDecal(W3DProjectedShadow *shadow)
 		max_y=min_y=boxCorners[0].Y;
 
 		for (Int bi=1; bi<4; bi++)
-		{	max_x = __max(max_x,boxCorners[bi].X);
-			min_x = __min(min_x,boxCorners[bi].X);
-			max_y = __max(max_y,boxCorners[bi].Y);
-			min_y = __min(min_y,boxCorners[bi].Y);
+		{	max_x = max(max_x,boxCorners[bi].X);
+			min_x = min(min_x,boxCorners[bi].X);
+			max_y = max(max_y,boxCorners[bi].Y);
+			min_y = min(min_y,boxCorners[bi].Y);
 		}
 
 		uVector *= shadow->m_oowDecalSizeX;
@@ -998,15 +997,15 @@ void W3DProjectedShadowManager::queueDecal(W3DProjectedShadow *shadow)
 		Int	startY=REAL_TO_INT_FLOOR(((objPos.Y+min_y)*mapScaleInv)) + borderSize;
 		Int endY=REAL_TO_INT_CEIL(((objPos.Y+max_y)*mapScaleInv)) + borderSize;
 
-		startX = __max(startX,drawStartX);
-		startX = __min(startX,drawEdgeX);
-		startY = __max(startY,drawStartY);
-		startY = __min(startY,drawEdgeY);
+		startX = max(startX,drawStartX);
+		startX = min(startX,drawEdgeX);
+		startY = max(startY,drawStartY);
+		startY = min(startY,drawEdgeY);
 
-		endX = __max(endX,drawStartX);
-		endX = __min(endX,drawEdgeX);
-		endY = __max(endY,drawStartY);
-		endY = __min(endY,drawEdgeY);
+		endX = max(endX,drawStartX);
+		endX = min(endX,drawEdgeX);
+		endY = max(endY,drawStartY);
+		endY = min(endY,drawEdgeY);
 
 		//Check if decal too large to fit inside 65536 index buffer.
 		//try clipping each direction to < 104 since that's more than
@@ -1080,7 +1079,7 @@ void W3DProjectedShadowManager::queueDecal(W3DProjectedShadow *shadow)
 					for (i=startX; i <= endX; i++)
 					{	
 						hmapVertex.X=(float)(i-borderSize)*MAP_XY_FACTOR;
-						hmapVertex.Z=__max((float)hmap->getHeight(i,j)*MAP_HEIGHT_SCALE,layerHeight);
+						hmapVertex.Z=max((float)hmap->getHeight(i,j)*MAP_HEIGHT_SCALE,layerHeight);
 						pvVertices->x=hmapVertex.X;
 						pvVertices->y=hmapVertex.Y;
 						pvVertices->z=hmapVertex.Z;
@@ -2075,7 +2074,7 @@ void W3DProjectedShadow::init(void)
 
 #define DECAL_TEXELS_PER_WORLD_UNIT	(64.0f/20.0f)	//64 texels per 2 terrain cells (20 units)
 
-void W3DProjectedShadow::updateTexture(Vector3 &lightPos)
+void W3DProjectedShadow::updateTexture(const Vector3 &lightPos)
 {
 	SpecialRenderInfoClass *context;
 	//default uv coordinates before rotation starting at top/left going clockwise

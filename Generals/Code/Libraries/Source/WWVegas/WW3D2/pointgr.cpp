@@ -83,12 +83,7 @@
 #include "rinfo.h"
 #include "camera.h"
 #include "dx8fvf.h"
-#ifdef _WINDOWS
 #include <d3dx8math.h>
-#else
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#endif
 #include "sortingrenderer.h"
 
 // Upgraded to DX8 2/2/01 HY
@@ -1211,16 +1206,7 @@ void PointGroupClass::Update_Arrays(
 					if (!Billboard) {
 						// If we're not billboarding, then the coordinate we have is in screen space.
 						Matrix4 rotMat;
-#ifdef _WINDOWS
-						D3DXMatrixRotationZ(&(D3DXMATRIX&) rotMat, ((float)point_orientation[i] / 255.0f * 2 * D3DX_PI));
-#else
-						const float angle = (float)point_orientation[i] / 255.0f * 2.0f * glm::pi<float>();
-						const glm::mat4 glmRotMat = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f));
-						rotMat[0].Set(glmRotMat[0][0], glmRotMat[1][0], glmRotMat[2][0], glmRotMat[3][0]);
-						rotMat[1].Set(glmRotMat[0][1], glmRotMat[1][1], glmRotMat[2][1], glmRotMat[3][1]);
-						rotMat[2].Set(glmRotMat[0][2], glmRotMat[1][2], glmRotMat[2][2], glmRotMat[3][2]);
-						rotMat[3].Set(glmRotMat[0][3], glmRotMat[1][3], glmRotMat[2][3], glmRotMat[3][3]);
-#endif		
+						D3DXMatrixRotationZ(&(D3DXMATRIX&) rotMat, ((float)point_orientation[i] / 255.0f * 2 * D3DX_PI));	
 						Vector4 orientedVecX = rotMat * GroundMultiplierX;
 						Vector4 orientedVecY = rotMat * GroundMultiplierY;
 

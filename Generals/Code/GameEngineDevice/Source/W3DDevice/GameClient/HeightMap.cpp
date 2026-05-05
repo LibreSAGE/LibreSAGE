@@ -45,7 +45,7 @@
 //-----------------------------------------------------------------------------
 //         Includes                                                      
 //-----------------------------------------------------------------------------
-#include "W3DDevice/GameClient/heightmap.h"
+#include "W3DDevice/GameClient/HeightMap.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,9 +82,9 @@
 #include "W3DDevice/GameClient/W3DShadow.h"
 #include "W3DDevice/GameClient/W3DWater.h"
 #include "W3DDevice/GameClient/W3DShroud.h"
-#include "WW3D2/DX8Wrapper.h"
-#include "WW3D2/Light.h"
-#include "WW3D2/Scene.h"
+#include "WW3D2/dx8wrapper.h"
+#include "WW3D2/light.h"
+#include "WW3D2/scene.h"
 #include "W3DDevice/GameClient/W3DPoly.h"
 #include "W3DDevice/GameClient/W3DCustomScene.h"
 
@@ -2014,9 +2014,9 @@ Bool HeightMapRenderObjClass::isClearLineOfSight(const Coord3D& pos, const Coord
 
 		Int idx = x + y*xExtent;
 		float height = data[idx];
-		height = __max(height, data[idx + 1]);
-		height = __max(height, data[idx + xExtent]);
-		height = __max(height, data[idx + xExtent + 1]);
+		height = max(height, (float)data[idx + 1]);
+		height = max(height, (float)data[idx + xExtent]);
+		height = max(height, (float)data[idx + xExtent + 1]);
 		height *= MAP_HEIGHT_SCALE;
 
 		// if terrainHeight > z, we can't see, so punt.
@@ -2153,9 +2153,9 @@ Real HeightMapRenderObjClass::getMaxCellHeight(Real x, Real y) const
 	p3=data[iX+(iY+offset)*m_map->getXExtent()]*MAP_HEIGHT_SCALE;
 
 	height=p0;
-	height=__max(height,p1);
-	height=__max(height,p2);
-	height=__max(height,p3);
+	height=max(height,p1);
+	height=max(height,p2);
+	height=max(height,p3);
 
 	return height;
 }
@@ -2470,7 +2470,7 @@ void HeightMapRenderObjClass::updateShorelineTiles(Int minX, Int minY, Int maxX,
 	Real transparentDepth=TheWaterTransparency->m_transparentWaterDepth*TheWaterTransparency->m_minWaterOpacity;
 	Real depthScaleFactor = 1.0f/transparentDepth;
 
-	for (j=minY; j<maxY; j++)
+	for (Int j=minY; j<maxY; j++)
 		for (Int i=minX; i<maxX; i++)
 		{
 				waterSide=(waterZ0=TheWaterRenderObj->getWaterHeight((i-border)*MAP_XY_FACTOR,(j-border)*MAP_XY_FACTOR)) > ((terrainZ0=MAP_HEIGHT_SCALE*pMap->getHeight(i,j)));

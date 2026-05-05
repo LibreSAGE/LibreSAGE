@@ -23,11 +23,7 @@
 #include "vertmaterial.h"
 #include "texture.h"
 #include "d3d8.h"
-#ifdef _WINDOWS
 #include "d3dx8math.h"
-#else
-#include <glm/glm.hpp>
-#endif
 #include "statistics.h"
 
 bool SortingRendererClass::_EnableTriangleDraw=true;
@@ -355,7 +351,6 @@ void SortingRendererClass::Insert_Triangles(
 	WWASSERT(vertex_buffer);
 	WWASSERT(state->vertex_count<=vertex_buffer->Get_Vertex_Count());
 
-#ifdef _WINDOWS
 	D3DXMATRIX mtx=(D3DXMATRIX&)state->sorting_state.world*(D3DXMATRIX&)state->sorting_state.view;
 	D3DXVECTOR3 vec=(D3DXVECTOR3&)state->bounding_sphere.Center;
 	D3DXVECTOR4 transformed_vec;
@@ -363,11 +358,6 @@ void SortingRendererClass::Insert_Triangles(
 		&transformed_vec,
 		&vec,
 		&mtx); 
-#else
-	glm::mat4 mtx=(glm::mat4&)state->sorting_state.world*(glm::mat4&)state->sorting_state.view;
-	glm::vec4 vec=(glm::vec4&)state->bounding_sphere.Center;
-	glm::vec4 transformed_vec=mtx*vec;
-#endif
 	state->transformed_center=Vector3(transformed_vec[0],transformed_vec[1],transformed_vec[2]);
 
 	
@@ -563,14 +553,9 @@ void SortingRendererClass::Flush_Sorting_Pool()
 			src_verts+=state->sorting_state.index_base_offset;
 			src_verts+=state->min_vertex_index;
 
-#ifdef _WINDOWS
 			D3DXMATRIX d3d_mtx=(D3DXMATRIX&)state->sorting_state.world*(D3DXMATRIX&)state->sorting_state.view;
 			D3DXMatrixTranspose(&d3d_mtx,&d3d_mtx);
 			const Matrix4& mtx=(const Matrix4&)d3d_mtx;
-#else
-			glm::mat4 glm_mtx=(glm::mat4&)state->sorting_state.world*(glm::mat4&)state->sorting_state.view;
-			const Matrix4& mtx=(const Matrix4&)glm_mtx;
-#endif
 			for (unsigned i=0;i<state->vertex_count;++i,++src_verts) {
 				vertex_z_array[i] = (mtx[2][0] * src_verts->x + mtx[2][1] * src_verts->y + mtx[2][2] * src_verts->z + mtx[2][3]);
 				*dest_verts++=*src_verts;
@@ -829,7 +814,6 @@ void SortingRendererClass::Insert_VolumeParticle(
 	WWASSERT(state->vertex_count<=vertex_buffer->Get_Vertex_Count());
 
 	// Transform the center point to view space for sorting
-#ifdef _WINDOWS
 	D3DXMATRIX mtx=(D3DXMATRIX&)state->sorting_state.world*(D3DXMATRIX&)state->sorting_state.view;
 	D3DXVECTOR3 vec=(D3DXVECTOR3&)state->bounding_sphere.Center;
 	D3DXVECTOR4 transformed_vec;
@@ -837,11 +821,6 @@ void SortingRendererClass::Insert_VolumeParticle(
 		&transformed_vec,
 		&vec,
 		&mtx); 
-#else
-	glm::mat4 mtx=(glm::mat4&)state->sorting_state.world*(glm::mat4&)state->sorting_state.view;
-	glm::vec4 vec=(glm::vec4&)state->bounding_sphere.Center;
-	glm::vec4 transformed_vec=mtx*vec;
-#endif
 	state->transformed_center=Vector3(transformed_vec[0],transformed_vec[1],transformed_vec[2]);
 
 

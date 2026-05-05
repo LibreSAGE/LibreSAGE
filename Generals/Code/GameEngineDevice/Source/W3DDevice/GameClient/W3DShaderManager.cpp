@@ -62,17 +62,18 @@
 #include "W3DDevice/GameClient/W3DShroud.h"
 #include "W3DDevice/GameClient/HeightMap.h"
 #include "W3DDevice/GameClient/W3DCustomScene.h"
-#include "GameClient/view.h"
+#include "GameClient/View.h"
 #include "GameClient/CommandXlat.h"
-#include "GameClient/display.h"
+#include "GameClient/Display.h"
 #include "GameClient/Water.h"
 #include "GameLogic/GameLogic.h"
-#include "common/GlobalData.h"
-#include "common/GameLOD.h"
+#include "Common/GlobalData.h"
+#include "Common/GameLOD.h"
 #include "d3dx8tex.h"
+#include "d3dx8math.h"
 #include "dx8caps.h"
-#include "common/gamelod.h"
-#include "Benchmark.h"
+#include "Common/GameLOD.h"
+// #include "benchmark.h"
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -2444,7 +2445,7 @@ void W3DShaderManager::shutdown(void)
 		}
 	}
 
- 	for ( i=0; i < FT_MAX; i++)
+ 	for (Int i=0; i < FT_MAX; i++)
  	{	
  		if (W3DFilters[i])
  		{
@@ -2843,7 +2844,7 @@ Bool W3DShaderManager::testMinimumRequirements(ChipsetType *videoChipType, CpuTy
 
 	if (intBenchIndex && floatBenchIndex && memBenchIndex)
 	{
-		RunBenchmark(0, NULL, floatBenchIndex, intBenchIndex, memBenchIndex);
+		//RunBenchmark(0, NULL, floatBenchIndex, intBenchIndex, memBenchIndex);
 	}
 
 	return TRUE;
@@ -2881,9 +2882,11 @@ Real W3DShaderManager::GetCPUBenchTime(void)
 	float ztot, yran, ymult, ymod, x, y, z, pi, prod;
     long int low, ixran, itot, j, iprod;
 
-  	__int64 endTime64,freq64,startTime64;
+  	int64_t endTime64,freq64,startTime64;
+#ifdef _WINDOWS
 	QueryPerformanceFrequency((LARGE_INTEGER *)&freq64);
 	QueryPerformanceCounter((LARGE_INTEGER *)&startTime64);
+#endif
 
     ztot = 0.0;
     low = 1;
@@ -2910,6 +2913,8 @@ Real W3DShaderManager::GetCPUBenchTime(void)
 	}
 	pi = 4.0 * (float)low/(float)itot;
 
+#ifdef _WINDOWS
 	QueryPerformanceCounter((LARGE_INTEGER *)&endTime64);
+#endif
 	return ((double)(endTime64-startTime64)/(double)(freq64));
 }

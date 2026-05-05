@@ -137,3 +137,12 @@ int GetUserName(char *buffer, unsigned long *size)
         *size = 0;
     }
 }
+
+bool IsIconic(HWND hWnd)
+{
+    return false;
+}
+
+void SetCursor(void*)
+{
+}

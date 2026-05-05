@@ -83,12 +83,17 @@ target_sources(
 
 set_target_properties(g_wwmath PROPERTIES OUTPUT_NAME "WWMath")
 
-target_include_directories(g_wwmath PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../)
+target_include_directories(g_wwmath PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+                                           ${CMAKE_CURRENT_SOURCE_DIR}/../)
 target_include_directories(g_wwmath
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../WWLib)
 
 target_link_libraries(g_wwmath PUBLIC g_library_include g_wwlib g_wwsaveload)
 
 # GLM
-find_package(glm CONFIG REQUIRED)
-target_link_libraries(g_wwmath PRIVATE glm::glm)
+if (SAGE_USE_GLM)
+  find_package(glm CONFIG REQUIRED)
+  target_link_libraries(g_wwmath PRIVATE glm::glm)
+  target_compile_definitions(g_wwmath PRIVATE SAGE_USE_GLM)
+endif()
+

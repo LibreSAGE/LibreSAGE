@@ -26,7 +26,11 @@
 // Bryan Cleveland, August 2002
 /////////////////////////////////////////////////////////////
 
+#ifdef _WINDOWS
 #include <winsock2.h>
+#else
+#include <arpa/inet.h>
+#endif
 #include "Common/AudioAffect.h"
 #include "Common/ArchiveFile.h"
 #include "Common/ArchiveFileSystem.h"

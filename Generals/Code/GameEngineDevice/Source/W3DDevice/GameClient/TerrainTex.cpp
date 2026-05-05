@@ -50,9 +50,10 @@
 #include "W3DDevice/GameClient/TerrainTex.h"
 #include "W3DDevice/GameClient/WorldHeightMap.h"
 #include "W3DDevice/GameClient/TileData.h"
-#include "common/GlobalData.h"
+#include "Common/GlobalData.h"
 #include "WW3D2/dx8wrapper.h"
 #include "d3dx8tex.h"
+#include <d3dx8math.h>
 
 /******************************************************************************
 						TerrainTextureClass
@@ -790,7 +791,6 @@ void LightMapTerrainTextureClass::Apply(unsigned int stage)
 	Matrix4 curView;
 	DX8Wrapper::_Get_DX8_Transform(D3DTS_VIEW, curView);
 
-
 	D3DXMATRIX inv;
 	float det;
 	D3DXMatrixInverse(&inv, &det, (D3DXMATRIX*)&curView);
@@ -1040,15 +1040,6 @@ void CloudMapTerrainTextureClass::Apply(unsigned int stage)
 	Matrix4 curView;
 	DX8Wrapper::_Get_DX8_Transform(D3DTS_VIEW, curView);
 
-
-	D3DXMATRIX inv;
-	float det;
-	D3DXMatrixInverse(&inv, &det, (D3DXMATRIX*)&curView);
-	D3DXMATRIX scale;
-	D3DXMatrixScaling(&scale, STRETCH_FACTOR, STRETCH_FACTOR,1);
-	inv *=scale;
-	D3DXMATRIX offset;
-
 	Int delta = m_curTick;
 	m_curTick = ::GetTickCount();
 	delta = m_curTick-delta;
@@ -1060,9 +1051,15 @@ void CloudMapTerrainTextureClass::Apply(unsigned int stage)
 	if (m_xOffset < -1) m_xOffset += 1;
 	if (m_yOffset < -1) m_yOffset += 1;
 
+	D3DXMATRIX inv;
+	float det;
+	D3DXMatrixInverse(&inv, &det, (D3DXMATRIX*)&curView);
+	D3DXMATRIX scale;
+	D3DXMatrixScaling(&scale, STRETCH_FACTOR, STRETCH_FACTOR,1);
+	inv *=scale;
+	D3DXMATRIX offset;
 
 	D3DXMatrixTranslation(&offset, m_xOffset, m_yOffset,0);
-
 	inv *= offset;
 
 	if (stage==0) {

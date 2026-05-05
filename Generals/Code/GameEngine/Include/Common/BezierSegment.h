@@ -31,11 +31,7 @@
 #ifndef __BEZIERSEGMENT_H__
 #define __BEZIERSEGMENT_H__
 
-#ifdef _WIN32
-#include <D3DX8Math.h>
-#else
-#include <glm/glm.hpp>
-#endif
+#include <d3dx8math.h>
 #include "Common/STLTypedefs.h"
 
 #define USUAL_TOLERANCE 1.0f
@@ -43,11 +39,7 @@
 class BezierSegment
 {
 	protected:
-#ifdef _WIN32
 		static const D3DXMATRIX s_bezBasisMatrix;
-#else
-		static const glm::mat4 s_bezBasisMatrix;
-#endif
 		Coord3D m_controlPoints[4];
 
 	public:	// Constructors

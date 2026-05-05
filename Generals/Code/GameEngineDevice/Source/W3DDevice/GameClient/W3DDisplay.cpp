@@ -36,7 +36,6 @@ static void drawFramerateBar(void);
 // SYSTEM INCLUDES ////////////////////////////////////////////////////////////
 #include <stdlib.h>
 #include <windows.h>
-#include <io.h>
 #include <time.h>
 
 // USER INCLUDES //////////////////////////////////////////////////////////////
@@ -74,28 +73,28 @@ static void drawFramerateBar(void);
 #include "W3DDevice/GameClient/W3DScene.h"
 #include "W3DDevice/GameClient/W3DTerrainTracks.h"
 #include "W3DDevice/GameClient/W3DWater.h"
-#include "W3DDevice/GameClient/W3DVideoBuffer.h"
+#include "W3DDevice/GameClient/W3DVideobuffer.h"
 #include "W3DDevice/GameClient/W3DShaderManager.h"
 #include "W3DDevice/GameClient/W3DDebugDisplay.h"
 #include "W3DDevice/GameClient/W3DProjectedShadow.h"
 #include "W3DDevice/GameClient/W3DShroud.h"
-#include "WWMath/WWMath.h"
-#include "WWLib/Registry.h"
-#include "WW3D2/WW3D.h"
-#include "WW3D2/PredLod.h"
-#include "WW3D2/Part_Emt.h"
-#include "WW3D2/Part_Ldr.h"
-#include "WW3D2/DX8Caps.h"
-#include "WW3D2/WW3DFormat.h"
+#include "WWMath/wwmath.h"
+#include "WWLib/registry.h"
+#include "WW3D2/ww3d.h"
+#include "WW3D2/predlod.h"
+#include "WW3D2/part_emt.h"
+#include "WW3D2/part_ldr.h"
+#include "WW3D2/dx8caps.h"
+#include "WW3D2/ww3dformat.h"
 #include "WW3D2/agg_def.h"
-#include "WW3D2/Render2DSentence.h"
-#include "WW3D2/SortingRenderer.h"
-#include "WW3D2/Textureloader.h"
-#include "WW3D2/DX8WebBrowser.h"
-#include "WW3D2/Mesh.h"
-#include "WW3D2/HLOD.h"
-#include "WW3D2/Meshmatdesc.h"
-#include "WW3D2/Meshmdl.h"
+#include "WW3D2/render2dsentence.h"
+#include "WW3D2/sortingrenderer.h"
+#include "WW3D2/textureloader.h"
+#include "WW3D2/dx8webbrowser.h"
+#include "WW3D2/mesh.h"
+#include "WW3D2/hlod.h"
+#include "WW3D2/meshmatdesc.h"
+#include "WW3D2/meshmdl.h"
 #include "WW3D2/rddesc.h"
 #include "targa.h"
 #include "Lib/BaseType.h"
@@ -106,7 +105,8 @@ static void drawFramerateBar(void);
 #include "GameLogic/PartitionManager.h"
 #endif
 
-#include "WinMain.h"
+// #include "WinMain.h"
+extern HWND ApplicationHWnd;
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -327,14 +327,18 @@ W3DAssetManager *W3DDisplay::m_assetManager = NULL;
 inline Int64 getPerformanceCounter()
 {
 	Int64 tmp;
+#ifdef _WINDOWS
 	QueryPerformanceCounter((LARGE_INTEGER*)&tmp);
+#endif
 	return tmp;
 }
 
 inline Int64 getPerformanceCounterFrequency()
 {
 	Int64 tmp;
+#ifdef _WINDOWS
 	QueryPerformanceFrequency((LARGE_INTEGER*)&tmp);
+#endif
 	return tmp;
 }
 
@@ -491,6 +495,7 @@ void Reset_D3D_Device(bool active)
 		{	
 			//switch back to desired mode when user alt-tabs back into game
 			WW3D::Set_Render_Device( WW3D::Get_Render_Device(),TheDisplay->getWidth(),TheDisplay->getHeight(),TheDisplay->getBitDepth(),TheDisplay->getWindowed(),true, true);
+#ifdef _WINDOWS
 			OSVERSIONINFO	osvi;
 			osvi.dwOSVersionInfoSize=sizeof(OSVERSIONINFO);
 			if (GetVersionEx(&osvi))
@@ -501,6 +506,7 @@ void Reset_D3D_Device(bool active)
 						WW3D::_Invalidate_Textures();
 				}
 			}
+#endif
 		}
 		else
 		{
@@ -1374,7 +1380,7 @@ void W3DDisplay::gatherDebugStats( void )
 
 			unibuffer.concat( L"\nModelStates: " );
 			ModelConditionFlags mcFlags = draw->getModelConditionFlags();
-			const numEntriesPerLine = 4;
+			const int numEntriesPerLine = 4;
 			int lineCount = 0;
 
 			for( int i = 0; i < MODELCONDITION_COUNT; i++ )
@@ -1470,7 +1476,7 @@ void W3DDisplay::drawCurrentDebugDisplay( void )
 		if ( m_debugDisplay && m_debugDisplayCallback )
 		{
 			m_debugDisplay->reset();
-			m_debugDisplayCallback( m_debugDisplay, m_debugDisplayUserData );
+			m_debugDisplayCallback( m_debugDisplay, m_debugDisplayUserData, NULL );
 		}
 	}
 }  // end drawCurrentDebugDisplay
@@ -2555,10 +2561,10 @@ void W3DDisplay::drawImage( const Image *image, Int startX, Int startY,
 				//	Clip the polygons to the specified area
 				//
 				
-				clipped_rect.Left		= __max (screen_rect.Left, m_clipRegion.lo.x);
-				clipped_rect.Right	= __min (screen_rect.Right, m_clipRegion.hi.x);
-				clipped_rect.Top		= __max (screen_rect.Top, m_clipRegion.lo.y);
-				clipped_rect.Bottom	= __min (screen_rect.Bottom, m_clipRegion.hi.y);
+				clipped_rect.Left		= max (screen_rect.Left, (float)m_clipRegion.lo.x);
+				clipped_rect.Right	= min (screen_rect.Right, (float)m_clipRegion.hi.x);
+				clipped_rect.Top		= max (screen_rect.Top, (float)m_clipRegion.lo.y);
+				clipped_rect.Bottom	= min (screen_rect.Bottom, (float)m_clipRegion.hi.y);
 
 				//
 				//	Clip the texture to the specified area
@@ -2584,10 +2590,10 @@ void W3DDisplay::drawImage( const Image *image, Int startX, Int startY,
 				//	Clip the polygons to the specified area
 				//
 				
-				clipped_rect.Left		= __max (screen_rect.Left, m_clipRegion.lo.x);
-				clipped_rect.Right	= __min (screen_rect.Right, m_clipRegion.hi.x);
-				clipped_rect.Top		= __max (screen_rect.Top, m_clipRegion.lo.y);
-				clipped_rect.Bottom	= __min (screen_rect.Bottom, m_clipRegion.hi.y);
+				clipped_rect.Left		= max (screen_rect.Left, (float)m_clipRegion.lo.x);
+				clipped_rect.Right	= min (screen_rect.Right, (float)m_clipRegion.hi.x);
+				clipped_rect.Top		= max (screen_rect.Top, (float)m_clipRegion.lo.y);
+				clipped_rect.Bottom	= min (screen_rect.Bottom, (float)m_clipRegion.hi.y);
 
 				//
 				//	Clip the texture to the specified area
@@ -2772,79 +2778,6 @@ void W3DDisplay::setShroudLevel( Int x, Int y, CellShroudStatus setting )
 }
 
 //=============================================================================
-///Utility function to dump data into a .BMP file
-static void CreateBMPFile(LPTSTR pszFile, char *image, Int width, Int height)
-{ 
-     HANDLE hf;                 // file handle 
-    BITMAPFILEHEADER hdr;       // bitmap file-header 
-    PBITMAPINFOHEADER pbih;     // bitmap info-header 
-    LPBYTE lpBits;              // memory pointer 
-    DWORD dwTotal;              // total count of bytes 
-    DWORD cb;                   // incremental count of bytes 
-    BYTE *hp;                   // byte pointer 
-    DWORD dwTmp; 
-
-    PBITMAPINFO pbmi; 
-
-    pbmi = (PBITMAPINFO) LocalAlloc(LPTR,sizeof(BITMAPINFOHEADER));
-    pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER); 
-    pbmi->bmiHeader.biWidth = width; 
-    pbmi->bmiHeader.biHeight = height; 
-    pbmi->bmiHeader.biPlanes = 1; 
-    pbmi->bmiHeader.biBitCount = 24;
-    pbmi->bmiHeader.biCompression = BI_RGB;
-    pbmi->bmiHeader.biSizeImage = (pbmi->bmiHeader.biWidth + 7) /8 * pbmi->bmiHeader.biHeight * 24;
-    pbmi->bmiHeader.biClrImportant = 0; 
-
-
-    pbih = (PBITMAPINFOHEADER) pbmi; 
-    lpBits = (LPBYTE) image;
-
-    // Create the .BMP file. 
-    hf = CreateFile(pszFile, 
-                   GENERIC_READ | GENERIC_WRITE, 
-                   (DWORD) 0, 
-                    NULL, 
-                   CREATE_ALWAYS, 
-                   FILE_ATTRIBUTE_NORMAL, 
-                   (HANDLE) NULL); 
-    if (hf == INVALID_HANDLE_VALUE) 
-		return;
-    hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M" 
-    // Compute the size of the entire file. 
-    hdr.bfSize = (DWORD) (sizeof(BITMAPFILEHEADER) + 
-                 pbih->biSize + pbih->biClrUsed 
-                 * sizeof(RGBQUAD) + pbih->biSizeImage); 
-    hdr.bfReserved1 = 0; 
-    hdr.bfReserved2 = 0; 
-
-    // Compute the offset to the array of color indices. 
-    hdr.bfOffBits = (DWORD) sizeof(BITMAPFILEHEADER) + 
-                    pbih->biSize + pbih->biClrUsed 
-                    * sizeof (RGBQUAD); 
-
-    // Copy the BITMAPFILEHEADER into the .BMP file. 
-    if (!WriteFile(hf, (LPVOID) &hdr, sizeof(BITMAPFILEHEADER), 
-        (LPDWORD) &dwTmp,  NULL)) 
-		return;
-
-    // Copy the BITMAPINFOHEADER and RGBQUAD array into the file. 
-    if (!WriteFile(hf, (LPVOID) pbih, sizeof(BITMAPINFOHEADER) + pbih->biClrUsed * sizeof (RGBQUAD),(LPDWORD) &dwTmp, NULL)) 
-		return;
-
-    // Copy the array of color indices into the .BMP file. 
-    dwTotal = cb = pbih->biSizeImage; 
-    hp = lpBits; 
-    if (!WriteFile(hf, (LPSTR) hp, (int) cb, (LPDWORD) &dwTmp,NULL)) 
-		return;
-
-    // Close the .BMP file. 
-     if (!CloseHandle(hf))
-		 return;
-
-    // Free memory. 
-	LocalFree( (HLOCAL) pbmi);
-}
 
 ///Save Screen Capture to a file
 void W3DDisplay::takeScreenShot(void)
@@ -2863,7 +2796,7 @@ void W3DDisplay::takeScreenShot(void)
 #endif
 		strcpy(pathname, TheGlobalData->getPath_UserData().str());
 		strcat(pathname, leafname);
-		if (_access( pathname, 0 ) == -1)
+		if (access( pathname, 0 ) == -1)
 			done = true;
 	}
 
@@ -2876,99 +2809,14 @@ void W3DDisplay::takeScreenShot(void)
 
 	RECT bounds;
 	POINT point;
-
-	GetClientRect(ApplicationHWnd,&bounds);
-	point.x=bounds.left; point.y=bounds.top;
-	ClientToScreen(ApplicationHWnd, &point);
-	bounds.left=point.x; bounds.top=point.y; 
-	point.x=bounds.right; point.y=bounds.bottom;
-	ClientToScreen(ApplicationHWnd, &point);
-	bounds.right=point.x; bounds.bottom=point.y;
  
 	D3DLOCKED_RECT lrect;
 
 	DX8_ErrorCode(fb->LockRect(&lrect,&bounds,D3DLOCK_READONLY));
 
-	unsigned int x,y,index,index2,width,height;
-
-	width=bounds.right-bounds.left;
-	height=bounds.bottom-bounds.top;
-
-	char *image=NEW char[3*width*height];
-#ifdef CAPTURE_TO_TARGA
-	//bytes are mixed in targa files, not rgb order.
-	for (y=0; y<height; y++)
-	{
-		for (x=0; x<width; x++)
-		{
-			// index for image
-			index=3*(x+y*width);
-			// index for fb
-			index2=y*lrect.Pitch+4*x;
-
-			image[index]=*((char *) lrect.pBits + index2+2);
-			image[index+1]=*((char *) lrect.pBits + index2+1);
-			image[index+2]=*((char *) lrect.pBits + index2+0);
-		}
-	}
+	// TODO: write pixels to file via stb_image
 
 	fb->Release();
-
-	Targa targ;
-	memset(&targ.Header,0,sizeof(targ.Header));
-	targ.Header.Width=width;
-	targ.Header.Height=height;
-	targ.Header.PixelDepth=24;
-	targ.Header.ImageType=TGA_TRUECOLOR;
-	targ.SetImage(image);
-	targ.YFlip();
-
-	targ.Save(pathname,TGAF_IMAGE,false);
-#else	//capturing to bmp file
-	//bmp is same byte order
-	for (y=0; y<height; y++)
-	{
-		for (x=0; x<width; x++)
-		{
-			// index for image
-			index=3*(x+y*width);
-			// index for fb
-			index2=y*lrect.Pitch+4*x;
-
-			image[index]=*((char *) lrect.pBits + index2+0);
-			image[index+1]=*((char *) lrect.pBits + index2+1);
-			image[index+2]=*((char *) lrect.pBits + index2+2);
-		}
-	}
-
-	fb->Release();
-
-	//Flip the image
-	char *ptr,*ptr1;
-	char  v,v1;
-
-	for (y = 0; y < (height >> 1); y++)
-	{
-		/* Compute address of lines to exchange. */
-		ptr = (image + ((width * y) * 3));
-		ptr1 = (image + ((width * (height - 1)) * 3));
-		ptr1 -= ((width * y) * 3);
-
-		/* Exchange all the pixels on this scan line. */
-		for (x = 0; x < (width * 3); x++)
-			{
-			v = *ptr;
-			v1 = *ptr1;
-			*ptr = v1;
-			*ptr1 = v;
-			ptr++;
-			ptr1++;
-			}
-	}
-	CreateBMPFile(pathname, image, width, height);
-#endif
-
-	delete [] image;
 
 	UnicodeString ufileName;
 	ufileName.translate(leafname);

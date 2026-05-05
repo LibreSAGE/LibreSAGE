@@ -210,7 +210,7 @@ private:
 EMPTY_DTOR(TintEnvelope)
 
 //-----------------------------------------------------------------------------
-enum StealthLookType
+enum StealthLookType : int
 {
 	STEALTHLOOK_NONE,								///< unit is not stealthed at all
 	STEALTHLOOK_VISIBLE_FRIENDLY,		///< unit is stealthed-but-visible due to friendly status
