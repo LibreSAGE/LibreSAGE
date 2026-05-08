@@ -198,8 +198,8 @@ namespace rts
 	{
 		size_t operator()(AsciiString ast) const
 		{ 
-			std::hash<const char *> tmp;
-			return tmp((const char *) ast.str());
+			std::hash<std::string> tmp;
+			return tmp(ast.str());
 		}
 	};
 
