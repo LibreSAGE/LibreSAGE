@@ -1,0 +1,18 @@
+{
+  "default-registry": {
+    "kind": "git",
+    "baseline": "68fb1ad0dfa102f6c2be6f68ef3cdf26b0692c07",
+    "repository": "https://github.com/microsoft/vcpkg"
+  },
+  "registries": [
+    {
+      "kind": "git",
+      "baseline": "9566906868c3e8b516cc61a084ec0b17da852e81",
+      "repository": "https://github.com/feliwir/vcpkg-registry",
+      "packages": [
+        "dxvk-native",
+        "hwdata"
+      ]
+    }
+  ]
+}

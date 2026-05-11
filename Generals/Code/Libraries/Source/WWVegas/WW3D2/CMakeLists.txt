@@ -238,7 +238,9 @@ set_target_properties(g_ww3d2 PROPERTIES OUTPUT_NAME "WW3D2")
 
 target_include_directories(g_ww3d2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(g_ww3d2 PUBLIC g_wwlib g_wwmath g_wwsaveload DXVK::D3D8)
+find_package(DXVK CONFIG REQUIRED)
+
+target_link_libraries(g_ww3d2 PUBLIC g_wwlib g_wwmath g_wwsaveload DXVK::d3d8)
 
 # GLM
 find_package(glm CONFIG REQUIRED)

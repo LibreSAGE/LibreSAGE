@@ -199,6 +199,7 @@ set_target_properties(g_wwlib PROPERTIES OUTPUT_NAME "WWLib"
                                          POSITION_INDEPENDENT_CODE TRUE)
 
 target_include_directories(g_wwlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(g_wwlib PUBLIC g_library_include g_wwdebug DXVK::D3D8)
+find_package(DXVK CONFIG REQUIRED)
+target_link_libraries(g_wwlib PUBLIC g_library_include g_wwdebug DXVK::d3d8)
 
 # DirectDraw target_link_libraries(g_wwlib PRIVATE dxlib::ddraw)

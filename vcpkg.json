@@ -2,12 +2,17 @@
   "name": "rts",
   "dependencies": [
     "ffmpeg",
-    "zlib",
     "glm",
+    "glslang",
+    "openal-soft",
     {
       "name": "sdl3",
       "default-features": false,
-      "features": [ "x11", "wayland", "vulkan" ],
+      "features": [
+        "vulkan",
+        "wayland",
+        "x11"
+      ],
       "platform": "linux"
     },
     {
@@ -15,6 +20,13 @@
       "platform": "!linux"
     },
     "sdl3-image",
-    "openal-soft"
+    "zlib",
+    {
+      "name": "dxvk-native",
+      "default-features": false,
+      "features": [
+        "sdl3"
+      ]
+    }
   ]
 }

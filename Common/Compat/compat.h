@@ -40,6 +40,10 @@
 #ifndef _MAX_PATH
 #define _MAX_PATH 512
 #endif
+
+#ifndef MAX_PATH
+#define MAX_PATH 512
+#endif
 #endif
 
 inline int GetLastError()
