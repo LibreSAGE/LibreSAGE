@@ -21,6 +21,17 @@
             }
         },
         {
+            "name": "release",
+            "inherits": [
+                "default"
+            ],
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+            }
+        },
+        {
             "name": "sanitize",
             "inherits": [
                 "debug"
@@ -36,8 +47,41 @@
             "inherits": [
                 "debug"
             ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            },
             "cacheVariables": {
                 "VCPKG_TARGET_TRIPLET": "arm64-osx-dynamic"
+            }
+        },
+        {
+            "name": "linux-x64-debug",
+            "inherits": [
+                "debug"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-linux-dynamic"
+            }
+        },
+         {
+            "name": "linux-x64-release",
+            "inherits": [
+                "release"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-linux-dynamic"
             }
         }
     ]

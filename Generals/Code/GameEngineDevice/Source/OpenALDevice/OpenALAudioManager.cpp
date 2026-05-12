@@ -1162,12 +1162,12 @@ PlayingAudio *OpenALAudioManager::allocatePlayingAudio(void)
 //-------------------------------------------------------------------------------------------------
 void OpenALAudioManager::releaseOpenALHandles(PlayingAudio *release)
 {
-	if( release->m_source )
+	if (release->m_type != PAT_Stream && release->m_source)
 	{
 		alDeleteSources(1, &release->m_source);
 		release->m_source = 0;
 	}
-	if( release->m_stream )
+	else if (release->m_stream)
 	{
 		delete release->m_stream;
 		release->m_stream = NULL;
@@ -2426,7 +2426,7 @@ void OpenALAudioManager::processPlayingList(void)
 			continue;
 		}
 
-		if (sourceIsStopped(playing->m_source))
+		if (playing->m_stream->isPlaying() == false)
 		{
 			//m_stoppedAudio.push_back(playing);			
 			releasePlayingAudio( playing );
@@ -2710,7 +2710,6 @@ void OpenALAudioManager::setDeviceListenerPosition(void)
 	ALfloat listenerOri[] = { m_listenerOrientation.x, m_listenerOrientation.y, m_listenerOrientation.z, 0.0f, 0.0f, 1.0f };
 	alListener3f(AL_POSITION, m_listenerPosition.x, m_listenerPosition.y, m_listenerPosition.z);
 	alListenerfv(AL_ORIENTATION, listenerOri);
-	DEBUG_LOG(("Listener Position: %f, %f, %f", m_listenerPosition.x, m_listenerPosition.y, m_listenerPosition.z));
 }
 
 //-------------------------------------------------------------------------------------------------

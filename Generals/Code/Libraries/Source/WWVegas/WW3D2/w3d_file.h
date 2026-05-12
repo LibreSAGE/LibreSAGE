@@ -1157,6 +1157,8 @@ struct W3dMeshHeader3Struct
 
 };
 
+static_assert(sizeof(W3dMeshHeader3Struct) == 116, "W3dMeshHeader3Struct should be 116 bytes in size");
+
 //
 // Vertex Influences.  For "skins" each vertex can be associated with a
 // different bone.

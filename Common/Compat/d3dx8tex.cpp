@@ -24,21 +24,55 @@ namespace
         return static_cast<unsigned int>(a + (b - a) * t + 0.5f);
     }
 
-    inline unsigned int sampleA1R5G5B5Nearest(const unsigned short *src, int srcWidth, int srcHeight, int x, int y)
+    inline bool rectWithinSurface(const RECT &rect, unsigned int width, unsigned int height)
     {
-        const unsigned int sx = clampi(x, 0, srcWidth - 1);
-        const unsigned int sy = clampi(y, 0, srcHeight - 1);
-        return src[sy * srcWidth + sx];
+        return rect.left >= 0 && rect.top >= 0 && rect.right >= rect.left && rect.bottom >= rect.top &&
+               rect.right <= static_cast<LONG>(width) && rect.bottom <= static_cast<LONG>(height);
     }
 
-    inline unsigned int sampleA8R8G8B8Nearest(const unsigned int *src, int srcWidth, int srcHeight, int x, int y)
+    inline unsigned int sampleA1R5G5B5Nearest(
+        const void *srcBits,
+        int srcPitch,
+        int srcLeft,
+        int srcTop,
+        int srcWidth,
+        int srcHeight,
+        int x,
+        int y)
     {
-        const unsigned int sx = clampi(x, 0, srcWidth - 1);
-        const unsigned int sy = clampi(y, 0, srcHeight - 1);
-        return src[sy * srcWidth + sx];
+        const unsigned int sx = clampi(x, srcLeft, srcLeft + srcWidth - 1);
+        const unsigned int sy = clampi(y, srcTop, srcTop + srcHeight - 1);
+        const unsigned short *srcLine = reinterpret_cast<const unsigned short *>(
+            static_cast<const unsigned char *>(srcBits) + sy * srcPitch);
+        return srcLine[sx];
     }
 
-    inline unsigned int sampleA8R8G8B8Bilinear(const unsigned int *src, int srcWidth, int srcHeight, float fx, float fy)
+    inline unsigned int sampleA8R8G8B8Nearest(
+        const void *srcBits,
+        int srcPitch,
+        int srcLeft,
+        int srcTop,
+        int srcWidth,
+        int srcHeight,
+        int x,
+        int y)
+    {
+        const unsigned int sx = clampi(x, srcLeft, srcLeft + srcWidth - 1);
+        const unsigned int sy = clampi(y, srcTop, srcTop + srcHeight - 1);
+        const unsigned int *srcLine = reinterpret_cast<const unsigned int *>(
+            static_cast<const unsigned char *>(srcBits) + sy * srcPitch);
+        return srcLine[sx];
+    }
+
+    inline unsigned int sampleA8R8G8B8Bilinear(
+        const void *srcBits,
+        int srcPitch,
+        int srcLeft,
+        int srcTop,
+        int srcWidth,
+        int srcHeight,
+        float fx,
+        float fy)
     {
         const int x0 = static_cast<int>(fx);
         const int y0 = static_cast<int>(fy);
@@ -48,10 +82,10 @@ namespace
         const float tx = fx - static_cast<float>(x0);
         const float ty = fy - static_cast<float>(y0);
 
-        const unsigned int c00 = sampleA8R8G8B8Nearest(src, srcWidth, srcHeight, x0, y0);
-        const unsigned int c10 = sampleA8R8G8B8Nearest(src, srcWidth, srcHeight, x1, y0);
-        const unsigned int c01 = sampleA8R8G8B8Nearest(src, srcWidth, srcHeight, x0, y1);
-        const unsigned int c11 = sampleA8R8G8B8Nearest(src, srcWidth, srcHeight, x1, y1);
+        const unsigned int c00 = sampleA8R8G8B8Nearest(srcBits, srcPitch, srcLeft, srcTop, srcWidth, srcHeight, x0, y0);
+        const unsigned int c10 = sampleA8R8G8B8Nearest(srcBits, srcPitch, srcLeft, srcTop, srcWidth, srcHeight, x1, y0);
+        const unsigned int c01 = sampleA8R8G8B8Nearest(srcBits, srcPitch, srcLeft, srcTop, srcWidth, srcHeight, x0, y1);
+        const unsigned int c11 = sampleA8R8G8B8Nearest(srcBits, srcPitch, srcLeft, srcTop, srcWidth, srcHeight, x1, y1);
 
         const unsigned int a00 = (c00 >> 24) & 0xFF;
         const unsigned int r00 = (c00 >> 16) & 0xFF;
@@ -99,6 +133,13 @@ D3DXFilterTexture(
     UINT SrcLevel,
     DWORD Filter)
 {
+    (void)pPalette;
+
+    if (pBaseTexture == NULL)
+    {
+        return D3DERR_INVALIDCALL;
+    }
+
     HRESULT hr = D3DERR_INVALIDCALL;
     if (SrcLevel == D3DX_DEFAULT)
     {
@@ -109,17 +150,13 @@ D3DXFilterTexture(
         return D3DERR_INVALIDCALL;
     }
 
-    D3DRESOURCETYPE type;
-    switch (type = pBaseTexture->GetType())
+    switch (pBaseTexture->GetType())
     {
     case D3DRTYPE_TEXTURE:
     {
         IDirect3DTexture8 *tex = (IDirect3DTexture8 *)pBaseTexture;
-        IDirect3DSurface8 *topsurf, *mipsurf;
-        D3DSURFACE_DESC desc;
-        int i;
-
-        tex->GetLevelDesc(SrcLevel, &desc);
+        IDirect3DSurface8 *topsurf;
+        IDirect3DSurface8 *mipsurf;
         if (Filter == D3DX_DEFAULT)
         {
             Filter = D3DX_FILTER_BOX;
@@ -135,25 +172,27 @@ D3DXFilterTexture(
         while (tex->GetSurfaceLevel(Level, &mipsurf) == D3D_OK)
         {
             // Copy the data
-            D3DXLoadSurfaceFromSurface(mipsurf, NULL, NULL, topsurf, NULL, NULL, Filter, 0);
+            hr = D3DXLoadSurfaceFromSurface(mipsurf, NULL, NULL, topsurf, NULL, NULL, Filter, 0);
 
-            // Release the surface
-            mipsurf->Release();
+            // Advance to the next source level.
+            topsurf->Release();
+            if (FAILED(hr))
+            {
+                mipsurf->Release();
+                return hr;
+            }
             topsurf = mipsurf;
 
             Level++;
         }
 
         topsurf->Release();
-        if (FAILED(hr))
-        {
-            return hr;
-        }
     }
         return D3D_OK;
-    }
 
-    return D3D_OK;
+    default:
+        return D3DERR_INVALIDCALL;
+    }
 }
 
 HRESULT WINAPI
@@ -200,6 +239,12 @@ D3DXLoadSurfaceFromSurface(
     const RECT &srcRectIn = pSrcRect ? *pSrcRect : defaultSrcRect;
     const RECT &dstRectIn = pDestRect ? *pDestRect : defaultDstRect;
 
+    if (!rectWithinSurface(srcRectIn, descSrc.Width, descSrc.Height) ||
+        !rectWithinSurface(dstRectIn, descDest.Width, descDest.Height))
+    {
+        return D3DERR_INVALIDCALL;
+    }
+
     const int srcW = static_cast<int>(srcRectIn.right - srcRectIn.left);
     const int srcH = static_cast<int>(srcRectIn.bottom - srcRectIn.top);
     const int dstW = static_cast<int>(dstRectIn.right - dstRectIn.left);
@@ -211,16 +256,18 @@ D3DXLoadSurfaceFromSurface(
     }
 
     D3DLOCKED_RECT srcRect;
-    if (FAILED(pSrcSurface->LockRect(&srcRect, NULL, 0)))
+    HRESULT hr = pSrcSurface->LockRect(&srcRect, NULL, 0);
+    if (FAILED(hr))
     {
-        return D3DERR_INVALIDCALL;
+        return hr;
     }
 
     D3DLOCKED_RECT destRect;
-    if (FAILED(pDestSurface->LockRect(&destRect, NULL, 0)))
+    hr = pDestSurface->LockRect(&destRect, NULL, 0);
+    if (FAILED(hr))
     {
         pSrcSurface->UnlockRect();
-        return D3DERR_INVALIDCALL;
+        return hr;
     }
 
     // Fast path: No scaling needs to be done if the dimensions are the same
@@ -253,13 +300,19 @@ D3DXLoadSurfaceFromSurface(
                                       dstRectIn.left;
 
             const int srcY = srcRectIn.top + static_cast<int>((static_cast<long long>(y) * srcH) / dstH);
-            const unsigned short *srcBase = reinterpret_cast<const unsigned short *>(
-                static_cast<const unsigned char *>(srcRect.pBits) + srcY * srcRect.Pitch);
 
             for (int x = 0; x < dstW; ++x)
             {
                 const int srcX = srcRectIn.left + static_cast<int>((static_cast<long long>(x) * srcW) / dstW);
-                dstLine[x] = sampleA1R5G5B5Nearest(srcBase, static_cast<int>(descSrc.Width), static_cast<int>(descSrc.Height), srcX, srcY);
+                dstLine[x] = sampleA1R5G5B5Nearest(
+                    srcRect.pBits,
+                    srcRect.Pitch,
+                    srcRectIn.left,
+                    srcRectIn.top,
+                    srcW,
+                    srcH,
+                    srcX,
+                    srcY);
             }
         }
     }
@@ -276,14 +329,29 @@ D3DXLoadSurfaceFromSurface(
                 const float srcFx = srcRectIn.left + (static_cast<float>(x) + 0.5f) * sxScale - 0.5f;
                 const float srcFy = srcRectIn.top + (static_cast<float>(y) + 0.5f) * syScale - 0.5f;
 
-                const unsigned int *srcBase = reinterpret_cast<const unsigned int *>(srcRect.pBits);
                 if (bilinear)
                 {
-                    dstLine[x] = sampleA8R8G8B8Bilinear(srcBase, static_cast<int>(descSrc.Width), static_cast<int>(descSrc.Height), srcFx, srcFy);
+                    dstLine[x] = sampleA8R8G8B8Bilinear(
+                        srcRect.pBits,
+                        srcRect.Pitch,
+                        srcRectIn.left,
+                        srcRectIn.top,
+                        srcW,
+                        srcH,
+                        srcFx,
+                        srcFy);
                 }
                 else
                 {
-                    dstLine[x] = sampleA8R8G8B8Nearest(srcBase, static_cast<int>(descSrc.Width), static_cast<int>(descSrc.Height), static_cast<int>(srcFx + 0.5f), static_cast<int>(srcFy + 0.5f));
+                    dstLine[x] = sampleA8R8G8B8Nearest(
+                        srcRect.pBits,
+                        srcRect.Pitch,
+                        srcRectIn.left,
+                        srcRectIn.top,
+                        srcW,
+                        srcH,
+                        static_cast<int>(srcFx + 0.5f),
+                        static_cast<int>(srcFy + 0.5f));
                 }
             }
         }
@@ -321,13 +389,13 @@ D3DXCreateTextureFromFileExA(
 
 HRESULT WINAPI
 D3DXCreateTexture(LPDIRECT3DDEVICE8 pDevice,
-	UINT Width,
-	UINT Height,
-	UINT MipLevels,
-	DWORD Usage,
-	D3DFORMAT Format,
-	D3DPOOL Pool,
-	LPDIRECT3DTEXTURE8 *ppTexture)
+                  UINT Width,
+                  UINT Height,
+                  UINT MipLevels,
+                  DWORD Usage,
+                  D3DFORMAT Format,
+                  D3DPOOL Pool,
+                  LPDIRECT3DTEXTURE8 *ppTexture)
 {
-	return pDevice->CreateTexture(Width, Height, MipLevels, Usage, Format, Pool, ppTexture);
+    return pDevice->CreateTexture(Width, Height, MipLevels, Usage, Format, Pool, ppTexture);
 }

@@ -66,6 +66,8 @@ struct IOVector3Struct
 	float32		Z;
 };
 
+static_assert(sizeof(IOVector3Struct) == 12, "IOVector3Struct size is not 12 bytes");
+
 struct IOVector4Struct
 {
 	float32		X;

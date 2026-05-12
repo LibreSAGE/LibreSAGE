@@ -2,6 +2,8 @@
   "name": "rts",
   "dependencies": [
     "ffmpeg",
+    "fontconfig",
+    "freetype",
     "glm",
     "glslang",
     "openal-soft",

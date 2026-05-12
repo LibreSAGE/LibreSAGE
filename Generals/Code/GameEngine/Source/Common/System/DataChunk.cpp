@@ -954,8 +954,18 @@ UnicodeString DataChunkInput::readUnicodeString(void)
 	UnicodeString theString;
 	if (len>0) {
 		WideChar *str = theString.getBufferForRead(len);
+#ifdef _WIN32
+		// Windows uses UTF-16 for WideChar, so we can read directly into the buffer.
 		m_file->read( (char*)str, len*sizeof(WideChar) );
 		decrementDataLeft( len*sizeof(WideChar) );
+#else
+		UnsignedShort tempBuffer[len];
+		m_file->read( (char*)tempBuffer, len*sizeof(UnsignedShort) );
+		decrementDataLeft( len*sizeof(UnsignedShort) );
+		for (UnsignedShort i = 0; i < len; i++) {
+			str[i] = (WideChar)tempBuffer[i];
+		}
+#endif
 		// add null delimiter to string.  Note that getBufferForRead allocates space for terminating null.
 		str[len] = '\000';
 	}
