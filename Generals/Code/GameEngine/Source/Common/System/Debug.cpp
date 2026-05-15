@@ -158,17 +158,6 @@ inline HWND getThreadHWND()
 }
 
 // ----------------------------------------------------------------------------
-
-int MessageBoxWrapper( LPCSTR lpText, LPCSTR lpCaption, UINT uType )
-{
-	HWND threadHWND = getThreadHWND();
-	if (!threadHWND)
-		return (uType & MB_ABORTRETRYIGNORE)?IDIGNORE:IDYES;
-
-	return ::MessageBox(threadHWND, lpText, lpCaption, uType);
-}
-
-// ----------------------------------------------------------------------------
 // getCurrentTimeString 
 /** 
 	Return the current time in string form
@@ -254,30 +243,44 @@ static int doCrashBox(const char *buffer, Bool logResult)
 {
 	int result;
 
+	const SDL_MessageBoxButtonData buttons[] = {
+		{ /* .flags, .buttonid, .text */        0, 0, "Abort" },
+		{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Retry" },
+		{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "Ignore" },
+	};
+	const SDL_MessageBoxData messageboxdata = {
+		SDL_MESSAGEBOX_WARNING, /* .flags */
+		NULL, /* .window */
+		"Assertion Failure", /* .title */
+		buffer, /* .message */
+		SDL_arraysize(buttons), /* .numbuttons */
+		buttons, /* .buttons */
+		NULL /* .colorScheme */
+	};
+
 	if (!ignoringAsserts()) {
-		//result = MessageBoxWrapper(buffer, "Assertion Failure", MB_ABORTRETRYIGNORE|MB_TASKMODAL|MB_ICONWARNING|MB_DEFBUTTON3);
-		result = MessageBoxWrapper(buffer, "Assertion Failure", MB_ABORTRETRYIGNORE|MB_TASKMODAL|MB_ICONWARNING);
+		SDL_ShowMessageBox(&messageboxdata, &result);
 	}	else {
-		result = IDIGNORE;
+		result = 2;
 	}
 
 	switch(result)
 	{
-		case IDABORT:
+		case 0: // ABORT
 #ifdef DEBUG_LOGGING
 			if (logResult)
 				DebugLog("[Abort]\n");
 #endif
 			_exit(1);
 			break;
-		case IDRETRY:
+		case 1: // RETRY
 #ifdef DEBUG_LOGGING
 			if (logResult)
 				DebugLog("[Retry]\n");
 #endif
 			__debugbreak();
 			break;
-		case IDIGNORE:
+		case 2: // IGNORE
 #ifdef DEBUG_LOGGING
 			// do nothing, just keep going
 			if (logResult)
@@ -399,7 +402,7 @@ void DebugLog(const char *format, ...)
 #endif
 
 	if (theDebugFlags == 0)
-		MessageBoxWrapper("DebugLog - Debug not inited properly", "", MB_OK|MB_TASKMODAL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "DebugLog - Debug not inited properly", "", ApplicationWindow);
 
 	format = prepBuffer(format, theBuffer);
 
@@ -409,7 +412,7 @@ void DebugLog(const char *format, ...)
   va_end(arg);
 
 	if (strlen(theBuffer) >= sizeof(theBuffer))
-		MessageBoxWrapper("String too long for debug buffer", "", MB_OK|MB_TASKMODAL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "String too long for debug buffer", "", ApplicationWindow);
 
 	whackFunnyCharacters(theBuffer);
 	doLogOutput(theBuffer);
@@ -478,26 +481,7 @@ void DebugCrash(const char *format, ...)
 
 	strcat(theCrashBuffer, "\n\nAbort->exception; Retry->debugger; Ignore->continue\n");
 
-	int result = doCrashBox(theCrashBuffer, true);
-
-	if (result == IDIGNORE && TheCurrentIgnoreCrashPtr != NULL) 
-	{
-		int yn;
-		if (!ignoringAsserts()) 
-		{
-			yn = MessageBoxWrapper("Ignore this crash from now on?", "", MB_YESNO|MB_TASKMODAL);
-		}	
-		else 
-		{
-			yn = IDYES;
-		}
-		if (yn == IDYES)
-			*TheCurrentIgnoreCrashPtr = 1;
-		if( TheKeyboard )
-			TheKeyboard->resetKeys();
-		if( TheMouse )
-			TheMouse->reset();
-	}
+	doCrashBox(theCrashBuffer, true);
 
 }  
 #endif
@@ -705,18 +689,18 @@ void ReleaseCrash(const char *reason)
 	/* static */ char buff[8192]; // not so static so we can be threadsafe
 	_snprintf(buff, 8192, "Sorry, a serious error occurred. (%s)", reason);
 	buff[8191] = 0;
-	::MessageBox(NULL, buff, "Technical Difficulties...", MB_OK|MB_SYSTEMMODAL|MB_ICONERROR);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Technical Difficulties...", buff, ApplicationWindow);
 #else
 // crash error messaged changed 3/6/03 BGC
 //	::MessageBox(NULL, "Sorry, a serious error occurred.", "Technical Difficulties...", MB_OK|MB_TASKMODAL|MB_ICONERROR);
 
 	if (!GetRegistryLanguage().compareNoCase("german2") || !GetRegistryLanguage().compareNoCase("german") )
 	{
-		::MessageBox(NULL, "Es ist ein gravierender Fehler aufgetreten. Solche Fehler k�nnen durch viele verschiedene Dinge wie Viren, �berhitzte Hardware und Hardware, die den Mindestanforderungen des Spiels nicht entspricht, ausgel�st werden. Tipps zur Vorgehensweise findest du in den Foren unter www.generals.ea.com, Informationen zum Technischen Kundendienst im Handbuch zum Spiel.", "Fehler...", MB_OK|MB_TASKMODAL|MB_ICONERROR);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fehler...", u8"Es ist ein gravierender Fehler aufgetreten. Solche Fehler können durch viele verschiedene Dinge wie Viren, Überhitzte Hardware und Hardware, die den Mindestanforderungen des Spiels nicht entspricht, ausgelöst werden. Tipps zur Vorgehensweise findest du in den Foren unter www.generals.ea.com, Informationen zum Technischen Kundendienst im Handbuch zum Spiel.", ApplicationWindow);
 	} 
 	else
 	{
-		::MessageBox(NULL, "You have encountered a serious error.  Serious errors can be caused by many things including viruses, overheated hardware and hardware that does not meet the minimum specifications for the game. Please visit the forums at www.generals.ea.com for suggested courses of action or consult your manual for Technical Support contact information.", "Technical Difficulties...", MB_OK|MB_TASKMODAL|MB_ICONERROR);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Technical Difficulties...", "You have encountered a serious error.  Serious errors can be caused by many things including viruses, overheated hardware and hardware that does not meet the minimum specifications for the game. Please visit the forums at www.generals.ea.com for suggested courses of action or consult your manual for Technical Support contact information.", ApplicationWindow);
 	}
 
 #endif

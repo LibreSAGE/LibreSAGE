@@ -43,4 +43,4 @@ target_include_directories(g_wwsaveload PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(g_wwsaveload
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../WWMath)
 
-target_link_libraries(g_wwsaveload PUBLIC g_library_include g_wwlib)
+target_link_libraries(g_wwsaveload PUBLIC c_library_include g_wwlib)

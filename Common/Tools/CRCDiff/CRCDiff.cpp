@@ -24,6 +24,7 @@
 #include <list>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 //=============================================================================
 
@@ -87,7 +88,7 @@ void dumpQueued(void);
 static void outputLine(const char *line)
 {
 	dumpQueued();
-	//cout << line << endl;
+	//std::cout << line << std::endl;
 	if (ofp)
 	{
 		fputs(line, ofp);
@@ -132,7 +133,7 @@ static void outputLine(int frame, int index, int linkNum,
 	e.expand(tableRow, out);
 	const char *buf = out.c_str();
 
-	//cout << buf << endl;
+	//std::cout << buf << std::endl;
 	if (ofp)
 	{
 		fputs(buf, ofp);
@@ -163,7 +164,7 @@ static void queueLine(int frame, int index, const char *line1)
 	if (queuedLines.size() > 150)
 		queuedLines.pop_front();
 
-	//cout << buf << endl;
+	//std::cout << buf << std::endl;
 }
 
 void dumpQueued(void)
@@ -172,7 +173,7 @@ void dumpQueued(void)
 	{
 		std::list<std::string>::iterator it = queuedLines.begin();
 		const char *buf = (*it).c_str();
-		//cout << buf << endl;
+		//std::cout << buf << std::endl;
 		if (ofp)
 		{
 			fputs(buf, ofp);
@@ -194,7 +195,7 @@ int main(int argc, char *argv[])
 
 	if (argc != 7)
 	{
-		cout << "Usage: munkeeDiff top.html row.html bottom.html in1.txt in2.txt out.txt" << endl;
+		std::cout << "Usage: munkeeDiff top.html row.html bottom.html in1.txt in2.txt out.txt" << std::endl;
 		header = readInFile("top.html");
 		tableRow = readInFile("row.html");
 		footer = readInFile("bottom.html");
@@ -215,14 +216,14 @@ int main(int argc, char *argv[])
 	ifp[0] = fopen(inFname[0], "rt");
 	if (!ifp[0])
 	{
-		cout << "could not open " << inFname[0] << endl;
+		std::cout << "could not open " << inFname[0] << std::endl;
 		return 1;
 	}
 	ifp[1] = fopen(inFname[1], "rt");
 	if (!ifp[1])
 	{
 		fclose(ifp[0]);
-		cout << "could not open " << inFname[1] << endl;
+		std::cout << "could not open " << inFname[1] << std::endl;
 		return 1;
 	}
 	
@@ -272,7 +273,7 @@ int main(int argc, char *argv[])
 				(lastFrame[1]==lastFrame[0] && lastIndex[1] < lastIndex[0]))
 			{
 				//if (!seenRight)
-					//cout << "Seen right on " << lastFrame[1] << ":" << lastIndex[1] << endl;
+					//std::cout << "Seen right on " << lastFrame[1] << ":" << lastIndex[1] << std::endl;
 				//seenRight = true;
 				if (seenRight && seenLeft)
 				{
@@ -288,7 +289,7 @@ int main(int argc, char *argv[])
 				if (res!=0)
 				{
 					if (!seenLeft || !seenRight)
-						cout << "Seen both on " << lastFrame[0] << ":" << lastIndex[0] << endl;
+						std::cout << "Seen both on " << lastFrame[0] << ":" << lastIndex[0] << std::endl;
 					seenLeft = seenRight = true;
 					outputLine(lastFrame[0], lastIndex[0], linkNum++,
 						"leftDiff", lastLine[0], "rightDiff", lastLine[1]);
@@ -297,7 +298,7 @@ int main(int argc, char *argv[])
 				else
 				{
 					//if (!seenLeft || !seenRight)
-					//	cout << "Seen both on " << lastFrame[0] << ":" << lastIndex[0] << endl;
+					//	std::cout << "Seen both on " << lastFrame[0] << ":" << lastIndex[0] << std::endl;
 					//seenLeft = seenRight = true;
 					static bool printedFirst = false;
 					if (!printedFirst)
@@ -323,7 +324,7 @@ int main(int argc, char *argv[])
 		else if (fileOk[0])
 		{
 			//if (!seenLeft)
-				//cout << "Seen left on " << lastFrame[0] << ":" << lastIndex[0] << endl;
+				//std::cout << "Seen left on " << lastFrame[0] << ":" << lastIndex[0] << std::endl;
 			//seenLeft = true;
 			if (seenRight && seenLeft)
 			{
@@ -336,7 +337,7 @@ int main(int argc, char *argv[])
 		else if (fileOk[1])
 		{
 			//if (!seenRight)
-				//cout << "Seen right on " << lastFrame[1] << ":" << lastIndex[1] << endl;
+				//std::cout << "Seen right on " << lastFrame[1] << ":" << lastIndex[1] << std::endl;
 			//seenRight = true;
 			if (seenRight && seenLeft)
 			{

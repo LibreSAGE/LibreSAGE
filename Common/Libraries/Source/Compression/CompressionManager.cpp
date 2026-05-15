@@ -32,12 +32,6 @@ extern "C" {
 #include "EAC/huffcodex.h"
 #include "EAC/refcodex.h"
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma message("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 #define DEBUG_LOG(x) {}
 
 const char *CompressionManager::getCompressionNameByType( CompressionType compType )
@@ -45,7 +39,6 @@ const char *CompressionManager::getCompressionNameByType( CompressionType compTy
 	static const char *s_compressionNames[COMPRESSION_MAX+1] = {
 		"No compression",
 		"RefPack",
-		/*
 		"LZHL",
 		"ZLib 1 (fast)",
 		"ZLib 2",
@@ -58,7 +51,6 @@ const char *CompressionManager::getCompressionNameByType( CompressionType compTy
 		"ZLib 9 (slow)",
 		"BTree",
 		"Huff",
-		*/
 	};
 	return s_compressionNames[compType];
 }
@@ -69,7 +61,6 @@ const char *CompressionManager::getDecompressionNameByType( CompressionType comp
 	static const char *s_decompressionNames[COMPRESSION_MAX+1] = {
 		"d_None",
 		"d_RefPack",
-		/*
 		"d_NoxLZW",
 		"d_ZLib1",
 		"d_ZLib2",
@@ -82,7 +73,6 @@ const char *CompressionManager::getDecompressionNameByType( CompressionType comp
 		"d_ZLib9",
 		"d_BTree",
 		"d_Huff",
-		*/
 	};
 	return s_decompressionNames[compType];
 }

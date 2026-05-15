@@ -89,7 +89,7 @@ target_include_directories(g_wwmath PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 target_include_directories(g_wwmath
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../WWLib)
 
-target_link_libraries(g_wwmath PUBLIC g_library_include g_wwlib g_wwsaveload)
+target_link_libraries(g_wwmath PUBLIC c_library_include g_wwlib g_wwsaveload)
 
 # GLM
 find_package(glm CONFIG REQUIRED)

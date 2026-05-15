@@ -5,10 +5,25 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using Clang or GCC
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-char8_t")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # using MSVC
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:char8_t-")
+endif()
+
 # Options
 option(SAGE_BUILD_TESTS "Build unit tests" OFF)
 option(SAGE_WITH_ASAN "Build with AddressSanitizer" OFF)
 option(SAGE_WITH_UBSAN "Build with UndefinedBehaviorSanitizer" OFF)
+
+find_program (CLANG_TIDY clang-tidy)
+if(CLANG_TIDY)
+    set(CLANG_TIDY_CHECKS "-*,performance-*,bugprone-suspicious-*")
+    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY};-checks=${CLANG_TIDY_CHECKS};-header-filter='${CMAKE_SOURCE_DIR}/*")
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY};-checks=${CLANG_TIDY_CHECKS};-header-filter='${CMAKE_SOURCE_DIR}/*")
+endif()
 
 if(SAGE_WITH_ASAN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
@@ -18,6 +33,10 @@ endif()
 if(SAGE_WITH_UBSAN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
     set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=undefined")
+endif()
+
+if(SAGE_BUILD_TESTS)
+    enable_testing()
 endif()
 
 # Dependency options

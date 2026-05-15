@@ -16,31 +16,18 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-////////////////////////////////////////////////////////////////////////////////
-//																																						//
-//  (c) 2001-2003 Electronic Arts Inc.																				//
-//																																						//
-////////////////////////////////////////////////////////////////////////////////
+// Trig.h
+// fast trig functions
+// Author: Sondra Iverson, March 1998
+// Converted to Generals by Matthew D. Campbell, February 2002
 
-// GameType.cpp ///////////////////////////////////////////////////////////////////////////////////
+#ifndef _TRIG_H_
+#define _TRIG_H_
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+Real Sin(Real);
+Real Cos(Real);
+Real Tan(Real);
+Real ACos(Real);
+Real ASin(Real x);
 
-const char *TimeOfDayNames[] = 
-{
-	"NONE",
-	"MORNING",
-	"AFTERNOON",
-	"EVENING",
-	"NIGHT",
-
-	NULL
-};
-
-const char *WeatherNames[] = 
-{
-	"NORMAL",
-	"SNOWY",
-
-	NULL
-};
+#endif // _TRIG_H_

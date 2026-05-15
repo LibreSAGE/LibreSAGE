@@ -1,0 +1,2 @@
+add_subdirectory(Compress)
+add_subdirectory(CRCDiff)

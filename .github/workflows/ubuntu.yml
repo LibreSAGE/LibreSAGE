@@ -26,8 +26,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-        # Install latest CMake and Ninja.
+      # Install latest CMake and Ninja.
       - uses: lukka/get-cmake@latest
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: vcpkg-${{ matrix.preset }}-${{ hashFiles('vcpkg.json', 'CMakeLists.txt', '**/CMakeLists.txt', 'CMakePresets.json') }}
 
       # Setup vcpkg: ensures vcpkg is downloaded and built.
       - name: Setup a new (or from cache) vcpkg (and does not build any package)
@@ -38,3 +44,4 @@ jobs:
         with:
           configurePreset: "${{ matrix.preset }}"
           buildPreset: "${{ matrix.preset }}"
+          testPreset: "${{ matrix.preset }}"

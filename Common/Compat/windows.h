@@ -60,34 +60,6 @@ inline void AdjustWindowRect(RECT *pRect, DWORD dwStyle, BOOL bMenu)
 #define LOWORD(value) (((uint32_t)(value) & 0xFFFF))
 
 #include <stdio.h>
-#define MB_OK 0
-#define MB_ICONEXCLAMATION 0
-#define MB_TASKMODAL 0
-#define MB_ICONWARNING 0
-#define MB_ABORTRETRYIGNORE 0
-#define MB_ICONERROR 0
-#define MB_SYSTEMMODAL 0
-#define MB_YESNO 0
-
-#define IDIGNORE 0
-#define IDABORT 1
-#define IDRETRY 2 
-#define IDYES 6
-
-// MessageBox stub
-inline int MessageBoxA(void *, const char *text, const char *caption, unsigned int type)
-{
-    fprintf(stderr, "%s: %s\n", caption, text);
-    return 0;
-}
-
-inline int MessageBoxW(void *, const UChar *text, const UChar *caption, unsigned int type)
-{
-    fprintf(stderr, "%ls: %ls\n", caption, text);
-    return 0;
-}
-
-#define MessageBox MessageBoxA
 
 #define SW_HIDE 0
 #define SW_SHOW 5
@@ -99,11 +71,6 @@ inline void ShowWindow(HWND hWnd, int nCmdShow)
 #define O_TEXT 0
 #define O_BINARY 0
 #endif
-
-inline void SetWindowTextW(HWND hWnd, const UChar *text)
-{
-    fprintf(stderr, "%ls\n", text);
-}
 
 #endif
 

@@ -1,8 +1,8 @@
 # Target setup
-add_library(g_compression)
+add_library(c_compression)
 
 target_sources(
-  g_compression
+  c_compression
   PRIVATE Compression.h
           CompressionManager.cpp
           EAC/btreeabout.cpp
@@ -22,14 +22,14 @@ target_sources(
           LZHCompress/NoxCompress.cpp
           LZHCompress/NoxCompress.h)
 
-set_target_properties(g_compression PROPERTIES OUTPUT_NAME "Compression")
+set_target_properties(c_compression PROPERTIES OUTPUT_NAME "Compression")
 
-target_link_libraries(g_compression PRIVATE g_library_include)
-target_include_directories(g_compression PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(c_compression PRIVATE c_library_include)
+target_include_directories(c_compression PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ZLIB
 find_package(ZLIB REQUIRED)
-target_link_libraries(g_compression PRIVATE ZLIB::ZLIB)
+target_link_libraries(c_compression PRIVATE ZLIB::ZLIB)
 
 # LZHL
 include(FetchContent)
@@ -39,4 +39,4 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(lzhl)
-target_link_libraries(g_compression PRIVATE LZHL::LZHL)
+target_link_libraries(c_compression PRIVATE LZHL::LZHL)

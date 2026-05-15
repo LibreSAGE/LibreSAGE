@@ -37,7 +37,7 @@ class Expander
 	public:
 		Expander( const std::string& leftMarker, const std::string& rightMarker );
 
-		void addExpansion( const std::string& key, const std::string val );
+		void addExpansion( const std::string& key, const std::string& val );
 		void clear( void );
 
 		void expand( const std::string& input,

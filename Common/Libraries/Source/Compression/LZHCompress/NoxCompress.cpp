@@ -26,12 +26,6 @@
 #include "NoxCompress.h"
 #include <lzhl/lzhl.h>
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma message("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 #define BLOCKSIZE 500000
 #define NoxRead fread
 #define DbgMalloc malloc

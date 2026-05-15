@@ -31,7 +31,7 @@ Expander::Expander( const std::string& leftMarker, const std::string& rightMarke
 {
 }
 
-void Expander::addExpansion( const std::string& key, const std::string val )
+void Expander::addExpansion( const std::string& key, const std::string& val )
 {
 	m_expansions[key] = val;
 }
@@ -46,8 +46,8 @@ void Expander::expand( const std::string& input,
 		bool stripUnknown )
 {
 	output = "";
-	unsigned int pos = input.find(m_left);
-	unsigned int lastpos = input.npos;
+	std::size_t pos = input.find(m_left);
+	std::size_t lastpos = input.npos;
 	while (pos != input.npos)
 	{
 		// first, tack on the non-expansion part we just skipped over

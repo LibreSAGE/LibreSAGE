@@ -1,6 +1,7 @@
 #include "d3dx8tex.h"
 #include <algorithm>
 #include <cstring>
+#include <cmath>
 #include <limits.h>
 #define D3DX_DEFAULT UINT_MAX
 
@@ -21,7 +22,7 @@ namespace
 
     inline unsigned int lerp8(unsigned int a, unsigned int b, float t)
     {
-        return static_cast<unsigned int>(a + (b - a) * t + 0.5f);
+        return static_cast<unsigned int>(lroundf(a + (b - a) * t ));
     }
 
     inline bool rectWithinSurface(const RECT &rect, unsigned int width, unsigned int height)

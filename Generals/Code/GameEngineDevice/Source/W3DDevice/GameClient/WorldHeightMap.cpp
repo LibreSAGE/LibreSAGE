@@ -856,6 +856,7 @@ void WorldHeightMap::readTexClass(TXTextureClass *texClass, TileData **tileData)
 	char texturePath[ _MAX_PATH ];
 	if (terrain==NULL) 
 	{
+		DEBUG_LOG(("WorldHeightMap::readTexClass - Missing TerrainType for class '%s'", texClass->name.str()));
 #ifdef LOAD_TEST_ASSETS
 		theFile = TheFileSystem->openFile( texClass->name.str(), File::READ|File::BINARY);
 #endif
@@ -864,12 +865,18 @@ void WorldHeightMap::readTexClass(TXTextureClass *texClass, TileData **tileData)
 	{
 		sprintf( texturePath, "%s%s", TERRAIN_TGA_DIR_PATH, terrain->getTexture().str() );
 		theFile = TheFileSystem->openFile( texturePath, File::READ|File::BINARY);
+		if (theFile == NULL) {
+			DEBUG_LOG(("WorldHeightMap::readTexClass - Failed to open terrain texture '%s' for class '%s'", texturePath, texClass->name.str()));
+		}
 	}
 
 	if (theFile != NULL) {
 		GDIFileStream theStream(theFile);
 		InputStream *pStr = &theStream;
 		Int numTiles = WorldHeightMap::countTiles(pStr);
+		if (numTiles < texClass->numTiles) {
+			DEBUG_LOG(("WorldHeightMap::readTexClass - Texture '%s' provides %d tiles, expected at least %d for class '%s'", terrain ? terrain->getTexture().str() : texClass->name.str(), numTiles, texClass->numTiles, texClass->name.str()));
+		}
 		theFile->seek(0, File::START);
 		if (numTiles >= texClass->numTiles) { 
 			numTiles = texClass->numTiles;
@@ -884,6 +891,10 @@ void WorldHeightMap::readTexClass(TXTextureClass *texClass, TileData **tileData)
 		}
 		theFile->close();
 	}
+
+	if (texClass->numTiles > 0 && tileData[texClass->firstTile] == NULL) {
+		DEBUG_LOG(("WorldHeightMap::readTexClass - No tile data loaded for class '%s' (firstTile=%d, numTiles=%d)", texClass->name.str(), texClass->firstTile, texClass->numTiles));
+	}
 }
 
 /**
@@ -895,6 +906,8 @@ void WorldHeightMap::readTexClass(TXTextureClass *texClass, TileData **tileData)
 */
 Bool WorldHeightMap::ParseBlendTileData(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
+	DEBUG_LOG(("WorldHeightMap::ParseBlendTileData - ENTER version=%d dataSize=%d", info ? info->version : -1, m_dataSize));
+
 	Int len = file.readInt();
 	if (m_dataSize != len) {
 		throw ERROR_CORRUPT_FILE_FORMAT	;
@@ -946,6 +959,7 @@ Bool WorldHeightMap::ParseBlendTileData(DataChunkInput &file, DataChunkInfo *inf
 	int i;
 	m_numTextureClasses	= file.readInt();
 	DEBUG_ASSERTCRASH(m_numTextureClasses>0 && m_numTextureClasses<200, ("Unlikely m_numTextureClasses."));
+	DEBUG_LOG(("WorldHeightMap::ParseBlendTileData - m_numTextureClasses=%d", m_numTextureClasses));
 	for (i=0; i<m_numTextureClasses; i++) {
 		m_textureClasses[i].globalTextureClass = -1;
 		m_textureClasses[i].firstTile = file.readInt();
@@ -958,7 +972,22 @@ Bool WorldHeightMap::ParseBlendTileData(DataChunkInput &file, DataChunkInfo *inf
 
 		m_textureClasses[i].name = file.readAsciiString();
 		readTexClass(&m_textureClasses[i], m_sourceTiles);
+		DEBUG_LOG(("WorldHeightMap::ParseBlendTileData - class[%d] '%s' firstTile=%d numTiles=%d loadedFirst=%d",
+			i,
+			m_textureClasses[i].name.str(),
+			m_textureClasses[i].firstTile,
+			m_textureClasses[i].numTiles,
+			(m_textureClasses[i].numTiles > 0 && m_sourceTiles[m_textureClasses[i].firstTile] != NULL) ? 1 : 0));
 	}
+
+	Int missingClassCount = 0;
+	for (i = 0; i < m_numTextureClasses; ++i) {
+		if (m_textureClasses[i].numTiles > 0 && m_sourceTiles[m_textureClasses[i].firstTile] == NULL) {
+			++missingClassCount;
+		}
+	}
+	DEBUG_LOG(("WorldHeightMap::ParseBlendTileData - missing terrain classes=%d/%d", missingClassCount, m_numTextureClasses));
+
 	m_numEdgeTextureClasses = 0;
 	m_numEdgeTiles = 0;
 	if (info->version >= K_BLEND_TILE_VERSION_4) {
@@ -1306,6 +1335,8 @@ Int WorldHeightMap::updateTileTexturePositions(Int *edgeHeight)
 				if (found) break;
 			}
 			if (!found) {
+				DEBUG_LOG(("WorldHeightMap::updateTileTexturePositions - Could not pack terrain texture class '%s' (width=%d, tiles=%d)",
+					m_textureClasses[texClass].name.str(), m_textureClasses[texClass].width, m_textureClasses[texClass].numTiles));
 				m_textureClasses[texClass].positionInTexture.x = 0;
 				m_textureClasses[texClass].positionInTexture.y = 0;
 				continue;
@@ -1406,6 +1437,11 @@ void WorldHeightMap::getUVForNdx(Int tileNdx, float *minU, float *minV, float *m
 {
 	Short baseNdx = tileNdx>>2;
 	if (m_sourceTiles[baseNdx] == NULL) {
+		static Int s_missingTerrainUVWarnings = 0;
+		if (s_missingTerrainUVWarnings < 32) {
+			DEBUG_LOG(("WorldHeightMap::getUVForNdx - Missing source tile for tileNdx=%d baseNdx=%d", tileNdx, baseNdx));
+			++s_missingTerrainUVWarnings;
+		}
 		// Missing texture.
 		*minU = *minV = *maxU = *maxV = 0.0f;
 		return;
@@ -1951,9 +1987,23 @@ void WorldHeightMap::getAlphaUVData(Int xIndex, Int yIndex, float U[4], float V[
 
 TextureClass *WorldHeightMap::getTerrainTexture(void)
 {
+	static Bool s_loggedTerrainTextureEntry = FALSE;
+	if (!s_loggedTerrainTextureEntry) {
+		DEBUG_LOG(("WorldHeightMap::getTerrainTexture - ENTER"));
+		s_loggedTerrainTextureEntry = TRUE;
+	}
+
 	if (m_terrainTex == NULL) {
 		Int edgeHeight;
 		Int height = updateTileTexturePositions(&edgeHeight);
+		Int nullSourceTiles = 0;
+		for (Int tile = 0; tile < m_numBitmapTiles; ++tile) {
+			if (m_sourceTiles[tile] == NULL) {
+				++nullSourceTiles;
+			}
+		}
+		DEBUG_LOG(("WorldHeightMap::getTerrainTexture - building atlas: m_numBitmapTiles=%d nullSourceTiles=%d height=%d edgeHeight=%d",
+			m_numBitmapTiles, nullSourceTiles, height, edgeHeight));
 		Int pow2Height = 1;
 		while (pow2Height<height) {
 			pow2Height *=2;
