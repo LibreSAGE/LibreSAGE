@@ -105,7 +105,7 @@ const float	RenderObjClass::AT_MIN_LOD = FLT_MAX;
 const float	RenderObjClass::AT_MAX_LOD = -1.0f;
 
 // Local inline functions
-StringClass
+static StringClass
 Filename_From_Asset_Name (const char *asset_name)
 {
 	StringClass filename;

@@ -73,7 +73,7 @@
  *   operator != -- Matrix inequality operator                                                 * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#define NO_ALLOW_TEMPORARIES
+#define ALLOW_TEMPORARIES
 
 #if defined(_MSC_VER)
 #pragma once
@@ -344,10 +344,6 @@ public:
 
 	static void Lerp(const Matrix3D &A, const Matrix3D &B, float factor, Matrix3D& result);
 	
-#ifdef ALLOW_TEMPORARIES
-	// nothing
-#else
-
 	// does "this = that * this"
 	void preMul(const Matrix3D& that);
 
@@ -359,8 +355,6 @@ public:
 
 	void mulVector3(const Vector3& in, Vector3& out) const;
 	void mulVector3(Vector3& inout) const { mulVector3(inout, inout); }
-
-#endif
 
 	void mulVector3Array(const Vector3* in, Vector3* out, int count) const;
 	void mulVector3Array(Vector3* inout, int count) const;
@@ -1505,7 +1499,7 @@ WWINLINE Matrix3D operator * (const Matrix3D &A,const Matrix3D &B)
 	return C;
 }
 
-#else
+#endif
 
 WWINLINE float submul(const Vector4& row, float tmp1, float tmp2, float tmp3)
 {
@@ -1608,7 +1602,6 @@ WWINLINE void Matrix3D::mul(const Matrix3D& A, const Matrix3D& B)
 	this->Row[2].W = submul(A.Row[2], tmp1, tmp2, tmp3) + A.Row[2].W;
 }
 
-#endif
 
 #ifdef ALLOW_TEMPORARIES
 /*********************************************************************************************** 
@@ -1642,7 +1635,7 @@ WWINLINE Vector3 operator * (const Matrix3D &A,const Vector3 &a)
 #endif
 }
 
-#else
+#endif
 
 WWINLINE void Matrix3D::mulVector3(const Vector3& in, Vector3& out) const
 {
@@ -1653,13 +1646,11 @@ WWINLINE void Matrix3D::mulVector3(const Vector3& in, Vector3& out) const
 	out.Set(x, y, z);
 }
 
-#endif
-
 WWINLINE void Matrix3D::mulVector3Array(const Vector3* in, Vector3* out, int count) const
 {
 	assert(in != out);
 #ifdef ALLOW_TEMPORARIES
-	for (i=0; i<count; i++)
+	for (int i=0; i<count; i++)
 	{
 		out[i] = (*this) * in[i];
 	}
@@ -1679,7 +1670,7 @@ WWINLINE void Matrix3D::mulVector3Array(const Vector3* in, Vector3* out, int cou
 WWINLINE void Matrix3D::mulVector3Array(Vector3* inout, int count) const
 {
 #ifdef ALLOW_TEMPORARIES
-	for (i=0; i<count; i++)
+	for (int i=0; i<count; i++)
 	{
 		inout[i] = (*this) * inout[i];
 	}

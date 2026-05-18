@@ -650,7 +650,7 @@ void Matrix3D::Multiply(const Matrix3D & A,const Matrix3D & B,Matrix3D * set_res
 		Aptr = (Matrix3D *)&A;	
 	}
 
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 	float tmp1,tmp2,tmp3;
 
 	tmp1 = B[0][0];
@@ -1182,12 +1182,8 @@ void Matrix3D::Lerp(const Matrix3D &A, const Matrix3D &B, float factor, Matrix3D
    assert(factor <= 1.0f);
 
 	// Lerp position
-#ifdef ALLOW_TEMPORARIES
-  Vector3 pos = Lerp(A.Get_Translation(), B.Get_Translation(), factor);
-#else
 	Vector3 pos;
 	Vector3::Lerp(A.Get_Translation(), B.Get_Translation(), factor, &pos);
-#endif
 	Quaternion rot;
 	Slerp(rot,Build_Quaternion(A), Build_Quaternion(B), factor);
 	result.Set(rot, pos);

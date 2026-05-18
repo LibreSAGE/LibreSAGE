@@ -339,12 +339,8 @@ VehicleCurveClass::Update_Arc_List (void)
 		Vector3 x_vector (curr_pt - last_path_pt);
 		Vector3 z_vector (0, 0, 1);
 		x_vector.Normalize ();
-#ifdef ALLOW_TEMPORARIES
-		Vector3 y_vector = Vector3::Cross_Product (x_vector, z_vector);
-#else
 		Vector3 y_vector;
 		Vector3::Cross_Product (x_vector, z_vector, &y_vector);
-#endif
 		Matrix3D tm (x_vector, y_vector, z_vector, last_path_pt);
 
 		//

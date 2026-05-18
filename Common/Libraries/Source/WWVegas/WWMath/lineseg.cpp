@@ -174,17 +174,6 @@ LineSegClass::Find_Intersection
 {
 	bool retval = false;
 
-#ifdef ALLOW_TEMPORARIES
-	Vector3 cross1 = Vector3::Cross_Product (Dir, other_line.Dir);
-	Vector3 cross2 = Vector3::Cross_Product (other_line.P0 - P0, other_line.Dir);
-	float top1		= cross2 * cross1;
-	float bottom1	= cross1 * cross1;
-
-	Vector3 cross3 = Vector3::Cross_Product (other_line.Dir, Dir);
-	Vector3 cross4 = Vector3::Cross_Product (P0 - other_line.P0, Dir);
-	float top2		= cross4 * cross3;
-	float bottom2	= cross3 * cross3;
-#else
 	Vector3 cross1, cross2, cross3, cross4;
 
 	Vector3::Cross_Product(Dir, other_line.Dir, &cross1);
@@ -196,7 +185,6 @@ LineSegClass::Find_Intersection
 	Vector3::Cross_Product(P0 - other_line.P0, Dir, &cross4);
 	float top2		= Vector3::Dot_Product(cross4, cross3);
 	float bottom2	= Vector3::Dot_Product(cross3, cross3);
-#endif
 	
 	//
 	//	If either of the divisors are 0, then the lines are parallel

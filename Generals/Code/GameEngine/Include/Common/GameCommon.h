@@ -287,6 +287,8 @@ inline VeterancyLevelFlags setVeterancyLevelFlag(VeterancyLevelFlags flags, Vete
 
 inline VeterancyLevelFlags clearVeterancyLevelFlag(VeterancyLevelFlags flags, VeterancyLevel dt)
 {
+	if (dt == LEVEL_REGULAR)
+		return flags;	// regular level doesn't have a flag, so ignore attempts to set or clear it.
 	return (flags & ~(1UL << (dt - 1)));
 }
 

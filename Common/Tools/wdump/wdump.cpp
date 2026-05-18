@@ -5,6 +5,10 @@
 
 WDumpApp::WDumpApp(int &argc, char **argv) : QApplication(argc, argv), DumpTextures(false), NoWindow(false), TextureDumpFile(nullptr)
 {
+    setOrganizationName("WWVegas");
+    setApplicationName("wdump");
+    setApplicationVersion("1.0");
+
     QCommandLineParser parser;
     parser.setApplicationDescription("A UI tool to inspect Westwood 3D files");
     parser.addHelpOption();
@@ -56,7 +60,6 @@ int main(int argc, char **argv)
     if (!app.NoWindow)
     {
         WDumpWindow *window = new WDumpWindow();
-        window->resize(800, 600);
         window->show();
     }
 

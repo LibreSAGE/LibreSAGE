@@ -293,7 +293,7 @@ public:
 		//compute triangle normal by crossing 2 edges
 		Vector3 edge1=vertexList[1]-vertexList[0];
 		Vector3 edge2=vertexList[1]-vertexList[2];
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 		*pvNorm=Vector3::Cross_Product(edge2,edge1);
 		pvNorm->Normalize();
 #else

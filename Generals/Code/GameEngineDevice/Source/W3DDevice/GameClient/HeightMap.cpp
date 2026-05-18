@@ -528,7 +528,7 @@ Int HeightMapRenderObjClass::updateVB(DX8VertexBufferClass	*pVB, char *data, Int
 				l2r.Set(2*MAP_XY_FACTOR,0,MAP_HEIGHT_SCALE*(pMap->getDisplayHeight(getXWithOrigin(i)+cellOffset, getYWithOrigin(j)) - pMap->getDisplayHeight(un0, getYWithOrigin(j))));
 				n2f.Set(0,2*MAP_XY_FACTOR,MAP_HEIGHT_SCALE*(pMap->getDisplayHeight(getXWithOrigin(i), (getYWithOrigin(j)+cellOffset)) - pMap->getDisplayHeight(getXWithOrigin(i), vn0)));
 				
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 				normalAtTexel= Normalize(Vector3::Cross_Product(l2r,n2f));
 #else
 				Vector3::Normalized_Cross_Product(l2r, n2f, &normalAtTexel);
@@ -550,7 +550,7 @@ Int HeightMapRenderObjClass::updateVB(DX8VertexBufferClass	*pVB, char *data, Int
 				l2r.Set(2*MAP_XY_FACTOR,0,MAP_HEIGHT_SCALE*(pMap->getDisplayHeight(up1 , getYWithOrigin(j) ) - pMap->getDisplayHeight(getXWithOrigin(i) , getYWithOrigin(j) )));
 				n2f.Set(0,2*MAP_XY_FACTOR,MAP_HEIGHT_SCALE*(pMap->getDisplayHeight(getXWithOrigin(i)+cellOffset , (getYWithOrigin(j)+cellOffset) ) - pMap->getDisplayHeight(getXWithOrigin(i)+cellOffset , vn0 )));
 				
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 				normalAtTexel= Normalize(Vector3::Cross_Product(l2r,n2f));
 #else
 				Vector3::Normalized_Cross_Product(l2r, n2f, &normalAtTexel);
@@ -572,7 +572,7 @@ Int HeightMapRenderObjClass::updateVB(DX8VertexBufferClass	*pVB, char *data, Int
 				l2r.Set(2*MAP_XY_FACTOR,0,MAP_HEIGHT_SCALE*(pMap->getDisplayHeight(up1 , (getYWithOrigin(j)+cellOffset) ) - pMap->getDisplayHeight(getXWithOrigin(i) , (getYWithOrigin(j)+cellOffset) )));
 				n2f.Set(0,2*MAP_XY_FACTOR,MAP_HEIGHT_SCALE*(pMap->getDisplayHeight(getXWithOrigin(i)+cellOffset , vp1 ) - pMap->getDisplayHeight(getXWithOrigin(i)+cellOffset , getYWithOrigin(j) )));
 				
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 				normalAtTexel= Normalize(Vector3::Cross_Product(l2r,n2f));
 #else
 				Vector3::Normalized_Cross_Product(l2r, n2f, &normalAtTexel);
@@ -598,7 +598,7 @@ Int HeightMapRenderObjClass::updateVB(DX8VertexBufferClass	*pVB, char *data, Int
 				l2r.Set(2*MAP_XY_FACTOR,0,MAP_HEIGHT_SCALE*(pMap->getDisplayHeight(getXWithOrigin(i)+cellOffset , (getYWithOrigin(j)+cellOffset) ) - pMap->getDisplayHeight(un0 , (getYWithOrigin(j)+cellOffset) )));
 				n2f.Set(0,2*MAP_XY_FACTOR,MAP_HEIGHT_SCALE*(pMap->getDisplayHeight(getXWithOrigin(i) , vp1 ) - pMap->getDisplayHeight(getXWithOrigin(i) , getYWithOrigin(j) )));
 				
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 				normalAtTexel= Normalize(Vector3::Cross_Product(l2r,n2f));
 #else
 				Vector3::Normalized_Cross_Product(l2r, n2f, &normalAtTexel);
@@ -801,7 +801,7 @@ Int HeightMapRenderObjClass::updateVBForLight(DX8VertexBufferClass	*pVB, char *d
 				l2r.Set(2*MAP_XY_FACTOR,0,MAP_HEIGHT_SCALE*(m_map->getDisplayHeight(getXWithOrigin(i)+1, getYWithOrigin(j)) - m_map->getDisplayHeight(un0, getYWithOrigin(j))));
 				n2f.Set(0,2*MAP_XY_FACTOR,MAP_HEIGHT_SCALE*(m_map->getDisplayHeight(getXWithOrigin(i), (getYWithOrigin(j)+1)) - m_map->getDisplayHeight(getXWithOrigin(i), vn0)));
 				
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 				normalAtTexel= Normalize(Vector3::Cross_Product(l2r,n2f));
 #else
 				Vector3::Normalized_Cross_Product(l2r, n2f, &normalAtTexel);
@@ -814,7 +814,7 @@ Int HeightMapRenderObjClass::updateVBForLight(DX8VertexBufferClass	*pVB, char *d
 				l2r.Set(2*MAP_XY_FACTOR,0,MAP_HEIGHT_SCALE*(m_map->getDisplayHeight(up1 , getYWithOrigin(j) ) - m_map->getDisplayHeight(getXWithOrigin(i) , getYWithOrigin(j) )));
 				n2f.Set(0,2*MAP_XY_FACTOR,MAP_HEIGHT_SCALE*(m_map->getDisplayHeight(getXWithOrigin(i)+1 , (getYWithOrigin(j)+1) ) - m_map->getDisplayHeight(getXWithOrigin(i)+1 , vn0 )));
 				
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 				normalAtTexel= Normalize(Vector3::Cross_Product(l2r,n2f));
 #else
 				Vector3::Normalized_Cross_Product(l2r, n2f, &normalAtTexel);
@@ -827,7 +827,7 @@ Int HeightMapRenderObjClass::updateVBForLight(DX8VertexBufferClass	*pVB, char *d
 				l2r.Set(2*MAP_XY_FACTOR,0,MAP_HEIGHT_SCALE*(m_map->getDisplayHeight(up1 , (getYWithOrigin(j)+1) ) - m_map->getDisplayHeight(getXWithOrigin(i) , (getYWithOrigin(j)+1) )));
 				n2f.Set(0,2*MAP_XY_FACTOR,MAP_HEIGHT_SCALE*(m_map->getDisplayHeight(getXWithOrigin(i)+1 , vp1 ) - m_map->getDisplayHeight(getXWithOrigin(i)+1 , getYWithOrigin(j) )));
 				
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 				normalAtTexel= Normalize(Vector3::Cross_Product(l2r,n2f));
 #else
 				Vector3::Normalized_Cross_Product(l2r, n2f, &normalAtTexel);
@@ -840,7 +840,7 @@ Int HeightMapRenderObjClass::updateVBForLight(DX8VertexBufferClass	*pVB, char *d
 				l2r.Set(2*MAP_XY_FACTOR,0,MAP_HEIGHT_SCALE*(m_map->getDisplayHeight(getXWithOrigin(i)+1 , (getYWithOrigin(j)+1) ) - m_map->getDisplayHeight(un0 , (getYWithOrigin(j)+1) )));
 				n2f.Set(0,2*MAP_XY_FACTOR,MAP_HEIGHT_SCALE*(m_map->getDisplayHeight(getXWithOrigin(i) , vp1 ) - m_map->getDisplayHeight(getXWithOrigin(i) , getYWithOrigin(j) )));
 				
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 				normalAtTexel= Normalize(Vector3::Cross_Product(l2r,n2f));
 #else
 				Vector3::Normalized_Cross_Product(l2r, n2f, &normalAtTexel);
@@ -3052,7 +3052,7 @@ Int HeightMapRenderObjClass::getStaticDiffuse(Int x, Int y)
 	l2r.Set(2*MAP_XY_FACTOR,0,MAP_HEIGHT_SCALE*(m_map->getHeight(up1, y) - m_map->getHeight(un0, y)));
 	n2f.Set(0,2*MAP_XY_FACTOR,MAP_HEIGHT_SCALE*(m_map->getHeight(x, vp1) - m_map->getHeight(x, vn0)));
 	
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 	normalAtTexel= Normalize(Vector3::Cross_Product(l2r,n2f));
 #else
 	Vector3::Normalized_Cross_Product(l2r,n2f, &normalAtTexel);

@@ -9410,6 +9410,8 @@ static int _getEditorBehavior( void )
 	}
 
 	return ((funcptr)proc)();
+#else
+	return 0x00;
 #endif
 }
 

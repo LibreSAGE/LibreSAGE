@@ -116,7 +116,6 @@ public:
 	void Return_File( FileClass *file );
 };
 
-#define no_SIMPLE_FILE
 /*
 ** SimpleFileFactoryClass is a slightly more capable derivative of
 ** FileFactoryClass which adds some simple extra functionality. It supports a
@@ -155,6 +154,6 @@ extern FileFactoryClass	*	_TheFileFactory;
 extern RawFileFactoryClass	*	_TheWritingFileFactory;
 
 // No simple file factory.  jba.
-//extern SimpleFileFactoryClass	*	_TheSimpleFileFactory;
+extern SimpleFileFactoryClass	*	_TheSimpleFileFactory;
 
 #endif

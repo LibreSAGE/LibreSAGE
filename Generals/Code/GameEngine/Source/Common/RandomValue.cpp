@@ -200,7 +200,7 @@ DEBUG_LOG(( "InitRandom Logic %08lx\n",seed));
 //
 // Integer random value
 //
-Int GetGameLogicRandomValue( int lo, int hi, char *file, int line )
+Int GetGameLogicRandomValue( int lo, int hi, const char *file, int line )
 {
 	//Int delta = hi - lo + 1;
 	//Int rval;
@@ -282,7 +282,7 @@ DEBUG_LOG(( "%d: GetGameAudioRandomValue = %d (%d - %d), %s line %d\n",
 //
 // Real valued random value
 //
-Real GetGameLogicRandomValueReal( Real lo, Real hi, char *file, int line )
+Real GetGameLogicRandomValueReal( Real lo, Real hi, const char *file, int line )
 {
 	Real delta = hi - lo;
 	Real rval;

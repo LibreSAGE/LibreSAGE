@@ -227,13 +227,8 @@ void OBBoxClass::Init_From_Box_Points(Vector3 * points,int num)
 	}
 
 	Vector3 axis0,axis1,axis2;
-#ifdef ALLOW_TEMPORARIES
-	axis0 = Normalize(dp[1]);
-	axis1 = Normalize(dp[2]);
-#else
 	axis0 = dp[1]; axis0.Normalize();
 	axis1 = dp[2]; axis1.Normalize();
-#endif
 	Vector3::Cross_Product(axis0,axis1,&axis2);
 
 	Basis = Matrix3(axis0,axis1,axis2);

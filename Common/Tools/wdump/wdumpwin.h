@@ -17,9 +17,10 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
+#include "chunk_d.h"
+
 #include <QMainWindow>
 #include <QItemSelection>
-#include "chunk_d.h"
 
 class QTableView;
 class QTreeView;
@@ -36,9 +37,9 @@ public:
     ~WDumpWindow() override;
 
 private slots:
-    void onOpen();
-    void onExit();
-    void onTreeSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void OnFileOpen();
+    void OnExit();
+    void OnTreeSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     Ui::WDumpWindow *m_ui;

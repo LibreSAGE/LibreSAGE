@@ -132,6 +132,8 @@ void W3DShroud::init(WorldHeightMap *pMap, Real worldCellSizeX, Real worldCellSi
 		//shroud cells are larger than terrain cells).
 		dstTextureWidth=m_numMaxVisibleCellsX=REAL_TO_INT_FLOOR((Real)(pMap->getDrawWidth()-1)*MAP_XY_FACTOR/m_cellWidth)+1;
 		dstTextureHeight=m_numMaxVisibleCellsY=REAL_TO_INT_FLOOR((Real)(pMap->getDrawHeight()-1)*MAP_XY_FACTOR/m_cellHeight)+1;
+		dstTextureWidth = m_numCellsX;
+		dstTextureHeight = m_numCellsY;
 		dstTextureWidth += 2;	//enlarge by 2 pixels so we can have a border color all the way around.
 		dstTextureHeight += 2;	//enlarge by 2 pixels so we can have border color all the way around.
 		TextureLoader::Validate_Texture_Size((unsigned int &)dstTextureWidth,(unsigned int &)dstTextureHeight);
@@ -613,15 +615,23 @@ void W3DShroud::render(CameraClass *cam)
 #endif //LOAD_DUMMY_SHROUD
 
 
-	WorldHeightMap *hm=TheTerrainRenderObject->getMap();
-	Int visStartX=REAL_TO_INT_FLOOR((Real)(hm->getDrawOrgX()-hm->getBorderSize())*MAP_XY_FACTOR/m_cellWidth);	//start of rendered heightmap rectangle
-	if (visStartX < 0)
-		visStartX = 0;	//no shroud is applied in border area so it always starts at > 0
-	Int visStartY=REAL_TO_INT_FLOOR((Real)(hm->getDrawOrgY()-hm->getBorderSize())*MAP_XY_FACTOR/m_cellHeight);
-	if (visStartY < 0)
-		visStartY = 0;	//no shroud is applied in border area so it always starts at > 0
-	Int visEndX=visStartX+REAL_TO_INT_FLOOR((Real)(hm->getDrawWidth()-1)*MAP_XY_FACTOR/m_cellWidth)+1;	//size of rendered heightmap rectangle
-	Int visEndY=visStartY+REAL_TO_INT_FLOOR((Real)(hm->getDrawHeight()-1)*MAP_XY_FACTOR/m_cellHeight)+1;
+	// WorldHeightMap *hm=TheTerrainRenderObject->getMap();
+	// Int visStartX=REAL_TO_INT_FLOOR((Real)(hm->getDrawOrgX()-hm->getBorderSize())*MAP_XY_FACTOR/m_cellWidth);	//start of rendered heightmap rectangle
+	// if (visStartX < 0)
+	// 	visStartX = 0;	//no shroud is applied in border area so it always starts at > 0
+	// Int visStartY=REAL_TO_INT_FLOOR((Real)(hm->getDrawOrgY()-hm->getBorderSize())*MAP_XY_FACTOR/m_cellHeight);
+	// if (visStartY < 0)
+	// 	visStartY = 0;	
+
+	// //no shroud is applied in border area so it always starts at > 0
+	// Int visEndX=visStartX+REAL_TO_INT_FLOOR((Real)(hm->getDrawWidth()-1)*MAP_XY_FACTOR/m_cellWidth)+1;	//size of rendered heightmap rectangle
+	// Int visEndY=visStartY+REAL_TO_INT_FLOOR((Real)(hm->getDrawHeight()-1)*MAP_XY_FACTOR/m_cellHeight)+1;
+	 
+	// 2026/05/20: For now, just update the entire shroud. 
+	Int visStartX = 0;
+	Int visStartY = 0;
+	Int visEndX = m_numCellsX;
+	Int visEndY = m_numCellsY;
 
 	if (visEndX > m_numCellsX)
 	{	

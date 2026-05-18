@@ -138,7 +138,7 @@ inline void PlaneClass::Set(const Vector3 & normal,const Vector3 & point)
 inline void PlaneClass::Set(const Vector3 & point1, const Vector3 & point2, const Vector3 & point3) 
 {
 #ifdef ALLOW_TEMPORARIES
-	N = Vector3::Cross_Product((point2 - point1), (point3 - point1));
+	Vector3::Cross_Product((point2 - point1), (point3 - point1), &N);
 #else
 	Vector3::Cross_Product((point2 - point1), (point3 - point1), &N);
 #endif

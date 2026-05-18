@@ -242,6 +242,10 @@ find_package(DXVK CONFIG REQUIRED)
 
 target_link_libraries(c_ww3d2 PUBLIC c_wwlib c_wwmath c_wwsaveload DXVK::d3d8)
 
+# SDL3
+find_package(SDL3 CONFIG REQUIRED)
+target_link_libraries(c_ww3d2 PUBLIC SDL3::SDL3)
+
 # GLM
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(c_ww3d2 PRIVATE glm::glm)

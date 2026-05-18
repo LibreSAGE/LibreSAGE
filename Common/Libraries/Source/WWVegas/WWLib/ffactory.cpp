@@ -49,6 +49,7 @@
 */
 SimpleFileFactoryClass		_DefaultFileFactory;
 FileFactoryClass *			_TheFileFactory = &_DefaultFileFactory;
+SimpleFileFactoryClass *	_TheSimpleFileFactory = &_DefaultFileFactory;
 
 RawFileFactoryClass		_DefaultWritingFileFactory;
 RawFileFactoryClass *			_TheWritingFileFactory = &_DefaultWritingFileFactory;
@@ -183,11 +184,19 @@ void SimpleFileFactoryClass::Append_Sub_Directory( const char * sub_directory )
 	// Ensure sub_directory ends with a slash
 	char temp_sub_dir[1024];
 	strcpy(temp_sub_dir, sub_directory);
+#ifdef _WINDOWS
 	if (temp_sub_dir[sub_len - 1] != '\\') {
 		temp_sub_dir[sub_len] = '\\';
 		temp_sub_dir[sub_len + 1] = 0;
 		sub_len++;
 	}
+#else
+	if (temp_sub_dir[sub_len - 1] != '/') {
+		temp_sub_dir[sub_len] = '/';
+		temp_sub_dir[sub_len + 1] = 0;
+		sub_len++;
+	}
+#endif
 
 	// BEGIN SERIALIZATION
 
@@ -217,12 +226,15 @@ Is_Full_Path (const char *path)
 	bool retval = false;
 
 	if (path != NULL && path[0] != 0) {
-		
+#ifdef _WINDOWS
 		// Check for drive designation
 		retval = bool(path[1] == ':');
 
 		// Check for network path
 		retval |= bool((path[0] == '\\') && (path[1] == '\\'));
+#else
+		retval = bool(path[0] == '/');
+#endif
 	}
 
 	return retval;

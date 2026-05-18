@@ -677,7 +677,7 @@ void HTreeClass::Blend_Update
 			Quaternion q;
 			Fast_Slerp(q,q0,q1,percentage);
 #ifdef ALLOW_TEMPORARIES
-			pivot->Transform = pivot->Transform * Build_Matrix3D(q);
+			pivot->Transform = pivot->Transform * Build_Matrix3D(q,mtx);
 #else
 			pivot->Transform.postMul(Build_Matrix3D(q,mtx));
 #endif
@@ -802,11 +802,7 @@ void HTreeClass::Combo_Update
 //				WWASSERT(WWMath::Fabs( weight_total - 1.0 ) < WWMATH_EPSILON);
 
 				pivot->Transform.Translate(trans);
-#ifdef ALLOW_TEMPORARIES
-				pivot->Transform = pivot->Transform * Build_Matrix3D(q0);
-#else
-				pivot->Transform.postMul(Build_Matrix3D(q0,mtx));
-#endif
+				pivot->Transform = pivot->Transform * Build_Matrix3D(q0, mtx);
 			}
 #else
 			if (( weight_total != 0.0f ) && (wcount >= 2)) {

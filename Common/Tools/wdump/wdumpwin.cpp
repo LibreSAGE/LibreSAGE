@@ -8,8 +8,8 @@ WDumpWindow::WDumpWindow(QWidget *parent) : QMainWindow(parent)
     m_ui = new Ui::WDumpWindow();
     m_ui->setupUi(this);
 
-    connect(m_ui->actionOpen, &QAction::triggered, this, &WDumpWindow::onOpen);
-    connect(m_ui->actionExit, &QAction::triggered, this, &WDumpWindow::onExit);
+    connect(m_ui->actionOpen, &QAction::triggered, this, &WDumpWindow::OnFileOpen);
+    connect(m_ui->actionExit, &QAction::triggered, this, &WDumpWindow::OnExit);
 }
 
 WDumpWindow::~WDumpWindow()
@@ -17,11 +17,11 @@ WDumpWindow::~WDumpWindow()
     delete m_ui;
 }
 
-void WDumpWindow::onOpen()
+void WDumpWindow::OnFileOpen()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     tr("Open File"), "",
-                                                    tr("W3D Files (*.w3d, *.W3D);;All Files (*)"));
+                                                    tr("Westwood 3D Files (*.w3d, *.W3D);;All Files (*)"));
     if (!fileName.isEmpty())
     {
         if(!m_chunkData.Load(fileName.toStdString().c_str()))
@@ -34,17 +34,17 @@ void WDumpWindow::onOpen()
             connect(m_ui->treeView->selectionModel(),
                     &QItemSelectionModel::selectionChanged,
                     this,
-                    &WDumpWindow::onTreeSelectionChanged);
+                    &WDumpWindow::OnTreeSelectionChanged);
         }
     }
 }
 
-void WDumpWindow::onExit()
+void WDumpWindow::OnExit()
 {
     close();
 }
 
-void WDumpWindow::onTreeSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+void WDumpWindow::OnTreeSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
     Q_UNUSED(deselected);
 

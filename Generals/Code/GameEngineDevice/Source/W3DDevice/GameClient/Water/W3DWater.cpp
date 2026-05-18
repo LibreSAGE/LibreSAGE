@@ -2113,7 +2113,7 @@ void WaterRenderObjClass::renderSkyBody(Matrix3D *mat)
 
 	Vector3 WorldUp(0,0,-1);	///@todo: hacked so only works for reflections across xy plane
 
-#ifdef ALLOW_TEMPORARIES
+#if 0//def ALLOW_TEMPORARIES
 	Vector3 rotAxis=Vector3::Cross_Product(WorldUp,pView);	//get axis of rotation.
 	rotAxis.Normalize();
 #else
