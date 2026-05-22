@@ -46,6 +46,16 @@
             }
         },
         {
+            "name": "coverage",
+            "inherits": [
+                "debug"
+            ],
+            "hidden": true,
+            "cacheVariables": {
+                "SAGE_WITH_COVERAGE": "ON"
+            }
+        },
+        {
             "name": "macos-arm64",
             "condition": {
                 "type": "equals",
@@ -94,6 +104,13 @@
                 "linux-x64",
                 "sanitize"
             ]
+        },
+        {
+            "name": "linux-x64-coverage",
+            "inherits": [
+                "linux-x64",
+                "coverage"
+            ]
         }
     ],
     "buildPresets": [
@@ -112,6 +129,10 @@
         {
             "name": "linux-x64-sanitize",
             "configurePreset": "linux-x64-sanitize"
+        },
+        {
+            "name": "linux-x64-coverage",
+            "configurePreset": "linux-x64-coverage"
         }
     ],
     "testPresets": [
@@ -152,6 +173,13 @@
                 "default"
             ],
             "configurePreset": "linux-x64-sanitize"
+        },
+        {
+            "name": "linux-x64-coverage",
+            "inherits": [
+                "default"
+            ],
+            "configurePreset": "linux-x64-coverage"
         }
     ]
 }

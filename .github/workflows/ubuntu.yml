@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        preset: [linux-x64-debug, linux-x64-release]
+        preset: [linux-x64-coverage, linux-x64-release]
     steps:
       - name: Install deps
         run: |
@@ -48,3 +48,13 @@ jobs:
           configurePreset: "${{ matrix.preset }}"
           buildPreset: "${{ matrix.preset }}"
           testPreset: "${{ matrix.preset }}"
+      
+      - name: Upload code coverage to Codecov
+        if: matrix.preset == 'linux-x64-coverage'
+        uses: codecov/codecov-action@v6
+        with:
+          files: ./coverage.info
+          flags: linux-x64
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
