@@ -41,6 +41,11 @@ jobs:
       - name: Setup a new (or from cache) vcpkg (and does not build any package)
         uses: lukka/run-vcpkg@v11
 
+      - name: Start virtual display
+        run: |
+          Xvfb :1 -screen 0 1024x768x24 &
+          echo "DISPLAY=:1" >> $GITHUB_ENV
+
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
         env:
