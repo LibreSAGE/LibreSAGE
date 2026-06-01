@@ -44,6 +44,7 @@ std::u16string MultiByteToWideCharSingleLine( const char *orig )
 	WideChar *dest = NEW WideChar[len+1];
 
 	// MultiByteToWideChar(CP_UTF8, 0, orig, -1, dest, len);
+	err = U_ZERO_ERROR;
 	u_strFromUTF8(dest, len, NULL, orig, -1, &err);
 	if (err != U_ZERO_ERROR)
 	{

@@ -79,8 +79,8 @@ unsigned CPUDetectClass::L1InstructionCacheSetAssociative;
 unsigned CPUDetectClass::L1InstructionTraceCacheSize;
 unsigned CPUDetectClass::L1InstructionTraceCacheSetAssociative;
 
-unsigned CPUDetectClass::TotalPhysicalMemory;
-unsigned CPUDetectClass::AvailablePhysicalMemory;
+uint64_t CPUDetectClass::TotalPhysicalMemory;
+uint64_t CPUDetectClass::AvailablePhysicalMemory;
 unsigned CPUDetectClass::TotalPageMemory;
 unsigned CPUDetectClass::AvailablePageMemory;
 unsigned CPUDetectClass::TotalVirtualMemory;
@@ -877,7 +877,7 @@ void CPUDetectClass::Init_Memory()
    TotalVirtualMemory      = mem.dwTotalVirtual;
    AvailableVirtualMemory  = mem.dwAvailVirtual;
 #else
-	TotalPhysicalMemory = SDL_GetSystemRAM() * 1024 * 1024;	// SDL returns memory in Mb, convert to bytes
+	TotalPhysicalMemory = ((uint64_t)SDL_GetSystemRAM()) * 1024UL * 1024UL;	// SDL returns memory in MiB, convert to bytes
 	AvailablePhysicalMemory = TotalPhysicalMemory; // SDL does not provide available memory
 #warning FIX Init_Memory()
 #endif

@@ -273,8 +273,8 @@ private:
 	static unsigned L1InstructionTraceCacheSize;
 	static unsigned L1InstructionTraceCacheSetAssociative;
 
-	static unsigned TotalPhysicalMemory;
-	static unsigned AvailablePhysicalMemory;
+	static uint64_t TotalPhysicalMemory;
+	static uint64_t AvailablePhysicalMemory;
 	static unsigned TotalPageMemory;
 	static unsigned AvailablePageMemory;
 	static unsigned TotalVirtualMemory;

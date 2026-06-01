@@ -6,10 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    # using Clang or GCC
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-char8_t -Wno-invalid-offsetof")
+    # The game expects that string literals are merged. So same content should have the same address
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fmerge-constants -fno-char8_t -Wno-invalid-offsetof")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # using MSVC
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:char8_t-")
 endif()
 

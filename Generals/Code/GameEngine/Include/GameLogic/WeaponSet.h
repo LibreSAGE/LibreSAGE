@@ -53,7 +53,7 @@ enum DamageType : int;
 #include "GameLogic/WeaponSetFlags.h"
 
 #ifdef DEFINE_WEAPONSLOTTYPE_NAMES
-static char *TheWeaponSlotTypeNames[] = 
+static const char *TheWeaponSlotTypeNames[] = 
 {
 	"PRIMARY",
 	"SECONDARY",

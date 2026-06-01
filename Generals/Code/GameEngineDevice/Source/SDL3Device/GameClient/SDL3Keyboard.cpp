@@ -156,10 +156,11 @@ void SDL3Keyboard::getKey( KeyboardIO *key )
 			// Note that special characters may need additional keycode translation above.
 			Int len;
 			UErrorCode err = U_ZERO_ERROR;
-			u_strFromUTF8(NULL, 0, &len, event.text.text, 1, &err); // get length
+			u_strFromUTF8(NULL, 0, &len, event.text.text, -1, &err); // get length
 			WideChar *dest = NEW WideChar[len+1];
 
 			// MultiByteToWideChar(CP_UTF8, 0, orig, -1, dest, len);
+			err = U_ZERO_ERROR;
 			u_strFromUTF8(dest, len + 1, NULL, event.text.text, -1, &err);
 			dest[len] = 0;
 			UnicodeString uStr(dest);

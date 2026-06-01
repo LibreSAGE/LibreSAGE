@@ -159,10 +159,6 @@ class OpenALAudioManager : public AudioManager
 
 		virtual void closeAnySamplesUsingFile( const void *fileToClose );
 
-	
-	virtual Bool has3DSensitiveStreamsPlaying( void ) const; 
-
-
 	protected:	
 		// 3-D functions
 		virtual void setDeviceListenerPosition( void );

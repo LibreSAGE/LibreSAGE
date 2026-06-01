@@ -788,7 +788,7 @@ void OpenALAudioManager::playAudioEvent(AudioEventRTS* event)
 						return;
 					}
 
-					DEBUG_LOG(("Received audio frame\n"));
+					//DEBUG_LOG(("Received audio frame\n"));
 
 					AVSampleFormat sampleFmt = static_cast<AVSampleFormat>(frame->format);
 					const int bytesPerSample = av_get_bytes_per_sample(sampleFmt);
@@ -1027,9 +1027,8 @@ void OpenALAudioManager::stopAudioEvent(AudioHandle handle)
 		if (audio->m_audioEventRTS->getPlayingHandle() == handle) {
 			// found it
 			audio->m_requestStop = true;
-			if (audio->m_stream) {
-				notifyOfAudioCompletion((UnsignedInt)(audio->m_stream->getSource()), PAT_Stream);
-			}
+			DEBUG_ASSERTCRASH(audio->m_stream, ("Audio event with handle %d has no stream associated with it.\n", handle));
+			notifyOfAudioCompletion((UnsignedInt)(audio->m_stream->getSource()), PAT_Stream);
 			break;
 		}
 	}
@@ -1690,7 +1689,7 @@ PlayingAudio *OpenALAudioManager::findPlayingAudioFrom(ALuint source, UnsignedIn
 	if (flags == PAT_Stream) {
 		for (it = m_playingStreams.begin(); it != m_playingStreams.end(); ++it) {
 			playing = *it;
-			if (playing && playing->m_source == source) {
+			if (playing && playing->m_stream->getSource() == source) {
 				return playing;
 			}
 		}
@@ -1802,8 +1801,8 @@ void OpenALAudioManager::selectProvider(UnsignedInt providerNdx)
 	//{
 	//	failed = AIL_open_3D_provider(m_provider3D[providerNdx].id);
 	//}
-
 	Bool success = FALSE;
+
 
 	if( !success ) 
 	{
@@ -2409,7 +2408,7 @@ void OpenALAudioManager::processPlayingList(void)
 						Real y = pos->y;
 						Real z = pos->z;
 						alSource3f(playing->m_source, AL_POSITION, x, y, z);
-						DEBUG_LOG(("Updating 3D sound position for %s to %f, %f, %f\n", playing->m_audioEventRTS->getEventName().str(), x, y, z));
+						//DEBUG_LOG(("Updating 3D sound position for %s to %f, %f, %f\n", playing->m_audioEventRTS->getEventName().str(), x, y, z));
 					}
 				}
 			}
@@ -2457,44 +2456,6 @@ void OpenALAudioManager::processPlayingList(void)
 		m_volumeHasChanged = false;
 	}
 }
-
-//Patch for a rare bug (only on about 5% of in-studio machines suffer, and not all the time) .
-//The actual mechanics of this problem are still elusive as of the date of this comment. 8/21/03
-//but the cause is clear. Some cinematics do a radical change in the microphone position, which
-//calls for a radical 3DSoundVolume adjustment. If this happens while a stereo stream is *ENDING*,
-//low-level code gets caught in a tight loop. (Hangs) on some machines.
-//To prevent this condition, we just suppress the updating of 3DSoundVolume while one of these
-//is on the list. Since the music tracks play continuously, they never *END* during these cinematics.
-//so we filter them out as, *NOT SENSITIVE*... we do want to update 3DSoundVolume during music, 
-//which is almost all of the time.
-
-Bool OpenALAudioManager::has3DSensitiveStreamsPlaying(void) const
-{
-	if ( m_playingStreams.empty() )
-		return FALSE;
-
-	for ( std::list< PlayingAudio* >::const_iterator it = m_playingStreams.begin(); it != m_playingStreams.end(); ++it ) 
-	{
-		const PlayingAudio *playing = (*it);
-
-		if ( !playing )
-			continue;
-
-		if ( playing->m_audioEventRTS->getAudioEventInfo()->m_soundType != AT_Music )
-		{
-			return TRUE;
-		}
-
-		if (playing->m_audioEventRTS->getEventName().startsWith("Game_") == FALSE )
-		{
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-
-}
-
 
 //-------------------------------------------------------------------------------------------------
 void OpenALAudioManager::processFadingList(void)
@@ -2666,7 +2627,7 @@ Real OpenALAudioManager::getFileLengthMS(AsciiString strToLoad) const
 	}
 	float length = 0.0f;
 
-#ifdef RTS_HAS_FFMPEG
+#if defined(SAGE_USE_FFMPEG)
 	ALuint handle = m_audioCache->getBufferForFile(OpenFileInfo(&strToLoad));
 	length = m_audioCache->getBufferLength(handle);
 	m_audioCache->closeBuffer(handle);
@@ -2870,7 +2831,7 @@ ALuint OpenALAudioManager::playSample3D(AudioEventRTS* event, PlayingAudio *samp
 			Real z = pos->z;
 			alSource3f(source, AL_POSITION, x, y, z);
 			alSourcei(source, AL_BUFFER, handle);
-			DEBUG_LOG(("Playing 3D sample '%s' at %f, %f, %f\n", event->getEventName().str(), x, y, z));
+			// DEBUG_LOG(("Playing 3D sample '%s' at %f, %f, %f\n", event->getEventName().str(), x, y, z));
 
 			// Start playback
 			alSourcePlay(source);

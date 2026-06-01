@@ -1125,7 +1125,7 @@ Bool MemoryPoolSingleBlock::debugCheckOverrun()
 	USE_PERF_TIMER(MemoryPoolDebugging)
 
 #ifdef MEMORYPOOL_BOUNDINGWALL
-	Int *p = (Int*)(((char*)getUserDataNoDbg()) + m_logicalSize);
+	Int *p = (Int*)(((char*)getUserDataNoDbg()) + ::roundUpMemBound(m_logicalSize));
 	for (Int i = 0; i < WALLCOUNT; i++, p++)
 	{
 		if (*p != m_wallPattern-i)
@@ -1153,7 +1153,7 @@ void MemoryPoolSingleBlock::debugFillInWalls()
 	for (i = 0; i < WALLCOUNT; i++)
 		*p++ = m_wallPattern+i;
 
-	p = (Int*)(((char*)getUserDataNoDbg()) + m_logicalSize);
+	p = (Int*)(((char*)getUserDataNoDbg()) + ::roundUpMemBound(m_logicalSize));
 	for (i = 0; i < WALLCOUNT; i++)
 		*p++ = m_wallPattern-i;
 

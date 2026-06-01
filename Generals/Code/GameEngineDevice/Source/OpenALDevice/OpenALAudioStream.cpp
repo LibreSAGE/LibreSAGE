@@ -52,7 +52,7 @@ OpenALAudioStream::~OpenALAudioStream()
 
 bool OpenALAudioStream::bufferData(uint8_t *data, size_t data_size, ALenum format, int samplerate)
 {
-		DEBUG_LOG(("Buffering %zu bytes of data (samplerate: %i, format: %i)\n", data_size, samplerate, format));
+		//DEBUG_LOG(("Buffering %zu bytes of data (samplerate: %i, format: %i)\n", data_size, samplerate, format));
 		ALint numQueued;
 		alGetSourcei(m_source, AL_BUFFERS_QUEUED, &numQueued);
 		if (numQueued >= AL_STREAM_BUFFER_COUNT) {
@@ -78,7 +78,7 @@ void OpenALAudioStream::update()
 
 		ALint processed;
 		alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processed);
-		DEBUG_LOG(("%i buffers have been processed\n", processed));
+		//DEBUG_LOG(("%i buffers have been processed\n", processed));
 		while (processed > 0) {
 				ALuint buffer;
 				alSourceUnqueueBuffers(m_source, 1, &buffer);
@@ -87,7 +87,7 @@ void OpenALAudioStream::update()
 
 		ALint numQueued;
 		alGetSourcei(m_source, AL_BUFFERS_QUEUED, &numQueued);
-		DEBUG_LOG(("Having %i buffers queued\n", numQueued));
+		//DEBUG_LOG(("Having %i buffers queued\n", numQueued));
 		if (numQueued < AL_STREAM_BUFFER_COUNT && m_requireDataCallback) {
 				// Ask for more data to be buffered
 				while (numQueued < AL_STREAM_BUFFER_COUNT) {
