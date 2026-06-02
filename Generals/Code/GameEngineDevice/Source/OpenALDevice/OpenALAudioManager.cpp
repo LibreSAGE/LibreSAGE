@@ -1603,7 +1603,7 @@ Bool OpenALAudioManager::isCurrentlyPlaying(AudioHandle handle)
 }
 
 //-------------------------------------------------------------------------------------------------
-void OpenALAudioManager::notifyOfAudioCompletion(UnsignedInt audioCompleted, UnsignedInt flags)
+void OpenALAudioManager::notifyOfAudioCompletion(UnsignedIntPtr audioCompleted, UnsignedInt flags)
 {
 	PlayingAudio *playing = findPlayingAudioFrom(audioCompleted, flags);
 	if (!playing) {
@@ -1663,7 +1663,7 @@ void OpenALAudioManager::notifyOfAudioCompletion(UnsignedInt audioCompleted, Uns
 }
 
 //-------------------------------------------------------------------------------------------------
-PlayingAudio *OpenALAudioManager::findPlayingAudioFrom(ALuint source, UnsignedInt flags)
+PlayingAudio *OpenALAudioManager::findPlayingAudioFrom(UnsignedIntPtr source, UnsignedInt flags)
 {
 	std::list<PlayingAudio *>::iterator it;
 	PlayingAudio *playing;

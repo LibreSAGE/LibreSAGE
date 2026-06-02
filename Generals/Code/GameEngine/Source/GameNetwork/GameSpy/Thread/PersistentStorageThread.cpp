@@ -595,7 +595,6 @@ Bool PSThreadClass::tryConnect( void )
 	// this may block for 1-2 seconds (according to GS) so it's nice we're not in the UI thread :)
 	result = InitStatsConnection(0);
 
-#ifdef DEBUG_LOGGING
 	static const char *retValStrings[6] = {
 		"GE_NOERROR",
 		"GE_NOSOCKET",
@@ -604,7 +603,6 @@ Bool PSThreadClass::tryConnect( void )
 		"GE_BUSY",
 		"GE_DATAERROR"
 	};
-#endif // DEBUG_LOGGING
 
 	if (result != GE_NOERROR)
 	{
@@ -870,10 +868,7 @@ void PSThreadClass::Thread_Function()
 					if (tryConnect())
 					{
 						NewGame(0);
-#ifdef DEBUG_LOGGING
-						Int res = 
-#endif // DEBUG_LOGGING
-							SendGameSnapShot(NULL, req.results.c_str(), SNAP_FINAL);
+						Int res = SendGameSnapShot(NULL, req.results.c_str(), SNAP_FINAL);
 						DEBUG_LOG(("Just sent game results - res was %d\n", res));
 						FreeGame(NULL);
 					}

@@ -340,9 +340,7 @@ NATConnectionState NAT::connectionUpdate() {
 	// check to see if we've been probed.
 	for (Int i = 0; i < MAX_MESSAGES; ++i) {
 		if (m_transport->m_inBuffer[i].length > 0) {
-#ifdef DEBUG_LOGGING
 			UnsignedInt ip = m_transport->m_inBuffer[i].addr;
-#endif
 			DEBUG_LOG(("NAT::connectionUpdate - got a packet from %d.%d.%d.%d:%d, length = %d\n",
 									ip >> 24, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff, m_transport->m_inBuffer[i].port, m_transport->m_inBuffer[i].length));
 			UnsignedByte *data = m_transport->m_inBuffer[i].data;
@@ -356,9 +354,7 @@ NATConnectionState NAT::connectionUpdate() {
 
 					if (m_transport->m_inBuffer[i].addr != targetSlot->getIP()) {
 						UnsignedInt fromIP = m_transport->m_inBuffer[i].addr;
-#ifdef DEBUG_LOGGING
 						UnsignedInt slotIP = targetSlot->getIP();
-#endif
 						DEBUG_LOG(("NAT::connectionUpdate - incomming packet has different from address than we expected, incoming: %d.%d.%d.%d expected: %d.%d.%d.%d\n",
 												fromIP >> 24, (fromIP >> 16) & 0xff, (fromIP >> 8) & 0xff, fromIP & 0xff,
 												slotIP >> 24, (slotIP >> 16) & 0xff, (slotIP >> 8) & 0xff, slotIP & 0xff));
@@ -682,10 +678,8 @@ void NAT::doThisConnectionRound() {
 				DEBUG_LOG(("NAT::doThisConnectionRound - Target slot index = %d (%ls)\n", targetSlotIndex, m_slotList[targetSlotIndex]->getName().str()));
 				DEBUG_LOG(("NAT::doThisConnectionRound - Target slot has NAT behavior 0x%8X, local slot has NAT behavior 0x%8X\n", targetSlot->getNATBehavior(), localSlot->getNATBehavior()));
 				
-#if defined(DEBUG_LOGGING)
 				UnsignedInt targetIP = targetSlot->getIP();
 				UnsignedInt localIP = localSlot->getIP();
-#endif
 				
 				DEBUG_LOG(("NAT::doThisConnectionRound - Target slot has IP %d.%d.%d.%d  Local slot has IP %d.%d.%d.%d\n",
 							targetIP >> 24, (targetIP >> 16) & 0xff, (targetIP >> 8) & 0xff, targetIP & 0xff,
@@ -757,10 +751,8 @@ void NAT::sendMangledSourcePort() {
 
 	// check to see if the target and I are behind the same NAT
 	if (targetSlot->getIP() == localSlot->getIP()) {
-#if defined(DEBUG_LOGGING)
 		UnsignedInt localip = localSlot->getIP();
 		UnsignedInt targetip = targetSlot->getIP();
-#endif
 		DEBUG_LOG(("NAT::sendMangledSourcePort - target and I are behind the same NAT, no mangling\n"));
 		DEBUG_LOG(("NAT::sendMangledSourcePort - I am %ls, target is %ls, my IP is %d.%d.%d.%d, target IP is %d.%d.%d.%d\n", localSlot->getName().str(), targetSlot->getName().str(),
 								localip >> 24, (localip >> 16) & 0xff, (localip >> 8) & 0xff, localip & 0xff,
@@ -1034,9 +1026,7 @@ void NAT::gotMangledPort(Int nodeNumber, UnsignedShort mangledPort) {
 	DEBUG_LOG(("NAT::gotMangledPort - got mangled port number %d from our target node (%ls)\n", mangledPort, targetSlot->getName().str()));
 	if (((localSlot->getNATBehavior() & FirewallHelperClass::FIREWALL_TYPE_NETGEAR_BUG) == 0) || (m_beenProbed == TRUE) ||
 			(((localSlot->getNATBehavior() & FirewallHelperClass::FIREWALL_TYPE_NETGEAR_BUG) != 0) && ((targetSlot->getNATBehavior() & FirewallHelperClass::FIREWALL_TYPE_NETGEAR_BUG) != 0))) {
-#ifdef DEBUG_LOGGING
 		UnsignedInt ip = targetSlot->getIP();
-#endif
 		DEBUG_LOG(("NAT::gotMangledPort - don't have a netgear or we have already been probed, or both my target and I have a netgear, send a PROBE. Sending to %d.%d.%d.%d:%d\n",
 								ip >> 24, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff, targetSlot->getPort()));
 

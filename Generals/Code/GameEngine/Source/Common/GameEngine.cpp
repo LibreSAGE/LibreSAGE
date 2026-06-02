@@ -262,15 +262,13 @@ void GameEngine::init( int argc, char *argv[] )
 		if (TheVersion)
 		{
 			DEBUG_LOG(("================================================================================\n"));
-#ifdef DEBUG_LOGGING
 	#if defined _DEBUG
 			const char *buildType = "Debug";
 	#elif defined _INTERNAL
 			const char *buildType = "Internal";
 	#else
-	//	const char *buildType = "Release";
+			const char *buildType = "Release";
 	#endif
-#endif // DEBUG_LOGGING
 			DEBUG_LOG(("Generals version %s (%s)\n", TheVersion->getAsciiVersion().str(), buildType));
 			DEBUG_LOG(("Build date: %s\n", TheVersion->getAsciiBuildTime().str()));
 			DEBUG_LOG(("Build location: %s\n", TheVersion->getAsciiBuildLocation().str()));

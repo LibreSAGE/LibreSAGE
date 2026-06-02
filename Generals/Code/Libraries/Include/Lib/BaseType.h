@@ -129,7 +129,9 @@ typedef char							Char;							// 1 byte of text
 typedef bool							Bool;							// 
 // note, the types below should use "long long", but MSVC doesn't support it yet
 typedef int64_t							Int64;							// 8 bytes 
-typedef uint64_t						UnsignedInt64;	  				// 8 bytes 
+typedef uint64_t						UnsignedInt64;	  								
+typedef intptr_t						IntPtr;							// 8 bytes 
+typedef uintptr_t						UnsignedPtr;					// an unsigned type that can hold a pointer
 
 #include "Lib/Trig.h"
 

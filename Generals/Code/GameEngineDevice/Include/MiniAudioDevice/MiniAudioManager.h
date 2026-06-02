@@ -1,6 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
-**	Copyright 2025 Electronic Arts Inc.
+**	Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,13 +16,13 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// FILE: MilesAudioManager.h //////////////////////////////////////////////////////////////////////////
-// MilesAudioManager implementation
-// Author: John K. McDonald, July 2002
+// FILE: MiniAudioManager.h //////////////////////////////////////////////////////////////////////////
+// MiniAudioManager implementation
+// Author: Stephan Vedder, June 2026
 
 #include "Common/AsciiString.h"
 #include "Common/GameAudio.h"
-#include "MSS/MSS.h"
+#include <miniaudio.h>
 
 class AudioEventRTS;
 
@@ -53,22 +53,15 @@ enum PlayingWhich
 
 struct PlayingAudio
 {
-	union
-	{
-		HSAMPLE m_sample;
-		H3DSAMPLE m_3DSample;
-		HSTREAM m_stream;
-	};
-
+	ma_sound* m_sound;
 	PlayingAudioType m_type;
-	volatile PlayingStatus m_status;	// This member is adjusted by another running thread.
 	AudioEventRTS *m_audioEventRTS;
-	void *m_file;		// The file that was opened to play this
 	Bool m_requestStop;
 	Bool m_cleanupAudioEventRTS;
 	Int m_framesFaded;
 	
 	PlayingAudio() : 
+		m_sound(NULL),
 		m_type(PAT_INVALID), 
 		m_audioEventRTS(NULL), 
 		m_requestStop(false), 
@@ -77,61 +70,7 @@ struct PlayingAudio
 	{ }
 };
 
-struct ProviderInfo
-{
-  AsciiString name;
-  HPROVIDER id;
-	Bool m_isValid;
-};
-
-struct OpenAudioFile
-{
-	AILSOUNDINFO m_soundInfo;
-	void *m_file;
-	UnsignedInt m_openCount;
-	UnsignedInt m_fileSize;
-
-	Bool m_compressed;	// if the file was compressed, then we need to free it with a miles function.
-	
-	// Note: OpenAudioFile does not own this m_eventInfo, and should not delete it.
-	const AudioEventInfo *m_eventInfo;	// Not mutable, unlike the one on AudioEventRTS.
-};
-
-typedef std::unordered_map< AsciiString, OpenAudioFile, rts::hash<AsciiString>, rts::equal_to<AsciiString> > OpenFilesHash;
-typedef OpenFilesHash::iterator OpenFilesHashIt;
-
-class AudioFileCache
-{
-	public:
-		AudioFileCache();
-		
-		// Protected by mutex
-		virtual ~AudioFileCache();
-		void *openFile( AudioEventRTS *eventToOpenFrom );
-		void closeFile( void *fileToClose );
-		void setMaxSize( UnsignedInt size );
-		// End Protected by mutex
-
-		// Note: These functions should be used for informational purposes only. For speed reasons,
-		// they are not protected by the mutex, so they are not guarenteed to be valid if called from
-		// outside the audio cache. They should be used as a rough estimate only.
-		UnsignedInt getCurrentlyUsedSize() const { return m_currentlyUsedSize; }
-		UnsignedInt getMaxSize() const { return m_maxSize; }
-
-	protected:
-		void releaseOpenAudioFile( OpenAudioFile *fileToRelease );
-
-		// This function will return TRUE if it was able to free enough space, and FALSE otherwise.
-		Bool freeEnoughSpaceForSample(const OpenAudioFile& sampleThatNeedsSpace);
-		
-		OpenFilesHash m_openFiles;
-		UnsignedInt m_currentlyUsedSize;
-		UnsignedInt m_maxSize;
-		HANDLE m_mutex;
-		const char *m_mutexName;
-};
-
-class MilesAudioManager : public AudioManager
+class MiniAudioManager : public AudioManager
 {
 
 	public:
@@ -146,8 +85,8 @@ class MilesAudioManager : public AudioManager
 		virtual void reset();
 		virtual void update();
 
-		MilesAudioManager();
-		virtual ~MilesAudioManager();
+		MiniAudioManager();
+		virtual ~MiniAudioManager();
 
 
 		virtual void nextMusicTrack( void );
@@ -158,7 +97,7 @@ class MilesAudioManager : public AudioManager
 
 		virtual void openDevice( void );
 		virtual void closeDevice( void );
-		virtual void *getDevice( void ) { return m_digitalHandle; }
+		virtual void *getDevice( void ) { return &m_engine; }
 
 		virtual void stopAudio( AudioAffect which );
 		virtual void pauseAudio( AudioAffect which );
@@ -235,12 +174,6 @@ class MilesAudioManager : public AudioManager
 
 		// Looping functions
 		Bool startNextLoop( PlayingAudio *looping );
-
-		void playStream( AudioEventRTS *event, HSTREAM stream );
-		// Returns the file handle for attachment to the PlayingAudio structure
-		void *playSample( AudioEventRTS *event, HSAMPLE sample );
-		void *playSample3D( AudioEventRTS *event, H3DSAMPLE sample3D );
-
 	protected:
 		void buildProviderList( void );
 		void createListener( void );
@@ -253,8 +186,6 @@ class MilesAudioManager : public AudioManager
 		void stopAudioEvent( AudioHandle handle );
 		void pauseAudioEvent( AudioHandle handle );
 
-		void closeFile( void *fileRead );
-
 		PlayingAudio *allocatePlayingAudio( void );
 		void releaseMilesHandles( PlayingAudio *release );
 		void releasePlayingAudio( PlayingAudio *release );
@@ -262,61 +193,33 @@ class MilesAudioManager : public AudioManager
 		void stopAllAudioImmediately( void );
 		void freeAllMilesHandles( void );
 
-		HSAMPLE getFirst2DSample( AudioEventRTS *event );
-		H3DSAMPLE getFirst3DSample( AudioEventRTS *event );
-
 		void adjustPlayingVolume( PlayingAudio *audio );
 		
 		void stopAllSpeech( void );
-		
 	protected:
-		void initFilters( HSAMPLE sample, const AudioEventRTS *eventInfo );
-		void initFilters3D( H3DSAMPLE sample, const AudioEventRTS *eventInfo, const Coord3D *pos );
-
-	protected:
-		ProviderInfo m_provider3D[MAXPROVIDERS];
-		UnsignedInt m_providerCount;
-		UnsignedInt m_selectedProvider;
-		UnsignedInt m_lastProvider;
+		ma_device_info* m_playbackDevices;
+		UnsignedInt m_playbackDeviceCount;
+		UnsignedInt m_selectedPlaybackDevice;
+		UnsignedInt m_lastSelectedPlaybackDevice;
 		UnsignedInt m_selectedSpeakerType;
 
 		AsciiString m_pref3DProvider;
 		AsciiString m_prefSpeaker;
 
-		HDIGDRIVER m_digitalHandle;
-		H3DPOBJECT m_listener;
-		HPROVIDER m_delayFilter;
-
-		// This is a list of all handles that are forcibly played. They always play as UI sounds.
-		std::list<HAUDIO> m_audioForcePlayed;
-
-		// Available handles for play. Note that there aren't handles open in advance for 
-		// streaming things, only 2-D and 3-D sounds.
-		std::list<HSAMPLE> m_availableSamples;
-		std::list<H3DSAMPLE> m_available3DSamples;
+		ma_engine m_engine;
+		ma_context m_context;
+		ma_resource_manager m_resourceManager;
+		ma_log m_log;
+		ma_sound_group m_musicGroup;
+		ma_sound_group m_soundGroup;
+		ma_sound_group m_sound3DGroup;
+		ma_sound_group m_speechGroup;
 
 		// Currently Playing stuff. Useful if we have to preempt it. 
 		// This should rarely if ever happen, as we mirror this in Sounds, and attempt to 
 		// keep preemption from taking place here.
 		std::list<PlayingAudio *> m_playingSounds;
-		std::list<PlayingAudio *> m_playing3DSounds;
-		std::list<PlayingAudio *> m_playingStreams;
-
-		// Currently fading stuff. At this point, we just want to let it finish fading, when it is
-		// done it should be added to the completed list, then "freed" and the counts should be updated
-		// on the next update
-		std::list<PlayingAudio *> m_fadingAudio;
-
-		// Stuff that is done playing (either because it has finished or because it was killed)
-		// This stuff should be cleaned up during the next update cycle. This includes updating counts
-		// in the sound engine
-		std::list<PlayingAudio *> m_stoppedAudio;
-
-		AudioFileCache *m_audioCache;
 		PlayingAudio *m_binkHandle;
-		UnsignedInt m_num2DSamples;
-		UnsignedInt m_num3DSamples;
-		UnsignedInt m_numStreams;
 		
 #if defined(_DEBUG) || defined(_INTERNAL)
 		typedef std::set<AsciiString> SetAsciiString;

@@ -33,20 +33,4 @@ inline void GlobalMemoryStatus(MEMORYSTATUS* memStatus)
     memStatus->dwLength = sizeof(MEMORYSTATUS);
     memStatus->dwTotalPhys = 0;
 }
-
-#define HEAP_ZERO_MEMORY 0x00000008
-inline void* HeapAlloc(void* heap, unsigned int flags, unsigned int numBytes)
-{
-    return malloc(numBytes);
-}
-
-inline void HeapFree(void* heap, unsigned int flags, void* ptr)
-{
-    free(ptr);
-}
-
-inline void* GetProcessHeap()
-{
-    return nullptr;
-}
 #endif

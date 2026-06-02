@@ -435,10 +435,7 @@ void GameInfo::setSlot( Int slotNum, GameSlot slotInfo )
 	}
 	*m_slot[slotNum] = slotInfo;
 
-#ifdef DEBUG_LOGGING
 	UnsignedInt ip = slotInfo.getIP();
-#endif
-
 	DEBUG_LOG(("GameInfo::setSlot - setting slot %d to be player %ls with IP %d.%d.%d.%d\n", slotNum, slotInfo.getName().str(),
 							ip >> 24, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff));
 }

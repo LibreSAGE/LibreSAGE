@@ -771,8 +771,8 @@ static void QRServerKeyCallback
 	if (!t->isHosting())
 		t->stopHostingAlready(peer);
 
-#ifdef DEBUG_LOGGING
 	AsciiString val = "";
+#ifdef DEBUG_LOGGING
 #define ADD(x) { qr2_buffer_add(buffer, x); val = x; }
 #define ADDINT(x) { qr2_buffer_add_int(buffer, x); val.format("%d",x); }
 #else
@@ -858,10 +858,10 @@ static void QRPlayerKeyCallback
 	if (!t->isHosting())
 		t->stopHostingAlready(peer);
 
+	AsciiString val = "";
 #undef ADD
 #undef ADDINT
 #ifdef DEBUG_LOGGING
-	AsciiString val = "";
 #define ADD(x) { qr2_buffer_add(buffer, x); val = x; }
 #define ADDINT(x) { qr2_buffer_add_int(buffer, x); val.format("%d",x); }
 #else
@@ -2807,7 +2807,7 @@ static void listingGamesCallback(PEER peer, PEERBool success, const char * name,
 	DEBUG_ASSERTCRASH(name, ("Game has no name!\n"));
 	if (!t || !success || (!name && (msg == PEER_ADD || msg == PEER_UPDATE)))
 	{
-		DEBUG_LOG(("Bailing from listingGamesCallback() - success=%d, name=%X, server=%X, msg=%X\n", success, name, server, msg));
+		DEBUG_LOG(("Bailing from listingGamesCallback() - success=%d, name=%s, server=%p, msg=%i\n", success, name, server, msg));
 		return;
 	}
 	if (!name)
@@ -2919,19 +2919,19 @@ static void listingGamesCallback(PEER peer, PEERBool success, const char * name,
 		{
 			if (SBServerHasBasicKeys(server))
 			{
-				DEBUG_LOG(("Server %x does not have basic keys\n", server));
+				DEBUG_LOG(("Server %p does not have basic keys\n", server));
 				return;
 			}
 			else
 			{
-				DEBUG_LOG(("Server %x has basic keys, yet has no info\n", server));
+				DEBUG_LOG(("Server %p has basic keys, yet has no info\n", server));
 			}
 			if (msg == PEER_UPDATE)
 			{
 				PeerRequest req;
 				req.peerRequestType = PeerRequest::PEERREQUEST_GETEXTENDEDSTAGINGROOMINFO;
 				req.stagingRoom.id = t->findServer( server );
-				DEBUG_LOG(("Add/update a 0/0 server %X (%d, %s) - requesting full update to see if that helps.\n",
+				DEBUG_LOG(("Add/update a 0/0 server %p (%d, %s) - requesting full update to see if that helps.\n",
 					server, resp.stagingRoom.id, gameName.str()));
 				TheGameSpyPeerMessageQueue->addRequest(req);
 			}
@@ -2947,7 +2947,7 @@ static void listingGamesCallback(PEER peer, PEERBool success, const char * name,
 		case PEER_ADD:
 		case PEER_UPDATE:
 			resp.stagingRoom.id = t->findServer( server );
-			DEBUG_LOG(("Add/update on server %X (%d, %s)\n", server, resp.stagingRoom.id, gameName.str()));
+			DEBUG_LOG(("Add/update on server %p (%d, %s)\n", server, resp.stagingRoom.id, gameName.str()));
 			resp.stagingServerName = MultiByteToWideCharSingleLine( gameName.str() );
 			DEBUG_LOG(("Server had basic=%d, full=%d\n", SBServerHasBasicKeys(server), SBServerHasFullKeys(server)));
 #ifdef DEBUG_LOGGING
@@ -2955,7 +2955,7 @@ static void listingGamesCallback(PEER peer, PEERBool success, const char * name,
 #endif
 			break;
 		case PEER_REMOVE:
-			DEBUG_LOG(("Removing server %X (%d)\n", server, resp.stagingRoom.id));
+			DEBUG_LOG(("Removing server %p (%d)\n", server, resp.stagingRoom.id));
 			resp.stagingRoom.id = t->removeServerFromMap( server );
 			break;
 	}
