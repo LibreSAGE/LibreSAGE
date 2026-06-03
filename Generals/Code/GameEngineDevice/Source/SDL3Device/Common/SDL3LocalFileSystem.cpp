@@ -40,18 +40,25 @@ File *SDL3LocalFileSystem::openFile(const Char *filename, Int access)
 		return NULL;
 	}
 
-	FilenameListIter filenameNoCase = std::find_if(m_fileList.begin(), m_fileList.end(), [&filename](const AsciiString &file)
+	AsciiString filenameNoCase(filename);
+	FilenameListIter it = std::find_if(m_fileList.begin(), m_fileList.end(), [&filename](const AsciiString &file)
 												   { return file.compareNoCase(filename) == 0; });
 
-	if (filenameNoCase == m_fileList.end())
+	// When there's no CREATE flag, we require that the file already exists.
+	if (it == m_fileList.end())
 	{
-		return NULL;
+		if ((access & File::WRITE) == 0)
+			return NULL;
+	}
+	else
+	{
+		filenameNoCase = *it;
 	}
 
 	if (access & File::WRITE)
 	{
 		AsciiString string;
-		string = *filenameNoCase;
+		string = filenameNoCase;
 		AsciiString token;
 		AsciiString dirName;
 		string.nextToken(&token, "\\/");
@@ -65,7 +72,7 @@ File *SDL3LocalFileSystem::openFile(const Char *filename, Int access)
 		}
 	}
 
-	if (file->open(filenameNoCase->str(), access) == FALSE)
+	if (file->open(filenameNoCase.str(), access) == FALSE)
 	{
 		file->close();
 		file->deleteInstance();
