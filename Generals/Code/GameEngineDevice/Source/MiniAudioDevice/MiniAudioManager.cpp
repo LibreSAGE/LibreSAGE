@@ -67,8 +67,11 @@ enum { INFINITE_LOOP_COUNT = 1000000 };
 
 // Callback functions for miniaudio's virtual file system
 static ma_result vfsFileOpen(ma_vfs *pVFS, const char *filename, ma_uint32 mode, ma_vfs_file *pFile);
+static ma_result vfsFileClose(ma_vfs *pVFS, ma_vfs_file file);
 static ma_result vfsFileInfo(ma_vfs *pVFS, ma_vfs_file file, ma_file_info *pInfo);
 static ma_result vfsFileRead(ma_vfs *pVFS, ma_vfs_file file, void *pBuffer, size_t bytesToRead, size_t *pBytesRead);
+static ma_result vfsFileTell(ma_vfs *pVFS, ma_vfs_file file, ma_int64 *pCursor);
+static ma_result vfsFileSeek(ma_vfs *pVFS, ma_vfs_file file, ma_int64 offset, ma_seek_origin origin);
 
 //-------------------------------------------------------------------------------------------------
 MiniAudioManager::MiniAudioManager() :
@@ -369,6 +372,7 @@ void MiniAudioManager::playAudioEvent( AudioEventRTS *event )
 
 	AsciiString fileToPlay = event->getFilename();
 	PlayingAudio *audio = allocatePlayingAudio();
+	audio->m_audioEventRTS = event; 
 
 	Bool foundSoundToReplace = false;
 	if (handleToKill) {
@@ -390,19 +394,23 @@ void MiniAudioManager::playAudioEvent( AudioEventRTS *event )
 	}
 
 	ma_sound_group *groupToUse = NULL;
+	ma_uint32 flags = 0;
 	switch(info->m_soundType)
 	{
 		case AT_Music:
 			groupToUse = &m_musicGroup;
+			flags = MA_SOUND_FLAG_STREAM | MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_NO_PITCH;
 			break;
 		case AT_Streaming:
 			groupToUse = &m_speechGroup;
+			flags = MA_SOUND_FLAG_STREAM | MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_NO_PITCH;
 			break;
 		case AT_SoundEffect:
 			if (event->isPositionalAudio()) {
 				groupToUse = &m_sound3DGroup;
 			} else {
 				groupToUse = &m_soundGroup;
+				flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_NO_PITCH;
 			}
 			break;
 	}
@@ -410,7 +418,7 @@ void MiniAudioManager::playAudioEvent( AudioEventRTS *event )
 	ma_sound* sound = NULL;
 	if (!handleToKill || foundSoundToReplace) {
 		sound = (ma_sound*)malloc(sizeof(ma_sound));
-		ma_result result = ma_sound_init_from_file(&m_engine, fileToPlay.str(), 0, groupToUse, NULL, sound);
+		ma_result result = ma_sound_init_from_file(&m_engine, fileToPlay.str(), flags, groupToUse, NULL, sound);
 		if (result != MA_SUCCESS) {
 			DEBUG_LOG(("Failed to initialize sound from file: %s", fileToPlay.str()));
 			releasePlayingAudio(audio);
@@ -436,7 +444,6 @@ void MiniAudioManager::playAudioEvent( AudioEventRTS *event )
 			}
 
 			// Put this on here, so that the audio event RTS will be cleaned up regardless.
-			audio->m_audioEventRTS = event; 
 			audio->m_sound = sound;
 			audio->m_type = PAT_Stream;
 
@@ -459,18 +466,28 @@ void MiniAudioManager::playAudioEvent( AudioEventRTS *event )
 				DEBUG_LOG((" Positional"));
 			#endif
 				// Push it onto the list of playing things
-				audio->m_audioEventRTS = event; 
 				audio->m_sound = sound;
 				audio->m_type = PAT_3DSample;
 
+				// Set the position values of the sample here
+				if (event->getAudioEventInfo()->m_type & ST_GLOBAL) {
+					ma_sound_set_min_distance(sound, TheAudio->getAudioSettings()->m_globalMinRange );
+					ma_sound_set_max_distance(sound, TheAudio->getAudioSettings()->m_globalMaxRange );
+				} else {
+					ma_sound_set_min_distance(sound, event->getAudioEventInfo()->m_minDistance );
+					ma_sound_set_max_distance(sound, event->getAudioEventInfo()->m_maxDistance );
+				}
 				const Coord3D* pos = event->getCurrentPosition();
 				ma_sound_set_position(sound, pos->x, pos->y, pos->z);
 				m_sound->notifyOf3DSampleStart();
+
+				ma_vec3f relPos;
+				ma_spatializer_get_relative_position_and_direction(&sound->engineNode.spatializer, &m_engine.listeners[0], &relPos, NULL);
+				DEBUG_LOG(("Initial relative position of sound: (%f, %f, %f)\n", relPos.x, relPos.y, relPos.z));
 			} 
 			else 
 			{
 				// Push it onto the list of playing things
-				audio->m_audioEventRTS = event; 
 				audio->m_sound = sound;
 				audio->m_type = PAT_Sample;
 				m_sound->notifyOf2DSampleStart();
@@ -694,8 +711,11 @@ void MiniAudioManager::openDevice( void )
 	ma_engine_config engineConfig;
 	static ma_vfs_callbacks vfs = {};
 	vfs.onOpen = vfsFileOpen;
+	vfs.onClose = vfsFileClose;
 	vfs.onInfo = vfsFileInfo;
 	vfs.onRead = vfsFileRead;
+	vfs.onTell = vfsFileTell;
+	vfs.onSeek = vfsFileSeek;
 
 	// Use a custom resource manager, so we can load from our virtual file system.
 	resourceManagerConfig = ma_resource_manager_config_init();
@@ -1035,6 +1055,13 @@ void MiniAudioManager::processRequestList( void )
 //-------------------------------------------------------------------------------------------------
 void MiniAudioManager::processPlayingList( void )
 {
+	if(m_volumeHasChanged) {
+		ma_sound_group_set_volume(&m_musicGroup, m_musicVolume);
+		ma_sound_group_set_volume(&m_speechGroup, m_speechVolume);
+		ma_sound_group_set_volume(&m_soundGroup, m_soundVolume);
+		ma_sound_group_set_volume(&m_sound3DGroup, m_sound3DVolume);
+		m_volumeHasChanged = false;
+	}
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1290,6 +1317,17 @@ static ma_result vfsFileOpen(ma_vfs *pVFS, const char *filename, ma_uint32 mode,
 	return MA_SUCCESS;
 }
 
+static ma_result vfsFileClose(ma_vfs *pVFS, ma_vfs_file file)
+{
+	File *f = (File *)file;
+	if (!f) {
+		return MA_INVALID_FILE;
+	}
+
+	f->close();
+	return MA_SUCCESS;
+}
+
 static ma_result vfsFileInfo(ma_vfs *pVFS, ma_vfs_file file, ma_file_info *pInfo)
 {
 	File *f = (File *)file;
@@ -1311,6 +1349,41 @@ static ma_result vfsFileRead(ma_vfs *pVFS, ma_vfs_file file, void *pBuffer, size
 	size_t bytesActuallyRead = f->read(pBuffer, bytesToRead);
 	if (pBytesRead) {
 		*pBytesRead = bytesActuallyRead;
+	}
+
+	return MA_SUCCESS;
+}
+
+static ma_result vfsFileTell(ma_vfs *pVFS, ma_vfs_file file, ma_int64 *pCursor)
+{
+	File *f = (File *)file;
+	if (!f) {
+		return MA_INVALID_FILE;
+	}
+
+	*pCursor = f->position();
+	return MA_SUCCESS;
+}
+
+static ma_result vfsFileSeek(ma_vfs *pVFS, ma_vfs_file file, ma_int64 offset, ma_seek_origin origin)
+{
+	File *f = (File *)file;
+	if (!f) {
+		return MA_INVALID_FILE;
+	}
+
+	switch (origin) {
+		case ma_seek_origin_start:
+			f->seek(offset, File::START);
+			break;
+		case ma_seek_origin_current:
+			f->seek(offset, File::CURRENT);
+			break;
+		case ma_seek_origin_end:
+			f->seek(offset, File::END);
+			break;
+		default:
+			return MA_INVALID_FILE;
 	}
 
 	return MA_SUCCESS;
