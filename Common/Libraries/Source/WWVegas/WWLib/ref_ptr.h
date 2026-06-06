@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,18 +34,8 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef REF_PTR_H
-#define REF_PTR_H
-
-#ifndef ALWAYS_H
 #include "always.h"
-#endif
 
 /*
 	RefCountPtr<T> is a smart pointer for reference counted objects.
@@ -431,6 +422,3 @@ bool operator !=(DummyPtrType * dummy, const RefCountPtr<RHS> & rhs)
 
 	return 0 != rhs.Peek();	
 }
-
-
-#endif

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -39,7 +40,8 @@
 #include	"always.h"
 #include	"base64.h"
 //#include	<stddef.h>
-
+// On Linux this is defined by some internal header
+#undef BIG_ENDIAN
 /*
 **	This is the magic padding character used to fill out the encoded data to a multiple of
 **	4 characters even though the source data is less than necessary to accomplish this.

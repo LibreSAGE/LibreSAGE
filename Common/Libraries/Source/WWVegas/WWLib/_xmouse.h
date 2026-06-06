@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,10 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef _XMOUSE_H
-#define _XMOUSE_H
-
+#pragma once
 #include	"xmouse.h"
 
 extern Mouse * MouseCursor;
@@ -51,6 +49,3 @@ inline int Get_Mouse_State(void) {return(MouseCursor->Get_Mouse_State());}
 inline void Set_Mouse_Cursor(int hotx, int hoty, ShapeSet const * cursor, int shape) {MouseCursor->Set_Cursor(hotx, hoty, cursor, shape);}
 inline int Get_Mouse_X(void) {return(MouseCursor->Get_Mouse_X());}
 inline int Get_Mouse_Y(void) {return(MouseCursor->Get_Mouse_Y());}
-
-
-#endif

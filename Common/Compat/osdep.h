@@ -3,6 +3,7 @@
 #ifndef _WIN32
 #include <unistd.h>
 #include <time.h>
+#include "intrin_compat.h"
 
 inline int GetTickCount()
 {

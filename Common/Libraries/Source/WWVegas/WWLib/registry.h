@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -32,18 +33,9 @@
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
 
-#ifndef REGISTRY_H
-#define REGISTRY_H
-
-#ifndef ALWAYS_H
 #include "always.h"
-#endif
-
 #include "vector.h"
 #include "wwstring.h"
 #include "widestring.h"
@@ -97,5 +89,3 @@ private:
 	int	Key;
 	bool	IsValid;
 };
-
-#endif // REGISTRY_H

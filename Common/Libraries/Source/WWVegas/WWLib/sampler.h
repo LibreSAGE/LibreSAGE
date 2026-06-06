@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -35,20 +36,7 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-// 'function selected for automatic inline expansion'.  Cool, but since we're treating
-// warnings as errors, don't warn me about this!
-#pragma warning(disable : 4711)
-
-// 'not inlined' -- the evil twin of the above warning.
-#pragma warning(disable : 4710)
-
-#ifndef SAMPLER_H
-#define SAMPLER_H
 
 class Random4Class;
 
@@ -128,6 +116,3 @@ public:
 protected:
 	unsigned int index;
 };
-
-
-#endif

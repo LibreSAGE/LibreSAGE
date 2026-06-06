@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -35,7 +36,6 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #pragma once
-#ifndef _SYSTIMER_H
 
 #include "always.h"
 #include <windows.h>
@@ -134,8 +134,3 @@ WWINLINE unsigned long SysTimeClass::Get(void)
 #undef timeGetTime
 #define timeGetTime SystemTime.Get
 #endif //timeGetTime
-
-
-
-
-#endif //_SYSTIMER_H

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -34,13 +35,7 @@
  *-------------------------------------------------------------------------* 
  * Functions:                                                              * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef BITTYPE_H
-#define BITTYPE_H
-
 #include <cstdint>
 
 typedef unsigned char	uint8;
@@ -65,5 +60,3 @@ typedef const char *		LPCSTR;
 typedef unsigned int    UINT;
 typedef int32_t LONG;
 typedef uint32_t ULONG;
-
-#endif //BITTYPE_H

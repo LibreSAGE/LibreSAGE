@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,10 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef BFIOFILE_H
-#define BFIOFILE_H
-
+#pragma once
 #include	"rawfile.h"
 
 /*
@@ -54,7 +52,7 @@ class BufferIOFileClass : public RawFileClass
 		BufferIOFileClass(void);
 		virtual ~BufferIOFileClass(void);
 
-		bool Cache( long size=0, void * ptr=NULL);
+		bool Cache( long size=0, char * ptr=NULL);
 		void Free( void);
 		bool Commit( void);
 		virtual char const * Set_Name(char const * filename);
@@ -81,7 +79,7 @@ class BufferIOFileClass : public RawFileClass
 
 		int BufferRights;
 
-		void *Buffer;
+		char *Buffer;
 
 		long BufferSize;
 		long BufferPos;
@@ -92,5 +90,3 @@ class BufferIOFileClass : public RawFileClass
 		long FilePos;
 		long TrueFileStart;
 };
-
-#endif

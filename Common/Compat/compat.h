@@ -26,7 +26,9 @@
 #define OutputDebugString(str) printf("%s\n", str)
 #endif
 
+#ifndef INVALID_HANDLE_VALUE
 #define INVALID_HANDLE_VALUE 0
+#endif
 
 #ifndef _WIN32
 #ifndef _MAX_FNAME

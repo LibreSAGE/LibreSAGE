@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -48,15 +49,18 @@
 
 #include	"straw.h"
 #include	<stdlib.h>
+#include	<cstdint>
 
 #define	UNITSIZE					32
 #define	MAX_BIT_PRECISION		2048
 #define	MAX_UNIT_PRECISION	(MAX_BIT_PRECISION/UNITSIZE)
-#define	signeddigit	signed long
+#define	signeddigit	int32_t
 #define	LOG_UNITSIZE			5
 
 //#define	digit	unsigned long
-typedef unsigned long digit;
+typedef uint32_t digit;
+
+static_assert(sizeof(digit) * 8 == UNITSIZE, "digit width must match UNITSIZE");
 
 #define MPEXPORT
 

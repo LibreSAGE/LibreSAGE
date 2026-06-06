@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -15,10 +16,7 @@
 **	You should have received a copy of the GNU General Public License
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#ifndef RSACRYPT_H
-#define RSACRYPT_H
-
+#pragma once
 #include <wwlib/int.h>
 #include <wwlib/wwfile.h>
 
@@ -344,6 +342,3 @@ bool RSACrypt<PRECISION>::Load_Bignum(FileClass *file, Integer &num)
 
 	return(true);
 }
-
-
-#endif

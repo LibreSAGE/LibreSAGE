@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,20 +34,12 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef ALWAYS_H
-#define ALWAYS_H
 
 #include <compat.h>
 
 #include <assert.h>
 #include <new>
-
-// Disable warning about exception handling not being enabled. It's used as part of STL - in a part of STL we don't use.
-#pragma warning(disable : 4530)
 
 /*
 ** Define for debug memory allocation to include __FILE__ and __LINE__ for every memory allocation.
@@ -73,6 +66,8 @@
 #endif	//STEVES_NEW_CATCHER
 #endif	//_MSC_VER
 #endif	//_DEBUG
+
+#if 1 // (gth)
 
 #ifndef _OPERATOR_NEW_DEFINED_
 
@@ -156,16 +151,19 @@ public:
 };
 // ----------------------------------------------------------------------------
 
+#else
 
-// Jani: Intel's C++ compiler issues too many warnings in WW libraries when using warning level 4
-#if defined (__ICL)    // Detect Intel compiler
-#pragma warning (3)
-#pragma warning ( disable: 981 ) // parameters defined in unspecified order
-#pragma warning ( disable: 279 ) // controlling expressaion is constant
-#pragma warning ( disable: 271 ) // trailing comma is nonstandard
-#pragma warning ( disable: 171 ) // invalid type conversion
-#pragma warning ( disable: 1 ) // last line of file ends without a newline
-#endif
+	#define MSGW3DNEW(MSG)					new
+	#define MSGW3DNEWARRAY(MSG)			new
+	#define W3DNEW									new
+	#define W3DNEWARRAY							new
+
+	#define W3DMPO_GLUE(ARGCLASS)
+
+	class W3DMPO { };
+
+#endif // (gth) removing the generals memory stuff from W3D
+
 
 // Jani: MSVC doesn't necessarily inline code with inline keyword. Using __forceinline results better inlining
 // and also prints out a warning if inlining wasn't possible. __forceinline is MSVC specific.
@@ -251,7 +249,4 @@ template <class T> T max(T a,T b)
 
 #ifndef size_of
 #define size_of(typ,id) sizeof(((typ*)0)->id)
-#endif
-
-
 #endif

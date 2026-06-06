@@ -15,12 +15,19 @@ target_sources(
           b64straw.h
           base64.cpp
           base64.h
+          bfiofile.cpp
+          bfiofile.h
           binheap.h
           bittype.h
           blit.cpp
           blit.h
           blitter.h
           blowfish.cpp
+          blowfish.h
+          blowpipe.cpp
+          blowpipe.h
+          blwstraw.cpp
+          blwstraw.h
           bool.h
           borlandc.h
           bound.h
@@ -39,12 +46,20 @@ target_sources(
           cpudetect.h
           crc.cpp
           crc.h
+          crcpipe.cpp
+          crcpipe.h
+          crcstraw.cpp
+          crcstraw.h
           cstraw.cpp
           cstraw.h
           data.cpp
           data.h
+          draw.cpp
+          draw.h
           ffactory.cpp
           ffactory.h
+          fixed.cpp
+          fixed.h
           font.h
           gcd_lcm.cpp
           gcd_lcm.h
@@ -54,7 +69,9 @@ target_sources(
           hashlist.h
           hashtemplate.h
           hsv.cpp
+          hsv.h
           iff.h
+          incdec.h
           index.h
           ini.cpp
           ini.h
@@ -65,10 +82,23 @@ target_sources(
           jshell.cpp
           lcw.cpp
           lcw.h
+          lcwpipe.cpp
+          lcwpipe.h
           listnode.h
           load.cpp
+          lzo.cpp
+          lzo.h
+          lzopipe.cpp
+          lzopipe.h
+          lzostraw.cpp
+          lzostraw.h
+          md5.cpp
+          md5.h
           mempool.h
+          misc.h
+          mixfile.cpp
           mixfile.h
+          mmsys.h
           mono.cpp
           mono.h
           monodrvr.h
@@ -81,6 +111,7 @@ target_sources(
           multilist.h
           mutex.cpp
           mutex.h
+          noinit.h
           notify.h
           nstrdup.cpp
           nstrdup.h
@@ -93,6 +124,10 @@ target_sources(
           pipe.h
           pk.cpp
           pk.h
+          pkpipe.cpp
+          pkpipe.h
+          pkstraw.cpp
+          pkstraw.h
           point.h
           ramfile.cpp
           ramfile.h
@@ -115,6 +150,8 @@ target_sources(
           rgb.h
           rle.cpp
           rle.h
+          rlerle.h
+          rndstraw.cpp
           rndstraw.h
           rndstrng.cpp
           rndstrng.h
@@ -124,6 +161,8 @@ target_sources(
           sampler.h
           sha.cpp
           sha.h
+          shapipe.cpp
+          shapipe.h
           shapeset.h
           sharebuf.h
           signaler.h
@@ -183,12 +222,14 @@ if(WIN32)
   target_sources(
     c_wwlib
     PRIVATE ddraw.cpp
+            dib.cpp
+            dib.h
             dsurface.cpp
             dsurface.h
             keyboard.cpp
             keyboard.h
-            LaunchWeb.cpp
-            LaunchWeb.h
+            launchweb.cpp
+            launchweb.h
             rcfile.cpp
             rcfile.h
             wwcomutil.cpp
@@ -203,3 +244,12 @@ find_package(DXVK CONFIG REQUIRED)
 target_link_libraries(c_wwlib PUBLIC c_library_include c_wwdebug DXVK::d3d8)
 
 # DirectDraw target_link_libraries(c_wwlib PRIVATE dxlib::ddraw)
+# LZO Compression library
+find_path(LZO_INCLUDE_DIR NAMES lzo/lzo1.h)
+find_library(LZO_LIBRARY NAMES liblzo2.so)
+target_include_directories(c_wwlib PRIVATE ${LZO_INCLUDE_DIR})
+target_link_libraries(c_wwlib PRIVATE ${LZO_LIBRARY})
+
+# SDL3 library
+find_package(SDL3 CONFIG REQUIRED)
+target_link_libraries(c_wwlib PRIVATE SDL3::SDL3)

@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 #include <unicode/ustring.h>
 
-class W3DTextRenderTest :  public ::testing::TestWithParam<const char*>
+class W3DTextRenderTest :  public ::testing::TestWithParam<std::tuple<const char*, bool>>
 {
     protected:
     void SetUp() override
@@ -30,7 +30,8 @@ class W3DTextRenderTest :  public ::testing::TestWithParam<const char*>
 TEST_P(W3DTextRenderTest, DrawText)
 {
     FontCharsClass *fontChars = WW3DAssetManager::Get_Instance()->Get_FontChars("Arial Unicode MS", 12, false);
-    const char *sentence = GetParam();
+    const char *sentence = std::get<0>(GetParam());
+    bool centered = std::get<1>(GetParam());
     UChar wSentence[256] = {0};
     UErrorCode err = U_ZERO_ERROR;
     u_strFromUTF8(wSentence, 256, nullptr, sentence, -1, &err);
@@ -38,6 +39,7 @@ TEST_P(W3DTextRenderTest, DrawText)
 
     Render2DSentenceClass textRenderer;
     textRenderer.Set_Font(fontChars);
+    textRenderer.Set_Word_Wrap_Centered(centered);
 
     // Measure a sentence and check that the extents are reasonable
     Vector2 textExtents = textRenderer.Get_Text_Extents(wSentence);
@@ -59,7 +61,7 @@ TEST_P(W3DTextRenderTest, DrawText)
     EXPECT_GT(drawExtents.Height(), 0.0f);
 	textRenderer.Render();
 
-    WW3D::Make_Screen_Shot("texttest");
+    WW3D::Make_Screen_Shot("DrawText");
 }
 
 const char* sentences[] = {
@@ -70,4 +72,4 @@ const char* sentences[] = {
     u8"😀😃😄😁😆😅😂🤣☺️😊",
 };
 
-INSTANTIATE_TEST_SUITE_P(WW3D2, W3DTextRenderTest, ::testing::ValuesIn(sentences));
+INSTANTIATE_TEST_SUITE_P(WW3D2, W3DTextRenderTest, testing::Combine(testing::ValuesIn(sentences), testing::Values(true, false)));

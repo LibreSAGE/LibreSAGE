@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -32,9 +33,7 @@
 *     $Revision: 1 $
 *
 ******************************************************************************/
-
-#ifndef __CALLBACKHOOK_H__
-#define __CALLBACKHOOK_H__
+#pragma once
 
 class CallbackHook
 	{
@@ -80,5 +79,3 @@ template<class T> class Callback :
 		bool (*mCallback)(T);
 		T mUserData;
 	};
-
-#endif // __CALLBACKHOOK_H__

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,10 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef BLITBLIT_H
-#define BLITBLIT_H
-
+#pragma once
 
 /*
 **	This module contains the pixel-pushing blitter objects. These objects only
@@ -606,9 +604,6 @@ again:
 		jnz	again
 	}
 }
-
-
-#endif
 
 
 #endif

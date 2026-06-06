@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,10 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef BLOWPIPE_H
-#define BLOWPIPE_H
-
+#pragma once
 #include	"pipe.h"
 #include	"blowfish.h"
 
@@ -78,6 +76,3 @@ class BlowPipe : public Pipe
 		BlowPipe(BlowPipe & rvalue);
 		BlowPipe & operator = (BlowPipe const & pipe);
 };
-
-
-#endif

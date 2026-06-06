@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -31,22 +32,9 @@
  *-------------------------------------------------------------------------* 
  *	Functions:																					* 
  *	- - -	- - -	- - -	- - -	- - -	- - -	- - -	- - -	- - -	- - -	- - -	- - -	*/
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef __SLNODE_H__
-#define __SLNODE_H__
-
-#ifndef ALWAYS_H
 #include "always.h"
-#endif
-
 #include "mempool.h"
-
-#ifndef NULL
-#define NULL 0
-#endif
 
 //	Forward references for friend	classes
 template	<class T> class SList;
@@ -117,5 +105,3 @@ class	SLNode : public GenericSLNode
 	private:
 		SLNode(void) {};
 };
-
-#endif

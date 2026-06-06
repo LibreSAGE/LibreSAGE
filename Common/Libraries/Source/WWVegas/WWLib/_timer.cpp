@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -47,5 +48,3 @@ CDTimerClass<SystemTimerClass> FrameTimer;
 ** Tick Count global timer object.
 */
 TTimerClass<SystemTimerClass> TickCount = 0;
-
-

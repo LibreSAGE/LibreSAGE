@@ -33,20 +33,9 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
- 
-#ifndef REFCOUNT_H
-#define REFCOUNT_H
-
-#ifndef ALWAYS_H
 #include "always.h"
-#endif
-
-#ifndef LISTNODE_H
 #include "listnode.h"
-#endif
 
 class RefCountClass;
 
@@ -250,7 +239,3 @@ public:
 #endif
 
 };
-
-
-
-#endif

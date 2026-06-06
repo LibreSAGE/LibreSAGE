@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -36,10 +37,7 @@
  *   ShapeSet::Fetch_Rect -- Fetch the sub-rectangle of a shape.                               * 
  *   ShapeSet::Is_Transparent -- Is the specified shape containing transparent pixels?         * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef SHAPESET_H
-#define SHAPESET_H
-
+#pragma once
 #include	"bool.h"
 #include	"trect.h"
 
@@ -265,7 +263,3 @@ inline bool ShapeSet::Is_RLE_Compressed(int shape) const
 	}
 	return(false);
 }
-
-
-
-#endif

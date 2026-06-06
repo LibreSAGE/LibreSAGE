@@ -225,12 +225,9 @@ void * Get_Mem_Log_Mutex(void)
 
 void Lock_Mem_Log_Mutex(void)
 {
-	void * mutex = Get_Mem_Log_Mutex();
 #ifdef _WINDOWS
-#ifdef DEBUG_CRASHING
-	int res =
-#endif
-		WaitForSingleObject(mutex,INFINITE);
+	void * mutex = Get_Mem_Log_Mutex();
+	int res = WaitForSingleObject(mutex,INFINITE);
 	WWASSERT(res==WAIT_OBJECT_0);
 #endif
 	_MemLogLockCounter++;
@@ -238,13 +235,10 @@ void Lock_Mem_Log_Mutex(void)
 
 void Unlock_Mem_Log_Mutex(void)
 {
-	void * mutex = Get_Mem_Log_Mutex();
 	_MemLogLockCounter--;
 #ifdef _WINDOWS
-#ifdef DEBUG_CRASHING
-	int res=
-#endif
-		ReleaseMutex(mutex);
+	void * mutex = Get_Mem_Log_Mutex();
+	int res = ReleaseMutex(mutex);
 	WWASSERT(res);
 #endif
 }

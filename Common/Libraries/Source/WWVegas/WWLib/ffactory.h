@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -34,17 +35,8 @@
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef FFACTORY_H
-#define FFACTORY_H
-
-#ifndef ALWAYS_H
 #include "always.h"
-#endif
-
 #include "mutex.h"
 #include "vector.h"
 #include "wwstring.h"
@@ -155,5 +147,3 @@ extern RawFileFactoryClass	*	_TheWritingFileFactory;
 
 // No simple file factory.  jba.
 extern SimpleFileFactoryClass	*	_TheSimpleFileFactory;
-
-#endif

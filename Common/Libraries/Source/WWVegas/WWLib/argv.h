@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -34,18 +35,9 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-					
-#if defined(_MSC_VER)
 #pragma once
-#endif
 
-
-#ifndef ARGV_H	
-#define ARGV_H	 
-
-#ifndef ALWAYS_H
 #include "always.h"
-#endif
 
 #ifdef _UNIX
 #include "osdep.h"
@@ -161,6 +153,3 @@ class ArgvClass
 		enum {MAX_ARGC = 256};
 		static char  *Argv[MAX_ARGC];
 };
-
-
-#endif

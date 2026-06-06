@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,10 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef CRCPIPE_H
-#define CRCPIPE_H
-
+#pragma once
 #include	"crc.h"
 #include	"pipe.h"
 
@@ -60,5 +58,3 @@ class CRCPipe : public Pipe
 		CRCPipe(CRCPipe & rvalue);
 		CRCPipe & operator = (CRCPipe const & pipe);
 };
-
-#endif

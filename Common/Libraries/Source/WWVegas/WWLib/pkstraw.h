@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,10 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef PKSTRAW_H
-#define PKSTRAW_H
-
+#pragma once
 #include	"blwstraw.h"
 #include	"pk.h"
 #include	"pkstraw.h"
@@ -119,5 +117,3 @@ class PKStraw : public Straw
 		PKStraw(PKStraw & rvalue);
 		PKStraw & operator = (PKStraw const & straw);
 };
-
-#endif

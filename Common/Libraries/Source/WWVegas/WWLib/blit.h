@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,10 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef BLIT_H
-#define BLIT_H
-
+#pragma once
 #include	"blitter.h"
 #include	"buff.h"
 #include	"trect.h"
@@ -55,7 +53,3 @@ bool RLE_Blit(Surface & dest, Rect const & dcliprect, Rect const & ddrect, Surfa
 int Buffer_Size(Surface & surface, int width, int height);
 bool To_Buffer(Surface const & surface, Rect const & rect, Buffer & buffer);
 bool From_Buffer(Surface & surface, Rect const & rect, Buffer const & buffer);
-
-
-
-#endif

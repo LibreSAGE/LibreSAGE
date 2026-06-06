@@ -419,7 +419,7 @@ int INIClass::Load(Straw & ffile)
 
 				strtrim(divider);
 				if (!strlen(divider))
-					divider = " ";
+					divider = (char*)" ";
 
 				if (Put_String(section, buffer, divider) == false) {
 					return(false);
@@ -480,7 +480,7 @@ int INIClass::Load(Straw & ffile)
 
 				strtrim(divider);
 				if (!strlen(divider))
-					divider = " ";
+					divider = (char*)" ";
 
 
 				INIEntry * entryptr = W3DNEW INIEntry(strdup(buffer), strdup(divider));
@@ -1360,7 +1360,7 @@ bool INIClass::Put_String(char const * section, char const * entry, char const *
 	*/
 	INIEntry * entryptr = secptr->Find_Entry(entry);
 	if (entryptr != NULL) {
-      if (strcmp(entryptr->Entry, entry)) {
+      if (strcmp(entryptr->Entry, entry) != 0) {
          DuplicateCRCError("INIClass::Put_String", entry);
       } else {
    		OutputDebugString("INIClass::Put_String - Duplicate Entry \"");

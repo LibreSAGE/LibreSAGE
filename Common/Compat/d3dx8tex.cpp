@@ -383,7 +383,7 @@ D3DXCreateTextureFromFileExA(
 
     LPDIRECT3DTEXTURE8 *ppTexture)
 {
-    HRESULT hr;
+    [[maybe_unused]] HRESULT hr;
 
     return D3DERR_INVALIDCALL;
 }

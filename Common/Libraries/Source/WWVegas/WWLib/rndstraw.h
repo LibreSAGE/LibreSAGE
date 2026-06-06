@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,13 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef RNDSTRAW_H
-#define RNDSTRAW_H
-
 
 #include	"random.h"
 #include	"straw.h"
@@ -88,6 +83,3 @@ class RandomStraw : public Straw
 		RandomStraw(RandomStraw & rvalue);
 		RandomStraw & operator = (RandomStraw const & pipe);
 };
-
-
-#endif

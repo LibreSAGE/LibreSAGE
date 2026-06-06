@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -62,7 +63,7 @@ void CRCEngine::operator() (char datum)
 {
 	StagingBuffer.Buffer[Index++] = datum;
 
-	if (Index == sizeof(long))  {
+	if (Index == sizeof(uint32_t))  {
 		CRC = Value();
 		StagingBuffer.Composite = 0;
 		Index = 0;
@@ -88,7 +89,7 @@ void CRCEngine::operator() (char datum)
  * HISTORY:                                                                                    *
  *   03/02/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
-long CRCEngine::operator() (void const * buffer, int length)
+uint32_t CRCEngine::operator() (void const * buffer, int length)
 {
 	if (buffer != NULL && length > 0)  {
 		char const * dataptr = (char const *)buffer;
@@ -110,11 +111,11 @@ long CRCEngine::operator() (void const * buffer, int length)
 		**	Perform the fast 'bulk' processing by reading long word sized
 		**	data blocks.
 		*/
-		long const * longptr = (long const *)dataptr;
-		int longcount = bytes_left / sizeof(long);		// Whole 'long' elements remaining.
+		uint32_t const * longptr = (uint32_t const *)dataptr;
+		int longcount = bytes_left / sizeof(uint32_t);		// Whole 'long' elements remaining.
 		while (longcount--) {
 			CRC = _lrotl(CRC, 1) + *longptr++;
-			bytes_left -= sizeof(long);
+			bytes_left -= sizeof(uint32_t);
 		}
 
 		/*
@@ -135,7 +136,7 @@ long CRCEngine::operator() (void const * buffer, int length)
 	return(Value());
 }
 //    CRC for poly 0x04C11DB7   
-unsigned long  CRC::_Table[ 256 ] =
+uint32_t  CRC::_Table[ 256 ] =
 {
 	0x00000000L, 0x77073096L, 0xEE0E612CL, 0x990951BAL, 
 	0x076DC419L, 0x706AF48FL, 0xE963A535L, 0x9E6495A3L,
@@ -203,7 +204,7 @@ unsigned long  CRC::_Table[ 256 ] =
 	0xB40BBE37L, 0xC30C8EA1L, 0x5A05DF1BL, 0x2D02EF8DL
 };
 
-unsigned long	CRC::Memory( unsigned char *data, unsigned long length, unsigned long crc )
+uint32_t	CRC::Memory( unsigned char *data, unsigned long length, uint32_t crc )
 {
  	crc ^= 0xFFFFFFFF;									// invert previous CRC
 	while ( length-- ) {
@@ -212,7 +213,7 @@ unsigned long	CRC::Memory( unsigned char *data, unsigned long length, unsigned l
 	return (crc ^ 0xFFFFFFFF); 						// invert new CRC and return it
 }
 
-unsigned long	CRC::String( const char *string, unsigned long crc)
+uint32_t	CRC::String( const char *string, uint32_t crc)
 {
  	crc ^= 0xFFFFFFFF;									// invert previous CRC
 	while ( *string )	{

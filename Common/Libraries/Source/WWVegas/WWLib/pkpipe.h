@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,10 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef PKPIPE_H
-#define PKPIPE_H
-
+#pragma once
 #include	"blowpipe.h"
 #include	"pipe.h"
 #include	"pk.h"
@@ -130,6 +128,3 @@ class PKPipe : public Pipe
 		PKPipe(PKPipe & rvalue);
 		PKPipe & operator = (PKPipe const & pipe);
 };
-
-
-#endif

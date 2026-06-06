@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -879,7 +880,7 @@ void CPUDetectClass::Init_Memory()
 #else
 	TotalPhysicalMemory = ((uint64_t)SDL_GetSystemRAM()) * 1024UL * 1024UL;	// SDL returns memory in MiB, convert to bytes
 	AvailablePhysicalMemory = TotalPhysicalMemory; // SDL does not provide available memory
-#warning FIX Init_Memory()
+#pragma message "FIX Init_Memory()"
 #endif
 }
 
@@ -896,7 +897,7 @@ void CPUDetectClass::Init_OS()
    OSVersionPlatformId  = os.dwPlatformId;
    OSVersionExtraInfo   = os.szCSDVersion;
 #elif defined(_UNIX)
-#warning FIX Init_OS()
+#pragma message "FIX Init_OS()"
 #endif
 }
 

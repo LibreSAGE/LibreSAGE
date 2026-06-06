@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,10 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef PCX_H
-#define PCX_H
-
+#pragma once
 #include	"bsurface.h"
 #include	"palette.h"
 #include	"wwfile.h"
@@ -73,5 +71,3 @@ struct PCX_HEADER
 Surface * Read_PCX_File(FileClass & file_handle, PaletteClass * palette= NULL, void * buff=NULL, long size=0);
 //Surface * Read_PCX_File (char * name, Buffer & Buff, PaletteClass * palette= NULL) ;
 bool Write_PCX_File(FileClass & file, Surface & pic, PaletteClass * palette);
-
-#endif

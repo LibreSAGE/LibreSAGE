@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,9 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef RLE_H
-#define RLE_H
+#pragma once
 
 /*
 **	This class will RLE compress and decompress arbitrary blocks of data. This RLE compression
@@ -57,7 +56,3 @@ class RLEEngine
 		int Line_Compress(void const * source, void * dest, int length) const;
 		int Line_Decompress(void const * source, void * dest) const;
 };
-
-#endif
-
-

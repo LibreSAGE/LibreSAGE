@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -166,10 +167,6 @@ int LCW_Uncomp(void const * source, void * dest, unsigned long )
 		}
 	}
 }
-
-
-#if defined(_MSC_VER)
-
 
 /*********************************************************************************************** 
  * LCW_Comp -- Performes LCW compression on a block of data.                                   * 
@@ -436,9 +433,150 @@ outofhere:
 		sub	eax,[a1stdest]	//; sub the first for the compressed size
 		mov	[retval],eax
 	}
+#else
+	const unsigned char * src_begin = (const unsigned char *)source;
+	const unsigned char * src_ptr = src_begin;
+	const unsigned char * end_ptr = src_begin + datasize;
+	unsigned char * dst_begin = (unsigned char *)dest;
+	unsigned char * dst_ptr = dst_begin;
+	unsigned char * lenoff = dst_ptr;
+	int inlen = 0;
+
+	if (datasize <= 0) {
+		*dst_ptr++ = 0x80;
+		retval = (int)(dst_ptr - dst_begin);
+		return(retval);
+	}
+
+	/* The stream starts with a literal packet containing one byte. */
+	*dst_ptr++ = 0x81;
+	*dst_ptr++ = *src_ptr++;
+	lenoff = dst_begin;
+	inlen = 1;
+
+	while (src_ptr < end_ptr) {
+		const unsigned char * search_ptr = src_begin;
+		int best_count = 1;
+		const unsigned char * matchoff = NULL;
+
+		for (;;) {
+			/* Prefer long RLE blocks when there are at least 65 repeated bytes. */
+			if ((end_ptr - src_ptr) > 64 && src_ptr[0] == src_ptr[64]) {
+				unsigned char value = src_ptr[0];
+				const unsigned char * run_end = src_ptr;
+
+				while (run_end < end_ptr && *run_end == value) {
+					++run_end;
+				}
+
+				if ((run_end - src_ptr) >= 65) {
+					int run_count = (int)(run_end - src_ptr);
+
+					*dst_ptr++ = 0xFE;
+					*dst_ptr++ = (unsigned char)(run_count & 0xFF);
+					*dst_ptr++ = (unsigned char)((run_count >> 8) & 0xFF);
+					*dst_ptr++ = value;
+
+					src_ptr = run_end;
+					inlen = 0;
+
+					if (src_ptr >= end_ptr) {
+						break;
+					}
+
+					continue;
+				}
+			}
+
+			/* Scan prior data for the best back-reference. */
+			for (;;) {
+				ptrdiff_t left = src_ptr - search_ptr;
+
+				if (left <= 0) {
+					goto search_done;
+				}
+
+				{
+					const unsigned char * found = (const unsigned char *)memchr(search_ptr, *src_ptr, (size_t)left);
+
+					if (found == NULL) {
+						goto search_done;
+					}
+
+					search_ptr = found + 1;
+
+					if (found[best_count - 1] != src_ptr[best_count - 1]) {
+						continue;
+					}
+
+					{
+						const unsigned char * lhs = src_ptr;
+						const unsigned char * rhs = found;
+
+						while (lhs < end_ptr && *lhs == *rhs) {
+							++lhs;
+							++rhs;
+						}
+
+						if ((lhs - src_ptr) >= best_count) {
+							best_count = (int)(lhs - src_ptr);
+							matchoff = found;
+						}
+					}
+				}
+			}
+		}
+
+	search_done:
+		if (src_ptr >= end_ptr) {
+			break;
+		}
+
+		if (best_count > 2 && matchoff != NULL) {
+			int distance = (int)(src_ptr - matchoff);
+
+			if (best_count <= 10 && distance <= 0x0FFF) {
+				unsigned char code = (unsigned char)(((best_count - 3) << 4) | ((distance >> 8) & 0x0F));
+				*dst_ptr++ = code;
+				*dst_ptr++ = (unsigned char)(distance & 0xFF);
+			} else {
+				int offset = (int)(matchoff - src_begin);
+
+				if (best_count <= 64) {
+					*dst_ptr++ = (unsigned char)(0xC0 | (best_count - 3));
+				} else {
+					*dst_ptr++ = 0xFF;
+					*dst_ptr++ = (unsigned char)(best_count & 0xFF);
+					*dst_ptr++ = (unsigned char)((best_count >> 8) & 0xFF);
+				}
+
+				*dst_ptr++ = (unsigned char)(offset & 0xFF);
+				*dst_ptr++ = (unsigned char)((offset >> 8) & 0xFF);
+			}
+
+			src_ptr += best_count;
+			inlen = 0;
+		} else {
+			if (!inlen) {
+				lenoff = dst_ptr;
+				*dst_ptr++ = 0x80;
+			}
+
+			if (*lenoff == 0xBF) {
+				lenoff = dst_ptr;
+				*dst_ptr++ = 0x80;
+			}
+
+			++(*lenoff);
+			*dst_ptr++ = *src_ptr++;
+			inlen = 1;
+		}
+	}
+
+	*dst_ptr++ = 0x80;
+	retval = (int)(dst_ptr - dst_begin);
 #endif
 	return(retval);
 }
-#endif
 
 

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,13 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef B64PIPE_H
-#define B64PIPE_H
-
 #include	"pipe.h"
 
 /*
@@ -89,5 +84,3 @@ class Base64Pipe : public Pipe
 		Base64Pipe(Base64Pipe & rvalue);
 		Base64Pipe & operator = (Base64Pipe const & pipe);
 };
-
-#endif

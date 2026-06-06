@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -50,18 +51,8 @@
  *   SList<T>::Add_Tail -- Adds a list to the tail of the list             * 
  *   *SList<T>::Find_Node -- returns first node in list matching the input * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef __SLIST_H__
-#define __SLIST_H__
-
 #include "slnode.h"
-
-#ifndef NULL
-#define NULL 0L
-#endif
 
 template <class T>
 class SList {
@@ -541,5 +532,3 @@ inline SLNode<T> *SList<T>::Find_Node(T * data) const
 	
 	return cur;
 }
-
-#endif

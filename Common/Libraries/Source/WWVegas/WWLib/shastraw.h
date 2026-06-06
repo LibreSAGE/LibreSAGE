@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,11 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef SHASTRAW_H
-#define SHASTRAW_H
-
-
+#pragma once
 #include	"sha.h"
 #include	"straw.h"
 
@@ -66,6 +63,3 @@ class SHAStraw : public Straw
 		SHAStraw(SHAStraw & rvalue);
 		SHAStraw & operator = (SHAStraw const & straw);
 };
-
-
-#endif

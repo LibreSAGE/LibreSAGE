@@ -311,7 +311,8 @@ FFmpegVideoStream::FFmpegVideoStream(FFmpegFile* file)
 	m_ffmpegFile->setFrameCallback(onFrame);
 	m_ffmpegFile->setUserData(this);
 
-#ifdef SAGE_USE_OPENAL
+#if defined(SAGE_USE_MINIAUDIO)
+#elif defined(SAGE_USE_OPENAL)
 	// Release the audio handle if it's already in use
 	OpenALAudioStream* audioStream = (OpenALAudioStream*)TheAudio->getHandleForBink();
 	audioStream->reset();
@@ -321,7 +322,8 @@ FFmpegVideoStream::FFmpegVideoStream(FFmpegFile* file)
 	while (m_good && m_gotFrame == false)
 		m_good = m_ffmpegFile->decodePacket();
 
- #ifdef SAGE_USE_OPENAL
+#if defined(SAGE_USE_MINIAUDIO)
+#elif defined(SAGE_USE_OPENAL)
 	// Start audio playback
 	audioStream->play();
 #endif
@@ -335,7 +337,8 @@ FFmpegVideoStream::FFmpegVideoStream(FFmpegFile* file)
 
 FFmpegVideoStream::~FFmpegVideoStream()
 {
-#ifdef SAGE_USE_OPENAL
+#if defined(SAGE_USE_MINIAUDIO)
+#elif defined(SAGE_USE_OPENAL)
 	// Release the audio handle after the stream is done
 	OpenALAudioStream* audioStream = (OpenALAudioStream*)TheAudio->getHandleForBink();
 	audioStream->reset();
@@ -354,7 +357,8 @@ void FFmpegVideoStream::onFrame(AVFrame *frame, int stream_idx, int stream_type,
 		videoStream->m_frame = av_frame_clone(frame);
 		videoStream->m_gotFrame = true;
 	}
-#ifdef SAGE_USE_OPENAL
+#if defined(SAGE_USE_MINIAUDIO)
+#elif defined(SAGE_USE_OPENAL)
 	else if (stream_type == AVMEDIA_TYPE_AUDIO) {
 		OpenALAudioStream* audioStream = (OpenALAudioStream*)TheAudio->getHandleForBink();
 		audioStream->update();
@@ -399,7 +403,8 @@ void FFmpegVideoStream::onFrame(AVFrame *frame, int stream_idx, int stream_type,
 
 void FFmpegVideoStream::update( void )
 {
-#ifdef FFMPEG_USE_OPENAL
+#if defined(SAGE_USE_MINIAUDIO)
+#elif defined(SAGE_USE_OPENAL)
 	// Start audio playback
 	OpenALAudioStream* audioStream = (OpenALAudioStream*)TheAudio->getHandleForBink();
 	audioStream->play();

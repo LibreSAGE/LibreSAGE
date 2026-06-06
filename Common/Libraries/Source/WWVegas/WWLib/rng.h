@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,12 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef RNG_H
-#define RNG_H
 
 /*
 **	This is an abstract interface class for a random number generator. It serves only to
@@ -50,7 +46,3 @@ class RandomNumberGenerator {
 
 		virtual void Get_Block(void * output, unsigned int size) = 0;
 };
-
-
-#endif
-

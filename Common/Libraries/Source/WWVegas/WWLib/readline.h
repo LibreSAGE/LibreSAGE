@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,13 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef READLINE_H
-#define READLINE_H
-
 #include	"straw.h"
 #include	"wwfile.h"
 #include    <unicode/uchar.h>
@@ -47,5 +42,3 @@
 int Read_Line(FileClass & file, char * buffer, int len, bool & eof);
 int Read_Line(Straw & file, char * buffer, int len, bool & eof);
 int Read_Line(Straw & file, UChar * buffer, int len, bool & eof);
-
-#endif

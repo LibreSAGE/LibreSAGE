@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,9 +34,7 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#ifndef _CONVERT_H
-#define _CONVERT_H
+#pragma once
 
 #include	"convert.h"
 
@@ -45,5 +44,3 @@ extern ConvertClass * TerrainDrawer;
 extern ConvertClass * AnimDrawer;
 extern ConvertClass * NormalDrawer;
 extern ConvertClass * IsometricDrawer;
-
-#endif

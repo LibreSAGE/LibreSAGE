@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -34,29 +35,11 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef CHUNKIO_H
-#define CHUNKIO_H
-
-#ifndef ALWAYS_H
 #include "always.h"
-#endif
-
-#ifndef BITTYPE_H
 #include "bittype.h"
-#endif
-
-#ifndef WWFILE_H
 #include "wwfile.h"
-#endif
-
-#ifndef IOSTRUCT_H
 #include "iostruct.h"
-#endif
-
 
 /************************************************************************************
 
@@ -374,7 +357,3 @@ private:
 */
 #define OBSOLETE_MICRO_CHUNK(id) \
 	case (id): break;
-
-
-
-#endif // anCHUNKIO_H

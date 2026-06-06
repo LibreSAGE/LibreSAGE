@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,12 +34,7 @@
  *-------------------------------------------------------------------------* 
  * Functions:                                                              * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef SHAREBUF_H
-#define SHAREBUF_H
 #include "refcount.h"
 
 
@@ -146,6 +142,3 @@ void ShareBufferClass<T>::Clear(void)
 {
 	memset(Array,0,Count * sizeof(T));
 }
-
-
-#endif // SHAREBUF_H

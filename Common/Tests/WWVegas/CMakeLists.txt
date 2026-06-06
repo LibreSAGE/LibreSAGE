@@ -1,2 +1,3 @@
+add_subdirectory(WWLibTest)
 add_subdirectory(WWMathTest)
 add_subdirectory(WW3D2Test)

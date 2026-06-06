@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -38,13 +39,7 @@
  *   RawFileClass::Is_Open -- Checks to see if the file is open or not.                        *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef BUFFFILE_H
-#define BUFFFILE_H
-
 #include	"rawfile.h"
 
 
@@ -81,5 +76,3 @@ class BufferedFileClass : public RawFileClass
 		int					BufferOffset;		// The data already given out
 		static	int		_DesiredBufferSize;
 };
-
-#endif

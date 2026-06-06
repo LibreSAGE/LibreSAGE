@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,13 +34,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef CONVERT_H
-#define CONVERT_H
-
 #include	"blitter.h"
 #include	"palette.h"
 #include	"surface.h"
@@ -155,7 +150,7 @@ class ConvertClass
 		**	This table will translate this source pixel into a screen dependant pixel
 		**	format datum.
 		*/
-		void * Translator;
+		unsigned char * Translator;
 
 		/*
 		**	This will shade an 8 bit pixel to about 1/2 intensity.
@@ -169,5 +164,3 @@ class ConvertClass
 		*/
 		mutable unsigned char const * RemapTable;
 };
-
-#endif

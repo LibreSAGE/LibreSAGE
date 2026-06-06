@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,15 +34,7 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef __NTREE_H
-#define __NTREE_H
-
 
 #include "refcount.h"
 #include "wwstring.h"
@@ -564,5 +557,3 @@ void SortedNTreeLeafClass<T>::Insertion_Sort (SortedNTreeLeafClass<T> *start, So
 
 	return ;
 }
-
-#endif //__NTREE_H

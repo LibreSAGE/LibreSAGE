@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -32,14 +33,7 @@
  *                                                                                             *
  *---------------------------------------------------------------------------------------------* 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef RNDSTRNG_H
-#define RNDSTRNG_H
-
 #include	"vector.h"
 #include	"random.h"
 
@@ -65,6 +59,3 @@ private:
 	DynamicVectorClass<StringClass*>	Strings;
 	Random2Class							Randomizer;
 };
-
-#endif // RNDSTRNG_H
-

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -1269,19 +1270,19 @@ int MPEXPORT XMP_Unsigned_Mult(digit * prod, const digit * multiplicand, const d
  *=============================================================================================*/
 int MPEXPORT XMP_Unsigned_Mult_Int(digit * prod, const digit * multiplicand, short multiplier, int precision)
 {
-	const unsigned short * m2 = (const unsigned short *)multiplicand;
-	unsigned short * pr = (unsigned short *)prod;
-	unsigned long carry = 0;
+	const uint16_t * m2 = (const uint16_t *)multiplicand;
+	uint16_t * pr = (uint16_t *)prod;
+	uint32_t carry = 0;
 	for (int i = 0; i < precision*2; ++i) {
-		unsigned long p = (((unsigned long)multiplier) * *m2) + carry;;
-		*pr = (unsigned short) p;
+		uint32_t p = (((uint32_t)multiplier) * *m2) + carry;;
+		*pr = (uint16_t) p;
 		carry = p >> 16;
 		m2++;
 		pr++;
 	}
 
 	/* Add carry to the next higher word of product / dividend */
-//	*pr += (unsigned short)carry;
+//	*pr += (uint16_t)carry;
 	return(0);
 }
 
@@ -1813,16 +1814,16 @@ void MPEXPORT XMP_Decode_ASCII(char const * str, digit * mpn, int precision)
  *=============================================================================================*/
 void XMP_Hybrid_Mul(unsigned short * prod, unsigned short * multiplicand, unsigned short multiplier, int precision)
 {
-	unsigned long carry = 0;
+	uint32_t carry = 0;
 	for (int i = 0; i < precision; ++i) {
-		unsigned long p = (unsigned long)multiplier * *multiplicand++;
+		uint32_t p = (uint32_t)multiplier * *multiplicand++;
 		p += *prod + carry;
-		*prod++ = (unsigned short) p;
+		*prod++ = (uint16_t) p;
 		carry = p >> 16;
 	}
 
 	/* Add carry to the next higher word of product / dividend */
-	*prod += (unsigned short) carry;
+	*prod += (uint16_t) carry;
 }
 
 
@@ -2020,7 +2021,7 @@ int MPEXPORT XMP_Mod_Mult(digit * prod, const digit * multiplicand, const digit 
 				*/
 				if (!(*dmph & SEMI_UPPER_MOST_BIT)) {
 					unsigned short * dmp = dmpl;
-					if (XMP_Sub((unsigned long *)dmp, (unsigned long *)dmp, _scratch_modulus, false, precision)) {
+					if (XMP_Sub((digit *)dmp, (digit *)dmp, _scratch_modulus, false, precision)) {
 						(*dmph)--;
 					}
 				}
@@ -2094,28 +2095,28 @@ void MPEXPORT XMP_Mod_Mult_Clear(int precision)
 */
 unsigned short mp_quo_digit(unsigned short * dividend)
 {
-	unsigned long q, q0, q1, q2;
+	uint32_t q, q0, q1, q2;
 
 	/*
 	* Compute the least significant product group.
 	* The last terms of q1 and q2 perform upward rounding, which is
 	* needed to guarantee that the result not be too small.
 	*/
-	q1 = (dividend[-2] ^ SEMI_MASK) * (unsigned long) _reciprical_high_digit + _reciprical_high_digit;
-	q2 = (dividend[-1] ^ SEMI_MASK) * (unsigned long) _reciprical_low_digit + (1L << 16);
+	q1 = (dividend[-2] ^ SEMI_MASK) * (uint32_t) _reciprical_high_digit + _reciprical_high_digit;
+	q2 = (dividend[-1] ^ SEMI_MASK) * (uint32_t) _reciprical_low_digit + (1L << 16);
 	q0 = (q1 >> 1) + (q2 >> 1) + 1;
 
 	/*      Compute the middle significant product group.   */
-	q1 = (dividend[-1] ^ SEMI_MASK) * (unsigned long) _reciprical_high_digit;
-	q2 = (dividend[0] ^ SEMI_MASK) * (unsigned long) _reciprical_low_digit;
+	q1 = (dividend[-1] ^ SEMI_MASK) * (uint32_t) _reciprical_high_digit;
+	q2 = (dividend[0] ^ SEMI_MASK) * (uint32_t) _reciprical_low_digit;
 	q = (q0 >> 16) + (q1 >> 1) + (q2 >> 1) + 1;
 
 	/*      Compute the most significant term and add in the others */
-	q = (q >> (16 - 2)) + (((dividend[0] ^ SEMI_MASK) * (unsigned long) _reciprical_high_digit) << 1);
+	q = (q >> (16 - 2)) + (((dividend[0] ^ SEMI_MASK) * (uint32_t) _reciprical_high_digit) << 1);
 	q >>= _modulus_shift;
 
 	/*      Prevent overflow and then wipe out the intermediate results. */
-	return (unsigned short) min(q, (unsigned long)(1L << 16) - 1);
+	return (unsigned short) min(q, (uint32_t)(1L << 16) - 1);
 }
 
 
@@ -2269,7 +2270,7 @@ bool MPEXPORT XMP_Is_Small_Prime(const digit * candidate, int precision)
 	if (XMP_Significance(candidate, precision) > 1) return(false);
 	if (*candidate > primeTable[ARRAY_SIZE(primeTable)-1]) return false;
 
-	unsigned long * ptr = (unsigned long *)bsearch(&candidate, &primeTable[0], ARRAY_SIZE(primeTable), sizeof(primeTable[0]), pfunc);
+	uint32_t * ptr = (uint32_t *)bsearch(&candidate, &primeTable[0], ARRAY_SIZE(primeTable), sizeof(primeTable[0]), pfunc);
 	return(ptr != NULL);
 }
 

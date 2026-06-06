@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -40,9 +41,11 @@
 #include "wwfile.h"
 #include "realcrc.h"
 #include "rawfile.h"
-#include "win.h"
 #include "bittype.h"
-
+#include <SDL3/SDL.h>
+#ifndef WINDOWS
+#include <libgen.h>
+#endif
 /*
 **
 */
@@ -124,7 +127,7 @@ MixFileFactoryClass::MixFileFactoryClass( const char * mix_filename, FileFactory
 		if ( IsValid ) {
 			BaseOffset	= 0;
 			NamesOffset	= header.names_offset;
-			WWDEBUG_SAY(( "MixFileFactory( %s ) loaded successfully  %d files\n", MixFilename, FileInfo.Length() ));
+			WWDEBUG_SAY(( "MixFileFactory( %s ) loaded successfully  %d files\n", MixFilename.Peek_Buffer(), FileInfo.Length() ));
 		} else {
 			FileInfo.Resize(0);
 		}	
@@ -310,11 +313,16 @@ MixFileFactoryClass::Flush_Changes (void)
 	//
 	//	Get the path of the mix file
 	//
+#ifdef _WIN32
 	char drive[_MAX_DRIVE] = { 0 };
 	char dir[_MAX_DIR] = { 0 };
 	::_splitpath (MixFilename, drive, dir, NULL, NULL);
 	StringClass path	= drive;
 	path					+= dir;
+#else
+	char* dname = dirname(MixFilename.Peek_Buffer());
+	StringClass path = dname;
+#endif
 
 	//
 	//	Try to find a temp filename
@@ -353,7 +361,7 @@ MixFileFactoryClass::Flush_Changes (void)
 		//
 		//	Add the new files that are pending
 		//
-		for (index = 0; index < PendingAddFileList.Count (); index ++) {
+		for (int index = 0; index < PendingAddFileList.Count (); index ++) {
 			new_mix_file.Add_File (PendingAddFileList[index].FullPath, PendingAddFileList[index].Filename);
 		}
 	}
@@ -361,8 +369,8 @@ MixFileFactoryClass::Flush_Changes (void)
 	//
 	//	Delete the old mix file and rename the new one
 	//
-	::DeleteFile (MixFilename);
-	::MoveFile (full_path, MixFilename);
+	SDL_RemovePath (MixFilename);
+	SDL_RenamePath (full_path, MixFilename);
 
 	//
 	//	Reset the lists
@@ -389,7 +397,7 @@ MixFileFactoryClass::Get_Temp_Filename (const char *path, StringClass &full_path
 	//
 	for (int index = 0; index < 20; index ++) {
 		full_path.Format ("%s%.2d.dat", (const char *)temp_path, index + 1);
-		if (GetFileAttributes (full_path) == 0xFFFFFFFF) {
+		if (SDL_GetPathInfo (full_path, NULL) == false) {
 			retval = true;
 			break;
 		}
@@ -594,30 +602,35 @@ void	MixFileCreator::Add_File( const char * filename, FileClass *file )
 void	Add_Files( const char * dir, MixFileCreator & mix )
 {
 	BOOL bcontinue = TRUE;
-	HANDLE hfile_find;
-	WIN32_FIND_DATA find_info = {0};
 	StringClass path;
 	path.Format( "data\\makemix\\%s*.*", dir );
-	WWDEBUG_SAY(( "Adding files from %s\n", path ));
+	WWDEBUG_SAY(( "Adding files from %s\n", path.Peek_Buffer() ));
 
-	for (hfile_find = ::FindFirstFile( path, &find_info);
-		 (hfile_find != INVALID_HANDLE_VALUE) && bcontinue;
-		  bcontinue = ::FindNextFile(hfile_find, &find_info)) {
-		if ( find_info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
-			if ( find_info.cFileName[0] != '.' ) {
-				StringClass	path;
-				path.Format( "%s%s\\", dir, find_info.cFileName );
-				Add_Files( path, mix );
-			}
-		} else {
-			StringClass name;
-			name.Format( "%s%s", dir, find_info.cFileName );
-			StringClass	source;
-			source.Format( "makemix\\%s", name );
-			mix.Add_File( source, name );
-//			WWDEBUG_SAY(( "Adding file from %s %s\n", source, name ));
+	auto cb = []( void * context, const char * dirname, const char * filename )  {
+		MixFileCreator & mix = *reinterpret_cast<MixFileCreator *>( context );
+		SDL_PathInfo info;
+		StringClass name;
+		name.Format( "%s%s", dirname, filename );
+		if ( SDL_GetPathInfo( name.Peek_Buffer(), &info ) == false ) {
+			WWDEBUG_SAY(( "Failed to get path info for %s\n", name.Peek_Buffer() ));
+			return SDL_ENUM_FAILURE;
 		}
-	}
+		if ( info.type == SDL_PATHTYPE_FILE ) {
+			StringClass source;
+			source.Format( "makemix\\%s", name.Peek_Buffer() );
+			mix.Add_File( source, name );
+		}
+		else if ( info.type == SDL_PATHTYPE_DIRECTORY ) {
+			Add_Files( name.Peek_Buffer(), mix );
+		}
+		else {
+			WWDEBUG_SAY(( "Unknown path type for %s\n", name.Peek_Buffer() ));
+		}
+		
+		return SDL_ENUM_CONTINUE;
+	};
+
+	SDL_EnumerateDirectory(dir, cb, &mix);
 }
 
 void	Setup_Mix_File( void )

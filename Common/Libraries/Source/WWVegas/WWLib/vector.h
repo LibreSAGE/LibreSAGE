@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -78,10 +79,6 @@ class	NoInitClass;
 **	This efficiency can be implemented by deriving an integral vector template
 **	from this one in order to supply more efficient routines.
 */
-
-// Why, oh why does Visual C need this!!! It's bugged. <sigh>
-#pragma warning(disable : 4505)
-
 
 template<class T>
 class VectorClass

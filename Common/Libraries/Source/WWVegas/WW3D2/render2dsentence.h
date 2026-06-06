@@ -86,7 +86,7 @@ class FontCharsBuffer : public W3DMPO
 {
 	W3DMPO_GLUE(FontCharsBuffer)
 public:
-	uint16			Buffer[CHAR_BUFFER_LEN];
+	uint16			Buffer[CHAR_BUFFER_LEN] = {0};
 };
 
 

@@ -1255,8 +1255,7 @@ void WW3D::Make_Screen_Shot( const char * filename_base )
 	D3DSURFACE_DESC desc;
 	fb->GetDesc(&desc);
 
-	RECT bounds = {0};
-	SDL_GetWindowSizeInPixels(_Window, &bounds.right, &bounds.bottom);
+	RECT bounds = { 0, 0, (LONG)desc.Width, (LONG)desc.Height };
 
 	D3DLOCKED_RECT lrect;
 
@@ -1264,8 +1263,8 @@ void WW3D::Make_Screen_Shot( const char * filename_base )
 
 	unsigned int x,y,index,index2,width,height;
 
-	width=bounds.right-bounds.left;
-	height=bounds.bottom-bounds.top;
+	width=desc.Width;
+	height=desc.Height;
 
 	char *image=W3DNEWARRAY char[3*width*height];
 
@@ -1284,6 +1283,7 @@ void WW3D::Make_Screen_Shot( const char * filename_base )
 		}
 	}
 
+	fb->UnlockRect();
 	fb->Release();
 
 	Targa targ;

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -46,23 +47,10 @@
  *   SimpleDynVecClass<T>::Delete_Range -- delete several items from the array                 *
  *   SimpleDynVecClass<T>::Delete_All -- delete all items from the array                       * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef SIMPLEVEC_H
-#define SIMPLEVEC_H
-
 #include "always.h"
 #include <assert.h>
 #include <string.h>		// for memmove
-
-
-#if (_MSC_VER >= 1200)
-#pragma warning (push)
-#pragma warning (disable:4702)	// disabling the "unreachable code" warning.
-#endif
 
 /** 
 ** SimpleVecClass
@@ -639,10 +627,3 @@ inline int SimpleDynVecClass<T>::Find_Index(T const & object)
 	}
 	return(-1);
 }
-
-#if (_MSC_VER >= 1200)
-#pragma warning (pop)
-#endif
-
-#endif // SIMPLEVEC_H
-

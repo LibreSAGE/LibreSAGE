@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -31,9 +32,7 @@
 *     $Revision: 3 $
 *
 ******************************************************************************/
-
-#ifndef __SIGNALER_H__
-#define __SIGNALER_H__
+#pragma once
 
 template<typename T> class Signaler
 	{
@@ -74,7 +73,3 @@ template<typename T> class Signaler
 	private:
 		Signaler<T>* mConnection;
 	};
-
-#endif // __SIGNALER_H__
-
-

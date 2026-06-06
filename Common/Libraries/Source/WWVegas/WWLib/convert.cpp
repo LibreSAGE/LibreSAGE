@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -91,29 +92,29 @@ ConvertClass::ConvertClass(PaletteClass const & artpalette, PaletteClass const &
 		for (int index = 1; index < 256; index++) {
 			trans[index] = (unsigned char)screenpalette.Closest_Color(artpalette[index]);
 		}
-		Translator = (void *)trans;
+		Translator = trans;
 
 		/*
 		**	Construct all the blitter objects necessary to support the functionality
 		**	required for the draw permutations.
 		*/
-		PlainBlitter = W3DNEW BlitPlainXlat<unsigned char>((unsigned char const *)Translator);
-		TransBlitter = W3DNEW BlitTransXlat<unsigned char>((unsigned char const *)Translator);
-		RemapBlitter = W3DNEW BlitTransZRemapXlat<unsigned char>(&RemapTable, (unsigned char const *)Translator);
+		PlainBlitter = W3DNEW BlitPlainXlat<unsigned char>(Translator);
+		TransBlitter = W3DNEW BlitTransXlat<unsigned char>(Translator);
+		RemapBlitter = W3DNEW BlitTransZRemapXlat<unsigned char>(&RemapTable, Translator);
 		ShadowBlitter = W3DNEW BlitTransRemapDest<unsigned char>(ShadowTable);
-		Translucent1Blitter = W3DNEW BlitTransRemapXlat<unsigned char>(ShadowTable, (unsigned char const *)Translator);
-		Translucent2Blitter = W3DNEW BlitTransRemapXlat<unsigned char>(ShadowTable, (unsigned char const *)Translator);
-		Translucent3Blitter = W3DNEW BlitTransRemapXlat<unsigned char>(ShadowTable, (unsigned char const *)Translator);
+		Translucent1Blitter = W3DNEW BlitTransRemapXlat<unsigned char>(ShadowTable, Translator);
+		Translucent2Blitter = W3DNEW BlitTransRemapXlat<unsigned char>(ShadowTable, Translator);
+		Translucent3Blitter = W3DNEW BlitTransRemapXlat<unsigned char>(ShadowTable, Translator);
 
 		/*
 		**	Create the RLE aware blitter objects.
 		*/
-		RLETransBlitter = W3DNEW RLEBlitTransXlat<unsigned char>((unsigned char const *)Translator);
-		RLERemapBlitter = W3DNEW RLEBlitTransZRemapXlat<unsigned char>(&RemapTable, (unsigned char const *)Translator);
+		RLETransBlitter = W3DNEW RLEBlitTransXlat<unsigned char>(Translator);
+		RLERemapBlitter = W3DNEW RLEBlitTransZRemapXlat<unsigned char>(&RemapTable, Translator);
 		RLEShadowBlitter = W3DNEW RLEBlitTransRemapDest<unsigned char>(ShadowTable);
-		RLETranslucent1Blitter = W3DNEW RLEBlitTransRemapXlat<unsigned char>(ShadowTable, (unsigned char const *)Translator);
-		RLETranslucent2Blitter = W3DNEW RLEBlitTransRemapXlat<unsigned char>(ShadowTable, (unsigned char const *)Translator);
-		RLETranslucent3Blitter = W3DNEW RLEBlitTransRemapXlat<unsigned char>(ShadowTable, (unsigned char const *)Translator);
+		RLETranslucent1Blitter = W3DNEW RLEBlitTransRemapXlat<unsigned char>(ShadowTable, Translator);
+		RLETranslucent2Blitter = W3DNEW RLEBlitTransRemapXlat<unsigned char>(ShadowTable, 	Translator);
+		RLETranslucent3Blitter = W3DNEW RLEBlitTransRemapXlat<unsigned char>(ShadowTable, Translator);
 
 	} else {
 
@@ -122,7 +123,7 @@ ConvertClass::ConvertClass(PaletteClass const & artpalette, PaletteClass const &
 		**	format of the display and the source art palette.
 		*/
 		//assert(surface.Is_Direct_Draw());
-		Translator = W3DNEWARRAY unsigned short [256];
+		Translator = W3DNEWARRAY unsigned char [512];
 #ifdef _WINDOWS
 		((DSurface &)surface).Build_Remap_Table((unsigned short *)Translator, artpalette);
 

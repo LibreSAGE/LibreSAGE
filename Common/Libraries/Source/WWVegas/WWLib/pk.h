@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,17 +34,8 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-
-#ifndef PK_H
-#define PK_H
-
-#ifndef STRAW_H
 #include "straw.h"
-#endif
-
 #include	"int.h"
 
 /*
@@ -94,6 +86,3 @@ class PKey
 		// Maximum bits allowed for block.
 		int BitPrecision;
 };
-
-
-#endif
