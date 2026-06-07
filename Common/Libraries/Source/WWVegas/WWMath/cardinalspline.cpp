@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -108,6 +109,7 @@ void CardinalSpline3DClass::Update_Tangents(void)
 			Tangents[0].InTangent.Set(0,0,0);
 			Tangents[0].OutTangent.Set(0,0,0);
 		}
+		return;
 	}
 
 	// First and Last Key: 

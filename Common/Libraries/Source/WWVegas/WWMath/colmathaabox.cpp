@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -583,10 +584,10 @@ exit:
 
 		result->Fraction = context.MaxFrac;
 		result->Normal.Set(0,0,0);
-		result->Normal[context.AxisId] = context.Side;
+		result->Normal[context.AxisId] = -context.Side;
 
 		if (result->ComputeContactPoint) {
-			WWASSERT(0); // TODO
+			WWDEBUG_SAY(("AABox-AABox collision does not currently support contact point computation\r\n"));
 		}
 
 		return true;
