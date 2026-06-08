@@ -49,6 +49,7 @@
 #endif
 
 #include <SDL3/SDL.h>
+#include <SDL3_net/SDL_net.h>
 
 // USER INCLUDES //////////////////////////////////////////////////////////////
 #include "WinMain.h"
@@ -343,6 +344,13 @@ int main(int argc, char **argv)
 			return 1;
 		}
 
+		if (NET_Init() == false)
+		{
+			DEBUG_LOG(("Failed to initialize network: %s\n", SDL_GetError()));
+			SDL_Quit();
+			return 1;
+		}
+
 		if (initializeAppWindow(ApplicationIsWindowed) == false)
 		{
 			SDL_Quit();
@@ -426,6 +434,7 @@ int main(int argc, char **argv)
 		shutdownMemoryManager();
 		DEBUG_SHUTDOWN();
 		destroyApplicationWindow();
+		NET_Quit();
 		SDL_Quit();
 	}	
 	catch (...) 
@@ -435,6 +444,7 @@ int main(int argc, char **argv)
 			releaseSingleInstanceLock();
 		}
 		destroyApplicationWindow();
+		NET_Quit();
 		SDL_Quit();
 	}
 
