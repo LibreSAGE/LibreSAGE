@@ -1084,6 +1084,8 @@ target_link_libraries(g_gameengine PRIVATE glm::glm)
 # SDL
 find_package(SDL3 CONFIG REQUIRED)
 target_link_libraries(g_gameengine PUBLIC SDL3::SDL3)
+find_package(SDL3_net CONFIG REQUIRED)
+target_link_libraries(g_gameengine PUBLIC SDL3_net::SDL3_net)
 
 # GameSpy
 include(FetchContent)

@@ -1,0 +1,14 @@
+BasedOnStyle: Microsoft
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+ColumnLimit: 0
+SortIncludes: Never
+ReflowComments: false
+PointerAlignment: Right
+AllowShortFunctionsOnASingleLine: All
+BreakBeforeBraces: Linux
+PackConstructorInitializers: Never
+BreakConstructorInitializers: AfterColon
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortCaseLabelsOnASingleLine: true

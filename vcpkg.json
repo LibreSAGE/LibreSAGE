@@ -26,6 +26,7 @@
       "platform": "!linux"
     },
     "sdl3-image",
+    "sdl3-net",
     "zlib",
     "hwdata",
     {

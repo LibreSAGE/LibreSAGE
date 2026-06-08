@@ -54,11 +54,7 @@
 #include "WWDownload/Registry.h"
 #include "WWDownload/urlBuilder.h"
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
+#include <SDL3_net/SDL_net.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -73,10 +69,8 @@ static char *MOTDBuffer = NULL;
 static char *configBuffer = NULL;
 GameWindow *onlineCancelWindow = NULL;
 
-static Bool s_asyncDNSThreadDone = TRUE;
-static Bool s_asyncDNSThreadSucceeded = FALSE;
 static Bool s_asyncDNSLookupInProgress = FALSE;
-static HANDLE s_asyncDNSThreadHandle = NULL;
+static NET_Address* s_asyncDNSAddress = NULL;
 enum {
 	LOOKUP_INPROGRESS,
 	LOOKUP_FAILED,
@@ -723,25 +717,6 @@ void CheckNumPlayersOnline( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-DWORD WINAPI asyncGethostbynameThreadFunc( void * szName )
-{
-	HOSTENT *he = gethostbyname( (const char *)szName );
-
-	if (he)
-	{
-		s_asyncDNSThreadSucceeded = TRUE;
-	}
-	else
-	{
-		s_asyncDNSThreadSucceeded = FALSE;
-	}
-
-	s_asyncDNSThreadDone = TRUE;
-	return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 int asyncGethostbyname(char * szName)
 {
 	static int            stat = 0;
@@ -750,12 +725,9 @@ int asyncGethostbyname(char * szName)
 	if( stat == 0 )
 	{
 		/* Kick off gethostname thread */
-		s_asyncDNSThreadDone = FALSE;
-#ifdef _WIN32
-		s_asyncDNSThreadHandle = CreateThread( NULL, 0, asyncGethostbynameThreadFunc, szName, 0, &threadid );
-#endif
+		s_asyncDNSAddress = NET_ResolveHostname(szName);
 
-		if( s_asyncDNSThreadHandle == NULL )
+		if( s_asyncDNSAddress == NULL )
 		{
 			return( LOOKUP_FAILED );
 		}
@@ -763,13 +735,15 @@ int asyncGethostbyname(char * szName)
 	}
 	if( stat == 1 )
 	{
-		if( s_asyncDNSThreadDone )
+		NET_Status status = NET_GetAddressStatus(s_asyncDNSAddress);
+		if( status == NET_SUCCESS || status == NET_FAILURE )
 		{
-			/* Thread finished */
+			/* Thread succeeded */
 			stat = 0;
 			s_asyncDNSLookupInProgress = FALSE;
-			s_asyncDNSThreadHandle = NULL;
-			return( (s_asyncDNSThreadSucceeded)?LOOKUP_SUCCEEDED:LOOKUP_FAILED );
+			NET_UnrefAddress(s_asyncDNSAddress);
+			s_asyncDNSAddress = NULL;
+			return status == NET_SUCCESS ? LOOKUP_SUCCEEDED : LOOKUP_FAILED;
 		}
 	}
 
@@ -819,17 +793,11 @@ void HTTPThinkWrapper( void )
 
 void StopAsyncDNSCheck( void )
 {
-	if (s_asyncDNSThreadHandle)
+	if (s_asyncDNSAddress)
 	{
-#ifdef _WIN32
-#ifdef DEBUG_CRASHING
-		Int res =
-#endif
-			TerminateThread(s_asyncDNSThreadHandle,0);
-		DEBUG_ASSERTCRASH(res, ("Could not terminate the Async DNS Lookup thread!"));	// Thread still not killed!
-#endif
+		NET_UnrefAddress(s_asyncDNSAddress);
 	}
-	s_asyncDNSThreadHandle = NULL;
+	s_asyncDNSAddress = NULL;
 	s_asyncDNSLookupInProgress = FALSE;
 }
 
