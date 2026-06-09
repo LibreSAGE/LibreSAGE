@@ -38,7 +38,7 @@ class GameSpyThreadClass : public ThreadClass
 {
 
 public:
-	GameSpyThreadClass::GameSpyThreadClass() : ThreadClass() { m_doLogin = false; m_readStats = false; m_updateWins = false; m_updateLosses = false; m_updateLocale = false; m_showLocaleSelect = false; m_nextShellScreen.clear(); }
+	GameSpyThreadClass::GameSpyThreadClass() : ThreadClass("GameSpyThread") { m_doLogin = false; m_readStats = false; m_updateWins = false; m_updateLosses = false; m_updateLocale = false; m_showLocaleSelect = false; m_nextShellScreen.clear(); }
 	void queueLogin(AsciiString nick, AsciiString pass, AsciiString email) { m_nick = nick; m_pass = pass; m_email = email; m_doLogin = true; }
 	void queueReadPersistentStatsFromServer( void ) { m_readStats = true; }
 	void queueUpdateLocale( AsciiString locale ) { m_locale = locale; m_updateLocale = true; }

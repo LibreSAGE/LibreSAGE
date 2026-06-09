@@ -99,7 +99,7 @@ class PingThreadClass : public ThreadClass
 {
 
 public:
-	PingThreadClass() : ThreadClass() {}
+	PingThreadClass() : ThreadClass("PingThread") {}
 
 	void Thread_Function();
 

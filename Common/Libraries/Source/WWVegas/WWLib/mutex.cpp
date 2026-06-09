@@ -19,15 +19,23 @@
 
 #include "mutex.h"
 #include "wwdebug.h"
+#ifdef _WINDOWS
 #include <windows.h>
-
+#else
+#include <pthread.h>
+#endif
 
 // ----------------------------------------------------------------------------
 
 MutexClass::MutexClass(const char* name) : handle(NULL), locked(false)
 {
 	#ifdef _UNIX
-		//assert(0);
+		pthread_mutexattr_t attr;
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+		handle = new pthread_mutex_t;
+		pthread_mutex_init((pthread_mutex_t*)handle, &attr);
+		pthread_mutexattr_destroy(&attr);
 	#else
 		handle=CreateMutex(NULL,false,name);
 		WWASSERT(handle);
@@ -36,10 +44,11 @@ MutexClass::MutexClass(const char* name) : handle(NULL), locked(false)
 
 MutexClass::~MutexClass()
 {
+	WWASSERT(!locked); // Can't delete locked mutex!
 	#ifdef _UNIX
-		//assert(0);
+		pthread_mutex_destroy((pthread_mutex_t*)handle);
+		delete (pthread_mutex_t*)handle;
 	#else
-		WWASSERT(!locked); // Can't delete locked mutex!
 		CloseHandle(handle);
 	#endif
 }
@@ -47,27 +56,47 @@ MutexClass::~MutexClass()
 bool MutexClass::Lock(int time)
 {
 	#ifdef _UNIX
-		//assert(0);
-		return true;
+		int res;
+		if (time==WAIT_INFINITE) {
+			res = pthread_mutex_lock((pthread_mutex_t*)handle);
+			if (res != 0) 
+				return false;
+		}
+		else if(time==0) {
+			res = pthread_mutex_trylock((pthread_mutex_t*)handle);
+			if (res != 0) {
+				return false;
+			}
+		}
+		else {
+			struct timespec timeoutTime;
+			timeoutTime.tv_nsec = time * 1000; // time is in milliseconds
+			timeoutTime.tv_sec = 0;
+			res = pthread_mutex_timedlock((pthread_mutex_t*)handle, &timeoutTime);
+			if (res != 0) 
+				return false;
+		}
 	#else
 		int res = WaitForSingleObject(handle,time==WAIT_INFINITE ? INFINITE : time);
 		if (res!=WAIT_OBJECT_0) return false;
-		locked++;
-		return true;
 	#endif
+	locked++;
+	return true;
 }
 
 void MutexClass::Unlock()
 {
+	WWASSERT(locked);
 	#ifdef _UNIX
-		//assert(0);
+		int res = pthread_mutex_unlock((pthread_mutex_t*)handle);
+		res;	// silence compiler warnings
+		WWASSERT(res==0);
 	#else
-		WWASSERT(locked);
 		int res=ReleaseMutex(handle);
 		res;	// silence compiler warnings
 		WWASSERT(res);
-		locked--;
 	#endif
+	locked--;
 }
 
 // ----------------------------------------------------------------------------

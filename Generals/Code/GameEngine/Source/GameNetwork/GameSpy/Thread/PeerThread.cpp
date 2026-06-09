@@ -184,7 +184,7 @@ class PeerThreadClass : public ThreadClass
 {
 
 public:
-	PeerThreadClass() : ThreadClass()
+	PeerThreadClass() : ThreadClass("PeerThread")
 	{
 		//Added By Sadullah Nader
 		//Initializations inserted

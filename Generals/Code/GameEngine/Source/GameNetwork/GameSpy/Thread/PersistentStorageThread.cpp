@@ -430,7 +430,7 @@ class PSThreadClass : public ThreadClass
 {
 
 public:
-	PSThreadClass() : ThreadClass() 
+	PSThreadClass() : ThreadClass("PSThread") 
 	{ 
 		m_loginOK = m_sawLocalData = m_doneTryingToLogin = false; 
 		m_opCount = 0; 

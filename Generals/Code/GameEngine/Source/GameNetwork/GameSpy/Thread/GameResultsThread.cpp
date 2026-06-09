@@ -97,7 +97,7 @@ class GameResultsThreadClass : public ThreadClass
 {
 
 public:
-	GameResultsThreadClass() : ThreadClass() {}
+	GameResultsThreadClass() : ThreadClass("GameResultsThread") {}
 
 	void Thread_Function();
 

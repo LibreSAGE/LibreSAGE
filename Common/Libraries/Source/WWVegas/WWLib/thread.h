@@ -16,17 +16,7 @@
 **	You should have received a copy of the GNU General Public License
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#ifndef THREAD_H
-#define THREAD_H
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-#ifdef _UNIX
-#include "osdep.h"
-#endif
-
 #include "always.h"
 
 
@@ -47,7 +37,7 @@
 class ThreadClass
 {
 public:
-	ThreadClass();
+	ThreadClass(const char* threadName = "WWVegasThread");
 	virtual ~ThreadClass();
 
 	// Execute Thread_Function(). Note that only one instance can be executed at a time.
@@ -71,6 +61,8 @@ public:
 	// Returns true if the thread is running.
 	bool Is_Running();
 
+	// Gets the name of the thread.
+	const char *Get_Name(void) {return(ThreadName);};
 protected:
 
 	// User defined thread function. The thread function should check for "running" flag every now and then
@@ -78,10 +70,14 @@ protected:
 	virtual void Thread_Function() = 0;
 	volatile bool running;
 
+	// Name of thread.
+	char ThreadName[64];
+
+	// ID of thread.
+	uintptr_t ThreadID;
+
 private:
 	static void __cdecl Internal_Thread_Function(void*);
-	volatile unsigned long handle;
+	volatile void* handle;
 	int thread_priority;
 };
-
-#endif

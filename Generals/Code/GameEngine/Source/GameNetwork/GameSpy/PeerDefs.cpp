@@ -615,6 +615,17 @@ void SetUpGameSpy( const char *motdBuffer, const char *configBuffer )
 		configBuffer = "";
 	TearDownGameSpy();
 
+	// AVAILABILITY CHECK
+	GSIStartAvailableCheck("generals");
+	GSIACResult ac_result = GSIACWaiting;;
+	while((ac_result = GSIAvailableCheckThink()) == GSIACWaiting)
+		msleep(5);
+	if(ac_result != GSIACAvailable)
+	{
+		printf("The backend is not available\n");
+		return ;;
+	}
+
 	AsciiString dir;
 	dir.format("%sGeneralsOnline\\Ladders", TheGlobalData->getPath_UserData().str());
 	std::filesystem::create_directories(dir.str());
