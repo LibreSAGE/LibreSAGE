@@ -84,6 +84,7 @@
 HINSTANCE ApplicationHInstance = NULL;  ///< our application instance
 HWND ApplicationHWnd = NULL;  ///< our application window handle
 Bool ApplicationIsWindowed = false;
+Bool CheckForMultipleInstances = true;
 SDL3Mouse *TheWin32Mouse = NULL;  ///< shared mouse instance for the SDL3 runtime
 DWORD TheMessageTime = 0;	///< For getting the time that a message was posted from Windows.
 SDL_Window *ApplicationWindow = NULL;
@@ -309,6 +310,10 @@ int main(int argc, char **argv)
 				}
 				index += 1; // skip the next arg since we just used it
 			}
+			if (SDL_strcasecmp(argv[index], "-multi") == 0)
+			{
+				CheckForMultipleInstances = false;
+			}
 		}
 
 		if (argc>2 && strcmp(argv[1],"-DX")==0) {  
@@ -382,7 +387,7 @@ int main(int argc, char **argv)
 		}
 #endif
 
-		if (!acquireSingleInstanceLock())
+		if (CheckForMultipleInstances && !acquireSingleInstanceLock())
 		{
 			DEBUG_LOG(("Generals is already running...Bail!\n"));
 			delete TheVersion;

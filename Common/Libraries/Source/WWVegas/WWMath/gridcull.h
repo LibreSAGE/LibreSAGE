@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -50,10 +51,7 @@
  *   GridCullSystemClass::VolumeStruct::Is_Empty -- check if volume is empty (or invalid)      *
  *   GridCullSystemClass::VolumeStruct::Split -- split this volume                             *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
 
 #include "cullsys.h"
 #include "mempool.h"

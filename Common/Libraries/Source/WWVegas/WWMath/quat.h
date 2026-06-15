@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -34,13 +35,7 @@
  *-------------------------------------------------------------------------* 
  * Functions:                                                              * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef QUAT_H
-#define QUAT_H
 
 #include "always.h"
 #include "wwmath.h"
@@ -309,9 +304,3 @@ WWINLINE Quaternion & Quaternion::operator = (const Quaternion & source)
 
   return *this;
 }
-
-
-#endif /* QUAT_H */
-
-
-

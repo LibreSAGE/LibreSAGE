@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,12 +34,7 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef V3_RND_H
-#define V3_RND_H
 
 #include "always.h"
 #include "vector3.h"
@@ -228,8 +224,3 @@ class Vector3SolidCylinderRandomizer : public Vector3Randomizer {
 		float	Extent;
 		float	Radius;
 };
-
-
-#endif
-
-

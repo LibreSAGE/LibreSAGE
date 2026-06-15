@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,14 +34,7 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef RECT_H
-#define RECT_H
 
 #include "vector2.h"
 
@@ -103,6 +97,3 @@ public:
 	void	Snap_To_Units( const Vector2 & u ) { Left = (int)(Left / u.X + 0.5f) * u.X; Right = (int)(Right / u.X + 0.5f) * u.X; Top = (int)(Top / u.Y + 0.5f) * u.Y; Bottom = (int)(Bottom / u.Y + 0.5f) * u.Y; }
 
 };
-
-#endif
-

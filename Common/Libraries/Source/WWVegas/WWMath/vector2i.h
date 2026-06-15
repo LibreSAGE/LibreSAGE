@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,14 +34,7 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef VECTOR2I_H
-#define VECTOR2I_H
 
 #include "always.h"
 
@@ -108,6 +102,3 @@ WWINLINE void Vector2i::Swap(Vector2i & other)
 	other.J ^= J;
 	J ^= other.J;
 }
-
-
-#endif

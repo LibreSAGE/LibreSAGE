@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,14 +34,7 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef LINESEG_H
-#define LINESEG_H
 
 #include "always.h"
 #include "vector3.h"
@@ -88,6 +82,3 @@ protected:
 	Vector3				Dir;		// normalized direction.
 	float					Length;	// length of the segment
 };
-
-
-#endif

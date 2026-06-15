@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -47,14 +48,7 @@
  *   Transform_Sphere -- transform a sphere                                                    *
  *   operator * -- Transform a sphere                                                          *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef SPHERE_H
-#define SPHERE_H
 
 #include "always.h"
 #include "vector3.h"
@@ -545,8 +539,3 @@ inline SphereClass operator * (const Matrix3D & m, const SphereClass & s)
 {
 	return Transform_Sphere(m,s);
 }
-
-
-
-#endif
-

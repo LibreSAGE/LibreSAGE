@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -33,30 +34,12 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
 
-#ifndef CURVE_H
-#define CURVE_H
-
-#ifndef ALWAYS_H
 #include "always.h"
-#endif
-
-#ifndef VECTOR_H
 #include "vector.h"
-#endif
-
-#ifndef VECTOR3_H
 #include "vector3.h"
-#endif
-
-#ifndef PERSIST_H
 #include "persist.h"
-#endif
 
 class ChunkLoadClass;
 class ChunkSaveClass;
@@ -174,6 +157,3 @@ public:
 	virtual bool								Save(ChunkSaveClass &csave);
 	virtual bool								Load(ChunkLoadClass &cload);
 };
-
-
-#endif //CURVE_H

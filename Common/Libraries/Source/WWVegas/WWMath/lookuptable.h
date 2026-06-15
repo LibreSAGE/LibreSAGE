@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -35,10 +36,7 @@
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#ifndef LOOKUPTABLE_H
-#define LOOKUPTABLE_H
+#pragma once
 
 #include "always.h"
 #include "simplevec.h"
@@ -156,6 +154,3 @@ protected:
 	static RefMultiListClass<LookupTableClass>	Tables;
 
 };
-
-
-#endif // LOOKUPTABLE_H

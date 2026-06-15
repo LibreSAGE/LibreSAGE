@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -48,13 +49,7 @@
  *   Vector2::Scale -- multiply components of a vector by independant scaling factors.			  *
  *   Vector2::Lerp -- linearly interpolates two Vector2's                                      *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef VECTOR2_H
-#define VECTOR2_H
 
 #include "always.h"
 #include "wwmath.h"
@@ -665,7 +660,3 @@ WWINLINE void Vector2::Lerp(const Vector2 & a,const Vector2 & b,float t,Vector2 
 	set_result->X = (a.X + (b.X - a.X)*t);
    set_result->Y = (a.Y + (b.Y - a.Y)*t);
 }
-
-
-#endif /* VECTOR2_H */
-

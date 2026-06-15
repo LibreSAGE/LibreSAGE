@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -62,13 +63,7 @@
  *   Vector3::Rotate_Z -- Rotates this vector around the Z axis                                *
  *   Vector3::Is_Valid -- Verifies that each component of this vector is a valid float         *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef VECTOR3_H
-#define VECTOR3_H
 
 #include "always.h"
 #include "wwmath.h"
@@ -911,6 +906,3 @@ WWINLINE unsigned long	Vector3::Convert_To_ARGB( void ) const
 			 (unsigned(Y*255.0f)<<8) | 
 			 (unsigned(Z*255.0f));
 }
-
-#endif /* Vector3_H */
-

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -41,13 +42,7 @@
  *                                                                                              *
  *----------------------------------------------------------------------------------------------*
  */
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef VECTORPROCESSOR_H
-#define VECTORPROCESSOR_H
 
 class Vector2;
 class Vector3;
@@ -86,5 +81,3 @@ public:
 	static void ClampMin(float *dst, float *src, const float min, const int count);
 	static void Power(float *dst, float *src, const float pow, const int count);
 };
-
-#endif // VECTORPROCESSOR_H

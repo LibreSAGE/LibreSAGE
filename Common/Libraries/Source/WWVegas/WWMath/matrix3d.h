@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -72,15 +73,9 @@
  *   operator == -- Matrix equality operator                                                   * 
  *   operator != -- Matrix inequality operator                                                 * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+#pragma once
 
 #define ALLOW_TEMPORARIES
-
-#if defined(_MSC_VER)
-#pragma once
-#endif
-
-#ifndef MATRIX3D_H
-#define MATRIX3D_H
 
 #ifdef _UNIX
 #include "osdep.h"
@@ -1803,4 +1798,3 @@ class DynamicMatrix3D : public W3DMPO
 public:
 	Matrix3D Mat;
 };
-#endif /* MATRIX3D_H */

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -43,13 +44,7 @@
  *   Swap -- swap two Vector4's                                            * 
  *   Vector4::Is_Valid -- Vector4::Is_Valid                                *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef VECTOR4_H
-#define VECTOR4_H
 
 #include "always.h"
 #include "wwmath.h"
@@ -406,7 +401,3 @@ WWINLINE bool Vector4::Is_Valid(void) const
 {
 	return (WWMath::Is_Valid_Float(X) && WWMath::Is_Valid_Float(Y) && WWMath::Is_Valid_Float(Z) && WWMath::Is_Valid_Float(W));
 }
-
-
-#endif /* VECTOR4_H */
-

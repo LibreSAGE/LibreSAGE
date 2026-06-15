@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -51,15 +52,7 @@
  *   Matrix4::operator *= -- "times equals" operator                                           * 
  *   Matrix4::operator /= -- "divide equals" operator                                          * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-
-#ifndef MATRIX4_H
-#define MATRIX4_H
 
 #include "always.h"
 #include "vector4.h"
@@ -790,6 +783,3 @@ WWINLINE void	Matrix4::Transform_Vector(const Matrix4 & A,const Vector4 & in,Vec
 	out->Z = (A[2][0] * v->X + A[2][1] * v->Y + A[2][2] * v->Z + A[2][3] * v->W);
 	out->W = (A[3][0] * v->X + A[3][1] * v->Y + A[3][2] * v->Z + A[3][3] * v->W);
 }
-
-
-#endif /*MATRIX4_H*/

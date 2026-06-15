@@ -52,13 +52,7 @@
  *   MinMaxAABoxClass::Translate -- translates the box                                         *
  *   AABoxClass::Init -- Init from a line segment                                              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef AABOX_H
-#define AABOX_H
 
 #include "always.h"
 #include "matrix3d.h"
@@ -675,6 +669,3 @@ WWINLINE void MinMaxAABoxClass::Translate(const Vector3 & pos)
 	MinCorner+=pos;
 	MaxCorner+=pos;
 }
-
-
-#endif

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -52,14 +53,7 @@
  *   Matrix3::Rotate_Y -- Post-multiplies the matrix with a rotation about Y                   * 
  *   Matrix3::Rotate_Z -- Post-multiplies the matrix with a rotation about Z                   * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef Matrix3_H
-#define Matrix3_H
 
 #include "always.h"
 #include "vector3.h"
@@ -1025,5 +1019,3 @@ WWINLINE void Matrix3::Rotate_AABox_Extent(const Vector3 & extent,Vector3 * set_
 		}
 	}
 }
-
-#endif /*Matrix3_H*/

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -34,14 +35,7 @@
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef ODE_H
-#define ODE_H
 
 #include "always.h"
 #include "vector.h"
@@ -129,6 +123,3 @@ public:
 	static void Runge_Kutta5_Integrate(ODESystemClass * odesys,float dt);
 
 };
-
-#endif
-
