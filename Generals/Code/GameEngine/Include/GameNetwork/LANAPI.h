@@ -250,8 +250,6 @@ protected:
 	UnsignedInt					m_localIP;
 	Transport*					m_transport;
 
-	UnsignedInt					m_broadcastAddr;
-
 	UnsignedInt					m_lastUpdate;
 	AsciiString					m_lastGameopt; /// @todo: hack for demo - remove this
 

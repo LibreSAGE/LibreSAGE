@@ -27,6 +27,8 @@
 
 #include "GameNetwork/NetworkUtil.h"
 
+#include <SDL3_net/SDL_net.h>
+
 Int MAX_FRAMES_AHEAD = 128;
 Int MIN_RUNAHEAD = 10;
 Int FRAME_DATA_LENGTH = (MAX_FRAMES_AHEAD+1)*2;
@@ -78,30 +80,89 @@ void dumpBufferToLog(const void *vBuf, Int len, const char *fname, Int line)
  */
 UnsignedInt ResolveIP(AsciiString host)
 {
-  struct hostent *hostStruct;
-  struct in_addr *hostNode;
-
   if (host.getLength() == 0)
   {
 	  DEBUG_LOG(("ResolveIP(): Can't resolve NULL\n"));
 	  return 0;
   }
 
-  // String such as "127.0.0.1"
-  if (isdigit(host.getCharAt(0)))
-  {
-    return ( ntohl(inet_addr(host.str())) );
-  }
-
-  // String such as "localhost"
-  hostStruct = gethostbyname(host.str());
-  if (hostStruct == NULL)
+  // Resolve the host name (or numeric IP string) via SDL3_net. Numeric strings
+  // resolve immediately; host names hit the resolver thread, so block until done.
+  NET_Address *addr = NET_ResolveHostname(host.str());
+  if (addr == NULL)
   {
 	  DEBUG_LOG(("ResolveIP(): Can't resolve %s\n", host.str()));
 	  return 0;
   }
-  hostNode = (struct in_addr *) hostStruct->h_addr;
-  return ( ntohl(hostNode->s_addr) );
+
+  UnsignedInt ip = 0;
+  if (NET_WaitUntilResolved(addr, -1) == NET_SUCCESS)
+  {
+    ip = NetAddressToIP(addr);
+  }
+  else
+  {
+	  DEBUG_LOG(("ResolveIP(): Can't resolve %s\n", host.str()));
+  }
+
+  NET_UnrefAddress(addr);
+  return ip;
+}
+
+/**
+ * Cache of host-order IPv4 -> NET_Address* mappings. SDL3_net resolves every
+ * address (even numeric ones) on a background thread, so we keep the results
+ * around rather than re-resolving for every outgoing packet. The cached
+ * addresses live for the duration of the program.
+ */
+NET_Address *IPToNetAddress(UnsignedInt ip)
+{
+  static std::map<UnsignedInt, NET_Address *> theAddressCache;
+
+  std::map<UnsignedInt, NET_Address *>::iterator it = theAddressCache.find(ip);
+  if (it != theAddressCache.end())
+  {
+    return it->second;
+  }
+
+  char buf[24];
+  sprintf(buf, "%u.%u.%u.%u", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
+
+  NET_Address *addr = NET_ResolveHostname(buf);
+  if (addr != NULL && NET_WaitUntilResolved(addr, -1) != NET_SUCCESS)
+  {
+    DEBUG_LOG(("IPToNetAddress(): Can't resolve %s\n", buf));
+    NET_UnrefAddress(addr);
+    addr = NULL;
+  }
+
+  theAddressCache[ip] = addr;
+  return addr;
+}
+
+UnsignedInt NetAddressToIP(NET_Address *addr)
+{
+  if (addr == NULL)
+  {
+    return 0;
+  }
+
+  const char *str = NET_GetAddressString(addr);
+  if (str == NULL)
+  {
+    return 0;
+  }
+
+  // NET_GetAddressBytes() returns the raw, protocol-specific sockaddr, so parse
+  // the human-readable string instead. Non-IPv4 (e.g. IPv6) addresses won't
+  // match and resolve to 0.
+  unsigned int a = 0, b = 0, c = 0, d = 0;
+  if (sscanf(str, "%u.%u.%u.%u", &a, &b, &c, &d) != 4)
+  {
+    return 0;
+  }
+
+  return (UnsignedInt)(((a & 0xff) << 24) | ((b & 0xff) << 16) | ((c & 0xff) << 8) | (d & 0xff));
 }
 
 /**

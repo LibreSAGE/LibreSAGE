@@ -30,7 +30,23 @@
 #include "GameNetwork/NetworkDefs.h"
 #include "GameNetwork/NetworkInterface.h"
 
+// Forward declaration so callers don't have to pull in <SDL3_net/SDL_net.h>.
+typedef struct NET_Address NET_Address;
+
 UnsignedInt ResolveIP(AsciiString host);
+
+/**
+ * Convert a host-order IPv4 address (the engine's internal representation) into
+ * an SDL3_net NET_Address*. The returned address is owned by an internal cache;
+ * do NOT unref it. Returns NULL if the address could not be resolved.
+ */
+NET_Address *IPToNetAddress(UnsignedInt ip);
+
+/**
+ * Convert a resolved SDL3_net NET_Address* into a host-order IPv4 address.
+ * Returns 0 if the address is NULL, unresolved, or not an IPv4 address.
+ */
+UnsignedInt NetAddressToIP(NET_Address *addr);
 UnsignedShort GenerateNextCommandID();
 Bool DoesCommandRequireACommandID(NetCommandType type);
 Bool CommandRequiresAck(NetCommandMsg *msg);

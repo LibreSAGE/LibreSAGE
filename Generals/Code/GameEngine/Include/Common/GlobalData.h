@@ -40,6 +40,8 @@
 #include "GameClient/Color.h"
 #include "Common/STLTypedefs.h"
 
+#include <SDL3_net/SDL_net.h>
+
 // FORWARD DECLARATIONS ///////////////////////////////////////////////////////////////////////////
 struct FieldParse;
 enum _TerrainLOD : int;

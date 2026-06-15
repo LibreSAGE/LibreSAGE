@@ -104,11 +104,6 @@ class UDP
 
   bit8             getLocalAddr(uint32 &ip, uint16 &port);
   sint32           getFD(void) { return(fd); }
- 
-  bit8             SetInputBuffer(uint32 bytes);
-  bit8             SetOutputBuffer(uint32 bytes);
-  int              GetInputBuffer(void);
-  int              GetOutputBuffer(void);
 };
 
 #endif

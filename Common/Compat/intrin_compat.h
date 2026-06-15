@@ -34,6 +34,24 @@ extern "C"
                ((hostlong & 0x00FF0000) >> 8) |
                ((hostlong & 0xFF000000) >> 24);
     }
+#undef ntohl
+    inline uint32_t ntohl(uint32_t netlong) noexcept
+    {
+        return ((netlong & 0xFF) << 24) |
+               ((netlong & 0xFF00) << 8) |
+               ((netlong & 0xFF0000) >> 8) |
+               ((netlong & 0xFF000000) >> 24);
+    }
+#undef htons
+    inline uint16_t htons(uint16_t hostshort) noexcept
+    {
+        return (hostshort << 8) | (hostshort >> 8);
+    }
+#undef ntohs
+    inline uint16_t ntohs(uint16_t netshort) noexcept
+    {
+        return (netshort << 8) | (netshort >> 8);
+    }
 }
 #endif
 

@@ -1265,7 +1265,7 @@ WindowMsgHandledType MainMenuSystem( GameWindow *window, UnsignedInt msg,
 			}	
 		break;
 		}
-#endif _PLAYTEST
+#endif // _PLAYTEST
 		//---------------------------------------------------------------------------------------------
 		case GBM_SELECTED:
 		{
@@ -1615,7 +1615,7 @@ WindowMsgHandledType MainMenuSystem( GameWindow *window, UnsignedInt msg,
 				campaignSelected = FALSE;
 			}
 
-#endif _PLAYTEST
+#endif // _PLAYTEST
 
 			break;
 

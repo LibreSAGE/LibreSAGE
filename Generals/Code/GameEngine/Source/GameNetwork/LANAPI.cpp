@@ -84,7 +84,6 @@ LANAPI::LANAPI( void ) : m_transport(NULL)
 	m_inLobby = true;
 	m_isInLANMenu = TRUE;
 	m_currentGame = NULL;
-	m_broadcastAddr = INADDR_BROADCAST;
 	m_directConnectRemoteIP = 0;
 	m_actionTimeout = 5000; // ms
 	m_lastUpdate = 0;
@@ -196,7 +195,7 @@ void LANAPI::sendMessage(LANMessage *msg, UnsignedInt ip /* = 0 */)
 	}
 	else
 	{
-		m_transport->queueSend(m_broadcastAddr, lobbyPort, (unsigned char *)msg, sizeof(LANMessage) /*, 0, 0 */);
+		m_transport->queueSend(NULL, lobbyPort, (unsigned char *)msg, sizeof(LANMessage) /*, 0, 0 */);
 	}
 }
 

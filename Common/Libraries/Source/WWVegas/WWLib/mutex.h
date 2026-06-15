@@ -25,6 +25,9 @@
 #endif
 
 #include "always.h"
+#include "thread.h"
+
+#include <atomic>
 
 
 // Always use mutex or critical section when accessing the same data from multiple threads!
@@ -105,6 +108,43 @@ public:
 		~LockClass();
 	private:
 		LockClass &operator=(const LockClass&) { return(*this); }
+	};
+	friend class LockClass;
+};
+
+// ----------------------------------------------------------------------------
+//
+// Fast critical section is really fast version of CriticalSection. The downside
+// of it is that it can't be locked multiple times from the same thread.
+//
+// ----------------------------------------------------------------------------
+
+class FastCriticalSectionClass
+{
+	std::atomic_flag Flag;
+
+public:
+	FastCriticalSectionClass() = default;
+
+	class LockClass
+	{
+		FastCriticalSectionClass& CriticalSection;
+	public:
+		LockClass(FastCriticalSectionClass& critical_section) : CriticalSection(critical_section)
+		{
+			// Spin until the flag transitions from clear to set, yielding the rest
+			// of our time slice while another thread holds the lock.
+			while (CriticalSection.Flag.test_and_set(std::memory_order_acquire)) {
+				ThreadClass::Switch_Thread();
+			}
+		}
+		~LockClass()
+		{
+			CriticalSection.Flag.clear(std::memory_order_release);
+		}
+	private:
+		LockClass &operator=(const LockClass&) { return(*this); }
+		LockClass(const LockClass&);
 	};
 	friend class LockClass;
 };

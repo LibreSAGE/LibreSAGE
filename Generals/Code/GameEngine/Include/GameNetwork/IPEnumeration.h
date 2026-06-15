@@ -73,9 +73,8 @@ public:
 	AsciiString getMachineName( void );			///< Return the Network Neighborhood machine name
 
 protected:
-
-	EnumeratedIP *m_IPlist;
 	Bool m_isWinsockInitialized;
+	EnumeratedIP *m_IPlist;
 };
 
 

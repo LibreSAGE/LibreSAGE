@@ -28,6 +28,7 @@
 #include "Common/CRC.h"
 #include "GameNetwork/Transport.h"
 #include "GameNetwork/NetworkInterface.h"
+#include "GameNetwork/NetworkUtil.h"
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -118,10 +119,17 @@ Bool Transport::init( UnsignedInt ip, UnsignedShort port )
 	if (!m_udpsock)
 		return false;
 	
+	// Bind to INADDR_ANY (a NULL NET_Address*) rather than to m_localIP. On Linux a
+	// socket bound to a specific local IP does not receive broadcast packets, which
+	// breaks LAN game discovery; binding to "any" receives both unicast (to our port)
+	// and broadcast traffic. The host-order m_localIP is still used at the protocol
+	// level to identify us to peers.
+	NET_Address *bindAddr = NULL;
+
 	int retval = -1;
 	time_t now = timeGetTime();
 	while ((retval != 0) && ((timeGetTime() - now) < 1000)) {
-		retval = m_udpsock->Bind(ip, port);
+		retval = m_udpsock->Bind(bindAddr, port);
 	}
 
 	if (retval != 0) {
@@ -186,16 +194,16 @@ void Transport::reset( void )
 Bool Transport::update( void )
 {
 	Bool retval = TRUE;
-	if (doRecv() == FALSE && m_udpsock && m_udpsock->GetStatus() == UDP::ADDRNOTAVAIL)
+	if (doRecv() == FALSE)
 	{
 		retval = FALSE;
+		DEBUG_ASSERTLOG(retval, ("Transport::doRecv error is %s\n", m_udpsock ? m_udpsock->GetStatus() : "no socket"));
 	}
-	DEBUG_ASSERTLOG(retval, ("WSA error is %s\n", GetWSAErrorString(WSAGetLastError()).str()));
-	if (doSend() == FALSE && m_udpsock && m_udpsock->GetStatus() == UDP::ADDRNOTAVAIL)
+	if (doSend() == FALSE)
 	{
 		retval = FALSE;
+		DEBUG_ASSERTLOG(retval, ("Transport::doSend error is %s\n", m_udpsock ? m_udpsock->GetStatus() : "no socket"));
 	}
-	DEBUG_ASSERTLOG(retval, ("WSA error is %s\n", GetWSAErrorString(WSAGetLastError()).str()));
 	return retval;
 }
 
@@ -229,8 +237,15 @@ Bool Transport::doSend() {
 		if (m_outBuffer[i].length != 0)
 		{
 			int bytesSent = 0;
-			// Send this message
-			if ((bytesSent = m_udpsock->Write((unsigned char *)(&m_outBuffer[i]), m_outBuffer[i].length + sizeof(TransportMessageHeader), m_outBuffer[i].addr, m_outBuffer[i].port)) > 0)
+			// Send this message - convert the host-order destination IP to a NET_Address*.
+			// A zero address means "broadcast". We use the limited broadcast address
+			// 255.255.255.255 (a single packet out the default interface) rather than a
+			// NULL NET_Address*, which would make SDL3_net broadcast on *every* local
+			// interface - on a multi-homed host that delivers the same announce many
+			// times (once per interface/source IP) and shows duplicate players.
+			UnsignedInt destIP = (m_outBuffer[i].addr != 0) ? m_outBuffer[i].addr : 0xFFFFFFFF;
+			NET_Address *destAddr = IPToNetAddress(destIP);
+			if ((bytesSent = m_udpsock->Write((unsigned char *)(&m_outBuffer[i]), m_outBuffer[i].length + sizeof(TransportMessageHeader), destAddr, m_outBuffer[i].port)) > 0)
 			{
 				//DEBUG_LOG(("Sending %d bytes to %d:%d\n", m_outBuffer[i].length + sizeof(TransportMessageHeader), m_outBuffer[i].addr, m_outBuffer[i].port));
 				m_outgoingPackets[m_statisticsSlot]++;
@@ -288,7 +303,8 @@ Bool Transport::doRecv()
 	Bool retval = TRUE;
 
 	// Read in anything on our socket
-	sockaddr_in from;
+	NET_Address* from = NULL;
+	UnsignedShort fromPort = 0;
 #if defined(_DEBUG) || defined(_INTERNAL)
 	UnsignedInt now = timeGetTime();
 #endif
@@ -297,8 +313,16 @@ Bool Transport::doRecv()
 	unsigned char *buf = (unsigned char *)&incomingMessage;
 	int len = MAX_MESSAGE_LEN;
 //	DEBUG_LOG(("Transport::doRecv - checking\n"));
-	while ( (len=m_udpsock->Read(buf, MAX_MESSAGE_LEN, &from)) > 0 )
+	while ( (len=m_udpsock->Read(buf, MAX_MESSAGE_LEN, from, fromPort)) > 0 )
 	{
+		// Convert the sender's address to the engine's host-order IPv4 form and
+		// release our reference (Read() ref'd it for us).
+		UnsignedInt fromIP = NetAddressToIP(from);
+		if (from)
+		{
+			NET_UnrefAddress(from);
+			from = NULL;
+		}
 #if defined(_DEBUG) || defined(_INTERNAL)
 		// Packet loss simulation
 		if (m_usePacketLoss)
@@ -347,8 +371,8 @@ Bool Transport::doRecv()
 						(Int)(TheGlobalData->m_latencyAmplitude * sin(now * TheGlobalData->m_latencyPeriod)) +
 						GameClientRandomValue(-TheGlobalData->m_latencyNoise, TheGlobalData->m_latencyNoise);
 					m_delayedInBuffer[i].message.length = incomingMessage.length;
-					m_delayedInBuffer[i].message.addr = ntohl(from.sin_addr.s_addr);
-					m_delayedInBuffer[i].message.port = ntohs(from.sin_port);
+					m_delayedInBuffer[i].message.addr = fromIP;
+					m_delayedInBuffer[i].message.port = fromPort;
 					memcpy(&m_delayedInBuffer[i].message, buf, len);
 					break;
 				}
@@ -360,8 +384,8 @@ Bool Transport::doRecv()
 				{
 					// Empty slot; use it
 					m_inBuffer[i].length = incomingMessage.length;
-					m_inBuffer[i].addr = ntohl(from.sin_addr.s_addr);
-					m_inBuffer[i].port = ntohs(from.sin_port);
+					m_inBuffer[i].addr = fromIP;
+					m_inBuffer[i].port = fromPort;
 					memcpy(&m_inBuffer[i], buf, len);
 					break;
 				}

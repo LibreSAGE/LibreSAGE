@@ -93,6 +93,13 @@ class AsciiString;
 	#define DEBUG_EXTERN_C extern
 #endif
 
+// Let GCC/Clang validate printf-style format strings against their arguments.
+#if defined(__GNUC__) || defined(__clang__)
+	#define DEBUG_PRINTF_FORMAT(fmtArg, firstArg) __attribute__((format(printf, fmtArg, firstArg)))
+#else
+	#define DEBUG_PRINTF_FORMAT(fmtArg, firstArg)
+#endif
+
 
 // SYSTEM INCLUDES ////////////////////////////////////////////////////////////
 
@@ -145,7 +152,7 @@ class AsciiString;
 
 #ifdef DEBUG_LOGGING
 
-	DEBUG_EXTERN_C void DebugLog(const char *format, ...);
+	DEBUG_EXTERN_C void DebugLog(const char *format, ...) DEBUG_PRINTF_FORMAT(1, 2);
 
 	// This defines a bitmask of log types that we care about, to allow some flexability
 	// in what gets logged.  This should be extended to asserts, too, but the assert box
@@ -172,7 +179,7 @@ class AsciiString;
 
 #ifdef DEBUG_CRASHING
 
-	DEBUG_EXTERN_C void DebugCrash(const char *format, ...);
+	DEBUG_EXTERN_C void DebugCrash(const char *format, ...) DEBUG_PRINTF_FORMAT(1, 2);
 
 	/*
 		Yeah, it's a sleazy global, since we can't reasonably add

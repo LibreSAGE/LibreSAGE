@@ -23,6 +23,7 @@
 #include <windows.h>
 #else
 #include <pthread.h>
+#include <time.h>
 #endif
 
 // ----------------------------------------------------------------------------
@@ -69,11 +70,18 @@ bool MutexClass::Lock(int time)
 			}
 		}
 		else {
+			// pthread_mutex_timedlock() expects an ABSOLUTE deadline (CLOCK_REALTIME),
+			// not a relative timeout, so add the requested wait (in milliseconds) to now.
 			struct timespec timeoutTime;
-			timeoutTime.tv_nsec = time * 1000; // time is in milliseconds
-			timeoutTime.tv_sec = 0;
+			clock_gettime(CLOCK_REALTIME, &timeoutTime);
+			timeoutTime.tv_sec += time / 1000;
+			timeoutTime.tv_nsec += (long)(time % 1000) * 1000000L; // ms -> ns
+			if (timeoutTime.tv_nsec >= 1000000000L) {
+				timeoutTime.tv_sec += 1;
+				timeoutTime.tv_nsec -= 1000000000L;
+			}
 			res = pthread_mutex_timedlock((pthread_mutex_t*)handle, &timeoutTime);
-			if (res != 0) 
+			if (res != 0)
 				return false;
 		}
 	#else
@@ -122,7 +130,14 @@ MutexClass::LockClass::~LockClass()
 CriticalSectionClass::CriticalSectionClass() : handle(NULL), locked(false)
 {
 	#ifdef _UNIX
-		//assert(0);
+		// A critical section can be entered recursively by the same thread, so the
+		// backing pthread mutex must be recursive too.
+		pthread_mutexattr_t attr;
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+		handle = new pthread_mutex_t;
+		pthread_mutex_init((pthread_mutex_t*)handle, &attr);
+		pthread_mutexattr_destroy(&attr);
 	#else
 		handle=W3DNEWARRAY char[sizeof(CRITICAL_SECTION)];
 		InitializeCriticalSection((CRITICAL_SECTION*)handle);
@@ -131,10 +146,11 @@ CriticalSectionClass::CriticalSectionClass() : handle(NULL), locked(false)
 
 CriticalSectionClass::~CriticalSectionClass()
 {
+	WWASSERT(!locked); // Can't delete locked critical section!
 	#ifdef _UNIX
-		//assert(0);
+		pthread_mutex_destroy((pthread_mutex_t*)handle);
+		delete (pthread_mutex_t*)handle;
 	#else
-		WWASSERT(!locked); // Can't delete locked mutex!
 		DeleteCriticalSection((CRITICAL_SECTION*)handle);
 		delete[] handle;
 	#endif
@@ -143,7 +159,8 @@ CriticalSectionClass::~CriticalSectionClass()
 void CriticalSectionClass::Lock()
 {
 	#ifdef _UNIX
-		//assert(0);
+		pthread_mutex_lock((pthread_mutex_t*)handle);
+		locked++;
 	#else
 		EnterCriticalSection((CRITICAL_SECTION*)handle);
 		locked++;
@@ -152,10 +169,11 @@ void CriticalSectionClass::Lock()
 
 void CriticalSectionClass::Unlock()
 {
+	WWASSERT(locked);
 	#ifdef _UNIX
-		//assert(0);
+		locked--;
+		pthread_mutex_unlock((pthread_mutex_t*)handle);
 	#else
-		WWASSERT(locked);
 		LeaveCriticalSection((CRITICAL_SECTION*)handle);
 		locked--;
 	#endif

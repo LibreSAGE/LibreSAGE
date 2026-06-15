@@ -156,7 +156,7 @@ NAT::NAT()
 	m_connectionRound = 0;
 	m_localIP = 0;
 	m_localNodeNumber = 0;
-	m_manglerAddress = 0;
+	m_manglerAddress = NULL;
 	m_manglerRetries = 0;
 	m_numNodes = 0;
 	m_numRetries = 0;
@@ -430,8 +430,8 @@ NATConnectionState NAT::connectionUpdate() {
 					setConnectionState(m_localNodeNumber, NATCONNECTIONSTATE_WAITINGFORRESPONSE);
 				} else {
 					if (TheFirewallHelper != NULL) {
-						DEBUG_LOG(("NAT::connectionUpdate - trying to send to the mangler again. mangler address: %d.%d.%d.%d, from port: %d, packet ID:%d\n",
-							m_manglerAddress >> 24, (m_manglerAddress >> 16) & 0xff, (m_manglerAddress >> 8) & 0xff, m_manglerAddress & 0xff, m_spareSocketPort, m_packetID));
+						DEBUG_LOG(("NAT::connectionUpdate - trying to send to the mangler again. mangler address: %s, from port: %d, packet ID:%d\n",
+							NET_GetAddressString(m_manglerAddress), m_spareSocketPort, m_packetID));
 						TheFirewallHelper->sendToManglerFromPort(m_manglerAddress, m_spareSocketPort, m_packetID);
 					}
 //					m_manglerRetryTime = TheGameSpyConfig->getRetryInterval() + timeGetTime();
@@ -804,10 +804,11 @@ void NAT::sendMangledSourcePort() {
 	Char manglerName[256];
 	FirewallHelperClass::getManglerName(1, manglerName);
 	DEBUG_LOG(("NAT::sendMangledSourcePort - about to call gethostbyname for mangler at %s\n", manglerName));
-	struct hostent *hostInfo = gethostbyname(manglerName);
+	NET_Address* manglerAddress = NET_ResolveHostname(manglerName);
+	NET_WaitUntilResolved(manglerAddress, -1);
 
-	if (hostInfo == NULL) {
-		DEBUG_LOG(("NAT::sendMangledSourcePort - gethostbyname failed for mangler address %s\n", manglerName));
+	if (manglerAddress == NULL) {
+		DEBUG_LOG(("NAT::sendMangledSourcePort - NET_ResolveHostname failed for mangler address %s\n", manglerName));
 		// can't find the mangler, we're screwed so just send the source port.
 		sendMangledPortNumberToTarget(sourcePort, targetSlot);
 		m_sourcePorts[m_targetNodeNumber] = sourcePort;
@@ -815,10 +816,9 @@ void NAT::sendMangledSourcePort() {
 		return;
 	}
 
-	memcpy(&m_manglerAddress, &(hostInfo->h_addr_list[0][0]), 4);
-	m_manglerAddress = ntohl(m_manglerAddress);
-	DEBUG_LOG(("NAT::sendMangledSourcePort - mangler %s address is %d.%d.%d.%d\n", manglerName, 
-							m_manglerAddress >> 24, (m_manglerAddress >> 16) & 0xff, (m_manglerAddress >> 8) & 0xff, m_manglerAddress & 0xff));
+	m_manglerAddress = manglerAddress;
+	DEBUG_LOG(("NAT::sendMangledSourcePort - mangler %s address is %s\n", manglerName, 
+							NET_GetAddressString(m_manglerAddress)));
 
 	DEBUG_LOG(("NAT::sendMangledSourcePort - NAT behavior = 0x%08x\n", fwType));
 

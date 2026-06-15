@@ -1300,7 +1300,7 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 #ifdef _PLAYTEST
 	if (comboBoxResolution)
 		comboBoxResolution->winEnable(FALSE);
-#endif _PLAYTEST
+#endif // _PLAYTEST
 	comboBoxDetailID			 = TheNameKeyGenerator->nameToKey( AsciiString( "OptionsMenu.wnd:ComboBoxDetail" ) );
 	comboBoxDetail		   = TheWindowManager->winGetWindowFromId( NULL, comboBoxDetailID );
 

@@ -344,6 +344,11 @@ void Network::init()
 
 #ifdef _WIN32
 	QueryPerformanceFrequency((LARGE_INTEGER *)&m_perfCountFreq);
+#else
+	// No QueryPerformanceCounter on non-Windows; timeForNewFrame() falls back to
+	// timeGetTime() (milliseconds), so the performance-counter "frequency" is
+	// 1000 ticks/second. Without initializing this, m_perfCountFreq was garbage.
+	m_perfCountFreq = 1000;
 #endif
 	m_nextFrameTime = 0;
 	m_sawCRCMismatch = FALSE;
@@ -763,6 +768,11 @@ Bool Network::timeForNewFrame() {
 	int64_t curTime;
 #ifdef _WIN32
 	QueryPerformanceCounter((LARGE_INTEGER *)&curTime);
+#else
+	// Match the millisecond clock used to set m_perfCountFreq above. Previously
+	// curTime was left uninitialized on non-Windows, so this comparison was random
+	// and the network frame pacer never advanced the sim past frame 1.
+	curTime = (int64_t)timeGetTime();
 #endif
 	int64_t frameDelay = m_perfCountFreq / m_frameRate;
 

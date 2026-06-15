@@ -47,9 +47,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #pragma once
-
-#ifndef __FIREWALLHELPER_H
-#define __FIREWALLHELPER_H
+#include <SDL3_net/SDL_net.h>
 
 class UDP;
 
@@ -194,7 +192,7 @@ class FirewallHelperClass {
 		void flagNeedToRefresh(Bool flag);
 
 		static void getManglerName(Int manglerIndex, Char *nameBuf);
-		Bool sendToManglerFromPort(UnsignedInt address, UnsignedShort port, UnsignedShort packetID, Bool blitzme = FALSE);
+		Bool sendToManglerFromPort(NET_Address* address, UnsignedShort port, UnsignedShort packetID, Bool blitzme = FALSE);
 		UnsignedShort getManglerResponse(UnsignedShort packetID, Int time = 0);
 		Bool openSpareSocket(UnsignedShort port);
 		void closeSpareSocket(UnsignedShort port);
@@ -287,7 +285,7 @@ class FirewallHelperClass {
 		*/
 		SpareSocketStruct m_spareSockets[MAX_SPARE_SOCKETS];
 
-		UnsignedInt m_manglers[MAX_NUM_MANGLERS];
+		NET_Address* m_manglers[MAX_NUM_MANGLERS];
 		Int m_numManglers;
 
 		UnsignedShort m_sparePorts[MAX_SPARE_SOCKETS];
@@ -308,7 +306,3 @@ class FirewallHelperClass {
 
 extern FirewallHelperClass *TheFirewallHelper;
 FirewallHelperClass * createFirewallHelper();
-
-
-#endif	// __FIREWALLHELPER_H
-

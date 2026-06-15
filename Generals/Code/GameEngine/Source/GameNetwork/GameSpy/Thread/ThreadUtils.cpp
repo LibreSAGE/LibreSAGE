@@ -33,10 +33,16 @@
 
 std::u16string MultiByteToWideCharSingleLine( const char *orig )
 {
-	Int len;
+	if (orig == NULL)
+		return std::u16string();
+
+	// Preflight to get the length (in UTF-16 units, excluding the null). ICU reports
+	// U_BUFFER_OVERFLOW_ERROR here because the destination is NULL/zero-length - that
+	// is expected, not a failure, so we must not bail out on it.
+	Int len = 0;
 	UErrorCode err = U_ZERO_ERROR;
 	u_strFromUTF8(NULL, 0, &len, orig, -1, &err); // get length
-	if (err != U_ZERO_ERROR)
+	if (len <= 0)
 	{
 		return std::u16string();
 	}
@@ -45,12 +51,13 @@ std::u16string MultiByteToWideCharSingleLine( const char *orig )
 
 	// MultiByteToWideChar(CP_UTF8, 0, orig, -1, dest, len);
 	err = U_ZERO_ERROR;
-	u_strFromUTF8(dest, len, NULL, orig, -1, &err);
-	if (err != U_ZERO_ERROR)
+	u_strFromUTF8(dest, len+1, NULL, orig, -1, &err);
+	if (U_FAILURE(err))
 	{
 		delete[] dest;
 		return std::u16string();
 	}
+	dest[len] = 0;
 	WideChar *c = NULL;
 	do
 	{
@@ -79,25 +86,26 @@ std::u16string MultiByteToWideCharSingleLine( const char *orig )
 
 std::string WideCharStringToMultiByte( const WideChar *orig )
 {
-	std::string ret;
-	// Int len = WideCharToMultiByte( CP_UTF8, 0, orig, wcslen(orig), NULL, 0, NULL, NULL ) + 1;
-	Int len;
+	if (orig == NULL)
+		return std::string();
+
+	// Preflight to get the required UTF-8 length (excluding the null terminator).
+	// Passing a NULL/zero-length destination makes ICU report the needed size via
+	// U_BUFFER_OVERFLOW_ERROR - that is expected here and is NOT a real failure, so
+	// we must not treat it as one (doing so silently returned an empty string).
+	Int len = 0;
 	UErrorCode err = U_ZERO_ERROR;
-	u_strToUTF8(NULL, 0, &len, orig, -1, &err) + 1;
-	if (len > 0 && err == U_ZERO_ERROR)
-	{
-		char *dest = NEW char[len];
-		// WideCharToMultiByte( CP_UTF8, 0, orig, -1, dest, len, NULL, NULL );
-		u_strToUTF8(dest, len, NULL, orig, -1, &err);
-		if (err != U_ZERO_ERROR)
-		{
-			delete[] dest;
-			return std::string();
-		}
-		dest[len-1] = 0;
-		ret = dest;
-		delete dest;
-	}
+	u_strToUTF8(NULL, 0, &len, orig, -1, &err);
+	if (len <= 0)
+		return std::string();
+
+	std::string ret;
+	ret.resize(len);
+	err = U_ZERO_ERROR;
+	u_strToUTF8(&ret[0], len + 1, NULL, orig, -1, &err);
+	if (U_FAILURE(err))
+		return std::string();
+
 	return ret;
 }
 

@@ -31,6 +31,24 @@ SDL3LocalFileSystem::SDL3LocalFileSystem() : LocalFileSystem()
 
 SDL3LocalFileSystem::~SDL3LocalFileSystem() {}
 
+static FilenameListIter findFileInList(const FilenameList &fileList, const AsciiString &filename)
+{
+	return std::find_if(fileList.begin(), fileList.end(), [&filename](const AsciiString &file)
+						{ 
+							char normalizedFile[1024] = { 0 };
+							// Replace all backslashes with forward slashes for comparison, since SDL treats them as equivalent.
+							strncpy(normalizedFile, filename.str(), sizeof(normalizedFile));
+							for (char *p = normalizedFile; *p; ++p)
+							{
+								if (*p == '\\')
+								{
+									*p = '/';
+								}
+							}
+							return file.compareNoCase(normalizedFile) == 0; 
+						});
+}
+
 File *SDL3LocalFileSystem::openFile(const Char *filename, Int access)
 {
 	SDL3LocalFile *file = newInstance(SDL3LocalFile);
@@ -41,28 +59,10 @@ File *SDL3LocalFileSystem::openFile(const Char *filename, Int access)
 	}
 
 	AsciiString filenameNoCase(filename);
-	FilenameListIter it = std::find_if(m_fileList.begin(), m_fileList.end(), [&filename](const AsciiString &file)
-									   { 
-													char normalizedFile[1024] = { 0 };
-													// Replace all backslashes with forward slashes for comparison, since SDL treats them as equivalent.
-													strncpy(normalizedFile, filename, sizeof(normalizedFile));
-													for (char *p = normalizedFile; *p; ++p)
-													{
-														if (*p == '\\')
-														{
-															*p = '/';
-														}
-													}
-												return file.compareNoCase(normalizedFile) == 0; 
-										});
+	FilenameListIter it = findFileInList(m_fileList, filenameNoCase);
 
 	// When there's no CREATE flag, we require that the file already exists.
-	if (it == m_fileList.end())
-	{
-		if ((access & File::WRITE) == 0)
-			return NULL;
-	}
-	else
+	if (it != m_fileList.end())
 	{
 		filenameNoCase = *it;
 	}
@@ -106,6 +106,13 @@ void SDL3LocalFileSystem::reset() {}
 
 Bool SDL3LocalFileSystem::doesFileExist(const Char *filename) const
 {
+	AsciiString filenameStr(filename);
+	FilenameListIter it = findFileInList(m_fileList, filenameStr);
+
+	if (it != m_fileList.end())
+		return true;
+
+	// Now check for the file by opening it
 	SDL_PathInfo pathInfo;
 	if (!SDL_GetPathInfo(filename, &pathInfo))
 	{
