@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -88,7 +89,7 @@ public:
 		const T &	Get_Value (void) const		{ return m_Value; }
 		T &			Get_Value (void)				{ return m_Value; }
 
-		void			Set_Time (float time)		{ m_Time = time; }
+		float			Set_Time (float time)		{ m_Time = time; }
 		void			Set_Value (const T &value)	{ m_Value = value; }
 
 	private:

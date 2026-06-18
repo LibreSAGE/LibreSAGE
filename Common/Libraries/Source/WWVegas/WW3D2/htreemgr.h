@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -16,7 +17,7 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* $Header: /Commando/Code/ww3d2/htreemgr.h 1     1/22/01 3:36p Greg_h $ */
+/* $Header: /Commando/Code/ww3d2/htreemgr.h 2     9/19/01 6:17p Jani_p $ */
 /*********************************************************************************************** 
  ***                            Confidential - Westwood Studios                              *** 
  *********************************************************************************************** 
@@ -27,9 +28,9 @@
  *                                                                                             * 
  *                       Author:: Greg_h                                                       * 
  *                                                                                             * 
- *                     $Modtime:: 1/08/01 10:04a                                              $* 
+ *                     $Modtime:: 9/13/01 7:22p                                               $* 
  *                                                                                             * 
- *                    $Revision:: 1                                                           $* 
+ *                    $Revision:: 2                                                           $* 
  *                                                                                             * 
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
@@ -45,11 +46,13 @@
 
 #include "always.h"
 #include "bittype.h"
+#include "hashtemplate.h"
 
 class FileClass;
 class ChunkLoadClass;
 class HTreeClass;
 class W3DExclusionListClass;
+class StringClass;
 
 /*
 
@@ -88,6 +91,7 @@ private:
 
 	int							NumTrees;
 	HTreeClass *				TreePtr[MAX_TREES];		// TODO: no no! make this dynamic...
+	HashTemplateClass<StringClass,HTreeClass*> TreeHash;
 
 };
 

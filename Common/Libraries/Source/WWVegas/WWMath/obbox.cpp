@@ -232,7 +232,7 @@ void OBBoxClass::Init_From_Box_Points(Vector3 * points,int num)
 	axis1 = dp[2]; axis1.Normalize();
 	Vector3::Cross_Product(axis0,axis1,&axis2);
 
-	Basis = Matrix3(axis0,axis1,axis2);
+	Basis = Matrix3x3(axis0,axis1,axis2);
 
 	/*
 	** Center is the average of all of the points

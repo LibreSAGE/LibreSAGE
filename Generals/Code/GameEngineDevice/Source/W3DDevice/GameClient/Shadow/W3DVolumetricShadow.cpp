@@ -326,7 +326,7 @@ protected:
 	int GetNumVertex (void)	{	return m_numVerts;}
 	///Get indices to the 3 vertices of this face.
 	virtual int GetPolygonIndex (long dwPolyId, short *psIndexList, int dwNSize) const
-	{	const Vector3i *polyi=&m_polygons[dwPolyId];
+	{	const TriIndex *polyi=&m_polygons[dwPolyId];
 		*psIndexList++ = m_parentVerts[polyi->I];
 		*psIndexList++ = m_parentVerts[polyi->J];
 		*psIndexList++ = m_parentVerts[polyi->K];
@@ -344,7 +344,7 @@ protected:
 	Vector3	*m_polygonNormals;	///<array of face normals
 	Int m_numVerts;	 ///< number of actual vertices after duplicates are removed.
 	Int m_numPolygons; ///<number of polygons in source geometry
-	const Vector3i	*m_polygons;	///<array of 3 vertex indices per face
+	const TriIndex	*m_polygons;	///<array of 3 vertex indices per face
 	UnsignedShort *m_parentVerts;	///<array of parent vertex indices for each vertex.
 	/// the neighbor info indexed by polygon id
 	PolyNeighbor *m_polyNeighbors;
@@ -1296,8 +1296,8 @@ void W3DVolumetricShadow::RenderMeshVolume(Int meshIndex, Int lightIndex, const 
 	if( numVerts == 0 || numPolys == 0 )
 		return;
 
-	Matrix4 mWorld(*meshXform);
-	Matrix4 mWorldTranspose=mWorld.Transpose();
+	Matrix4x4 mWorld(*meshXform);
+	Matrix4x4 mWorldTranspose=mWorld.Transpose();
 	///@todo: W3D always does transpose on all of matrix sets.  Slow???  Better to hack view matrix.
 	m_pDev->SetTransform(D3DTS_WORLD,(_D3DMATRIX *)&mWorldTranspose);
 
@@ -1412,8 +1412,8 @@ void W3DVolumetricShadow::RenderDynamicMeshVolume(Int meshIndex, Int lightIndex,
 
 	m_pDev->SetIndices(shadowIndexBufferD3D,nShadowStartBatchVertex);
 	
-	Matrix4 mWorld(*meshXform);
-	Matrix4 mWorldTranspose=mWorld.Transpose();
+	Matrix4x4 mWorld(*meshXform);
+	Matrix4x4 mWorldTranspose=mWorld.Transpose();
 
 	m_pDev->SetTransform(D3DTS_WORLD,(_D3DMATRIX *)&mWorldTranspose);
 
@@ -1568,8 +1568,8 @@ void W3DVolumetricShadow::RenderMeshVolumeBounds(Int meshIndex, Int lightIndex, 
 
 
 	//todo: replace this with mesh transform
-	Matrix4 mWorld(1);	//identity since boxes are pre-transformed to world space.
-	Matrix4 mWorldTranspose=mWorld.Transpose();
+	Matrix4x4 mWorld(1);	//identity since boxes are pre-transformed to world space.
+	Matrix4x4 mWorldTranspose=mWorld.Transpose();
 
 	m_pDev->SetTransform(D3DTS_WORLD,(_D3DMATRIX *)&mWorldTranspose);
 	
@@ -1867,7 +1867,7 @@ to reduce fill rate usage.*/
 void W3DVolumetricShadow::updateMeshVolume(Int meshIndex, Int lightIndex, const Matrix3D *meshXform, const AABoxClass &meshBox, float floorZ )
 {
 	Vector3 lightPosObject;
-	Matrix4 worldToObject;
+	Matrix4x4 worldToObject;
 	Vector3 objectCenter;
 	Vector3 toLight;
 	Vector3 toPrevLight;
@@ -1879,8 +1879,8 @@ void W3DVolumetricShadow::updateMeshVolume(Int meshIndex, Int lightIndex, const 
 	Bool isMeshRotating = false;	//flag if mesh has rotated since last update. Translation doesn't matter for infinite light source.
 	Bool isLightMoving = false;	//flag if light has moved since last update.
 
-	Matrix4 objectToWorld(*meshXform);
-	Matrix4 *prevXForm=&m_objectXformHistory[ lightIndex ][meshIndex];
+	Matrix4x4 objectToWorld(*meshXform);
+	Matrix4x4 *prevXForm=&m_objectXformHistory[ lightIndex ][meshIndex];
 
 	//
 	// build the shadow silhouette and construct shadow volume from
@@ -1962,7 +1962,7 @@ void W3DVolumetricShadow::updateMeshVolume(Int meshIndex, Int lightIndex, const 
 		D3DXMatrixInverse((D3DXMATRIX*)&worldToObject, &det, (D3DXMATRIX*)&objectToWorld);
 
 		// find out light position in object space
-		Matrix4::Transform_Vector(worldToObject,lightPosWorld,&lightPosObject);
+		Matrix4x4::Transform_Vector(worldToObject,lightPosWorld,&lightPosObject);
 
 		//Updating shadow volumes is expensive, so verify that this volume is even visible.
 
@@ -3382,7 +3382,7 @@ void W3DVolumetricShadowManager::renderShadows( Bool forceStencilFill )
 		m_pDev->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
 	#else
 		//disable writes to color buffer
-		if (DX8Caps::Get_Default_Caps().PrimitiveMiscCaps & D3DPMISCCAPS_COLORWRITEENABLE)
+		if (DX8Wrapper::Get_Current_Caps()->Get_DX8_Caps().PrimitiveMiscCaps & D3DPMISCCAPS_COLORWRITEENABLE)
 		{	DX8Wrapper::_Get_D3D_Device8()->GetRenderState(D3DRS_COLORWRITEENABLE, &oldColorWriteEnable);
 			DX8Wrapper::Set_DX8_Render_State(D3DRS_COLORWRITEENABLE,0);
 		}

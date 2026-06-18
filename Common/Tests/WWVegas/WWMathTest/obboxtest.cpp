@@ -57,14 +57,14 @@
 //#define MANUAL_DEBUGGING
 
 
-static Matrix3 _RotateZ45
+static Matrix3x3 _RotateZ45
 (
 	(float)WWMATH_SQRT2/2.0f,	-(float)WWMATH_SQRT2/2.0f,	0.0f,
 	(float)WWMATH_SQRT2/2.0f,	 (float)WWMATH_SQRT2/2.0f,	0.0f,
 							  0.0f,								0.0f,	1.0f
 );
 
-static Matrix3 _RotateZ90
+static Matrix3x3 _RotateZ90
 (
 	0.0f, -1.0f, 0.0f,
 	1.0f,  0.0f, 0.0f,
@@ -95,7 +95,7 @@ public:
 	(
 		const Vector3 &c,					// center of box
 		const Vector3 &e,					// extent of box
-		const Matrix3 &b,					// basis of box
+		const Matrix3x3 &b,					// basis of box
 		const Vector3 &m,					// move for the box
 		const Vector3 &v0,				// v0 of triangle
 		const Vector3 &v1,				// v1 of triangle
@@ -133,7 +133,7 @@ static OBBoxTriTestData Test0
 (
 	Vector3(0,0,0),			// box starting at origin
 	Vector3(2,1,1),			// extent is 2 units along x, 1 y, 1 z
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(1,0,0),			// moving 5 along x axis
 	Vector3(6,-3,-1),			// triangle crossing x and y extent but not colliding
 	Vector3(8,-1,2),
@@ -146,7 +146,7 @@ static OBBoxTriTestData Test1
 (
 	Vector3(3,0,0),			
 	Vector3(1,2,1),
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(0,-2,0),
 	Vector3(1,-3,0),
 	Vector3(2,-3,5),
@@ -159,7 +159,7 @@ static OBBoxTriTestData Test2
 (
 	Vector3(-3.5,-1.5,0),	// sweeping a 3x3 box along pos x and neg y
 	Vector3(1.5,1.5,1.5),
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(4,-4,0),
 	Vector3(-4,-4,-1),		// into a polygon in y-z plane
 	Vector3(-2,-4,5),
@@ -172,7 +172,7 @@ static OBBoxTriTestData Test3
 (
 	Vector3(-3.5,-1.5,0) + 0.25f * Vector3(4,-4,0),
 	Vector3(1.5,1.5,1.5),	// starting at end of test2's move, should be 0.0 but not StartBad!
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(4,-4,0),
 	Vector3(-4,-4,-1),		// into a polygon in y-z plane
 	Vector3(-2,-4,5),
@@ -185,7 +185,7 @@ static OBBoxTriTestData Test4
 (
 	Vector3(-3.5f,-1.5f,0),	// Same as test 2
 	Vector3(1.5f,1.5f,1.5f),
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(4,-4,0),
 	Vector3(-9,-4,-1),		// into a polygon in y-z plane *but* just barely not in the way
 	Vector3(-8,-4,5),
@@ -198,7 +198,7 @@ static OBBoxTriTestData Test5
 (
 	Vector3(-3.5,-1.5,0),	// Same as test 3 with box brushing polygon vertex.
 	Vector3(1.5,1.5,1.5),
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(4,-4,0),
 	Vector3(-9,-4,-1),		// into a polygon in y-z plane just touching path of box
 	Vector3(-8,-4,5),
@@ -211,7 +211,7 @@ static OBBoxTriTestData Test6
 (
 	Vector3(-3.5f,-1.5f,0),	// Same as test 3 with box brushing polygon vertex.
 	Vector3(1.5f,1.5f,1.5f),
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(4,-4,0),
 	
 	Vector3(-9,-4,-1),		// into a polygon in y-z plane just barely hitting it
@@ -226,7 +226,7 @@ static OBBoxTriTestData Test7
 (
 	Vector3(0,0,0),			// This is a case where the box starts out intersecting
 	Vector3(5,5,5),	
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(4,4,0),
 	Vector3(1,4,-1),
 	Vector3(2,4,5),
@@ -239,7 +239,7 @@ static OBBoxTriTestData Test8
 (
 	Vector3(-2.5,2,0),		// center
 	Vector3(1.5,1,1),			// extent
-	Matrix3(1),					// basis
+	Matrix3x3(1),					// basis
 	Vector3(3,0,0),			// move
 	
 	Vector3(1,2,0),			// v0
@@ -515,12 +515,12 @@ public:
 	(
 		const Vector3 & c0,		// center of box0
 		const Vector3 & e0,		// extent of box0
-		const Matrix3 & b0,		// basis of box0
+		const Matrix3x3 & b0,		// basis of box0
 		const Vector3 & m0,		// move for box0
 
 		const Vector3 & c1,		// center of box1
 		const Vector3 & e1,		// extent of box1
-		const Matrix3 & b1,		// basis of box1
+		const Matrix3x3 & b1,		// basis of box1
 		const Vector3 & m1,		// move for box1
 
 		float frac,					// expected fraction
@@ -541,11 +541,11 @@ static OBBoxOBBoxTestData BTest0
 (
 	Vector3(0,0,0),		// center
 	Vector3(4,0,0),		// extent
-	Matrix3(1),				// basis
+	Matrix3x3(1),				// basis
 	Vector3(4,0,0),		// move
 	Vector3(6,0,0),		// center
 	Vector3(1,1,1),		// extent
-	Matrix3(1),				// basis
+	Matrix3x3(1),				// basis
 	Vector3(0,0,0),		// move
 	0.25f,					
 	false
@@ -555,12 +555,12 @@ static OBBoxOBBoxTestData BTest1
 (
 	Vector3(-3.5f,-1.5f,0.0f),
 	Vector3(1.5f,1.5f,1.5f),
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(4,-4,0),
 
 	Vector3(-5.1,-5,0),		
 	Vector3(1,1,1),		
-	Matrix3(1),				
+	Matrix3x3(1),				
 	Vector3(0,0,0),		
 
 	1.0f,						// should just barely go by (touches)
@@ -571,12 +571,12 @@ static OBBoxOBBoxTestData BTest2
 (
 	Vector3(3,0,0),
 	Vector3(7,1,1),
-	Matrix3(1),
+	Matrix3x3(1),
 	Vector3(4,-4,0),
 
 	Vector3(9.5,0,0),		
 	Vector3(1,6,1),		
-	Matrix3(1),				
+	Matrix3x3(1),				
 	Vector3(0,0,0),		
 
 	0.0f,						// startbad
@@ -592,7 +592,7 @@ static OBBoxOBBoxTestData BTest3
 
 	Vector3(4,0,0),		// axis-aligned box blocking the move along the x-axis
 	Vector3(1,3,1),		
-	Matrix3(1),				
+	Matrix3x3(1),				
 	Vector3(0,0,0),		
 
 	0.5f,						// hitting another box edge-to-face halfway through the move
@@ -608,7 +608,7 @@ static OBBoxOBBoxTestData BTest4
 
 	Vector3(0,4,0),		// axis-aligned box blocking the move along the x-axis
 	Vector3(3,1,1),		
-	Matrix3(1),				
+	Matrix3x3(1),				
 	Vector3(0,0,0),		
 
 	0.5f,						// hitting another box edge-to-face halfway through the move
@@ -624,7 +624,7 @@ static OBBoxOBBoxTestData BTest5
 
 	Vector3(0,-4,0),		// axis-aligned box blocking the move along the x-axis
 	Vector3(3,1,1),		
-	Matrix3(1),				
+	Matrix3x3(1),				
 	Vector3(0,0,0),		
 
 	0.5f,						// hitting another box edge-to-face halfway through the move

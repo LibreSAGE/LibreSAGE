@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -109,7 +110,7 @@ public:
 	int	Get_Char_Height( void )			{ return CharHeight; }
 	int	Get_Char_Width( UChar ch );
 	int	Get_Char_Spacing( UChar ch );
-	
+
 	int Get_Extra_Overlap(void) {return PixelOverlap;}
 
 	void	Blit_Char( UChar ch, uint16 *dest_ptr, int dest_stride, int x, int y );
@@ -154,7 +155,7 @@ private:
 #ifdef _WIN32
 	HFONT									OldGDIFont;
 	HBITMAP								OldGDIBitmap;
-	HBITMAP								GDIBitmap;	
+	HBITMAP								GDIBitmap;
 	HFONT									GDIFont;
 	uint8 *								GDIBitmapBits;
 	HDC									MemDC;

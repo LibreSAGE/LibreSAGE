@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,12 +27,13 @@
  *                                                                                             *
  *              Original Author:: Jani Penttinen                                               *
  *                                                                                             *
- *                      $Author:: Jani_p                                                      $*
+ *                       Author : Kenny Mitchell                                               * 
+ *                                                                                             * 
+ *                     $Modtime:: 06/27/02 1:27p                                              $*
  *                                                                                             *
- *                     $Modtime:: 7/10/01 5:49p                                               $*
+ *                    $Revision:: 29                                                          $*
  *                                                                                             *
- *                    $Revision:: 28                                                          $*
- *                                                                                             *
+ * 06/27/02 KM Changes to max texture stage caps																*
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -52,6 +54,7 @@
 #include "dx8list.h"
 #include "shader.h"
 #include "dx8wrapper.h"
+#include "meshmatdesc.h"
 
 class IndexBufferClass;
 class VertexBufferClass;
@@ -81,7 +84,7 @@ class CameraClass;
 class DX8TextureCategoryClass : public MultiListObjectClass
 {
 	int												pass;
-	TextureClass *									textures[MAX_TEXTURE_STAGES];
+	TextureClass *									textures[MeshMatDescClass::MAX_TEX_STAGES];
 	ShaderClass										shader;
 	VertexMaterialClass *						material;					
 	DX8PolygonRendererList						PolygonRendererList;
@@ -145,7 +148,7 @@ protected:
 	
 	MatPassTaskClass *									visible_matpass_head;
 	MatPassTaskClass *									visible_matpass_tail;
-
+	
 	IndexBufferClass *									index_buffer;
 	int														used_indices;
 	unsigned													FVF;
@@ -153,7 +156,8 @@ protected:
 	unsigned													uv_coordinate_channels;
 	bool														sorting;
 	bool														AnythingToRender;
-	
+	bool														AnyDelayedPassesToRender;
+
 	void Generate_Texture_Categories(Vertex_Split_Table& split_table,unsigned vertex_offset);
 	void Insert_To_Texture_Category(
 		Vertex_Split_Table& split_table,
@@ -162,7 +166,10 @@ protected:
 		ShaderClass shader,
 		int pass,
 		unsigned vertex_offset);
-	inline bool Anything_To_Render();
+
+	inline bool Anything_To_Render()					{ return AnythingToRender; }
+	inline bool Any_Delayed_Passes_To_Render()	{ return AnyDelayedPassesToRender; }
+
 	void Render_Procedural_Material_Passes(void);
 
 	DX8TextureCategoryClass* Find_Matching_Texture_Category(
@@ -215,24 +222,17 @@ public:
 		AnythingToRender=true;
 	}
 
+	/*
+	** Material pass rendering.  The following two functions allow procedural material passes
+	** to be applied to meshes in this FVF category.  In certain cases, the game will *only* render
+	** the procedural pass and not the base materials for the mesh.  When this happens there can
+	** be rendering errors unless these procedural passes are rendered after all of the meshes in 
+	** the scene.  The virtual method Add_Delayed_Material_Pass is used in this case.  
+	*/
 	void Add_Visible_Material_Pass(MaterialPassClass * pass,MeshClass * mesh);
-	
-	
+	virtual void Add_Delayed_Visible_Material_Pass(MaterialPassClass * pass, MeshClass * mesh) = 0;
+	virtual void Render_Delayed_Procedural_Material_Passes(void) = 0;
 };
-
-bool DX8FVFCategoryContainer::Anything_To_Render()
-{
-/*	for (unsigned p=0;p<passes;++p) {
-		TextureCategoryListIterator it(&texture_category_list[p]);
-		while (!it.Is_Done()) {
-			if (it.Peek_Obj()->Anything_To_Render()) return true;
-			it.Next();
-		}
-	}
-	return false;
-*/
-	return AnythingToRender;
-}
 
 
 /**
@@ -251,10 +251,21 @@ public:
 
 	void Render(void);	// Generic render function
 
+	/* 
+	** This method adds a material pass which must be rendered after all of the other rendering is complete. 
+	** This is needed whenever a mesh turns off its base passes and renders a translucent pass on its geometry.
+	*/
+	virtual void Add_Delayed_Visible_Material_Pass(MaterialPassClass * pass, MeshClass * mesh);
+	virtual void Render_Delayed_Procedural_Material_Passes(void);
+
 protected:
 
+
 	VertexBufferClass *	vertex_buffer;
-	int							used_vertices;
+	int						used_vertices;
+
+	MatPassTaskClass *	delayed_matpass_head;
+	MatPassTaskClass *	delayed_matpass_tail;
 
 };
 
@@ -276,10 +287,17 @@ public:
 
 	void Add_Visible_Skin(MeshClass * mesh);
 
+	/* 
+	** Since skins are already rendered after the rigid meshes, the Add_Delayed_Material_Pass function simply
+	** routes into the Add_Visible_Material_Pass method and no extra overhead is added.
+	*/
+	virtual void Add_Delayed_Visible_Material_Pass(MaterialPassClass * pass, MeshClass * mesh) { Add_Visible_Material_Pass(pass,mesh); }
+	virtual void Render_Delayed_Procedural_Material_Passes(void) { }
+
 private:
 
 	void Reset();
-	void clearVisibleSkinList();
+ 	void clearVisibleSkinList();
 
 	unsigned int								VisibleVertexCount;
 	MeshClass *									VisibleSkinHead;

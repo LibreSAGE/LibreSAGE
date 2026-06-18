@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,29 +27,23 @@
  *                                                                                             *
  *              Original Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                      $Author:: Greg_h                                                      $*
+ *                      $Author:: Jani_p                                                      $*
  *                                                                                             *
- *                     $Modtime:: 1/08/01 10:04a                                              $*
+ *                     $Modtime:: 11/24/01 5:49p                                              $*
  *                                                                                             *
- *                    $Revision:: 1                                                           $*
+ *                    $Revision:: 2                                                           $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef AABTREEBUILDER_H
-#define AABTREEBUILDER_H
 
 #include "always.h"
 #include "vector3.h"
 #include "vector3i.h"
 #include "aaplane.h"
 #include "bittype.h"
+#include "meshgeometry.h"
 #include <float.h>
 
 class AABTreeClass;
@@ -68,7 +63,8 @@ public:
 	AABTreeBuilderClass(void);
 	~AABTreeBuilderClass(void);
 
-	void					Build_AABTree(int polycount,Vector3i * polys,int vertcount,Vector3 * verts);
+	void					Build_AABTree(int polycount,TriIndex * polys,int vertcount,Vector3 * verts);
+	void					Build_AABTree(int polycount,Vector3i* polys,int vertcount,Vector3 * verts);
 	void					Export(ChunkSaveClass & csave);
 	
 	int					Node_Count(void);
@@ -195,15 +191,9 @@ private:
 	** Mesh data
 	*/
 	int								PolyCount;
-	Vector3i *						Polys;
+	TriIndex *						Polys;
 	int								VertCount;
 	Vector3 *						Verts;
 
 	friend class AABTreeClass;
 };
-
-
-
-
-#endif //AABTREEBUILDER_H
-

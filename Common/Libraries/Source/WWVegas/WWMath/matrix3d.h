@@ -26,12 +26,15 @@
  *                                                                                             * 
  *                    File Name : MATRIX3D.H                                                   * 
  *                                                                                             * 
- *                   Programmer : Greg Hjelstrom                                               * 
+ *                Org Programmer : Greg Hjelstrom                                               * 
  *                                                                                             * 
- *                   Start Date : 02/24/97                                                     * 
+ *                   Programmer : Kenny Mitchell                          * 
  *                                                                                             * 
- *                  Last Update : February 24, 1997 [GH]                                       * 
+ *                   Start Date : 06/02/97                                                     * 
+ *                                                                         * 
+ *                  Last Update : June 6, 2002 [KM]                                            * 
  *                                                                                             * 
+ * 06/26/02 KM Matrix name change to avoid MAX conflicts                                       *
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  *   Matrix3D::Matrix3D -- Constructors for Matrix3D                                           * 
@@ -75,7 +78,6 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 #pragma once
 
-#define ALLOW_TEMPORARIES
 
 #ifdef _UNIX
 #include "osdep.h"
@@ -91,8 +93,8 @@
 #endif
 
 
-class Matrix3;
-class Matrix4;
+class Matrix3x3;
+class Matrix4x4;
 class Quaternion;
 
 /*******************************************************************************
@@ -157,7 +159,7 @@ public:
 	);
 
 	WWINLINE explicit Matrix3D(
-		const Matrix3 & rotation,
+		const Matrix3x3 & rotation,
 		const Vector3 & position
 	);
 
@@ -195,7 +197,7 @@ public:
 
 	WWINLINE void Set(const Vector3 & axis,float sine,float cosine);
 
-	void Set(const Matrix3 & rotation,const Vector3 & position);
+	void Set(const Matrix3x3 & rotation,const Vector3 & position);
 
 	void Set(const Quaternion & rotation,const Vector3 & position);
 
@@ -210,7 +212,7 @@ public:
 	WWINLINE void Get_Translation(Vector3 * set) const { set->X = Row[0][3]; set->Y = Row[1][3]; set->Z = Row[2][3]; }
 	WWINLINE void Set_Translation(const Vector3 & t)  { Row[0][3] = t[0]; Row[1][3] = t[1];Row[2][3] = t[2]; }
 
-	void Set_Rotation(const Matrix3 & m);
+	void Set_Rotation(const Matrix3x3 & m);
 	void Set_Rotation(const Quaternion & q);
 
 	WWINLINE float Get_X_Translation(void) const { return Row[0][3]; };
@@ -339,6 +341,10 @@ public:
 
 	static void Lerp(const Matrix3D &A, const Matrix3D &B, float factor, Matrix3D& result);
 	
+#ifdef ALLOW_TEMPORARIES
+	// nothing
+#else
+
 	// does "this = that * this"
 	void preMul(const Matrix3D& that);
 
@@ -350,6 +356,8 @@ public:
 
 	void mulVector3(const Vector3& in, Vector3& out) const;
 	void mulVector3(Vector3& inout) const { mulVector3(inout, inout); }
+
+#endif
 
 	void mulVector3Array(const Vector3* in, Vector3* out, int count) const;
 	void mulVector3Array(Vector3* inout, int count) const;
@@ -444,7 +452,7 @@ WWINLINE Matrix3D::Matrix3D(const Vector3 & axis,float sine,float cosine)
 	Set(axis,sine,cosine);
 }
 
-WWINLINE Matrix3D::Matrix3D(const Matrix3 & rot,const Vector3 & pos)
+WWINLINE Matrix3D::Matrix3D(const Matrix3x3 & rot,const Vector3 & pos)
 {
 	Set(rot,pos);
 }
@@ -1494,7 +1502,7 @@ WWINLINE Matrix3D operator * (const Matrix3D &A,const Matrix3D &B)
 	return C;
 }
 
-#endif
+#else
 
 WWINLINE float submul(const Vector4& row, float tmp1, float tmp2, float tmp3)
 {
@@ -1597,6 +1605,7 @@ WWINLINE void Matrix3D::mul(const Matrix3D& A, const Matrix3D& B)
 	this->Row[2].W = submul(A.Row[2], tmp1, tmp2, tmp3) + A.Row[2].W;
 }
 
+#endif
 
 #ifdef ALLOW_TEMPORARIES
 /*********************************************************************************************** 
@@ -1630,7 +1639,7 @@ WWINLINE Vector3 operator * (const Matrix3D &A,const Vector3 &a)
 #endif
 }
 
-#endif
+#else
 
 WWINLINE void Matrix3D::mulVector3(const Vector3& in, Vector3& out) const
 {
@@ -1641,11 +1650,13 @@ WWINLINE void Matrix3D::mulVector3(const Vector3& in, Vector3& out) const
 	out.Set(x, y, z);
 }
 
+#endif
+
 WWINLINE void Matrix3D::mulVector3Array(const Vector3* in, Vector3* out, int count) const
 {
 	assert(in != out);
 #ifdef ALLOW_TEMPORARIES
-	for (int i=0; i<count; i++)
+	for (i=0; i<count; i++)
 	{
 		out[i] = (*this) * in[i];
 	}
@@ -1665,7 +1676,7 @@ WWINLINE void Matrix3D::mulVector3Array(const Vector3* in, Vector3* out, int cou
 WWINLINE void Matrix3D::mulVector3Array(Vector3* inout, int count) const
 {
 #ifdef ALLOW_TEMPORARIES
-	for (int i=0; i<count; i++)
+	for (i=0; i<count; i++)
 	{
 		inout[i] = (*this) * inout[i];
 	}

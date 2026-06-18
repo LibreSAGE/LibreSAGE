@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -28,9 +29,9 @@
  *                                                                                             *
  *                      $Author:: Jani_p                                                      $*
  *                                                                                             *
- *                     $Modtime:: 6/27/01 7:52p                                               $*
+ *                     $Modtime:: 11/25/01 6:06p                                              $*
  *                                                                                             *
- *                    $Revision:: 4                                                           $*
+ *                    $Revision:: 5                                                           $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -178,6 +179,7 @@ void HRawAnimClass::Free(void)
 {
 	if (NodeMotion != NULL) {
 		delete[] NodeMotion;
+		NodeMotion = NULL;
 	}
 }
 
@@ -327,7 +329,8 @@ bool HRawAnimClass::read_channel(ChunkLoadClass & cload,MotionChannelClass * * n
 	bool result = (*newchan)->Load_W3D(cload);	
 	
 	if (result && pre30) {
-		(*newchan)->PivotIdx += 1;
+//		(*newchan)->PivotIdx += 1;
+		(*newchan)->Set_Pivot((*newchan)->Get_Pivot()+1);
 	}
 	
 	return result;

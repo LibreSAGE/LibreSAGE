@@ -473,7 +473,7 @@ GraphicView::Reset_Camera_To_Display_Object (RenderObjClass &render_object)
 		if (m_CameraBonePosX) {
 			Matrix3D tmp = transform;
 			Matrix3D cam_transform (Vector3 (0, -1, 0), Vector3 (0, 0, 1), Vector3 (-1, 0, 0), Vector3 (0, 0, 0));
-			transform = tmp * cam_transform;
+			Matrix3D::Multiply (tmp, cam_transform, &transform);
 		}
 
 		// Pass the new transform onto the camera

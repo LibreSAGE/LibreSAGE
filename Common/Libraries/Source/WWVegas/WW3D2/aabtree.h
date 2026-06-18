@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -24,22 +25,18 @@
  *                                                                                             *
  *                     $Archive:: /Commando/Code/ww3d2/aabtree.h                              $*
  *                                                                                             *
- *                       Author:: Greg Hjelstrom                                               *
+ *                   Org Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                     $Modtime:: 6/14/01 9:42a                                               $*
+ *                       Author:: Kenny Mitchell                                               *
  *                                                                                             *
- *                    $Revision:: 3                                                           $*
+ *                     $Modtime:: 6/26/02 2:58p                                               $*
+ *                                                                                             *
+ *                    $Revision:: 4                                                           $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#ifndef AABTREE_H
-#define AABTREE_H
 
 #include "always.h"
 #include "refcount.h"
@@ -94,6 +91,9 @@ public:
 
 	void						Load_W3D(ChunkLoadClass & cload);
 
+	// Uniformly scale the AABTree
+	void						Scale(float scale);
+
 	int						Get_Node_Count(void) { return NodeCount; }
 	int						Get_Poly_Count(void) { return PolyCount; }
 	int						Compute_Ram_Size(void);
@@ -107,6 +107,8 @@ public:
 	bool						Cast_OBBox(OBBoxCollisionTestClass & boxtest);
 	bool						Intersect_OBBox(OBBoxIntersectionTestClass & boxtest);
 
+	void						Set_Mesh(MeshGeometryClass * mesh);
+
 private:
 	
 	AABTreeClass &			operator = (const AABTreeClass & that);
@@ -116,7 +118,6 @@ private:
 	
 	void						Build_Tree_Recursive(AABTreeBuilderClass::CullNodeStruct * node,int &curpolyindex);
 	void						Reset(void);
-	void						Set_Mesh(MeshGeometryClass * mesh);
 	void						Update_Bounding_Boxes(void);
 	void						Update_Min_Max(int index,Vector3 & min,Vector3 & max);
 
@@ -343,5 +344,3 @@ inline void AABTreeClass::CullNodeStruct::Set_Poly_Count(uint32 count)
 	WWASSERT(count < 0x7FFFFFFF);
 	BackOrPolyCount = count;
 }
-
-#endif

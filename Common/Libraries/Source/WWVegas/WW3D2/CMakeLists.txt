@@ -228,7 +228,24 @@ target_sources(
           ww3dformat.cpp
           ww3dformat.h
           ww3dids.h
-          ww3dtrig.h)
+          ww3dtrig.h
+          # GeneralsMD additions (commonized from Zero Hour)
+          animatedsoundmgr.cpp
+          animatedsoundmgr.h
+          assetstatus.cpp
+          assetstatus.h
+          dx8rendererdebugger.cpp
+          dx8rendererdebugger.h
+          linegrp.cpp
+          linegrp.h
+          pot.cpp
+          pot.h
+          shdlib.h
+          soundlibrarybridge.h
+          static_sort_list.cpp
+          static_sort_list.h
+          texturefilter.cpp
+          texturefilter.h)
 
 if(WIN32)
   target_sources(c_ww3d2 PRIVATE framgrab.cpp framgrab.h)

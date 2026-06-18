@@ -86,6 +86,7 @@ public:
 	~HashTemplateClass(void);
 
 	void Insert(const KeyType& s, const ValueType& d);
+	void Set_Value(const KeyType& s, const ValueType& d);
 	void Remove(const KeyType& s);
 	void Remove(const KeyType& s, const ValueType& d);
 	ValueType Get(const KeyType& s) const;
@@ -165,6 +166,11 @@ public:
 	{
 		return HashTable.Get_Table()[Handle].Value;
 	}
+
+	const KeyType& Peek_Key()
+	{
+		return HashTable.Get_Table()[Handle].Key;
+	}
 };
 
 //------------------------------------------------------------------------
@@ -180,6 +186,21 @@ template <class KeyType, class ValueType> inline void HashTemplateClass<KeyType,
 	Table[h].Value	= d;
 	Table[h].Next	= Hash[hval];
 	Hash[hval]		= h;
+}
+
+template <class KeyType, class ValueType> inline void HashTemplateClass<KeyType,ValueType>::Set_Value (const KeyType& s, const ValueType& v)
+{
+	if (Hash) {
+		int  h = Hash[Get_Hash_Val(s,Size)];
+		while (h!=NIL)	{
+			if (Table[h].Key == s) {
+				Table[h].Value=v;
+				return;
+			}
+			h = Table[h].Next;
+		}
+	}
+	Insert(s,v);
 }
 
 template <class KeyType, class ValueType> inline unsigned int HashTemplateClass<KeyType,ValueType>::Get_Size (void) const

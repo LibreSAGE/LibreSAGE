@@ -230,7 +230,8 @@ D3DXLoadSurfaceFromSurface(
         return D3DERR_INVALIDCALL;
     }
 
-    if (descSrc.Format != D3DFMT_A8R8G8B8 && descSrc.Format != D3DFMT_X8R8G8B8 && descSrc.Format != D3DFMT_A1R5G5B5)
+    if (descSrc.Format != D3DFMT_A8R8G8B8 && descSrc.Format != D3DFMT_X8R8G8B8 &&
+        descSrc.Format != D3DFMT_A1R5G5B5 && descSrc.Format != D3DFMT_A4R4G4B4)
     {
         return D3DERR_INVALIDCALL;
     }
@@ -274,7 +275,7 @@ D3DXLoadSurfaceFromSurface(
     // Fast path: No scaling needs to be done if the dimensions are the same
     if (dstW == srcW && dstH == srcH)
     {
-        const int bpp = (descSrc.Format == D3DFMT_A1R5G5B5) ? 2 : 4;
+        const int bpp = (descSrc.Format == D3DFMT_A1R5G5B5 || descSrc.Format == D3DFMT_A4R4G4B4) ? 2 : 4;
         for (int y = 0; y < dstH; ++y)
         {
             const unsigned char *srcLine = static_cast<const unsigned char *>(srcRect.pBits) +
@@ -292,8 +293,10 @@ D3DXLoadSurfaceFromSurface(
     const float sxScale = static_cast<float>(srcW) / static_cast<float>(dstW);
     const float syScale = static_cast<float>(srcH) / static_cast<float>(dstH);
 
-    if (descSrc.Format == D3DFMT_A1R5G5B5)
+    if (descSrc.Format == D3DFMT_A1R5G5B5 || descSrc.Format == D3DFMT_A4R4G4B4)
     {
+        // Both are 16-bit formats; nearest sampling copies the raw 16-bit texel,
+        // so the same sampler works regardless of channel layout.
         for (int y = 0; y < dstH; ++y)
         {
             unsigned short *dstLine = reinterpret_cast<unsigned short *>(
@@ -399,4 +402,30 @@ D3DXCreateTexture(LPDIRECT3DDEVICE8 pDevice,
                   LPDIRECT3DTEXTURE8 *ppTexture)
 {
     return pDevice->CreateTexture(Width, Height, MipLevels, Usage, Format, Pool, ppTexture);
+}
+
+HRESULT WINAPI
+D3DXCreateCubeTexture(LPDIRECT3DDEVICE8 pDevice,
+                      UINT Size,
+                      UINT MipLevels,
+                      DWORD Usage,
+                      D3DFORMAT Format,
+                      D3DPOOL Pool,
+                      LPDIRECT3DCUBETEXTURE8 *ppCubeTexture)
+{
+    return pDevice->CreateCubeTexture(Size, MipLevels, Usage, Format, Pool, ppCubeTexture);
+}
+
+HRESULT WINAPI
+D3DXCreateVolumeTexture(LPDIRECT3DDEVICE8 pDevice,
+                        UINT Width,
+                        UINT Height,
+                        UINT Depth,
+                        UINT MipLevels,
+                        DWORD Usage,
+                        D3DFORMAT Format,
+                        D3DPOOL Pool,
+                        LPDIRECT3DVOLUMETEXTURE8 *ppVolumeTexture)
+{
+    return pDevice->CreateVolumeTexture(Width, Height, Depth, MipLevels, Usage, Format, Pool, ppVolumeTexture);
 }

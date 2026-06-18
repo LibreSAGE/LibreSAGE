@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,9 +27,9 @@
  *                                                                                             *
  *                       Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                     $Modtime:: 7/05/01 4:11p                                               $*
+ *                     $Modtime:: 1/19/02 12:57p                                              $*
  *                                                                                             *
- *                    $Revision:: 27                                                          $*
+ *                    $Revision:: 35                                                          $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -103,26 +104,27 @@
 #include "dx8fvf.h"
 #include "sortingrenderer.h"
 #include "visrasterizer.h"
+#include "meshgeometry.h"
 
 
 #define NUM_BOX_VERTS	8
 #define NUM_BOX_FACES	12
 
 // Face Connectivity
-static Vector3i					_BoxFaces[NUM_BOX_FACES] = 
+static TriIndex					_BoxFaces[NUM_BOX_FACES] = 
 {
-	Vector3i( 0,1,2 ),		// +z faces
-	Vector3i( 0,2,3 ),		
-	Vector3i( 4,7,6 ),		// -z faces
-	Vector3i( 4,6,5 ),
-	Vector3i( 0,3,7 ),		// +x faces
-	Vector3i( 0,7,4 ),
-	Vector3i( 1,5,6 ),		// -x faces
-	Vector3i( 1,6,2 ),
-	Vector3i( 4,5,1 ),		// +y faces
-	Vector3i( 4,1,0 ),
-	Vector3i( 3,2,6 ),		// -y faces
-	Vector3i( 3,6,7 )
+	TriIndex( 0,1,2 ),		// +z faces
+	TriIndex( 0,2,3 ),		
+	TriIndex( 4,7,6 ),		// -z faces
+	TriIndex( 4,6,5 ),
+	TriIndex( 0,3,7 ),		// +x faces
+	TriIndex( 0,7,4 ),
+	TriIndex( 1,5,6 ),		// -x faces
+	TriIndex( 1,6,2 ),
+	TriIndex( 4,5,1 ),		// +y faces
+	TriIndex( 4,1,0 ),
+	TriIndex( 3,2,6 ),		// -y faces
+	TriIndex( 3,6,7 )
 };
 
 // Vertex Positions as a function of the box extents
@@ -182,6 +184,7 @@ BoxRenderObjClass::BoxRenderObjClass(void)
 {
 	memset(Name,0,sizeof(Name));
 	Color.Set(1,1,1);
+	Opacity = 0.25f;
 	ObjSpaceCenter.Set(0,0,0);
 	ObjSpaceExtent.Set(1,1,1);
 }
@@ -207,6 +210,7 @@ BoxRenderObjClass::BoxRenderObjClass(const W3dBoxStruct & def)
 	W3dUtilityClass::Convert_Vector(def.Extent,&ObjSpaceExtent);
 	int col_bits = (def.Attributes & W3D_BOX_ATTRIBUTE_COLLISION_TYPE_MASK) >> W3D_BOX_ATTRIBUTE_COLLISION_TYPE_SHIFT;
 	Set_Collision_Type(col_bits<<1);
+	Opacity = 0.25f;
 }
 
 
@@ -357,7 +361,7 @@ void BoxRenderObjClass::Init(void)
 	_BoxMaterial->Set_Opacity(1.0f);		// uses vertex alpha...
 	_BoxMaterial->Set_Shininess(0.0f);
 
-	_BoxShader = ShaderClass::_PresetAlphaSolidShader;
+	_BoxShader = ShaderClass::_PresetAlphaSolidShader; //_PresetAdditiveSolidShader;
 
 	IsInitted = true;
 }
@@ -455,9 +459,9 @@ void BoxRenderObjClass::render_box(RenderInfoClass & rinfo,const Vector3 & cente
 		/*
 		** Dump the box vertices into the sorting dynamic vertex buffer. 
 		*/
-		DWORD color = DX8Wrapper::Convert_Color(Color,0.25f);
+		DWORD color = DX8Wrapper::Convert_Color(Color,Opacity);
 		
-		int buffer_type = BUFFER_TYPE_DYNAMIC_SORTING;
+		int buffer_type = BUFFER_TYPE_DYNAMIC_DX8;
 
 		DynamicVBAccessClass vbaccess(buffer_type,dynamic_fvf_type,NUM_BOX_VERTS);
 		{
@@ -802,6 +806,9 @@ void AABoxRenderObjClass::update_cached_box(void)
 bool AABoxRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 {
 	if ((Get_Collision_Type() & raytest.CollisionType) == 0) return false;
+	if (Is_Animation_Hidden()) return false;
+	if (raytest.Result->StartBad) return false;
+
 	if (CollisionMath::Collide(raytest.Ray,CachedBox,raytest.Result)) {
 		raytest.CollidedRenderObj = this;
 		return true;
@@ -825,6 +832,8 @@ bool AABoxRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 bool AABoxRenderObjClass::Cast_AABox(AABoxCollisionTestClass & boxtest)
 {
 	if ((Get_Collision_Type() & boxtest.CollisionType) == 0) return false;
+	if (boxtest.Result->StartBad) return false;
+
 	if (CollisionMath::Collide(boxtest.Box,boxtest.Move,CachedBox,boxtest.Result)) {
 		boxtest.CollidedRenderObj = this;
 		return true;
@@ -848,6 +857,8 @@ bool AABoxRenderObjClass::Cast_AABox(AABoxCollisionTestClass & boxtest)
 bool AABoxRenderObjClass::Cast_OBBox(OBBoxCollisionTestClass & boxtest)
 {
 	if ((Get_Collision_Type() & boxtest.CollisionType) == 0) return false;
+	if (boxtest.Result->StartBad) return false;
+
 	if (CollisionMath::Collide(boxtest.Box,boxtest.Move,CachedBox,Vector3(0,0,0),boxtest.Result)) {
 		boxtest.CollidedRenderObj = this;
 		return true;
@@ -1078,8 +1089,7 @@ int OBBoxRenderObjClass::Class_ID(void) const
  *=============================================================================================*/
 void OBBoxRenderObjClass::Render(RenderInfoClass & rinfo)
 {
-	Matrix3D tm(Transform);
-	DX8Wrapper::Set_Transform(D3DTS_WORLD,tm);
+	DX8Wrapper::Set_Transform(D3DTS_WORLD,Transform);
 	render_box(rinfo,ObjSpaceCenter,ObjSpaceExtent);
 }
 
@@ -1179,6 +1189,9 @@ void OBBoxRenderObjClass::update_cached_box(void)
 bool OBBoxRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 {
 	if ((Get_Collision_Type() & raytest.CollisionType) == 0) return false;
+	if (Is_Animation_Hidden()) return false;
+	if (raytest.Result->StartBad) return false;
+
 	if (CollisionMath::Collide(raytest.Ray,CachedBox,raytest.Result)) {
 		raytest.CollidedRenderObj = this;
 		return true;
@@ -1202,6 +1215,8 @@ bool OBBoxRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 bool OBBoxRenderObjClass::Cast_AABox(AABoxCollisionTestClass & boxtest)
 {
 	if ((Get_Collision_Type() & boxtest.CollisionType) == 0) return false;
+	if (boxtest.Result->StartBad) return false;
+
 	if (CollisionMath::Collide(boxtest.Box,boxtest.Move,CachedBox,Vector3(0,0,0),boxtest.Result)) {
 		boxtest.CollidedRenderObj = this;
 		return true;
@@ -1225,6 +1240,8 @@ bool OBBoxRenderObjClass::Cast_AABox(AABoxCollisionTestClass & boxtest)
 bool OBBoxRenderObjClass::Cast_OBBox(OBBoxCollisionTestClass & boxtest)
 {
 	if ((Get_Collision_Type() & boxtest.CollisionType) == 0) return false;
+	if (boxtest.Result->StartBad) return false;
+
 	if (CollisionMath::Collide(boxtest.Box,boxtest.Move,CachedBox,Vector3(0,0,0),boxtest.Result)) {
 		boxtest.CollidedRenderObj = this;
 		return true;

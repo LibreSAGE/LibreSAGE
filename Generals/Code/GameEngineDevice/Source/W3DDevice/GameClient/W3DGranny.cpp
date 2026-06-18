@@ -44,7 +44,7 @@
 #ifdef INCLUDE_GRANNY_IN_BUILD
 
 #include "W3DDevice/GameClient/W3DGranny.h"
-#include "common/GlobalData.h"
+#include "Common/GlobalData.h"
 #include "texture.h"
 #include "colmath.h"
 #include "coltest.h"
@@ -52,7 +52,7 @@
 #include "camera.h"
 #include "assetmgr.h"
 #include "WW3D2/dx8wrapper.h"
-#include "WW3D2/Scene.h"
+#include "WW3D2/scene.h"
 
 #pragma comment( lib, "granny2" )
 

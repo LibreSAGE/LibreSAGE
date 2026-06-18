@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,12 +27,13 @@
  *                                                                                             *
  *              Original Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                      $Author:: Greg_h                                                      $*
+ *                      $Author:: Kenny Mitchell                                               * 
+ *                                                                                             * 
+ *                     $Modtime:: 06/26/02 4:04p                                             $*
  *                                                                                             *
- *                     $Modtime:: 6/21/01 10:22a                                              $*
+ *                    $Revision:: 8                                                           $*
  *                                                                                             *
- *                    $Revision:: 7                                                           $*
- *                                                                                             *
+ * 06/26/02 KM Matrix name change to avoid MAX conflicts                                       *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -87,8 +89,8 @@ public:
 	MappingType				Get_Type(void);
 
 	void						Set_Texture_Transform(const Matrix3D & view_to_texture,float texsize);
-	void						Set_Texture_Transform(const Matrix4 & view_to_texture,float texsize);
-	const Matrix4 &		Get_Texture_Transform(void) const;
+	void						Set_Texture_Transform(const Matrix4x4 & view_to_texture,float texsize);
+	const Matrix4x4 &		Get_Texture_Transform(void) const;
 
 	void						Set_Gradient_U_Coord(float coord) { GradientUCoord = coord; }
 	float						Get_Gradient_U_Coord(void) { return GradientUCoord; }
@@ -98,6 +100,7 @@ public:
 	TextureMapperClass*	Clone(void) const { 	WWASSERT(0);	return NULL; }
 
 	virtual void			Apply(int uv_array_index);
+	virtual void			Calculate_Texture_Matrix(Matrix4x4 &tex_matrix);
 
 protected:
 	
@@ -105,10 +108,37 @@ protected:
 
 	uint32					Flags;
 	MappingType				Type;
-	Matrix4					ViewToTexture;
-	Matrix4					ViewToPixel;
+	Matrix4x4				ViewToTexture;
+	Matrix4x4					ViewToPixel;
 	Vector3					ViewSpaceProjectionNormal;
 	float						GradientUCoord;
+};
+
+/*
+** CompositeMatrixMapperClass - this is a matrix mapper which contains a pointer to another mapper
+** inside it. When applied, it gets the texture matrix from the internal mapper and composites
+** it with it's own matrix, then applies that. It sets the texture source to camera space
+** position. The idea is to use some transformation of the camera space position (like a planar
+** projection) as the 'input coordinates' to some other mapper like a linear offset mapper
+** which usually uses actual texture coordinates as input. If the internal mapper is NULL, it
+** simply applies it's own matrix.
+*/
+class CompositeMatrixMapperClass : public MatrixMapperClass
+{
+public:
+
+	CompositeMatrixMapperClass(TextureMapperClass *internal_mapper, unsigned int stage);
+	CompositeMatrixMapperClass(const CompositeMatrixMapperClass & src);
+	virtual ~CompositeMatrixMapperClass(void);
+
+	virtual TextureMapperClass *Clone(void) const { return NEW_REF( CompositeMatrixMapperClass, (*this)); }
+
+	virtual void Apply(int uv_array_index);
+	virtual void Calculate_Texture_Matrix(Matrix4x4 &tex_matrix);
+
+protected:
+
+	TextureMapperClass *InternalMapper;
 };
 
 inline void MatrixMapperClass::Set_Flag(uint32 flag,bool onoff)	
@@ -135,7 +165,7 @@ inline MatrixMapperClass::MappingType MatrixMapperClass::Get_Type(void)
 	return Type;
 }
 
-inline const Matrix4 & MatrixMapperClass::Get_Texture_Transform(void) const	
+inline const Matrix4x4 & MatrixMapperClass::Get_Texture_Transform(void) const	
 { 
 	return ViewToTexture; 
 }

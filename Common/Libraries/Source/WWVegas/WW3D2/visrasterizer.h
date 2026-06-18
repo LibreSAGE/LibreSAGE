@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,11 +27,11 @@
  *                                                                                             *
  *              Original Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                      $Author:: Greg_h                                                      $*
+ *                      $Author:: Jani_p                                                      $*
  *                                                                                             *
- *                     $Modtime:: 5/17/01 10:41a                                              $*
+ *                     $Modtime:: 11/24/01 5:42p                                              $*
  *                                                                                             *
- *                    $Revision:: 4                                                           $*
+ *                    $Revision:: 6                                                           $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -51,6 +52,7 @@
 #include "simplevec.h"
 #include "bittype.h"
 #include "plane.h"
+#include "meshgeometry.h"
 
 
 class CameraClass;
@@ -80,6 +82,9 @@ public:
 	uint32					Get_Backface_ID(void)			{ return BackfaceID; }
 	uint32					Get_Frontface_ID(void)			{ return FrontfaceID; }
 
+	void						Enable_Two_Sided_Rendering(bool onoff)		{ TwoSidedRenderingEnabled = onoff; }
+	bool						Is_Two_Sided_Rendering_Enabled(void)		{ return TwoSidedRenderingEnabled; }
+
 	enum ModeType { OCCLUDER_MODE = 0, NON_OCCLUDER_MODE };
 	void						Set_Render_Mode(ModeType mode) { RenderMode = mode; }
 	ModeType					Get_Render_Mode(void)			{ return RenderMode; }
@@ -107,6 +112,7 @@ protected:
 	uint32					CurID;
 	int						PixelCounter;
 	ModeType					RenderMode;
+	bool						TwoSidedRenderingEnabled;
 
 	int						ResWidth;
 	int						ResHeight;
@@ -164,6 +170,9 @@ public:
 	uint32				Get_Backface_ID(void)			{ return IDBuffer.Get_Backface_ID(); }
 	uint32				Get_Frontface_ID(void)			{ return IDBuffer.Get_Frontface_ID(); }
 
+	void					Enable_Two_Sided_Rendering(bool onoff)		{ IDBuffer.Enable_Two_Sided_Rendering(onoff); }
+	bool					Is_Two_Sided_Rendering_Enabled(void)		{ return IDBuffer.Is_Two_Sided_Rendering_Enabled(); }
+
 	void					Set_Resolution(int width,int height);
 	void					Get_Resolution(int * set_width,int * set_height);
 
@@ -181,7 +190,7 @@ public:
 	CameraClass *		Peek_Camera(void);
 
 	void					Clear(void)							{ IDBuffer.Clear(); }
-	bool					Render_Triangles(const Vector3 * verts,int vcount,const Vector3i * tris, int tcount,const AABoxClass & bounds);
+	bool					Render_Triangles(const Vector3 * verts,int vcount,const TriIndex * tris, int tcount,const AABoxClass & bounds);
 	const uint32 *		Get_Pixel_Row(int y,int min_x,int max_x) { return IDBuffer.Get_Pixel_Row(y,min_x,max_x); }
 
 protected:
@@ -189,13 +198,13 @@ protected:
 	void					Update_MV_Transform(void);
 	const Matrix3D &	Get_MV_Transform(void);
 	Vector3 *			Get_Temp_Vertex_Buffer(int count);
-	bool					Render_Triangles_Clip(const Vector3 * verts,int vcount,const Vector3i * tris, int tcount);
-	bool					Render_Triangles_No_Clip(const Vector3 * verts,int vcount,const Vector3i * tris, int tcount);
+	bool					Render_Triangles_Clip(const Vector3 * verts,int vcount,const TriIndex * tris, int tcount);
+	bool					Render_Triangles_No_Clip(const Vector3 * verts,int vcount,const TriIndex * tris, int tcount);
 	
 	Matrix3D				ModelTransform;			// AKA "World Transform"
 	CameraClass *		Camera;
 	Matrix3D				MVTransform;
-	
+
 	IDBufferClass		IDBuffer;	
 
 	SimpleVecClass<Vector3>	TempVertexBuffer;

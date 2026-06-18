@@ -76,7 +76,7 @@ class WorldHeightMap;
 //
 class W3DCustomEdging 
 {	
-friend class HeightMapRenderObjClass;
+friend class BaseHeightMapRenderObjClass;
 public:
 
 	W3DCustomEdging(void);

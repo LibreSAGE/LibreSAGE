@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -88,7 +89,7 @@ public:
 									ShareBufferClass<float> *sizes = NULL,
 									ShareBufferClass<unsigned char> *orientations = NULL,
 									ShareBufferClass<unsigned char> *frames = NULL,
-									unsigned int active_point_count = -1,
+									int active_point_count = -1,
 									float vpxmin = 0.0f, float vpymin = 0.0f,
 									float vpxmax = 0.0f, float vpymax = 0.0f);
 	void						Set_Point_Size(float size);

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -24,11 +25,11 @@
  *                                                                         * 
  *                     $Archive:: /Commando/Code/ww3d2/dynamesh.h         $* 
  *                                                                         * 
- *                      $Author:: Jani_p                                  $* 
+ *                      $Author:: Greg_h                                  $* 
  *                                                                         * 
- *                     $Modtime:: 4/11/01 4:52p                           $* 
+ *                     $Modtime:: 12/03/01 4:20p                          $* 
  *                                                                         * 
- *                    $Revision:: 13                                      $* 
+ *                    $Revision:: 15                                      $* 
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
@@ -112,7 +113,7 @@ public:
 	}
 
 	// New geometry accessors (non-const)
-	Vector3i *	Get_Non_Const_Polygon_Array(void);
+	TriIndex *	Get_Non_Const_Polygon_Array(void);
 	Vector3 *	Get_Non_Const_Vertex_Normal_Array(void);
 
 private:
@@ -403,6 +404,11 @@ public:
 		MAX_PASSES = MeshMatDescClass::MAX_PASSES
 	};
 
+	// USER BE WARNED: This hack is only here because DynamicMeshClass does not expose all of the
+	// features that DynamicMeshModel provides.  It may be dangerous to modify the model behind the
+	// DynamicMeshClass's back so use at your own risk!
+	DynamicMeshModel *		Peek_Model(void)	{ return Model; }
+	
 protected:
 	
 	inline void	Switch_To_Multi_Vertex_Color(int color_array_index = 0);
@@ -449,7 +455,7 @@ inline Vector3 * DynamicMeshModel::Get_Non_Const_Vertex_Normal_Array(void)
 	return get_vert_normals(); 
 }
 
-inline Vector3i * DynamicMeshModel::Get_Non_Const_Polygon_Array(void)
+inline TriIndex * DynamicMeshModel::Get_Non_Const_Polygon_Array(void)
 {
 	return get_polys();
 }

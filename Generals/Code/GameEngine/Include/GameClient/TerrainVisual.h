@@ -41,6 +41,7 @@ class WaterHandle;
 class Matrix3D;
 class Object;
 class Drawable;
+class WorldHeightMap;
 
 //-------------------------------------------------------------------------------------------------
 /** LOD values for terrain, keep this in sync with TerrainLODNames[] */
@@ -159,6 +160,9 @@ public:
 	
 	/// Replace the skybox texture
 	virtual void replaceSkyboxTextures(const AsciiString *oldTexName[NumSkyboxTextures], const AsciiString *newTexName[NumSkyboxTextures])=0;
+
+	virtual WorldHeightMap* getLogicHeightMap( void ) {return NULL;};
+	virtual WorldHeightMap* getClientHeightMap( void ) {return NULL;};
 
 protected:
 

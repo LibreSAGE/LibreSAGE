@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,9 +27,9 @@
  *                                                                                             *
  *                       Author:: Patrick Smith                                                *
  *                                                                                             *
- *                     $Modtime:: 5/14/01 10:07a                                              $*
+ *                     $Modtime:: 1/15/02 5:57p                                               $*
  *                                                                                             *
- *                    $Revision:: 3                                                           $*
+ *                    $Revision:: 4                                                           $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -41,9 +42,8 @@
 #ifndef __SOUNDROBJ_H
 #define __SOUNDROBJ_H
 
-#define HAS_WWAUDIO 0
+#if noWWAUDIO // (gth) removing dependency on WWAUDIO
 
-#if HAS_WWAUDIO
 #include "rendobj.h"
 #include "wwstring.h"
 #include "proto.h"
@@ -183,7 +183,7 @@ public:
 	WW3DErrorType					Save_W3D (ChunkSaveClass &csave);
 	const char *					Get_Name (void) const					{ return Name; }
 	void								Set_Name (const char *name)			{ Name = name; }	
-	SoundRenderObjDefClass *	Clone (void) const						{ return W3DNEW SoundRenderObjDefClass (*this); }
+	SoundRenderObjDefClass *	Clone (void) const						{ return NEW_REF( SoundRenderObjDefClass, (*this,"SoundRenderObjDefClass::Clone") ); }
 
 	//
 	//	Initialization
@@ -277,7 +277,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 extern SoundRenderObjLoaderClass		_SoundRenderObjLoader;
 
-#endif // HAS_WWAUDIO
+#endif //noWWAUDIO (gth) removing dependency on wwaudio
 
 #endif //__SOUNDROBJ_H
 

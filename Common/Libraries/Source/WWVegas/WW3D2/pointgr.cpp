@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -24,12 +25,15 @@
  *                                                                         * 
  *                     $Archive:: /VSS_Sync/ww3d2/pointgr.cpp             $* 
  *                                                                         * 
- *                      $Author:: Vss_sync                                $* 
+ *                    Org Author:: Greg Hjelstrom                                               *
+ *                                                                                             *
+ *                      $Author:: Kenny Mitchell                                               * 
+ *                                                                                             * 
+ *                     $Modtime:: 06/26/02 4:04p                                             $*
+ *                                                                                             *
+ *                    $Revision:: 38                                      $* 
  *                                                                         * 
- *                     $Modtime:: 8/29/01 7:29p                           $* 
- *                                                                         * 
- *                    $Revision:: 37                                      $* 
- *                                                                         * 
+ * 06/26/02 KM Matrix name change to avoid MAX conflicts                                       *
  *-------------------------------------------------------------------------* 
  * Functions:                                                              * 
  *   PointGroupClass::PointGroupClass -- PointGroupClass CTor.             * 
@@ -83,7 +87,7 @@
 #include "rinfo.h"
 #include "camera.h"
 #include "dx8fvf.h"
-#include <d3dx8math.h>
+#include "d3dx8math.h"
 #include "sortingrenderer.h"
 
 // Upgraded to DX8 2/2/01 HY
@@ -265,7 +269,7 @@ void PointGroupClass::Set_Arrays(
 	ShareBufferClass<float> *sizes,
 	ShareBufferClass<unsigned char> *orientations,
 	ShareBufferClass<unsigned char> *frames, 
-	unsigned int active_point_count,
+	int active_point_count,
 	float vpxmin, 
 	float vpymin, 
 	float vpxmax, 
@@ -876,7 +880,7 @@ void PointGroupClass::Render(RenderInfoClass &rinfo)
 	}
 
 	// Get the world and view matrices
-	Matrix4 view;
+	Matrix4x4 view;
 	DX8Wrapper::Get_Transform(D3DTS_VIEW,view);
 
 	// Transform the point locations from worldspace to camera space if needed
@@ -884,6 +888,8 @@ void PointGroupClass::Render(RenderInfoClass &rinfo)
 
 	// need to interrupt this processing. If we are not billboarding, then we need the actual position
 	// of the vertice to lay it down flat.
+	
+	// (gth) changed this 'if' to use OR rather than AND... The way it was caused all emitters to break
 	if (Get_Flag(TRANSFORM) && Billboard) {
 		// Resize transformed location array if needed (2x guardband to prevent
 		// frequent reallocations):
@@ -913,7 +919,7 @@ void PointGroupClass::Render(RenderInfoClass &rinfo)
 	// the locations are now in view space
 	// so set world and view matrices to identity and render
 	
-	Matrix4 identity(true);
+	Matrix4x4 identity(true);
 	DX8Wrapper::Set_Transform(D3DTS_WORLD,identity);	
 	DX8Wrapper::Set_Transform(D3DTS_VIEW,identity);	
 
@@ -1036,7 +1042,7 @@ void PointGroupClass::Update_Arrays(
 
 	if (VertexLoc.Length() < total_vnum) {
 		// Resize arrays (2x guardband to prevent frequent reallocations).
-		VertexLoc.Resize(total_vnum * 2, NULL);		
+		VertexLoc.Resize(total_vnum * 2, NULL);
 		VertexUV.Resize(total_vnum * 2, NULL);
 		VertexDiffuse.Resize(total_vnum * 2, NULL);
 	}
@@ -1195,7 +1201,7 @@ void PointGroupClass::Update_Arrays(
 
 		case QUADS_SIZE_ORIENT:
 			{
-				Matrix4 view;
+				Matrix4x4 view;
 				Vector4 result;
 				if (!Billboard) {
 					DX8Wrapper::Get_Transform(D3DTS_VIEW,view);
@@ -1205,8 +1211,9 @@ void PointGroupClass::Update_Arrays(
 				for (i = 0; i < active_points; i++) {
 					if (!Billboard) {
 						// If we're not billboarding, then the coordinate we have is in screen space.
-						Matrix4 rotMat;
-						D3DXMatrixRotationZ(&(D3DXMATRIX&) rotMat, ((float)point_orientation[i] / 255.0f * 2 * D3DX_PI));	
+						Matrix4x4 rotMat;
+						D3DXMatrixRotationZ(&(D3DXMATRIX&) rotMat, ((float)point_orientation[i] / 255.0f * 2 * D3DX_PI));
+						
 						Vector4 orientedVecX = rotMat * GroundMultiplierX;
 						Vector4 orientedVecY = rotMat * GroundMultiplierY;
 
@@ -1683,7 +1690,7 @@ void PointGroupClass::RenderVolumeParticle(RenderInfoClass &rinfo, unsigned int 
 	}
 
 		// Get the world and view matrices
-		Matrix4 view;
+		Matrix4x4 view;
 		DX8Wrapper::Get_Transform(D3DTS_VIEW,view);
 
 
@@ -1821,7 +1828,7 @@ void PointGroupClass::RenderVolumeParticle(RenderInfoClass &rinfo, unsigned int 
 		// the locations are now in view space
 		// so set world and view matrices to identity and render
 		
-		Matrix4 identity(true);
+		Matrix4x4 identity(true);
 		DX8Wrapper::Set_Transform(D3DTS_WORLD,identity);	
 		DX8Wrapper::Set_Transform(D3DTS_VIEW,identity);	
 
@@ -1908,9 +1915,3 @@ void PointGroupClass::RenderVolumeParticle(RenderInfoClass &rinfo, unsigned int 
 	// restore the matrices
 	DX8Wrapper::Set_Transform(D3DTS_VIEW,view);
 }
-
-
-
-
-
-

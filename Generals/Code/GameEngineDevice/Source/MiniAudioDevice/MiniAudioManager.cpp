@@ -483,7 +483,6 @@ void MiniAudioManager::playAudioEvent( AudioEventRTS *event )
 
 				ma_vec3f relPos;
 				ma_spatializer_get_relative_position_and_direction(&sound->engineNode.spatializer, &m_engine.listeners[0], &relPos, NULL);
-				DEBUG_LOG(("Initial relative position of sound: (%f, %f, %f)\n", relPos.x, relPos.y, relPos.z));
 			} 
 			else 
 			{

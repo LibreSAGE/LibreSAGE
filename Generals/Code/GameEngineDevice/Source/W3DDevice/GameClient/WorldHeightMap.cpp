@@ -1178,9 +1178,12 @@ typedef struct {
 
 
 /// Count how many tiles come in from a targa file.
-Int WorldHeightMap::countTiles(InputStream *pStr)
+Int WorldHeightMap::countTiles(InputStream *pStr, Bool *halfTile)
 {
 	TTargaHeader hdr;
+	if (halfTile) {
+		*halfTile = false;
+	}
 	Int len = pStr->read(&hdr,sizeof(hdr));
 	if (len!=sizeof(hdr)) return(0);
 	Int tileWidth = hdr.imageWidth/TILE_PIXEL_EXTENT;
@@ -1210,6 +1213,10 @@ Int WorldHeightMap::countTiles(InputStream *pStr)
 	if (tileWidth>=3 && tileHeight >=3) return(9);
 	if (tileWidth>=2 && tileHeight >=2) return(4);
 	if (tileWidth>=1 && tileHeight >=1) return(1);
+	if (halfTile && hdr.imageHeight==TILE_PIXEL_EXTENT/2 && hdr.imageWidth==TILE_PIXEL_EXTENT/2) {
+		*halfTile = true;
+		return 1;
+	}
 	return(0);
 }
 /*Break down a .tga file into a collection of tiles.  numRows * numRows total tiles.*/
@@ -2219,6 +2226,235 @@ AsciiString WorldHeightMap::getTerrainNameAt(Real x, Real y)
 		}
 	}
 	return AsciiString::TheEmptyString;
-}	
+}
+
+Real WorldHeightMap::getSeismicZVelocity(Int xIndex, Int yIndex) const
+{
+	if (xIndex<0 || yIndex<0) return false;
+	if (yIndex>=m_height) return false;
+	if (xIndex>=m_width) return false;
+	if (!m_seismicZVelocities) return false;
+	return m_seismicZVelocities[yIndex*m_width + xIndex];
+}
+
+void WorldHeightMap::setSeismicZVelocity(Int xIndex, Int yIndex, Real value)
+{
+	if (xIndex<0 || yIndex<0) return ;
+	if (yIndex>=m_height) return ;
+	if (xIndex>=m_width) return ;
+	if (!m_seismicZVelocities) return ;
+	m_seismicZVelocities[yIndex*m_width + xIndex] = value;
+}
+
+Real WorldHeightMap::getBilinearSampleSeismicZVelocity( Int x, Int y)
+{
+	if ( x < 0 || y < 0 ) return 0;
+	if ( y >= m_height ) return 0;
+	if ( x >= m_width ) return 0;
+	if (!m_seismicZVelocities) return 0;
+
+  Real collector = 0.0f;
+  Real divisor = 0.0f;
+
+  collector += m_seismicZVelocities[ y * m_width + x ];
+  ++divisor;
+
+  if ( y > 0 )
+  {
+    collector += m_seismicZVelocities[ (y-1) * m_width + x ];//bottom
+    ++divisor;
+
+    if( x > 0 )
+    {
+      collector += m_seismicZVelocities[ (y-1) * m_width + (x-1) ];//lower left
+      ++divisor;
+    }
+    if ( x < m_width-1 )
+    {
+      collector += m_seismicZVelocities[ (y-1) * m_width + (x+1) ];//lower right
+      ++divisor;
+    }
+  }
+  if ( y < m_height-1 )
+  {
+    collector += m_seismicZVelocities[ (y+1) * m_width + x ];//top
+    ++divisor;
+
+    if( x > 0 )
+    {
+      collector += m_seismicZVelocities[ (y+1) * m_width + (x-1) ];//upper left
+      ++divisor;
+    }
+    if ( x < m_width-1 )
+    {
+      collector += m_seismicZVelocities[ (y+1) * m_width + (x+1) ];//upper right
+      ++divisor;
+    }
+  }
+  if( x > 0 )
+  {
+    collector += m_seismicZVelocities[ y * m_width + (x-1) ];//left
+    ++divisor;
+  }
+  if ( x < m_width-1 )
+  {
+    collector += m_seismicZVelocities[ y * m_width + (x+1) ];//right
+    ++divisor;
+  }
+
+  collector /= divisor;
+
+  return collector;
+
+}
+
+void WorldHeightMap::setTextureLOD(Int lod)
+{
+	if (m_terrainTex)
+		m_terrainTex->setLOD(lod);
+}
+
+void WorldHeightMap::setFlipState(Int xIndex, Int yIndex, Bool value)
+{
+	if (xIndex<0 || yIndex<0) return ;
+	if (yIndex>=m_height) return ;
+	if (xIndex>=m_width) return ;
+	if (!m_cellFlipState) return ;
+	UnsignedByte *curVal = &m_cellFlipState[yIndex*m_flipStateWidth + (xIndex >> 3)];
+	if (value) {
+		*curVal |= (1<<(xIndex&0x7));
+	}	else {
+		*curVal &= ~(1<<(xIndex&0x7));
+	}
+}
+
+void WorldHeightMap::clearFlipStates(void) {
+	if (m_cellFlipState) {
+		memset(m_cellFlipState,0,m_flipStateWidth*m_height);	//clear all flags
+	}
+}
+
+TerrainTextureClass *WorldHeightMap::getFlatTexture(Int xCell, Int yCell, Int cellWidth, Int pixelsPerCell)
+{
+	if (TheWritableGlobalData->m_textureReductionFactor) {
+		if (TheWritableGlobalData->m_textureReductionFactor>1) {
+			pixelsPerCell /= 4;
+		} else {
+			pixelsPerCell /= 2;
+		}
+	}
+	Int pow2Height = 1;
+	while (pow2Height<cellWidth*pixelsPerCell) {
+		pow2Height *=2;
+	}
+	TerrainTextureClass *newTexture = MSGNEW("WorldHeightMap_getTerrainTexture") TerrainTextureClass(pow2Height, pow2Height);
+	newTexture->updateFlat(this, xCell, yCell, cellWidth, pixelsPerCell);
+	return newTexture;
+}
+
+TileData *WorldHeightMap::m_alphaTiles[NUM_ALPHA_TILES]={0,0,0,0,0,0,0,0,0,0,0,0};
+
+Bool  WorldHeightMap::getRawTileData(Short tileNdx, Int width,
+																				 UnsignedByte *buffer, Int bufLen)
+{
+	TileData *pSrc = NULL;
+	if (tileNdx/4 < NUM_SOURCE_TILES) {
+		pSrc = m_sourceTiles[tileNdx/4];
+	}
+	if (bufLen < (width*width*TILE_BYTES_PER_PIXEL)) {
+		return(false);
+	}
+	if (pSrc && pSrc->hasRGBDataForWidth(2*width)) {
+		Int j;
+		UnsignedByte *pSrcData = pSrc->getRGBDataForWidth(2*width);
+		Int xOffset=0;
+		Int yOffset=0;
+		if (tileNdx & 1) xOffset = width;
+		if (tileNdx & 2) yOffset = width;
+		for (j=0; j<width; j++) {
+			UnsignedByte *pDestData = buffer;
+			pDestData += j*(width)*TILE_BYTES_PER_PIXEL;
+			UnsignedByte *pSrc = pSrcData;
+			pSrc += (j+yOffset)*width*TILE_BYTES_PER_PIXEL*2;
+			pSrc += xOffset*TILE_BYTES_PER_PIXEL;
+			memcpy(pDestData, pSrc, width*TILE_BYTES_PER_PIXEL);
+		}
+		return(true);
+	}
+	return(false);
+}
+
+#define K_HORIZ 0
+#define K_VERT 1
+#define K_LDIAG 2
+#define K_RDIAG 3
+#define K_LLDIAG 4
+#define K_LRDIAG 5
+
+#define K_INV 6
+
+UnsignedByte *WorldHeightMap::getRGBAlphaDataForWidth(Int width, TBlendTileInfo *pBlend)
+{
+	Int alphaTileNdx = 0;
+	if (pBlend->horiz) {
+		alphaTileNdx = K_HORIZ;
+	} else if (pBlend->vert) {
+		alphaTileNdx = K_VERT;
+	} else if (pBlend->rightDiagonal) {
+		alphaTileNdx = K_RDIAG;
+		if (pBlend->longDiagonal) alphaTileNdx=K_LRDIAG;
+	} else if (pBlend->leftDiagonal) {
+		alphaTileNdx = K_LDIAG;
+		if (pBlend->longDiagonal) alphaTileNdx=K_LLDIAG;
+	}
+	if (pBlend->inverted) {
+		alphaTileNdx += K_INV;
+	}
+	return m_alphaTiles[alphaTileNdx]->getRGBDataForWidth(width);
+}
+
+static UnsignedByte s_buffer[DATA_LEN_BYTES];
+static UnsignedByte s_blendBuffer[DATA_LEN_BYTES];
+
+UnsignedByte * WorldHeightMap::getPointerToTileData(Int xIndex, Int yIndex, Int width)
+{
+	Int ndx = (yIndex*m_width)+xIndex;
+	if (yIndex<0 || xIndex<0 || xIndex>=m_width || yIndex>=m_height) {
+		return NULL;
+	}
+	if (ndx<0 || ndx>=m_dataSize) {
+		return NULL;
+	}
+	TBlendTileInfo *pBlend = NULL;
+	Short tileNdx = m_tileNdxes[ndx];
+	if (getRawTileData(tileNdx, width, s_buffer, DATA_LEN_BYTES)) {
+		Short blendTileNdx = m_blendTileNdxes[ndx];
+		if (blendTileNdx>0 && blendTileNdx < NUM_BLEND_TILES) {
+			pBlend = &m_blendedTiles[blendTileNdx];
+			if (getRawTileData(pBlend->blendNdx, width, s_blendBuffer, DATA_LEN_BYTES)) {
+				UnsignedByte *pAlpha = getRGBAlphaDataForWidth(width, pBlend);
+				pAlpha += 3;  // skip over the rgb to the a.
+				Int i, limit;
+				limit = width*width;
+				UnsignedByte *pBlendData = s_blendBuffer;
+				UnsignedByte *pDestData = s_buffer;
+				for (i=0; i<limit; i++) {
+					Int r,g,b,a;
+					b = *pBlendData++;
+					g = *pBlendData++;
+					r = *pBlendData++; *pBlendData++;
+					a = *pAlpha; pAlpha += 4;
+					*pDestData++ = ((b*a)/255) + (((*pDestData)*(255-a))/255);
+					*pDestData++ = ((g*a)/255) + (((*pDestData)*(255-a))/255);
+					*pDestData++ = ((r*a)/255) + (((*pDestData)*(255-a))/255);
+					*pDestData++ = 255; // just skip alpha.  not really used. jba.
+				}
+			}
+		}
+		return(s_buffer);
+	}
+
+	return(NULL);
+}
 
 

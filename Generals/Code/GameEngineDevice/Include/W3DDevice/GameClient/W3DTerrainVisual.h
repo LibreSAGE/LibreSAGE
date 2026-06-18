@@ -118,6 +118,9 @@ public:
 	/// Replace the skybox texture
 	virtual void replaceSkyboxTextures(const AsciiString *oldTexName[NumSkyboxTextures], const AsciiString *newTexName[NumSkyboxTextures]);
 
+	WorldHeightMap* getLogicHeightMap( void ) {return m_terrainHeightMap;};
+	WorldHeightMap* getClientHeightMap( void ) {return m_terrainHeightMap;};
+
 
 protected:
 

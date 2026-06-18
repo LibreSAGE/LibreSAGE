@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -115,7 +116,7 @@ public:
 	static bool			Is_Browser_Open(const char* browsername) { return false; }
 
 	// Navigates the specified browser to the specified page.
-	static void			Navigate(const char* browsername, const char* url) {}	
+	static void			Navigate(const char* browsername, const char* url) {}
 };
 #endif
 

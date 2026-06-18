@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -107,7 +108,7 @@ void Convert_Westwood_Matrix(const Matrix3D & wtm,srMatrix4 * set_sr_tm);
 void Convert_Westwood_Matrix(const Matrix3D & wtm,srMatrix4d * set_sr_tm);
 void Convert_Westwood_Matrix(const Matrix3D & wtm,srMatrix4x3 * set_sr_tm);
 void Convert_Westwood_Matrix(const Matrix3D & wtm,srMatrix3 * set_sr_tm,srVector3 * set_sr_translation);
-void Convert_Westwood_Matrix(const Matrix4 & wtm,srMatrix4 * set_sr_tm);
+void Convert_Westwood_Matrix(const Matrix4x4 & wtm,srMatrix4 * set_sr_tm);
 
 void Convert_Surrender_Matrix(const srMatrix4 & srtm,Matrix3D * set_w3d_tm);
 void Convert_Surrender_Matrix(const srMatrix4x3 & srtm,Matrix3D * set_w3d_tm);

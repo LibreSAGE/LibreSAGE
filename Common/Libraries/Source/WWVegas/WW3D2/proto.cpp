@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -24,12 +25,15 @@
  *                                                                                             *
  *                     $Archive:: /Commando/Code/ww3d2/proto.cpp                              $*
  *                                                                                             *
- *                       Author:: Greg Hjelstrom                                               *
+ *                   Org Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                     $Modtime:: 1/08/01 10:04a                                              $*
+ *                       Author : Kenny Mitchell                                               * 
+ *                                                                                             * 
+ *                     $Modtime:: 06/27/02 3:51p                                              $*
  *                                                                                             *
- *                    $Revision:: 1                                                           $*
+ *                    $Revision:: 2                                                           $*
  *                                                                                             *
+ * 06/26/02 KM Integrating shader system
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  *   MeshLoaderClass::Load -- reads in a mesh and creates a prototype for it                   *

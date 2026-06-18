@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -22,13 +23,13 @@
  *                                                                                             *
  *                 Project Name : WW3D                                                         *
  *                                                                                             *
- *                     $Archive:: /VSS_Sync/ww3d2/meshmdl.h                                   $*
+ *                     $Archive:: /Commando/Code/ww3d2/meshmdl.h                              $*
  *                                                                                             *
  *                       Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                     $Modtime:: 8/29/01 7:29p                                               $*
+ *                     $Modtime:: 11/24/01 6:17p                                              $*
  *                                                                                             *
- *                    $Revision:: 38                                                          $*
+ *                    $Revision:: 40                                                          $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -82,6 +83,7 @@ class LightEnvironmentClass;
 class DX8MeshRendererClass;
 class DX8PolygonRendererAttachClass;
 class DX8SkinFVFCategoryContainer;
+class GapFillerClass;
 
 struct VertexFormatXYZNDUV2;
 
@@ -115,15 +117,18 @@ struct VertexFormatXYZNDUV2;
 ** UV, DIG, DCG, SCG
 ** Texture, Shader, Material,
 ** TextureArray, MaterialArray, ShaderArray
-** 
 */
 
-class MeshModelClass;
+
+/**
+** GapFillerClass
+** This class is used to generate gap-filling polygons for "N-Patched" meshes
+*/
 class GapFillerClass : public W3DMPO
 {
 	W3DMPO_GLUE(GapFillerClass)
 
-	Vector3i* PolygonArray;
+	TriIndex* PolygonArray;
 	unsigned PolygonCount;
 	unsigned ArraySize;
 	TextureClass** TextureArray[MeshMatDescClass::MAX_PASSES][MeshMatDescClass::MAX_TEX_STAGES];
@@ -131,13 +136,13 @@ class GapFillerClass : public W3DMPO
 	ShaderClass* ShaderArray[MeshMatDescClass::MAX_PASSES];
 	MeshModelClass* mmc;
 
-	GapFillerClass& operator = (const GapFillerClass & that) { return *this; } // not implemented, just to prevent warnings
+	GapFillerClass& operator = (const GapFillerClass & that) {}
 public:
 	GapFillerClass(MeshModelClass* mmc);
 	GapFillerClass(const GapFillerClass& that);
 	~GapFillerClass();
 
-	WWINLINE const Vector3i* Get_Polygon_Array() const { return PolygonArray; }
+	WWINLINE const TriIndex* Get_Polygon_Array() const { return PolygonArray; }
 	WWINLINE unsigned Get_Polygon_Count() const { return PolygonCount; }
 	WWINLINE TextureClass** Get_Texture_Array(int pass, int stage) const { return TextureArray[pass][stage]; }
 	WWINLINE VertexMaterialClass** Get_Material_Array(int pass) const { return MaterialArray[pass]; }
@@ -150,10 +155,6 @@ public:
 class MeshModelClass : public MeshGeometryClass
 {
 	W3DMPO_GLUE(MeshModelClass)
-	// Jani: Adding this here temporarily... must fine better place
-//	Vector3i*					GapFillerPolygonArray;
-//	unsigned						GapFillerPolygonCount;
-	GapFillerClass* GapFiller;
 
 public:	
 
@@ -176,7 +177,6 @@ public:
 	const Vector2 *			Get_UV_Array(int pass = 0, int stage = 0)									{ return CurMatDesc->Get_UV_Array(pass,stage); }
 	int							Get_UV_Array_Count(void)														{ return CurMatDesc->Get_UV_Array_Count(); }
 	const Vector2 *			Get_UV_Array_By_Index(int index)												{ return CurMatDesc->Get_UV_Array_By_Index(index, false); }
-//	Vector3i *					Get_UVIndex_Array (int pass = 0, bool create = true)					{ return CurMatDesc->Get_UVIndex_Array(pass,create); }
 
 	unsigned *					Get_DCG_Array(int pass)															{ return CurMatDesc->Get_DCG_Array(pass); }
 	unsigned *					Get_DIG_Array(int pass)															{ return CurMatDesc->Get_DIG_Array(pass); }
@@ -257,6 +257,8 @@ public:
 	void							Init_For_NPatch_Rendering();
 	const GapFillerClass*	Get_Gap_Filler() const { return GapFiller; }
 
+	bool							Has_Polygon_Renderers(void) { return !PolygonRendererList.Is_Empty(); }
+
 protected:
 
 	// MeshClass will set this for skins so that they can get the bone transforms
@@ -280,18 +282,6 @@ public: // Jani: I need to have an access to these for now...
 protected:
 
 	int Register_Type();
-
-	// functions to compute the deformed vertices of skins.
-	// Destination pointers MUST point to arrays large enough to hold all vertices
-	void get_deformed_vertices(Vector3 *dst_vert, Vector3 *dst_norm, const HTreeClass * htree);
-	void get_deformed_vertices(Vector3 *dst_vert, const HTreeClass * htree);
-	void get_deformed_screenspace_vertices(Vector4 *dst_vert,const RenderInfoClass & rinfo,const Matrix3D & mesh_tm,const HTreeClass * htree);
-	void compose_deformed_vertex_buffer(
-		VertexFormatXYZNDUV2* verts,
-		const Vector2* uv0,
-		const Vector2* uv1,
-		const unsigned* diffuse,
-		const HTreeClass * htree);
 
 	// loading
 	WW3DErrorType read_chunks(ChunkLoadClass & cload,MeshLoadContextClass * context);
@@ -324,6 +314,7 @@ protected:
 	unsigned int get_sort_flags(int pass) const;
 	unsigned int get_sort_flags(void) const;
 	void compute_static_sort_levels(void);
+	void modify_for_overbright(void);
 
 	// mat info support
 	void install_materials(MeshLoadContextClass * loadinfo);
@@ -344,6 +335,10 @@ protected:
 	// DX8 Mesh rendering system data
 	DX8PolygonRendererList								PolygonRendererList;
 
+	// Jani: Adding this here temporarily... must fine better place
+	GapFillerClass *										GapFiller;
+	bool														HasBeenInUse;	// For debugging purposes!
+
 	friend class MeshClass;
 	friend class MeshDeformSetClass;
 	friend class MeshDeformClass;
@@ -356,34 +351,6 @@ protected:
 
 
 
-/*********************************************************************************************************
-**
-** MeshModelClass Inline Functions
-**
-*********************************************************************************************************/
-
-
-#if 0
-inline void	MeshModelClass::Apply_Deformation (float percent, bool additive)
-{	
-	MeshDeformer.Apply (*this, percent, additive);
-}
-
-inline void	MeshModelClass::Apply_Deformation (int set_index, float percent, bool additive)
-{	
-	MeshDeformer.Apply (*this, set_index, percent, additive);
-}
-
-inline void	MeshModelClass::Apply_Deformation (const Vector3 &point, float percent, bool additive)
-{	
-	MeshDeformer.Apply (*this, point, percent, additive);
-}
-
-inline void	MeshModelClass::Apply_Deformation (const SphereClass &sphere, float percent, bool additive)
-{	
-	MeshDeformer.Apply (*this, sphere, percent, additive);
-}
-#endif
 
 
 

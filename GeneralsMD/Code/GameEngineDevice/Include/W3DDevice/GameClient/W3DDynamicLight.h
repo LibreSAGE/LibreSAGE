@@ -41,7 +41,7 @@ class HeightMapRenderObjClass;
 class W3DDynamicLight : public LightClass
 {
 friend class BaseHeightMapRenderObjClass;
-friend class HeightMapRenderObjClass;
+friend class BaseHeightMapRenderObjClass;
 protected:
 	/// Values used by HeightMapRenderObjClass to update the height map.
 	Bool		m_priorEnable;

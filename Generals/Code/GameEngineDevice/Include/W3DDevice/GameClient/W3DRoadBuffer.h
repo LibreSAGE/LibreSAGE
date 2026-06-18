@@ -57,7 +57,7 @@
 #include "dx8indexbuffer.h"
 #include "shader.h"
 #include "vertmaterial.h"
-//#include "common/GameFileSystem.h"
+//#include "Common/GameFileSystem.h"
 #include "Common/FileSystem.h" // for LOAD_TEST_ASSETS
 #include "Lib/BaseType.h"
 #include "Common/GameType.h"
@@ -126,6 +126,7 @@ public:
 	Real			m_scale;				///< Scale.
 	Real			m_widthInTexture; ///< Width of the road in the texture.
 	Int				m_uniqueID;			///< Road type.
+	Bool			m_visible;
 protected:
 	Int										m_numVertex;
 	VertexFormatXYZDUV1*	m_vb;
@@ -193,7 +194,7 @@ class WorldHeightMap;
 //
 class W3DRoadBuffer 
 {	
-friend class HeightMapRenderObjClass;
+friend class BaseHeightMapRenderObjClass;
 public:
 
 	W3DRoadBuffer(void);
@@ -209,12 +210,17 @@ public:
 	void setMap(WorldHeightMap *pMap);
 	/// Updates the diffuse lighting in the buffers.
 	void updateLighting(void);
+	/// Notifies that the camera moved.
+	void updateCenter(void);
+	/// Returns true if some roads are now visible that weren't, or vice versa.
+	Bool visibilityChanged(const IRegion2D &bounds);
 
 protected:
 	RoadType *m_roadTypes;	///<Roads texture
 	RoadSegment	*m_roads;			///< The road buffer.  All roads are stored here.
 	Int			m_numRoads;						///< Number of roads used in m_roads.
 	Bool		m_initialized;		///< True if the subsystem initialized.
+	Bool		m_updateBuffers; ///< If true, update the vertex buffers.
 	WorldHeightMap *m_map;		///< Pointer to the height map data.
 	RefRenderObjListIterator *m_lightsIterator;	///< Lighting iterator.
 	Int m_minX, m_maxX, m_minY, m_maxY; ///< Bounds on the terrain to be rendered.

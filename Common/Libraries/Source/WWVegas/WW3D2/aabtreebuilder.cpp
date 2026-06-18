@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,11 +27,11 @@
  *                                                                                             *
  *              Original Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                      $Author:: Greg_h                                                      $*
+ *                      $Author:: Jani_p                                                      $*
  *                                                                                             *
- *                     $Modtime:: 1/08/01 10:04a                                              $*
+ *                     $Modtime:: 11/24/01 5:49p                                              $*
  *                                                                                             *
- *                    $Revision:: 1                                                           $*
+ *                    $Revision:: 2                                                           $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -149,7 +150,7 @@ void AABTreeBuilderClass::Reset(void)
  * HISTORY:                                                                                    *
  *   6/19/98    GTH : Created.                                                                 *
  *=============================================================================================*/
-void AABTreeBuilderClass::Build_AABTree(int polycount,Vector3i * polys,int vertcount,Vector3 * verts)
+void AABTreeBuilderClass::Build_AABTree(int polycount,TriIndex * polys,int vertcount,Vector3 * verts)
 {
 	WWASSERT(polycount > 0);
 	WWASSERT(vertcount > 0);
@@ -167,7 +168,7 @@ void AABTreeBuilderClass::Build_AABTree(int polycount,Vector3i * polys,int vertc
 	VertCount = vertcount;
 	PolyCount = polycount;
 	Verts = W3DNEWARRAY Vector3[VertCount];
-	Polys = W3DNEWARRAY Vector3i[PolyCount];
+	Polys = W3DNEWARRAY TriIndex[PolyCount];
 
 	for (int vi=0; vi<VertCount; vi++) {
 		Verts[vi] = verts[vi];
@@ -201,6 +202,72 @@ void AABTreeBuilderClass::Build_AABTree(int polycount,Vector3i * polys,int vertc
 
 }
 
+/***********************************************************************************************
+ * AABTreeBuilderClass::Build_AABTree -- Build an AABTree for the given mesh.                  *
+ *                                                                                             *
+ * INPUT:                                                                                      *
+ *                                                                                             *
+ * OUTPUT:                                                                                     *
+ *                                                                                             *
+ * WARNINGS:                                                                                   *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   6/19/98    GTH : Created.                                                                 *
+ *	  6/28/02	 KJM : This version handles 32-bit indexes
+ *=============================================================================================*/
+void AABTreeBuilderClass::Build_AABTree(int polycount,Vector3i * polys,int vertcount,Vector3 * verts)
+{
+	WWASSERT(polycount > 0);
+	WWASSERT(vertcount > 0);
+	WWASSERT(polys != NULL);
+	WWASSERT(verts != NULL);
+
+	/*
+	** If we already have allocated data, release it
+	*/
+	Reset();
+
+	/*
+	** Copy the mesh data
+	*/
+	VertCount = vertcount;
+	PolyCount = polycount;
+	Verts = new Vector3[VertCount];
+	Polys = new TriIndex[PolyCount];
+
+	for (int vi=0; vi<VertCount; vi++) {
+		Verts[vi] = verts[vi];
+	}
+	for (int pi=0; pi<PolyCount; pi++) {
+		Polys[pi].I = polys[pi].I;
+		Polys[pi].J = polys[pi].J;
+		Polys[pi].K = polys[pi].K;
+	}
+
+	/*
+	** First, create a list of all of the poly indices
+	*/
+	int * polyindices = new int[PolyCount];
+	for (int i=0; i<PolyCount; i++) {
+		polyindices[i] = i;
+	}
+
+	/*
+	** Build the tree, note that the array of poly indices will be
+	** deleted by the Build_Tree function.
+	*/
+	Root = new CullNodeStruct;
+	Build_Tree(Root,PolyCount,polyindices);
+	polyindices = NULL;
+
+	/*
+	** fill in the remaining information needed in the tree:
+	** for example: bounding boxes, index assignments
+	*/
+	Compute_Bounding_Box(Root);
+	Assign_Index(Root,0);
+
+}
 
 /***********************************************************************************************
  * AABTreeBuilderClass::Build_Tree -- recursivly builds the culling tree                       *
@@ -326,7 +393,7 @@ AABTreeBuilderClass::Select_Splitting_Plane(int polycount,int * polyindices)
 		*/
 		int poly_index = polyindices[rand() % polycount];
 		int vert_index = rand() % 3;
-		const Vector3i * polyverts = Polys + poly_index;
+		const TriIndex * polyverts = Polys + poly_index;
 		const Vector3 * vert = Verts + (*polyverts)[vert_index];
 		
 		/*
@@ -572,8 +639,8 @@ void AABTreeBuilderClass::Compute_Bounding_Box(CullNodeStruct * node)
 	/*
 	** compute bounding volume for the polys in this node
 	*/
-	node->Min.Set(100000.0f,100000.0f,100000.0f);
-	node->Max.Set(-100000.0f,-100000.0f,-100000.0f);
+	node->Min.Set(WWMATH_FLOAT_MAX,WWMATH_FLOAT_MAX,WWMATH_FLOAT_MAX);
+	node->Max.Set(-WWMATH_FLOAT_MAX,-WWMATH_FLOAT_MAX,-WWMATH_FLOAT_MAX);
 
 	for (int poly_index = 0; poly_index < node->PolyCount; poly_index++) {
 		Update_Min_Max(node->PolyIndices[poly_index],node->Min,node->Max );
@@ -607,12 +674,12 @@ void AABTreeBuilderClass::Compute_Bounding_Box(CullNodeStruct * node)
 		if (node->Back->Max.Z > node->Max.Z) node->Max.Z = node->Back->Max.Z;
 	}
 
-	WWASSERT(node->Min.X != 100000.0f);
-	WWASSERT(node->Min.Y != 100000.0f);
-	WWASSERT(node->Min.Z != 100000.0f);
-	WWASSERT(node->Max.X != -100000.0f);
-	WWASSERT(node->Max.Y != -100000.0f);
-	WWASSERT(node->Max.Z != -100000.0f);
+	WWASSERT(node->Min.X != WWMATH_FLOAT_MAX);
+	WWASSERT(node->Min.Y != WWMATH_FLOAT_MAX);
+	WWASSERT(node->Min.Z != WWMATH_FLOAT_MAX);
+	WWASSERT(node->Max.X != -WWMATH_FLOAT_MAX);
+	WWASSERT(node->Max.Y != -WWMATH_FLOAT_MAX);
+	WWASSERT(node->Max.Z != -WWMATH_FLOAT_MAX);
 }
 
 
@@ -732,7 +799,7 @@ void AABTreeBuilderClass::Update_Min(int poly_index,Vector3 & min)
 {
 	for (int vert_index = 0; vert_index < 3; vert_index++) {
 
-		const Vector3i * polyverts = Polys + poly_index;
+		const TriIndex * polyverts = Polys + poly_index;
 		const Vector3 * point = Verts + (*polyverts)[vert_index];
 
 		if (point->X  < min.X) min.X = point->X;
@@ -758,7 +825,7 @@ void AABTreeBuilderClass::Update_Max(int poly_index,Vector3 & max)
 {
 	for (int vert_index = 0; vert_index < 3; vert_index++) {
 
-		const Vector3i * polyverts = Polys + poly_index;
+		const TriIndex * polyverts = Polys + poly_index;
 		const Vector3 * point = Verts + (*polyverts)[vert_index];
 
 		if (point->X  > max.X) max.X = point->X;
@@ -784,7 +851,7 @@ void	AABTreeBuilderClass::Update_Min_Max(int poly_index, Vector3 & min, Vector3 
 {
 	for (int vert_index = 0; vert_index < 3; vert_index++) {
 
-		const Vector3i * polyverts = Polys + poly_index;
+		const TriIndex * polyverts = Polys + poly_index;
 		const Vector3 * point = Verts + (*polyverts)[vert_index];
 
 		if (point->X  < min.X) min.X = point->X;

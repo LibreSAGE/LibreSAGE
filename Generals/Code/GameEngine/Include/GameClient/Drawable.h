@@ -444,6 +444,8 @@ public:
 
 	const TWheelInfo *getWheelInfo(void) const { return m_locoInfo ? &m_locoInfo->m_wheelInfo : NULL; }
 
+	const DrawableLocoInfo *getLocoInfo() const { return m_locoInfo; }
+
 	// this method must ONLY be called from the client, NEVER From the logic, not even indirectly.
 	Bool clientOnly_getFirstRenderObjInfo(Coord3D* pos, Real* boundingSphereRadius, Matrix3D* transform);
 

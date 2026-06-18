@@ -52,10 +52,13 @@ protected:
 public:
 		/// Create texture for a height map.
 		TerrainTextureClass(int height, MipCountType mipLevelCount = MIP_LEVELS_3 );
+		TerrainTextureClass(int height, int width);
 
 		// just use default destructor. ~TerrainTextureClass(void);
 public:
 	int update(WorldHeightMap *htMap); ///< Sets the pixels, and returns the actual height of the texture.
+	Bool updateFlat(WorldHeightMap *htMap, Int xCell, Int yCell, Int cellWidth, Int pixelsPerCell); ///< Sets the pixels.
+	void setLOD(Int LOD);
 
 };
 

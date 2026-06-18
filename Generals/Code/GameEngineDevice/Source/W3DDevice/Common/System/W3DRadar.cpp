@@ -83,7 +83,7 @@ static WW3DFormat findFormat(const WW3DFormat formats[])
 	for( Int i = 0; formats[ i ] != WW3D_FORMAT_UNKNOWN; i++ )
 	{
 
-		if( DX8Caps::Support_Texture_Format( formats[ i ] ) )
+		if( DX8Wrapper::Get_Current_Caps()->Support_Texture_Format( formats[ i ] ) )
 		{
 
 			return formats[ i ];
@@ -886,12 +886,12 @@ void W3DRadar::init( void )
 	// allocate our terrain texture
 	// poolify
 	m_terrainTexture = MSGNEW("TextureClass") TextureClass( m_textureWidth, m_textureHeight, 
-																			 m_terrainTextureFormat, TextureClass::MIP_LEVELS_1 );
+																			 m_terrainTextureFormat, MIP_LEVELS_1 );
 	DEBUG_ASSERTCRASH( m_terrainTexture, ("W3DRadar: Unable to allocate terrain texture\n") );
 
 	// allocate our overlay texture
 	m_overlayTexture = MSGNEW("TextureClass") TextureClass( m_textureWidth, m_textureHeight,
-																			 m_overlayTextureFormat, TextureClass::MIP_LEVELS_1 );
+																			 m_overlayTextureFormat, MIP_LEVELS_1 );
 	DEBUG_ASSERTCRASH( m_overlayTexture, ("W3DRadar: Unable to allocate overlay texture\n") );
 
 	// set filter type for the overlay texture, try it and see if you like it, I don't ;)
@@ -900,10 +900,10 @@ void W3DRadar::init( void )
 
 	// allocate our shroud texture
 	m_shroudTexture = MSGNEW("TextureClass") TextureClass( m_textureWidth, m_textureHeight,
-																			 m_shroudTextureFormat, TextureClass::MIP_LEVELS_1 );
+																			 m_shroudTextureFormat, MIP_LEVELS_1 );
 	DEBUG_ASSERTCRASH( m_shroudTexture, ("W3DRadar: Unable to allocate shroud texture\n") );
-	m_shroudTexture->Set_Min_Filter( TextureClass::FILTER_TYPE_DEFAULT );
-	m_shroudTexture->Set_Mag_Filter( TextureClass::FILTER_TYPE_DEFAULT );
+	m_shroudTexture->Get_Filter().Set_Min_Filter( TextureFilterClass::FILTER_TYPE_DEFAULT );
+	m_shroudTexture->Get_Filter().Set_Mag_Filter( TextureFilterClass::FILTER_TYPE_DEFAULT );
 
 	//
 	// create images used for rendering and set them up with the textures

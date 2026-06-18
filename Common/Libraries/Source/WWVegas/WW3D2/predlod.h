@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,9 +27,9 @@
  *                                                                         * 
  *                      $Author:: Jani_p                                  $* 
  *                                                                         * 
- *                     $Modtime:: 8/23/01 5:04p                           $* 
+ *                     $Modtime:: 9/20/01 10:10a                          $* 
  *                                                                         * 
- *                    $Revision:: 2                                       $* 
+ *                    $Revision:: 3                                       $* 
  *                                                                         * 
  *-------------------------------------------------------------------------* 
  * Functions:                                                              * 
@@ -79,7 +80,7 @@ class PredictiveLODOptimizerClass {
 
 		static LODHeapNode *VisibleObjArray1;
 		static LODHeapNode *VisibleObjArray2;
-		static int NumVisibleObjects;
+		static int VisibleObjArraySize;
 
 };
 

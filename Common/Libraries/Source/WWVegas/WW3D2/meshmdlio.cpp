@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -22,13 +23,13 @@
  *                                                                                             *
  *                 Project Name : WW3D                                                         *
  *                                                                                             *
- *                     $Archive:: /VSS_Sync/ww3d2/meshmdlio.cpp                               $*
+ *                     $Archive:: /Commando/Code/ww3d2/meshmdlio.cpp                          $*
  *                                                                                             *
  *                       Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                     $Modtime:: 8/29/01 7:29p                                               $*
+ *                     $Modtime:: 1/18/02 3:09p                                               $*
  *                                                                                             *
- *                    $Revision:: 22                                                          $*
+ *                    $Revision:: 27                                                          $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -98,7 +99,6 @@
 
 #define MESH_SINGLE_MATERIAL_HACK		0		// (gth) forces all multi-material meshes to use their first material only. (NOT RECOMMENDED, TESTING ONLY!)
 #define MESH_FORCE_STATIC_SORT_HACK	0		// (gth) forces all sorting meshes to use static sort level 1 instead.
-
 /**
 ** MeshLoadContextClass
 ** This class is just used as a temporary scratchpad while a mesh is being
@@ -162,11 +162,11 @@ private:
 
 	struct LegacyMaterialClass
 	{
-		LegacyMaterialClass(void) : Name(NULL),VertexMaterialIdx(0),ShaderIdx(0),TextureIdx(0)	{ }
-		~LegacyMaterialClass(void)	{ if (Name) free(Name); }		
-		void		Set_Name(const char * name) { if (Name) free(Name); Name = NULL; if (name) Name = strdup(name); }
+		LegacyMaterialClass(void) : VertexMaterialIdx(0),ShaderIdx(0),TextureIdx(0)	{ }
+		~LegacyMaterialClass(void)	{ }		
+		void		Set_Name(const char * name) { Name=name; }
 		
-		char *	Name;
+		StringClass Name;
 		int		VertexMaterialIdx;
 		int		ShaderIdx;
 		int		TextureIdx;
@@ -672,15 +672,6 @@ WW3DErrorType MeshModelClass::read_v3_materials(ChunkLoadClass & cload,MeshLoadC
 			vmat->Set_Name(name);
 			shader.Init_From_Material3(mat);
 
-#if 0 // TODO... ummmm...
-			if (MeshClass::Legacy_Meshes_Fogged) {
-				shader.Set_Fog_Func( ShaderClass::FOG_ENABLE );
-			} else {
-				shader.Set_Fog_Func( ShaderClass::FOG_DISABLE );
-			}
-#endif
-
-
 			/*
 			** If this shader does alpha blending, the mesh must be sorted.
 			*/
@@ -826,7 +817,7 @@ WW3DErrorType MeshModelClass::read_per_tri_materials(ChunkLoadClass & cload,Mesh
 {
 	if (context->Header.NumMaterials == 1) return WW3D_ERROR_OK;
 
-	Vector3i * polys = get_polys();
+	TriIndex * polys = get_polys();
 
 	bool multi_mtl = (context->Vertex_Material_Count() > 1);
 	bool multi_tex = (context->Texture_Count() > 1);
@@ -897,7 +888,7 @@ WW3DErrorType MeshModelClass::read_vertex_colors(ChunkLoadClass & cload,MeshLoad
 	**
 	** A side effect is that if two DCG chunks are encountered, only the first is used...
 	*/
-	if (CurMatDesc->Has_Color_Array(0) == false) {
+	if (CurMatDesc->Has_Color_Array(0) == NULL) {
 		W3dRGBStruct color;
 		unsigned * dcg = Get_Color_Array(0,true);
 		assert(dcg != NULL);
@@ -1114,7 +1105,6 @@ WW3DErrorType MeshModelClass::read_vertex_material_ids(ChunkLoadClass & cload,Me
 	** with the length equal to the vertex count.
 	*/
 	uint32 vmat;
-
 #if (!MESH_SINGLE_MATERIAL_HACK)
 	if (cload.Cur_Chunk_Length() == 1*sizeof(uint32)) {
 		
@@ -1128,13 +1118,10 @@ WW3DErrorType MeshModelClass::read_vertex_material_ids(ChunkLoadClass & cload,Me
 			matdesc->Set_Material(i,context->Peek_Vertex_Material(vmat),context->CurPass);
 		}
 	}
-
 #else
-
 #pragma message ("(gth) Hacking to make Generals behave as if all meshes have 1 material")
 		cload.Read(&vmat,sizeof(uint32));
 		matdesc->Set_Single_Material(context->Peek_Vertex_Material(vmat),context->CurPass);
-
 #endif //0
 
 	return WW3D_ERROR_OK;
@@ -1168,7 +1155,6 @@ WW3DErrorType MeshModelClass::read_shader_ids(ChunkLoadClass & cload,MeshLoadCon
 	** Read in the shader id's and plug in the appropriate shader
 	*/
 	uint32 shaderid;
-
 #if (!MESH_SINGLE_MATERIAL_HACK)
 	if (cload.Cur_Chunk_Length() == 1*sizeof(uint32)) {
 		
@@ -1231,7 +1217,6 @@ WW3DErrorType MeshModelClass::read_shader_ids(ChunkLoadClass & cload,MeshLoadCon
 		}
 
 #endif //0
-
 	return WW3D_ERROR_OK;
 }
 
@@ -1667,6 +1652,13 @@ void MeshModelClass::post_process()
 	}
 #endif
 
+	// skinned meshes should not have cull trees
+	if (Get_Flag(MeshGeometryClass::SKIN)) {
+		if (CullTree) {
+			REF_PTR_RELEASE(CullTree);
+		}
+	}
+
 	// turn off backface culling if the mesh is supposed to be two-sided
 	if (Get_Flag(MeshGeometryClass::TWO_SIDED)) {
 
@@ -1686,6 +1678,12 @@ void MeshModelClass::post_process()
 	// if default isn't set
 	if (Get_Flag(SORT) && SortLevel==SORT_LEVEL_NONE && WW3D::Is_Munge_Sort_On_Load_Enabled()) {
 		compute_static_sort_levels();
+	}
+
+	// If we need to, modify the mesh model to support overbrightening (change all
+	// GRADIENT_MODULATE to GRADIENT_MODULATE2X)
+	if (WW3D::Is_Overbright_Modify_On_Load_Enabled()) {
+		modify_for_overbright();
 	}
 }
 
@@ -1790,7 +1788,7 @@ unsigned int MeshModelClass::get_sort_flags(int pass) const
 		scat = Get_Single_Shader(pass).Get_SS_Category();
 		flags |= (1 << scat);
 	}
-	return false;
+	return flags;
 }
 
 unsigned int MeshModelClass::get_sort_flags(void) const
@@ -1809,6 +1807,7 @@ void MeshModelClass::compute_static_sort_levels(void)
 		SSCAT_OPAQUE_BF		= (1 << ShaderClass::SSCAT_OPAQUE),
 		SSCAT_ALPHA_TEST_BF	= (1 << ShaderClass::SSCAT_ALPHA_TEST),
 		SSCAT_ADDITIVE_BF		= (1 << ShaderClass::SSCAT_ADDITIVE),
+		SSCAT_SCREEN_BF		= (1 << ShaderClass::SSCAT_SCREEN),
 		SSCAT_OTHER_BF			= (1 << ShaderClass::SSCAT_OTHER)
 	};
 
@@ -1827,7 +1826,7 @@ void MeshModelClass::compute_static_sort_levels(void)
 		SortLevel = SORT_LEVEL_BIN3;
 		break;
 
-	case (SSCAT_ADDITIVE_BF | SSCAT_ALPHA_TEST_BF):
+	case SSCAT_SCREEN_BF:
 		SortLevel = SORT_LEVEL_BIN2;
 		break;
 		
@@ -1837,6 +1836,33 @@ void MeshModelClass::compute_static_sort_levels(void)
 	};
 }
 
+void MeshModelClass::modify_for_overbright(void)
+{
+	// Iterate over all passes
+	int pass_cnt = Get_Pass_Count();
+	for (int pass_idx = 0; pass_idx < pass_cnt; pass_idx++) {
+
+		// First do single shader
+		ShaderClass shader = Get_Single_Shader(pass_idx);
+		if (shader.Get_Primary_Gradient() == ShaderClass::GRADIENT_MODULATE) {
+			shader.Set_Primary_Gradient(ShaderClass::GRADIENT_MODULATE2X);
+			Set_Single_Shader(shader, pass_idx);
+		}
+
+		// Now do all other shaders
+		if (Has_Shader_Array(pass_idx)) {
+			int p_cnt = Get_Polygon_Count();
+			for (int p_idx = 0; p_idx < p_cnt; p_idx++) {
+				shader = Get_Shader(p_idx, pass_idx);
+				if (shader.Get_Primary_Gradient() == ShaderClass::GRADIENT_MODULATE) {
+					shader.Set_Primary_Gradient(ShaderClass::GRADIENT_MODULATE2X);
+					Set_Shader(p_idx, shader, pass_idx);
+				}
+			}
+		}
+	}
+
+}
 
 void MeshModelClass::install_materials(MeshLoadContextClass * context)
 {
@@ -1850,9 +1876,14 @@ void MeshModelClass::install_materials(MeshLoadContextClass * context)
 	/*
 	** Finish configuring the vertex materials and color arrays.
 	*/
-	DefMatDesc->Post_Load_Process (true);
+	bool lighting_enabled=true;
+	// vertex-lit models need the lighting turned off!
+	if (Get_Flag(MeshGeometryClass::PRELIT_VERTEX)) {
+		lighting_enabled=false;
+	}
+	DefMatDesc->Post_Load_Process (lighting_enabled,this);
 	if (AlternateMatDesc != NULL) {
-		AlternateMatDesc->Post_Load_Process (true);
+		AlternateMatDesc->Post_Load_Process (lighting_enabled,this);
 	}
 
 	/*
@@ -2074,7 +2105,7 @@ void MeshLoadContextClass::Add_Legacy_Material(ShaderClass shader,VertexMaterial
 	if (vmat == NULL) {
 		mat->VertexMaterialIdx = -1;
 	} else {
-		unsigned long crc = vmat->Get_CRC();	
+		unsigned long crc = vmat->Get_CRC();
 		int vi;
 		for (vi=0; vi<VertexMaterialCrcs.Count(); vi++) {
 			if (VertexMaterialCrcs[vi] == crc) break;
@@ -2353,7 +2384,7 @@ WW3DErrorType MeshModelClass::write_triangles(ChunkSaveClass & csave,MeshSaveCon
 		return WW3D_ERROR_LOAD_FAILED;
 	}
 
-	Vector3i	* poly_verts = Poly->Get_Array();
+	TriIndex	* poly_verts = Poly->Get_Array();
 	Vector4 * poly_eq = (PlaneEq ? PlaneEq->Get_Array() : NULL);
 
 	for (int i=0; i<Get_Polygon_Count(); i++) {

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,11 +27,11 @@
  *                                                                                             *
  *              Original Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                      $Author:: Jani_p                                                      $*
+ *                      $Author:: Greg_h                                                      $*
  *                                                                                             *
- *                     $Modtime:: 7/13/01 1:38p                                               $*
+ *                     $Modtime:: 1/18/02 8:03p                                               $*
  *                                                                                             *
- *                    $Revision:: 20                                                          $*
+ *                    $Revision:: 28                                                          $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -42,6 +43,7 @@
 #include "realcrc.h"
 #include	"dx8wrapper.h"
 #include "dx8caps.h"
+#include "meshmdl.h"
 
 
 /**************************************************************************************************
@@ -62,29 +64,29 @@ MatBufferClass::MatBufferClass(const MatBufferClass & that) :
 	}
 }
 
-MatBufferClass::~MatBufferClass(void)							
-{ 
-	for (int i=0; i<Count; i++) { 
-		REF_PTR_RELEASE(Array[i]); 
-	} 
+MatBufferClass::~MatBufferClass(void)
+{
+	for (int i=0; i<Count; i++) {
+		REF_PTR_RELEASE(Array[i]);
+	}
 }
 
-void MatBufferClass::Set_Element(int index,VertexMaterialClass * mat)	
-{ 
-	REF_PTR_SET(Array[index],mat); 
+void MatBufferClass::Set_Element(int index,VertexMaterialClass * mat)
+{
+	REF_PTR_SET(Array[index],mat);
 }
 
 VertexMaterialClass * MatBufferClass::Get_Element(int index)
-{ 
-	if (Array[index]) { 
-		Array[index]->Add_Ref(); 
-	} 
-	return Array[index]; 
+{
+	if (Array[index]) {
+		Array[index]->Add_Ref();
+	}
+	return Array[index];
 }
 
 VertexMaterialClass * MatBufferClass::Peek_Element(int index)
-{ 
-	return Array[index]; 
+{
+	return Array[index];
 }
 
 
@@ -95,7 +97,7 @@ VertexMaterialClass * MatBufferClass::Peek_Element(int index)
 **
 **
 **************************************************************************************************/
-TexBufferClass::TexBufferClass(const TexBufferClass & that) : 
+TexBufferClass::TexBufferClass(const TexBufferClass & that) :
 	ShareBufferClass<TextureClass *>(that)
 {
 	// add a reference for each pointer that was copied...
@@ -107,28 +109,28 @@ TexBufferClass::TexBufferClass(const TexBufferClass & that) :
 }
 
 TexBufferClass::~TexBufferClass(void)
-{ 
-	for (int i=0;i<Count;i++) { 
-		REF_PTR_RELEASE(Array[i]); 
-	} 
+{
+	for (int i=0;i<Count;i++) {
+		REF_PTR_RELEASE(Array[i]);
+	}
 }
 
 void TexBufferClass::Set_Element(int index,TextureClass * tex)
-{ 
-	REF_PTR_SET(Array[index],tex); 
+{
+	REF_PTR_SET(Array[index],tex);
 }
 
 TextureClass * TexBufferClass::Get_Element(int index)
-{ 
-	if (Array[index]) { 
-		Array[index]->Add_Ref(); 
-	} 
-	return Array[index]; 
+{
+	if (Array[index]) {
+		Array[index]->Add_Ref();
+	}
+	return Array[index];
 }
 
 TextureClass * TexBufferClass::Peek_Element(int index)
-{ 
-	return Array[index]; 
+{
+	return Array[index];
 }
 
 
@@ -193,7 +195,6 @@ MeshMatDescClass::MeshMatDescClass(void) :
 			Texture[pass][stage] = NULL;
 			TextureArray[pass][stage] = NULL;
 		}
-//		UVIndex[pass] = NULL;
 		DCGSource[pass] = VertexMaterialClass::MATERIAL;
 		DIGSource[pass] = VertexMaterialClass::MATERIAL;
 
@@ -204,7 +205,7 @@ MeshMatDescClass::MeshMatDescClass(void) :
 	}
 }
 
-MeshMatDescClass::MeshMatDescClass(const MeshMatDescClass & that) : 
+MeshMatDescClass::MeshMatDescClass(const MeshMatDescClass & that) :
 	PassCount(1),
 	VertexCount(0),
 	PolyCount(0)
@@ -227,7 +228,6 @@ MeshMatDescClass::MeshMatDescClass(const MeshMatDescClass & that) :
 			Texture[pass][stage] = NULL;
 			TextureArray[pass][stage] = NULL;
 		}
-//		UVIndex[pass] = NULL;
 		DCGSource[pass] = VertexMaterialClass::MATERIAL;
 		DIGSource[pass] = VertexMaterialClass::MATERIAL;
 
@@ -244,7 +244,7 @@ MeshMatDescClass &
 MeshMatDescClass::operator = (const MeshMatDescClass & that)
 {
 	if (this != &that) {
-		
+
 		PassCount = that.PassCount;
 		VertexCount = that.VertexCount;
 		PolyCount = that.PolyCount;
@@ -261,7 +261,7 @@ MeshMatDescClass::operator = (const MeshMatDescClass & that)
 			for (int stage=0; stage < MAX_TEX_STAGES; stage++) {
 				UVSource[pass][stage] = that.UVSource[pass][stage];
 				REF_PTR_SET(Texture[pass][stage],that.Texture[pass][stage]);
-			
+
 				// make our own array of texture pointers.
 				REF_PTR_RELEASE(TextureArray[pass][stage]);
 				if (that.TextureArray[pass][stage]) {
@@ -269,7 +269,6 @@ MeshMatDescClass::operator = (const MeshMatDescClass & that)
 				}
 			}
 
-//			REF_PTR_SET(UVIndex [pass], that.UVIndex [pass]);
 			DCGSource[pass] = that.DCGSource[pass];
 			DIGSource[pass] = that.DIGSource[pass];
 
@@ -289,7 +288,7 @@ MeshMatDescClass::operator = (const MeshMatDescClass & that)
 			if (that.ShaderArray[pass]) {
 				ShaderArray[pass] = NEW_REF(ShareBufferClass<ShaderClass>,(*that.ShaderArray[pass]));
 			}
-		}	
+		}
 	}
 	return *this;
 }
@@ -327,16 +326,15 @@ void MeshMatDescClass::Reset(int polycount,int vertcount,int passcount)
 			REF_PTR_RELEASE(Texture[pass][stage]);
 			REF_PTR_RELEASE(TextureArray[pass][stage]);
 		}
-		
-//		REF_PTR_RELEASE(UVIndex[pass]);
+
 		DCGSource[pass] = VertexMaterialClass::MATERIAL;
 		DIGSource[pass] = VertexMaterialClass::MATERIAL;
 		Shader[pass] = 0;
 		REF_PTR_RELEASE(ShaderArray[pass]);
-		
+
 		REF_PTR_RELEASE(Material[pass]);
 		REF_PTR_RELEASE(MaterialArray[pass]);
-		
+
 	}
 }
 
@@ -371,7 +369,7 @@ void MeshMatDescClass::Init_Alternate(MeshMatDescClass & default_materials,MeshM
 			// and set its index into our UVSource array.
 			if (alternate_materials.UVSource[pass][stage] == -1) {
 				if (default_materials.UVSource[pass][stage] != -1) {
-					
+
 					// Look up the uv array in default_materials that we need to bring over.
 					int default_uv_source = default_materials.UVSource[pass][stage];
 					UVBufferClass * uvarray = default_materials.UV[default_uv_source];
@@ -391,10 +389,10 @@ void MeshMatDescClass::Init_Alternate(MeshMatDescClass & default_materials,MeshM
 						UVSource[pass][stage] = found_index;
 					} else {
 						int new_index = Get_UV_Array_Count();
-						REF_PTR_SET(UV[new_index],default_materials.UV[default_uv_source]); 
+						REF_PTR_SET(UV[new_index],default_materials.UV[default_uv_source]);
 						UVSource[pass][stage] = new_index;
 					}
-				} 
+				}
 			} else {
 				UVSource[pass][stage] = alternate_materials.UVSource[pass][stage];
 			}
@@ -409,13 +407,6 @@ void MeshMatDescClass::Init_Alternate(MeshMatDescClass & default_materials,MeshM
 				REF_PTR_SET(TextureArray[pass][stage] , default_materials.TextureArray[pass][stage]);
 			}
 		}
-		
-		// UV Index array
-//		if (alternate_materials.UVIndex[pass] != NULL) {
-//			REF_PTR_SET(UVIndex[pass],alternate_materials.UVIndex[pass]);
-//		} else {
-//			REF_PTR_SET(UVIndex[pass],default_materials.UVIndex[pass]);
-//		}
 
 		// Vertex color configuration
 		if (alternate_materials.DCGSource[pass] == VertexMaterialClass::MATERIAL) {
@@ -423,7 +414,7 @@ void MeshMatDescClass::Init_Alternate(MeshMatDescClass & default_materials,MeshM
 		} else {
 			DCGSource[pass] = alternate_materials.DCGSource[pass];
 		}
-		
+
 		// Shaders, currently I can't tell if the alternate data has a shader...  Can't override the shader for now.
 		Shader[pass] = default_materials.Shader[pass];
 		REF_PTR_SET(ShaderArray[pass],default_materials.ShaderArray[pass]);
@@ -438,7 +429,7 @@ void MeshMatDescClass::Init_Alternate(MeshMatDescClass & default_materials,MeshM
 				Material[pass] = NEW_REF(VertexMaterialClass,(*(default_materials.Material[pass])));
 			} else {
 				if (default_materials.MaterialArray[pass]) {
-					WWDEBUG_SAY(("Unimplemented case: mesh has more than one default vertex material but no alternate vertex materials have been defined.\r\n")); 
+					WWDEBUG_SAY(("Unimplemented case: mesh has more than one default vertex material but no alternate vertex materials have been defined.\r\n"));
 				}
 				Material[pass] = NULL;
 			}
@@ -467,7 +458,7 @@ bool MeshMatDescClass::Is_Empty(void)
 		if (MaterialArray[pass] != NULL) return false;
 
 	}
-	
+
 	return true;
 }
 
@@ -514,7 +505,7 @@ VertexMaterialClass * MeshMatDescClass::Get_Material(int vidx,int pass) const
 
 		Material[pass]->Add_Ref();
 		return Material[pass];
-	
+
 	}
 	return NULL;
 }
@@ -523,7 +514,7 @@ ShaderClass	MeshMatDescClass::Get_Shader(int pidx,int pass) const
 {
 	if (ShaderArray[pass]) {
 		return ShaderArray[pass]->Get_Element(pidx);
-	} 
+	}
 	return Shader[pass];
 }
 
@@ -532,13 +523,13 @@ TextureClass * MeshMatDescClass::Get_Texture(int pidx,int pass,int stage) const
 	if (TextureArray[pass][stage]) {
 
 		return TextureArray[pass][stage]->Get_Element(pidx);
-	
+
 	} else if (Texture[pass][stage] != NULL) {
 
 		Texture[pass][stage]->Add_Ref();
 		return Texture[pass][stage];
-		
-	}	
+
+	}
 	return NULL;
 }
 
@@ -546,7 +537,7 @@ VertexMaterialClass * MeshMatDescClass::Peek_Material(int vidx,int pass) const
 {
 	if (MaterialArray[pass]) {
 		return MaterialArray[pass]->Peek_Element(vidx);
-	} 
+	}
 	return Material[pass];
 }
 
@@ -645,21 +636,22 @@ void MeshMatDescClass::Install_UV_Array(int pass,int stage,Vector2 * uvs,int cou
 			memcpy(UV[new_index]->Get_Array(),uvs,count * sizeof(Vector2));
 			UV[new_index]->Update_CRC();  // update the crc for future comparision
 			Set_UV_Source(pass,stage,new_index);
-		} 
+		}
 	}
 }
 
 
-void MeshMatDescClass::Post_Load_Process(bool lighting_enabled)
+void MeshMatDescClass::Post_Load_Process(bool lighting_enabled,MeshModelClass * parent)
 {
 	/*
 	** Configure all vertex materials to source the uv coordinates and colors from the correct arrays
 	** Pre-multiply the vertex color arrays.
 	*/
+	bool set_lighting_to_false=true;
 	for (int pass=0; pass<PassCount; pass++) {
 
 		/*
-		** If this pass doesn't have a vertex material, create one 
+		** If this pass doesn't have a vertex material, create one
 		*/
 		if ((Material[pass] == NULL) && (MaterialArray[pass] == NULL)) {
 			Material[pass] = NEW_REF(VertexMaterialClass,());
@@ -675,9 +667,9 @@ void MeshMatDescClass::Post_Load_Process(bool lighting_enabled)
 		} else {
 			VertexMaterialClass * prev_mtl = NULL;
 			VertexMaterialClass * mtl = Peek_Material(pass,0);
-			
+
 			for (int vidx=0; vidx<VertexCount; vidx++) {
-				
+
 				mtl = Peek_Material(vidx,pass);
 				if ((mtl != prev_mtl) && (mtl != NULL)) {
 					Configure_Material(mtl,pass,lighting_enabled);
@@ -778,7 +770,7 @@ void MeshMatDescClass::Post_Load_Process(bool lighting_enabled)
 			VertexMaterialClass * mtl = Peek_Material(0,pass);
 
 			for (int vidx=0; vidx<VertexCount; vidx++) {
-				
+
 				mtl = Peek_Material(vidx,pass);
 				if (mtl != prev_mtl) {
 					prev_mtl = mtl;
@@ -843,79 +835,108 @@ void MeshMatDescClass::Post_Load_Process(bool lighting_enabled)
 					mtl->Set_Ambient_Color_Source(VertexMaterialClass::MATERIAL);
 					mtl->Set_Diffuse_Color_Source(VertexMaterialClass::COLOR1);
 					mtl->Set_Emissive_Color_Source(VertexMaterialClass::MATERIAL);
-//MW:  Vegas guys asked me to disable this because it can cause z-fighting if lighting is disabled in multi-pass
 //					mtl->Set_Lighting(false);
 				}
-
+				else {
+					if (PassCount!=1) {
+						set_lighting_to_false=false;		// Lighting can only be set to false if ALL passes and ALL materials are requesting it
+					}
+				}
 			}
 		}
+	}
 
 
+	/*
+	** HACK: Kill BUMPENV passes on hardware that doesn't support BUMPENV
+	** HACK: Set lighting to false on all passes if all passes are of type NO DIFFUSE, NO AMBIENT, YES EMISSIVE
+	*/
+	for (int pass=0; pass<PassCount; pass++) {
+		bool kill_pass = false;
 
 		/*
-		** If a DCG array is present, pre multiply the alpha value from the material into
-		** the vertex color array.  Experimentation on GeForce hardware showed that we
-		** don't need to pre-multiply the color values; hopefully this is the behavior on
-		** other hardware as well!
+		// HY: Earth and beyond uses a different fallback from Renegade with regards to bump environment maps
+		// we keep the pass but change it to an unbumped environment
+		if ( (Shader[pass].Get_Primary_Gradient() == ShaderClass::GRADIENT_BUMPENVMAP) &&
+			  (!DX8Wrapper::Is_Initted() || DX8Wrapper::Get_Current_Caps()->Support_Bump_Envmap() == false) )
+		{
+			kill_pass = true;
+		}
+
+		if ( (Shader[pass].Get_Primary_Gradient() == ShaderClass::GRADIENT_BUMPENVMAPLUMINANCE) &&
+			  (!DX8Wrapper::Is_Initted() || DX8Wrapper::Get_Current_Caps()->Support_Bump_Envmap_Luminance() == false) )
+		{
+			kill_pass = true;
+		}
 		*/
-/*		if ((DCGSource[pass] != VertexMaterialClass::MATERIAL) && (ColorArray[0] != NULL)) {
-			unsigned * diffuse_array = ColorArray[0]->Get_Array();
+
+		if (kill_pass) {
+			if (Material[pass] != NULL) {
+				Material[pass]->Set_Ambient(0,0,0);
+				Material[pass]->Set_Diffuse(0,0,0);
+				Material[pass]->Set_Emissive(0,0,0);
+				Material[pass]->Set_Specular(0,0,0);
+			}
+
+			Shader[pass].Set_Texturing(ShaderClass::TEXTURING_DISABLE);
+			Shader[pass].Set_Post_Detail_Color_Func(ShaderClass::DETAILCOLOR_DISABLE);
+			Shader[pass].Set_Post_Detail_Alpha_Func(ShaderClass::DETAILALPHA_DISABLE);
+		}
+		// Set lighting to false if requested in all passes...
+		else if (set_lighting_to_false) {
+			Vector3 single_diffuse(0.0f,0.0f,0.0f);
+			Vector3 single_ambient(0.0f,0.0f,0.0f);
+			Vector3 single_emissive(0.0f,0.0f,0.0f);
+			bool diffuse_used=false;
+			bool ambient_used=false;
+			bool emissive_used=false;
+
 			Vector3 mtl_diffuse;
-			float mtl_opacity = 1.0f;
+			Vector3 mtl_ambient;
+			Vector3 mtl_emissive;
 
 			VertexMaterialClass * prev_mtl = NULL;
-			VertexMaterialClass * mtl = Peek_Material(0,pass);
+			VertexMaterialClass * mtl = Peek_Material(0, pass);
+			if (mtl) {
+				mtl->Get_Diffuse(&single_diffuse);
+				mtl->Get_Ambient(&single_ambient);
+				mtl->Get_Emissive(&single_emissive);
+
+				if (single_diffuse.X || single_diffuse.Y || single_diffuse.Z) diffuse_used=true;
+				if (single_ambient.X || single_ambient.Y || single_ambient.Z) ambient_used=true;
+				if (single_emissive.X || single_emissive.Y || single_emissive.Z) emissive_used=true;
+			}
 
 			for (int vidx=0; vidx<VertexCount; vidx++) {
-				
 				mtl = Peek_Material(vidx,pass);
 				if (mtl != prev_mtl) {
 					prev_mtl = mtl;
 					mtl->Get_Diffuse(&mtl_diffuse);
-					mtl_opacity = mtl->Get_Opacity();
-				}
-
-				Vector4 diffuse=DX8Wrapper::Convert_Color(diffuse_array[vidx]);
-				diffuse.X *= mtl_diffuse.X;
-				diffuse.Y *= mtl_diffuse.Y;
-				diffuse.Z *= mtl_diffuse.Z;
-				diffuse.W *= mtl_opacity;
-				diffuse_array[vidx]=DX8Wrapper::Convert_Color(diffuse);
-			
-			}
-		}
-*/		/*
-		** If needed, pre-multiply the emissive color array with the material color
-		*/
-/*		if ((DIGSource[pass] != VertexMaterialClass::MATERIAL) && (ColorArray[1] != NULL)) {
-
-			unsigned * emissive_array = ColorArray[1]->Get_Array();
-			Vector3 mtl_emissive;
-
-			VertexMaterialClass * prev_mtl = NULL;
-			VertexMaterialClass * mtl = Peek_Material(0,pass);
-
-			for (int vidx=0; vidx<VertexCount; vidx++) {
-				
-				mtl = Peek_Material(vidx,pass);
-				if (mtl != prev_mtl) {
-					prev_mtl = mtl;
+					mtl->Get_Ambient(&mtl_ambient);
 					mtl->Get_Emissive(&mtl_emissive);
 				}
 
-				Vector4 emissive=DX8Wrapper::Convert_Color(emissive_array[vidx]);
-				emissive.X *= mtl_emissive.X;
-				emissive.Y *= mtl_emissive.Y;
-				emissive.Z *= mtl_emissive.Z;
-				emissive_array[vidx]=DX8Wrapper::Convert_Color(emissive);
-			
+				if (mtl_diffuse.X || mtl_diffuse.Y || mtl_diffuse.Z) diffuse_used=true;
+				if (mtl_ambient.X || mtl_ambient.Y || mtl_ambient.Z) ambient_used=true;
+				if (mtl_emissive.X || mtl_emissive.Y || mtl_emissive.Z) emissive_used=true;
+			}
+
+			if ((DCGSource[pass] != VertexMaterialClass::MATERIAL) && (ColorArray[0] != NULL)) {
+				VertexMaterialClass * prev_mtl = NULL;
+				VertexMaterialClass * mtl = Peek_Material(0,pass);
+				for (int vidx=0; vidx<VertexCount; vidx++) {
+					mtl = Peek_Material(vidx,pass);
+					if (mtl != prev_mtl) {
+						prev_mtl = mtl;
+						// If only emissive is used apply emissive to color channel, set diffuse source to color 1, and turn off lighting
+						if (!diffuse_used && !ambient_used && emissive_used) {
+							mtl->Set_Lighting(false);
+						}
+					}
+				}
 			}
 		}
-
-
-*/
-
-	}
+	}	
 }
 
 void MeshMatDescClass::Configure_Material(VertexMaterialClass * mtl,int pass,bool lighting_enabled)
@@ -925,7 +946,7 @@ void MeshMatDescClass::Configure_Material(VertexMaterialClass * mtl,int pass,boo
 
 	mtl->Set_Lighting(lighting_enabled);
 
-	for (int stage=0; stage<MAX_TEX_STAGES; stage++) {			
+	for (int stage=0; stage<MAX_TEX_STAGES; stage++) {
 		int src = UVSource[pass][stage];
 		if (src == -1) {
 			src = 0;
@@ -936,7 +957,7 @@ void MeshMatDescClass::Configure_Material(VertexMaterialClass * mtl,int pass,boo
 
 bool MeshMatDescClass::Do_Mappers_Need_Normals(void)
 {
-	if (DX8Caps::Support_NPatches() && WW3D::Get_NPatches_Level()>1) return true;
+	if (DX8Wrapper::Is_Initted() && DX8Wrapper::Get_Current_Caps()->Support_NPatches() && WW3D::Get_NPatches_Level()>1) return true;
 
 	for (int pass=0; pass<PassCount; pass++) {
 		/*
@@ -949,9 +970,9 @@ bool MeshMatDescClass::Do_Mappers_Need_Normals(void)
 		} else {
 			VertexMaterialClass * prev_mtl = NULL;
 			VertexMaterialClass * mtl = Peek_Material(pass,0);
-			
+
 			for (int vidx=0; vidx<VertexCount; vidx++) {
-				
+
 				mtl = Peek_Material(vidx,pass);
 				if ((mtl != prev_mtl) && (mtl != NULL)) {
 
@@ -961,7 +982,6 @@ bool MeshMatDescClass::Do_Mappers_Need_Normals(void)
 			}
 		}
 	}
-	
+
 	return false;
 }
-

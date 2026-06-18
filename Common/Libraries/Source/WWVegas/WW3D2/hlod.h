@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -117,6 +118,7 @@ public:
 	virtual RenderObjClass *	Peek_Additional_Model (int model_index) const;
 	virtual RenderObjClass *	Get_Additional_Model (int model_index) const;
 	virtual int						Get_Additional_Model_Bone (int model_index) const;
+	virtual void					Add_Lod_Model(int lod, RenderObjClass * robj, int boneindex);
 
 	virtual bool					Is_NULL_Lod_Included (void) const;
 	virtual void					Include_NULL_Lod (bool include = true);
@@ -226,7 +228,6 @@ protected:
 	void								Free(void);
 	virtual void					Update_Sub_Object_Transforms(void);
 	virtual void					Update_Obj_Space_Bounding_Volumes(void);
-	void								add_lod_model(int lod,RenderObjClass * robj,int boneindex);
 
 protected:
 	

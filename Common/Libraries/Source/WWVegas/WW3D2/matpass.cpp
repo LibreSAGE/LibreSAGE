@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,12 +27,13 @@
  *                                                                                             *
  *              Original Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                      $Author:: Greg_h                                                      $*
+ *                       Author : Kenny Mitchell                                               * 
+ *                                                                                             * 
+ *                     $Modtime:: 06/27/02 1:27p                                              $*
  *                                                                                             *
- *                     $Modtime:: 5/13/01 11:19a                                              $*
+ *                    $Revision:: 8                                                           $*
  *                                                                                             *
- *                    $Revision:: 7                                                           $*
- *                                                                                             *
+ * 06/27/02 KM Changes to max texture stage caps															*
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  *   MaterialPassClass::MaterialPassClass -- Constructor                                       *
@@ -90,6 +92,7 @@ MaterialPassClass::MaterialPassClass(void) :
  *                                                                                             *
  * HISTORY:                                                                                    *
  *   12/9/99    gth : Created.                                                                 *
+ *	  06/27/02   kjm : Changes to max texture stage caps															*
  *=============================================================================================*/
 MaterialPassClass::~MaterialPassClass(void)
 {
@@ -117,7 +120,8 @@ void MaterialPassClass::Install_Materials(void) const
 {
 	DX8Wrapper::Set_Material(Peek_Material());
 	DX8Wrapper::Set_Shader(Peek_Shader());
-	for (unsigned i=0;i<MAX_TEXTURE_STAGES;++i) {
+	for (int i=0;i<DX8Wrapper::Get_Current_Caps()->Get_Max_Textures_Per_Pass();++i) 
+	{
 		DX8Wrapper::Set_Texture(i,Peek_Texture(i));
 	}
 }

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,9 +27,9 @@
  *                                                                                             *
  *                       Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                     $Modtime:: 8/28/01 5:00p                                               $*
+ *                     $Modtime:: 12/17/01 11:47a                                             $*
  *                                                                                             *
- *                    $Revision:: 21                                                          $*
+ *                    $Revision:: 26                                                          $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -43,7 +44,8 @@
 #define RENDER2D_H
 
 #include "always.h"
-#include "simplevec.h"
+//#include "simplevec.h"
+#include "vector.h"
 #include "vector2.h"
 
 #include "shader.h"
@@ -71,6 +73,12 @@ class	Vector4;
 //
 #define RGB_TO_INT32(r,g,b)		(unsigned(r)<<16)|(unsigned(g)<<8)|(unsigned(b))|0xFF000000
 #define RGBA_TO_INT32(r,g,b,a)	(unsigned(a)<<24)|(unsigned(r)<<16)|(unsigned(g)<<8)|(unsigned(b))
+
+//
+// Float RGB to INT32 methods (each component is a float between 0.0 and 1.0)
+//
+#define FRGB_TO_INT32(r,g,b)		(unsigned(r*255.0f)<<16)|(unsigned(g*255.0f)<<8)|(unsigned(b*255.0f))|0xFF000000
+#define FRGBA_TO_INT32(r,g,b,a)	(unsigned(a*255.0f)<<24)|(unsigned(r*255.0f)<<16)|(unsigned(g*255.0f)<<8)|(unsigned(b*255.0f))
 
 //
 //	INT32 to Vector RGB methods
@@ -145,23 +153,31 @@ public:
 	// Move all verts 
 	void	Move( const Vector2 & a );
 
+	// Force all alphas 
+	void	Force_Alpha( float alpha );
+	void	Force_Color( int color );
+
 	// Color access
-	SimpleDynVecClass<unsigned long> &	Get_Color_Array (void)	{ return Colors; }
+	DynamicVectorClass<unsigned long> &	Get_Color_Array (void)	{ return Colors; }
 
 	// statics to access the Screen Resolution in Pixels
-	static void	Set_Screen_Resolution( const RectClass & screen )	{ ScreenResolution = screen; }
+	static void	Set_Screen_Resolution( const RectClass & screen );
 	static const RectClass & Get_Screen_Resolution( void )			{ return ScreenResolution; }
 
 protected:
 	Vector2										CoordinateScale;
 	Vector2										CoordinateOffset;
 	Vector2										BiasedCoordinateOffset;
-	TextureClass *							Texture;
+	TextureClass *								Texture;
 	ShaderClass									Shader;
-	SimpleDynVecClass<unsigned short>	Indices;
-	SimpleDynVecClass<Vector2>				Vertices;
-	SimpleDynVecClass<Vector2>				UVCoordinates;
-	SimpleDynVecClass<unsigned long>		Colors;
+	DynamicVectorClass<unsigned short>	Indices;
+	unsigned short								PreAllocatedIndices[60];
+	DynamicVectorClass<Vector2>				Vertices;
+	Vector2										PreAllocatedVertices[60];
+	DynamicVectorClass<Vector2>				UVCoordinates;
+	Vector2										PreAllocatedUVCoordinates[60];
+	DynamicVectorClass<unsigned long>		Colors;
+	unsigned long								PreAllocatedColors[60];
 	bool											IsHidden;
 	bool											IsGrayScale;
 	float											ZValue;

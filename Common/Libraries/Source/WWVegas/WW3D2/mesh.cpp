@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -16,7 +17,7 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* $Header: /VSS_Sync/ww3d2/mesh.cpp 56    8/29/01 9:50p Vss_sync $ */
+/* $Header: /Commando/Code/ww3d2/mesh.cpp 69    1/19/02 1:01p Greg_h $ */
 /*********************************************************************************************** 
  ***                            Confidential - Westwood Studios                              *** 
  *********************************************************************************************** 
@@ -118,10 +119,14 @@
 #include "dx8renderer.h"
 #include "visrasterizer.h"
 #include "wwmemlog.h"
+#include "dx8rendererdebugger.h"
 #include <stdio.h>
+#include <wwprofile.h>
 
+static unsigned MeshDebugIdCount;
 
 bool MeshClass::Legacy_Meshes_Fogged = true;
+static SimpleDynVecClass<uint32> temp_apt;
 
 /*
 ** This #define causes the collision code to always recompute the triangle normals rather
@@ -160,6 +165,8 @@ MeshClass::MeshClass(void) :
 	LightEnvironment(NULL),
 	BaseVertexOffset(0),
 	NextVisibleSkin(NULL),
+	IsDisabledByDebugger(false),
+	MeshDebugId(MeshDebugIdCount++),
 	m_alphaOverride(1.0f),
 	m_materialPassAlphaOverride(1.0f),
 	m_materialPassEmissiveOverride(1.0f)
@@ -187,6 +194,8 @@ MeshClass::MeshClass(const MeshClass & that) :
 	LightEnvironment(NULL),
 	BaseVertexOffset(that.BaseVertexOffset),
 	NextVisibleSkin(NULL),
+	IsDisabledByDebugger(false),
+	MeshDebugId(MeshDebugIdCount++),
 	m_alphaOverride(1.0f),
 	m_materialPassAlphaOverride(1.0f),
 	m_materialPassEmissiveOverride(1.0f)
@@ -517,16 +526,6 @@ void MeshClass::Get_Deformed_Vertices(Vector3 *dst_vert)
 	Model->get_deformed_vertices(dst_vert,Container->Get_HTree());
 }
 
-void MeshClass::Compose_Deformed_Vertex_Buffer(
-	VertexFormatXYZNDUV2* verts,
-	const Vector2* uv0,
-	const Vector2* uv1,
-	const unsigned* diffuse)
-{
-	WWASSERT(Model->Get_Flag(MeshGeometryClass::SKIN));
-	Model->compose_deformed_vertex_buffer(verts,uv0,uv1,diffuse,Container->Get_HTree());
-}
-
 /***********************************************************************************************
  * MeshClass::Create_Decal -- creates a decal on this mesh                                     *
  *                                                                                             *
@@ -561,14 +560,14 @@ void MeshClass::Create_Decal(DecalGeneratorClass * generator)
 		OBBoxClass::Transform(modeltm_inv, generator->Get_Bounding_Volume(), &localbox);
 
 		// generate apt, if it is not empty, add a decal.
-		SimpleDynVecClass<uint32> apt;
-		Model->Generate_Rigid_APT(localbox, apt);
+		temp_apt.Delete_All(false);	// reset contents
+		Model->Generate_Rigid_APT(localbox, temp_apt);
 		
-		if (apt.Count() > 0) {
+		if (temp_apt.Count() > 0) {
 			if (DecalMesh == NULL) {
 				DecalMesh =		NEW_REF(RigidDecalMeshClass, (this, generator->Peek_Decal_System()));
 			}
-			DecalMesh->Create_Decal(generator, localbox, apt);
+			DecalMesh->Create_Decal(generator, localbox, temp_apt);
 		}
 
 	} else {
@@ -584,19 +583,19 @@ void MeshClass::Create_Decal(DecalGeneratorClass * generator)
 		Get_Deformed_Vertices(dst_vert);
 
 		// generate apt, if it is not empty, add a decal.
-		SimpleDynVecClass<uint32> apt;
+		temp_apt.Delete_All(false);
 
 		OBBoxClass worldbox = generator->Get_Bounding_Volume();
 
 		// We compare the worldspace box vs. the worldspace vertices
-		Model->Generate_Skin_APT(worldbox, apt, dst_vert);
+		Model->Generate_Skin_APT(worldbox, temp_apt, dst_vert);
 		
 		// if it is not empty, add a decal
-		if (apt.Count() > 0) {
+		if (temp_apt.Count() > 0) {
 			if (DecalMesh == NULL) {
 				DecalMesh = NEW_REF(SkinDecalMeshClass, (this, generator->Peek_Decal_System()));
 			}
-			DecalMesh->Create_Decal(generator, worldbox, apt, &_TempVertexBuffer);
+			DecalMesh->Create_Decal(generator, worldbox, temp_apt, &_TempVertexBuffer);
 		}
 	}
 }
@@ -637,11 +636,15 @@ void MeshClass::Delete_Decal(uint32 decal_id)
 int MeshClass::Get_Num_Polys(void) const
 {
 	if (Model) {
-		return Model->Get_Polygon_Count();
+		int num_passes=Model->Get_Pass_Count();
+		WWASSERT(num_passes>0);
+		int poly_count=Model->Get_Polygon_Count();
+		return num_passes*poly_count;
 	} else {
 		return 0;
 	}
 }
+
 
 /***********************************************************************************************
  * MeshClass::Render -- renders this mesh                                                      *
@@ -657,6 +660,7 @@ int MeshClass::Get_Num_Polys(void) const
  *=============================================================================================*/
 void MeshClass::Render(RenderInfoClass & rinfo)
 {
+	WWPROFILE("Mesh::Render");
 	if (Is_Not_Hidden_At_All() == false) {
 		return;
 	}
@@ -674,8 +678,15 @@ void MeshClass::Render(RenderInfoClass & rinfo)
 		m_materialPassEmissiveOverride = rinfo.materialPassEmissiveOverride;
 
 		WW3D::Add_To_Static_Sort_List(this, sort_level);
-
 	} else {
+
+		/* Commented out since we set lighting environment only on visible meshes below. -MW
+		** Plug in the lighting environment unless we arrived here as part of the static
+		** sorting system being flushed
+		*/
+//		if (WW3D::Are_Static_Sort_Lists_Enabled()) {
+//			Set_Lighting_Environment(rinfo.light_environment);
+//		}
 
 		const FrustumClass & frustum=rinfo.Camera.Get_Frustum();
 
@@ -697,6 +708,7 @@ void MeshClass::Render(RenderInfoClass & rinfo)
 			*/
 			if (sort_level == SORT_LEVEL_NONE)	//sorting ones get their environment set above.
 			{	Set_Lighting_Environment(rinfo.light_environment);
+
 				//Add custom alpha
 				m_alphaOverride = rinfo.alphaOverride;
 				m_materialPassAlphaOverride = rinfo.materialPassAlphaOverride;
@@ -710,10 +722,26 @@ void MeshClass::Render(RenderInfoClass & rinfo)
 
 			/*
 			** Look up the FVF container that this mesh is in
-			** TODO: make this a little nicer?
 			*/
 			DX8FVFCategoryContainer * fvf_container = Model->PolygonRendererList.Peek_Head()->Get_Texture_Category()->Get_Container();
-			if ((rinfo.Current_Override_Flags() & RenderInfoClass::RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY) == 0) {
+			
+			/*
+			** Check if we should render the base passes.  One special case here: if
+			** the mesh is translucent (alpha) and the base passes are disabled but we
+			** are rendering a shadow, we go ahead and render the base pass.  This is an ugly way
+			** to get our tree shadows and other alpha textured shadows to work.
+			*/
+			bool render_base_passes = ((rinfo.Current_Override_Flags() & RenderInfoClass::RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY) == 0);
+			bool is_alpha =	(Model->Get_Single_Shader().Get_Alpha_Test() == ShaderClass::ALPHATEST_ENABLE) || 
+									(Model->Get_Single_Shader().Get_Src_Blend_Func() == ShaderClass::SRCBLEND_SRC_ALPHA);
+			
+			if (	(rinfo.Current_Override_Flags() & RenderInfoClass::RINFO_OVERRIDE_SHADOW_RENDERING) && 
+					(is_alpha == true))
+			{
+				render_base_passes = true;
+			}
+			
+			if (render_base_passes) {
 
 				/*
 				** Link each polygon renderer for this mesh into the visible list
@@ -738,7 +766,16 @@ void MeshClass::Render(RenderInfoClass & rinfo)
 				MaterialPassClass * matpass = rinfo.Peek_Additional_Pass(i);
 
 				if ((!Is_Translucent()) || (matpass->Is_Enabled_On_Translucent_Meshes())) {
-					fvf_container->Add_Visible_Material_Pass(matpass,this);
+					
+					/*
+					** If the base pass for this mesh has been disabled, we have to make sure
+					** the procedural material pass is rendered after everything else has rendered
+					*/
+					if (rinfo.Current_Override_Flags() & RenderInfoClass::RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY) {
+						fvf_container->Add_Delayed_Visible_Material_Pass(matpass, this);
+					} else {
+						fvf_container->Add_Visible_Material_Pass(matpass,this);
+					}
 					rendered_something = true;
 				}
 			}
@@ -755,7 +792,9 @@ void MeshClass::Render(RenderInfoClass & rinfo)
 			/*
 			** If we have a decal mesh, link it into the mesh rendering system
 			*/
-			if (DecalMesh != NULL) {
+			if (	(DecalMesh != NULL) && 
+					((rinfo.Current_Override_Flags() & RenderInfoClass::RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY) == 0))
+			{
 				const SphereClass & ws_sphere = Get_Bounding_Sphere();
 				Vector3 cam_space_sphere_center;
 				rinfo.Camera.Transform_To_View_Space(cam_space_sphere_center,ws_sphere.Center);
@@ -763,6 +802,8 @@ void MeshClass::Render(RenderInfoClass & rinfo)
 					TheDX8MeshRenderer.Add_To_Render_List(DecalMesh);
 				}
 			}
+
+			DX8RendererDebugger::Add_Mesh(this);
 		}
 	}
 }
@@ -843,8 +884,7 @@ void MeshClass::Render_Material_Pass(MaterialPassClass * pass,IndexBufferClass *
 		/*
 		** Generate the APT 
 		*/
-		static SimpleDynVecClass<uint32> _apt;
-		_apt.Delete_All(false);
+		temp_apt.Delete_All(false);
 			
 		Matrix3D modeltminv;
 		Get_Transform().Get_Orthogonal_Inverse(modeltminv);
@@ -857,12 +897,12 @@ void MeshClass::Render_Material_Pass(MaterialPassClass * pass,IndexBufferClass *
 		view_dir = -view_dir;
 			
 		if (Model->Has_Cull_Tree()) {
-			Model->Generate_Rigid_APT(localbox,view_dir,_apt);
+			Model->Generate_Rigid_APT(localbox,view_dir,temp_apt);
 		} else {
-			Model->Generate_Rigid_APT(view_dir,_apt);
+			Model->Generate_Rigid_APT(view_dir,temp_apt);
 		}
 	
-		if (_apt.Count() > 0) {
+		if (temp_apt.Count() > 0) {
 
 			int buftype = BUFFER_TYPE_DYNAMIC_DX8;
 			if (Model->Get_Flag(MeshGeometryClass::SORT) && WW3D::Is_Sorting_Enabled()) {
@@ -875,17 +915,17 @@ void MeshClass::Render_Material_Pass(MaterialPassClass * pass,IndexBufferClass *
 			int min_v = Model->Get_Vertex_Count();
 			int max_v = 0;
 
-			DynamicIBAccessClass dynamic_ib(buftype,_apt.Count() * 3);
+			DynamicIBAccessClass dynamic_ib(buftype,temp_apt.Count() * 3);
 			{
 				DynamicIBAccessClass::WriteLockClass lock(&dynamic_ib);
 				unsigned short * indices = lock.Get_Index_Array();
-				const Vector3i * polys = Model->Get_Polygon_Array();
-
-				for (int i=0; i < _apt.Count(); i++)
+				const TriIndex * polys = Model->Get_Polygon_Array();
+				try {
+				for (int i=0; i < temp_apt.Count(); i++)
 				{
-					unsigned v0 = polys[_apt[i]].I;
-					unsigned v1 = polys[_apt[i]].J;
-					unsigned v2 = polys[_apt[i]].K;
+					unsigned v0 = polys[temp_apt[i]].I;
+					unsigned v1 = polys[temp_apt[i]].J;
+					unsigned v2 = polys[temp_apt[i]].K;
 
 					indices[i*3 + 0] = (unsigned short)v0;
 					indices[i*3 + 1] = (unsigned short)v1;
@@ -898,6 +938,10 @@ void MeshClass::Render_Material_Pass(MaterialPassClass * pass,IndexBufferClass *
 					max_v = WWMath::Max(v0,max_v);
 					max_v = WWMath::Max(v1,max_v);
 					max_v = WWMath::Max(v2,max_v);
+				}
+				IndexBufferExceptionFunc();
+				} catch(...) {
+					IndexBufferExceptionFunc();
 				}
 			}
 
@@ -912,7 +956,7 @@ void MeshClass::Render_Material_Pass(MaterialPassClass * pass,IndexBufferClass *
 
 			DX8Wrapper::Draw_Triangles(
 				0,
-				_apt.Count(),
+				temp_apt.Count(),
 				min_v,
 				max_v-min_v+1);
 			//MW: Need uninstall custom materials in case they leave D3D in unknown state
@@ -990,6 +1034,8 @@ void MeshClass::Special_Render(SpecialRenderInfoClass & rinfo)
 	if (rinfo.RenderType == SpecialRenderInfoClass::RENDER_VIS) {
 	
 		WWASSERT(rinfo.VisRasterizer != NULL);
+		rinfo.VisRasterizer->Enable_Two_Sided_Rendering(!!Model->Get_Flag(MeshGeometryClass::TWO_SIDED));
+
 		if (Model->Get_Flag(MeshModelClass::SKIN) == 0) {
 
 			rinfo.VisRasterizer->Set_Model_Transform(Transform);
@@ -1012,6 +1058,7 @@ void MeshClass::Special_Render(SpecialRenderInfoClass & rinfo)
 																Model->Get_Polygon_Count(),
 																Get_Bounding_Box() );
 		}
+		rinfo.VisRasterizer->Enable_Two_Sided_Rendering(false);
 	}
 
 	if (rinfo.RenderType == SpecialRenderInfoClass::RENDER_SHADOW) {
@@ -1065,9 +1112,13 @@ void MeshClass::Replace_VertexMaterial(VertexMaterialClass* vmat,VertexMaterialC
  * HISTORY:                                                                                    *
  *   4/2/2001   hy : Created.                                                                  *
  *=============================================================================================*/
-void MeshClass::Make_Unique()
+void MeshClass::Make_Unique(bool force_meshmdl_clone)
 {
-	if (Model->Num_Refs()==1) return;
+	// Usually we will not clone the mesh model if it is already unique - force_meshmdl_clone will
+	// force it to be cloned in any case. This is used in some special situations, for example if we
+	// want to change this mesh and it may have already been rendered, we need to clone the mesh
+	// model regardless of whether there is another mesh using it.
+	if (Model->Num_Refs()==1 && !force_meshmdl_clone) return;
 
 	MeshModelClass *newmesh=NEW_REF(MeshModelClass,(*Model));
 	REF_PTR_SET(Model,newmesh);
@@ -1127,21 +1178,22 @@ WW3DErrorType MeshClass::Load_W3D(ChunkLoadClass & cload)
 	int is_translucent = Model->Get_Flag(MeshModelClass::SORT);
 	int is_alpha = 0;	//keep track of alpha pieces that require sorting (including static sort lists).
 	int is_additive = 0;
-
 	if (Model->Has_Shader_Array(0)) {
 		for (int i=0; i<Model->Get_Polygon_Count(); i++) {
-			is_translucent |= (Model->Get_Shader(i,0).Get_Alpha_Test() == ShaderClass::ALPHATEST_ENABLE);
-			is_alpha |= (Model->Get_Shader(i,0).Get_Dst_Blend_Func() != ShaderClass::DSTBLEND_ZERO ||
-									Model->Get_Shader(i,0).Get_Src_Blend_Func() != ShaderClass::SRCBLEND_ONE) && (Model->Get_Shader(i,0).Get_Alpha_Test() != ShaderClass::ALPHATEST_ENABLE);
-			is_additive |= (Model->Get_Shader(i,0).Get_Dst_Blend_Func() == ShaderClass::DSTBLEND_ONE &&
-									Model->Get_Shader(i,0).Get_Src_Blend_Func() == ShaderClass::SRCBLEND_ONE);
+			ShaderClass shader = Model->Get_Shader(i,0);
+			is_translucent |= (shader.Get_Alpha_Test() == ShaderClass::ALPHATEST_ENABLE);
+			is_alpha |= (shader.Get_Dst_Blend_Func() != ShaderClass::DSTBLEND_ZERO ||
+									shader.Get_Src_Blend_Func() != ShaderClass::SRCBLEND_ONE) && (shader.Get_Alpha_Test() != ShaderClass::ALPHATEST_ENABLE);
+			is_additive |= (shader.Get_Dst_Blend_Func() == ShaderClass::DSTBLEND_ONE &&
+									shader.Get_Src_Blend_Func() == ShaderClass::SRCBLEND_ONE);
 		}
 	} else {
-		is_translucent |= (Model->Get_Single_Shader(0).Get_Alpha_Test() == ShaderClass::ALPHATEST_ENABLE);
-		is_alpha |= (Model->Get_Single_Shader(0).Get_Dst_Blend_Func() != ShaderClass::DSTBLEND_ZERO ||
-									Model->Get_Single_Shader(0).Get_Src_Blend_Func() != ShaderClass::SRCBLEND_ONE) && (Model->Get_Single_Shader(0).Get_Alpha_Test() != ShaderClass::ALPHATEST_ENABLE);
-		is_additive |= (Model->Get_Single_Shader(0).Get_Dst_Blend_Func() == ShaderClass::DSTBLEND_ONE &&
-									Model->Get_Single_Shader(0).Get_Src_Blend_Func() == ShaderClass::SRCBLEND_ONE);
+		ShaderClass shader = Model->Get_Single_Shader(0);
+		is_translucent |= (shader.Get_Alpha_Test() == ShaderClass::ALPHATEST_ENABLE);
+		is_alpha |= (shader.Get_Dst_Blend_Func() != ShaderClass::DSTBLEND_ZERO ||
+									shader.Get_Src_Blend_Func() != ShaderClass::SRCBLEND_ONE) && (shader.Get_Alpha_Test() != ShaderClass::ALPHATEST_ENABLE);
+		is_additive |= (shader.Get_Dst_Blend_Func() == ShaderClass::DSTBLEND_ONE &&
+									shader.Get_Src_Blend_Func() == ShaderClass::SRCBLEND_ONE);
 	}
 	Set_Translucent(is_translucent);
 	Set_Alpha(is_alpha);
@@ -1171,6 +1223,8 @@ bool MeshClass::Cast_Ray(RayCollisionTestClass & raytest)
 	if (raytest.CheckTranslucent && Is_Alpha()!=0)
 		return false;
 	if (Is_Hidden() && !raytest.CheckHidden) return false;
+	if (Is_Animation_Hidden()) return false;
+	if (raytest.Result->StartBad) return false;
 
 	Matrix3D world_to_obj;
 	Matrix3D world=Get_Transform();
@@ -1221,6 +1275,7 @@ bool MeshClass::Cast_Ray(RayCollisionTestClass & raytest)
 bool MeshClass::Cast_AABox(AABoxCollisionTestClass & boxtest)
 {
 	if ((Get_Collision_Type() & boxtest.CollisionType) == 0) return false;
+	if (boxtest.Result->StartBad) return false;
 
 	WWASSERT(Model);
 
@@ -1250,6 +1305,7 @@ bool MeshClass::Cast_AABox(AABoxCollisionTestClass & boxtest)
 bool MeshClass::Cast_OBBox(OBBoxCollisionTestClass & boxtest)
 {
 	if ((Get_Collision_Type() & boxtest.CollisionType) == 0) return false;
+	if (boxtest.Result->StartBad) return false;
 
 	/*
 	** transform into the local coordinate system of the mesh.
@@ -1542,8 +1598,6 @@ int MeshClass::Get_Draw_Call_Count(void) const
 		return 0;
 	}
 }
-
-
 
 
 

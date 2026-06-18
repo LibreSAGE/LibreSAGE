@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -295,8 +296,13 @@ void Line3DClass::Render(RenderInfoClass & rinfo)
 	{
 		DynamicIBAccessClass::WriteLockClass Lock(&ib);
 		unsigned short *mem=Lock.Get_Index_Array();
+		try {
 		for (int i=0; i<36; i++)
 			mem[i]=Indices[i];
+		IndexBufferExceptionFunc();
+		} catch(...) {
+			IndexBufferExceptionFunc();
+		}
 	}	
 
 	DX8Wrapper::Set_Vertex_Buffer(vb);

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,12 +27,13 @@
  *                                                                                             *
  *              Original Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                      $Author:: Naty_h                                                      $*
+ *                      $Author:: Kenny Mitchell                                              $*
  *                                                                                             *
- *                     $Modtime:: 4/01/01 12:01a                                              $*
+ *                     $Modtime:: 06/27/02 9:23a                                              $*
  *                                                                                             *
- *                    $Revision:: 4                                                           $*
+ *                    $Revision:: 5                                                           $*
  *                                                                                             *
+ * 06/27/02 KM Shader system light environment updates                                       *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -90,6 +92,9 @@ public:
 	void					Reset(const Vector3 & object_center,const Vector3 & scene_ambient);
 	void					Add_Light(const LightClass & light);
 	void					Pre_Render_Update(const Matrix3D & camera_tm);
+	void					Add_Fill_Light(void);
+	void					Calculate_Fill_Light(void);
+	void					Set_Fill_Intensity(float intensity)			{ FillIntensity = intensity; }
 
 	/*
 	** Accessors 
@@ -114,7 +119,21 @@ public:
 	static void			Set_Lighting_LOD_Cutoff(float inten);
 	static float		Get_Lighting_LOD_Cutoff(void);
 
+	static int			Get_Max_Lights() { return MAX_LIGHTS; }
 	enum { MAX_LIGHTS = 4 };	//Made this public, so other code can tell how many lights are allowed. - MW
+
+	inline bool operator== (const LightEnvironmentClass& that) const
+	{
+		if (LightCount!=that.LightCount) return false;
+		bool dif=!(ObjectCenter==that.ObjectCenter);
+		dif|=OutputAmbient!=that.OutputAmbient;
+		for (int i=0;i<LightCount;++i) {
+			dif|=!(OutputLights[i].Diffuse==that.OutputLights[i].Diffuse);
+			dif|=!(OutputLights[i].Direction==that.OutputLights[i].Direction);
+			if (dif) return false;
+		}
+		return true;
+	}
 
 protected:
 
@@ -152,11 +171,13 @@ protected:
 	*/
 	int					LightCount;
 	Vector3				ObjectCenter;					// center of the object to be lit
-	InputLightStruct	InputLights[MAX_LIGHTS];	// input lights
+	InputLightStruct	InputLights[MAX_LIGHTS];	// Sorted list of input lights from the greatest contributor to the least
 
 	Vector3				OutputAmbient;					// scene ambient + lights' ambients
 	OutputLightStruct	OutputLights[MAX_LIGHTS];	// ouput lights
 
+	InputLightStruct 	FillLight;						// Used to store the calculated fill light
+	float					FillIntensity;					// Used to determine how strong the fill light should be
 };
 
 

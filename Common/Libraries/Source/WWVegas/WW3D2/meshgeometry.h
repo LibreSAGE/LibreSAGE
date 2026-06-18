@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -59,7 +60,12 @@ class OBBoxClass;
 class SphereClass;
 class ChunkLoadClass;
 class AABTreeClass;
+class HTreeClass;
+class RenderInfoClass;
 
+// Define which kind of index vector to use (16- or 32 bit)
+typedef Vector3i16 TriIndex;
+//typedef Vector3i TriIndex;
 
 /*
 ** The following two defines control two space-saving optimizations.  In Renegade I've found
@@ -134,7 +140,7 @@ public:
 	int							Get_Polygon_Count(void) const								{ return PolyCount; }
 	int							Get_Vertex_Count(void) const								{ return VertexCount; }
 
-	const Vector3i *			Get_Polygon_Array(void)										{ return get_polys(); }
+	const TriIndex*			Get_Polygon_Array(void)										{ return get_polys(); }
 	Vector3 *					Get_Vertex_Array(void)										{ WWASSERT(Vertex); return Vertex->Get_Array(); }
 	const Vector3 *			Get_Vertex_Normal_Array(void);
 	const Vector4 *			Get_Plane_Array(bool create = true);
@@ -181,7 +187,7 @@ public:
 protected:
 	
 	// internal accessor functions that are not exposed to the user (non-const...)
-	Vector3i *					get_polys(void);
+	TriIndex *					get_polys(void);
 	Vector3 *					get_vert_normals(void);
 	uint32 *						get_shade_indices(bool create = true);
 	Vector4 *					get_planes(bool create = true);
@@ -216,6 +222,11 @@ protected:
 	WW3DErrorType				read_vertex_shade_indices(ChunkLoadClass & cload);
 	WW3DErrorType				read_aabtree(ChunkLoadClass &cload);
 
+	// functions to compute the deformed vertices of skins.
+	// Destination pointers MUST point to arrays large enough to hold all vertices
+	void get_deformed_vertices(Vector3 *dst_vert, Vector3 *dst_norm, const HTreeClass * htree);
+	void get_deformed_vertices(Vector3 *dst_vert, const HTreeClass * htree);
+	void get_deformed_screenspace_vertices(Vector4 *dst_vert,const RenderInfoClass & rinfo,const Matrix3D & mesh_tm,const HTreeClass * htree);
 	
 	// General info
 	ShareBufferClass<char> *							MeshName;
@@ -228,7 +239,7 @@ protected:
 	int														PolyCount;
 	int														VertexCount;
 		
-	ShareBufferClass<Vector3i> *						Poly;
+	ShareBufferClass<TriIndex> *						Poly;
 	ShareBufferClass<Vector3> *						Vertex;
 	ShareBufferClass<Vector3> *						VertexNorm;
 	ShareBufferClass<Vector4> *						PlaneEq;
@@ -247,7 +258,7 @@ protected:
 /*
 ** Inline functions for MeshGeometryClass
 */
-inline Vector3i * MeshGeometryClass::get_polys(void)
+inline TriIndex * MeshGeometryClass::get_polys(void)
 {
 	WWASSERT(Poly);
 	return Poly->Get_Array();

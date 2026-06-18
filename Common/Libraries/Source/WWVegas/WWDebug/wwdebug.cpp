@@ -202,7 +202,7 @@ void WWDebug_Printf(const char * format,...)
 	if (_CurMessageHandler != NULL) {
 		
 		va_list	va;
-		char buffer[1024];
+		char buffer[4096];
 
 		va_start(va, format);
 		vsprintf(buffer, format, va);
@@ -233,7 +233,7 @@ void WWDebug_Printf_Warning(const char * format,...)
 	if (_CurMessageHandler != NULL) {
 		
 		va_list	va;
-		char buffer[1024];
+		char buffer[4096];
 
 		va_start(va, format);
 		vsprintf(buffer, format, va);
@@ -264,7 +264,7 @@ void WWDebug_Printf_Error(const char * format,...)
 	if (_CurMessageHandler != NULL) {
 		
 		va_list	va;
-		char buffer[1024];
+		char buffer[4096];
 
 		va_start(va, format);
 		vsprintf(buffer, format, va);
@@ -294,7 +294,7 @@ void WWDebug_Assert_Fail(const char * expr,const char * file, int line)
 {
 	if (_CurAssertHandler != NULL) {
 	
-		char buffer[1024];
+		char buffer[4096];
 		sprintf(buffer,"%s (%d) Assert: %s\n",file,line,expr);
 		_CurAssertHandler(buffer);
 
@@ -324,7 +324,7 @@ void WWDebug_Assert_Fail_Print(const char * expr,const char * file, int line,con
 {
 	if (_CurAssertHandler != NULL) {
 
-		char buffer[1024];
+		char buffer[4096];
 		sprintf(buffer,"%s (%d) Assert: %s %s\n",file,line,expr, string);
 		_CurAssertHandler(buffer);
 

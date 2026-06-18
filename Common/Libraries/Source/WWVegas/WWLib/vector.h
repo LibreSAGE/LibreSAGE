@@ -892,7 +892,8 @@ template<class T>
 T * DynamicVectorClass<T>::Uninitialized_Add(void)
 {
 	if (ActiveCount >= this->Length()) {
-		if ((this->IsAllocated || !this->VectorMax) && GrowthStep > 0) {
+//		if ((this->IsAllocated || !this->VectorMax) && GrowthStep > 0) {
+		if (GrowthStep > 0) {
 			if (!Resize(this->Length() + GrowthStep)) {
 
 				/*

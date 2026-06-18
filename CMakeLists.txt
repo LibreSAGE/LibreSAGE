@@ -13,6 +13,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 # Options
+option(SAGE_BUILD_TOOLS "Build tools" ON)
 option(SAGE_BUILD_TESTS "Build unit tests" OFF)
 option(SAGE_WITH_COVERAGE "Build with code coverage support" OFF)
 option(SAGE_WITH_ASAN "Build with AddressSanitizer" OFF)

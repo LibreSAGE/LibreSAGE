@@ -777,6 +777,7 @@ target_sources(
     Source/GameClient/MessageStream/WindowXlat.cpp
     Source/GameClient/RadiusDecal.cpp
     Source/GameClient/SelectionInfo.cpp
+    Source/GameClient/Snow.cpp
     Source/GameClient/Statistics.cpp
     Source/GameClient/System/Anim2D.cpp
     Source/GameClient/System/CampaignManager.cpp
@@ -784,6 +785,7 @@ target_sources(
     Source/GameClient/System/Image.cpp
     Source/GameClient/System/ParticleSys.cpp
     Source/GameClient/System/RayEffect.cpp
+    Source/GameClient/System/Smudge.cpp
     Source/GameClient/Terrain/TerrainRoads.cpp
     Source/GameClient/Terrain/TerrainVisual.cpp
     Source/GameClient/VideoPlayer.cpp

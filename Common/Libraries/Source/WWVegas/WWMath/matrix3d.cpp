@@ -26,12 +26,15 @@
  *                                                                                             * 
  *                    File Name : MATRIX3D.CPP                                                 * 
  *                                                                                             * 
- *                   Programmer : Greg Hjelstrom                                               * 
+ *                Org Programmer : Greg Hjelstrom                                               * 
+ *                                                                                             * 
+ *                   Programmer : Kenny Mitchell                          * 
  *                                                                                             * 
  *                   Start Date : 02/24/97                                                     * 
+ *                                                                         * 
+ *                  Last Update : June 6, 2002 [KM]                                            * 
  *                                                                                             * 
- *                  Last Update : February 28, 1997 [GH]                                       * 
- *                                                                                             * 
+ * 06/26/02 KM Matrix name change to avoid MAX conflicts                                       *
  *---------------------------------------------------------------------------------------------* 
  * Functions:                                                                                  * 
  *   Matrix3D::Set_Rotation -- Sets the rotation part of the matrix                            *
@@ -148,7 +151,7 @@ const Matrix3D	Matrix3D::RotateZ270
  *                                                                                             *
  * HISTORY:                                                                                    *
  *=============================================================================================*/
-void Matrix3D::Set(const Matrix3 & rot,const Vector3 & pos)
+void Matrix3D::Set(const Matrix3x3 & rot,const Vector3 & pos)
 {
 	Row[0].Set( rot[0][0], rot[0][1], rot[0][2], pos[0]);
 	Row[1].Set( rot[1][0], rot[1][1], rot[1][2], pos[1]);
@@ -186,7 +189,7 @@ void Matrix3D::Set(const Quaternion & rot,const Vector3 & pos)
  * HISTORY:                                                                                    *
  *   5/11/98    GTH : Created.                                                                 *
  *=============================================================================================*/
-void Matrix3D::Set_Rotation(const Matrix3 & m)
+void Matrix3D::Set_Rotation(const Matrix3x3 & m)
 {
 	Row[0][0] = m[0][0];
 	Row[0][1] = m[0][1];
@@ -513,8 +516,9 @@ void Matrix3D::Get_Inverse(Matrix3D & inv) const
 {
 	// TODO: Implement the general purpose inverse function here (once we need it :-)
 	//Get_Orthogonal_Inverse(inv);
-	Matrix4	mat4(*this);
-	Matrix4	mat4Inv;
+
+	Matrix4x4	mat4(*this);
+	Matrix4x4	mat4Inv;
 
 	float det;
 	D3DXMatrixInverse((D3DXMATRIX *)&mat4Inv, &det, (D3DXMATRIX*)&mat4);
@@ -651,7 +655,7 @@ void Matrix3D::Multiply(const Matrix3D & A,const Matrix3D & B,Matrix3D * set_res
 		Aptr = (Matrix3D *)&A;	
 	}
 
-#if 0//def ALLOW_TEMPORARIES
+#ifdef ALLOW_TEMPORARIES
 	float tmp1,tmp2,tmp3;
 
 	tmp1 = B[0][0];
@@ -1183,8 +1187,12 @@ void Matrix3D::Lerp(const Matrix3D &A, const Matrix3D &B, float factor, Matrix3D
    assert(factor <= 1.0f);
 
 	// Lerp position
+#ifdef ALLOW_TEMPORARIES
+  Vector3 pos = Lerp(A.Get_Translation(), B.Get_Translation(), factor);
+#else
 	Vector3 pos;
 	Vector3::Lerp(A.Get_Translation(), B.Get_Translation(), factor, &pos);
+#endif
 	Quaternion rot;
 	Slerp(rot,Build_Quaternion(A), Build_Quaternion(B), factor);
 	result.Set(rot, pos);

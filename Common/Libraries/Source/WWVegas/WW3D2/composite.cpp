@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,9 +27,9 @@
  *                                                                                             *
  *                       Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                     $Modtime:: 5/30/01 2:10p                                               $*
+ *                     $Modtime:: 11/27/01 12:45a                                             $*
  *                                                                                             *
- *                    $Revision:: 4                                                           $*
+ *                    $Revision:: 6                                                           $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -72,9 +73,7 @@
  *                                                                                             *
  * HISTORY:                                                                                    *
  *=============================================================================================*/
-CompositeRenderObjClass::CompositeRenderObjClass(void) :
-	Name(NULL),
-	BaseModelName(NULL)
+CompositeRenderObjClass::CompositeRenderObjClass(void)
 {
 }
 
@@ -91,9 +90,7 @@ CompositeRenderObjClass::CompositeRenderObjClass(void) :
  * HISTORY:                                                                                    *
  *   1/26/00    gth : Created.                                                                 *
  *=============================================================================================*/
-CompositeRenderObjClass::CompositeRenderObjClass(const CompositeRenderObjClass & that) :
-	Name(NULL),
-	BaseModelName(NULL)
+CompositeRenderObjClass::CompositeRenderObjClass(const CompositeRenderObjClass & that)
 {
 	Set_Name(that.Get_Name());
 	Set_Base_Model_Name(that.Get_Base_Model_Name());
@@ -114,8 +111,6 @@ CompositeRenderObjClass::CompositeRenderObjClass(const CompositeRenderObjClass &
  *=============================================================================================*/
 CompositeRenderObjClass::~CompositeRenderObjClass(void)
 {
-	if (Name) free(Name);
-	if (BaseModelName) free(BaseModelName);
 }
 
 
@@ -193,13 +188,7 @@ const char * CompositeRenderObjClass::Get_Name(void) const
  *=============================================================================================*/
 void CompositeRenderObjClass::Set_Name(const char * name)												
 { 
-	if (Name) {
-		free(Name);
-		Name = NULL;
-	}
-	if (name) {
-		Name = strdup(name);
-	}
+	Name=name;
 }
 
 
@@ -219,16 +208,14 @@ void CompositeRenderObjClass::Set_Name(const char * name)
  *=============================================================================================*/
 void CompositeRenderObjClass::Set_Base_Model_Name(const char *name)
 {
-	if (BaseModelName) {
-		free(BaseModelName);
-		BaseModelName = NULL;
+	// NULL is a legal value for BaseModelName. Unfortunately,
+	// StringClass::operator= does not modify the string when
+	// assigning NULL, so we explicitly handle that case here.
+	if (name != 0) {
+		BaseModelName = name;
+	} else {
+		BaseModelName = "";
 	}
-
-	if (name) {
-		BaseModelName = ::strdup(name);
-	}
-	
-	return ;
 }
 
 
@@ -565,3 +552,11 @@ void CompositeRenderObjClass::Set_User_Data(void *value, bool recursive)
 	}
 }
 
+const char * CompositeRenderObjClass::Get_Base_Model_Name (void) const
+{
+	if (BaseModelName.Is_Empty()) {
+		return NULL;
+	}
+	
+	return BaseModelName;
+}

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,11 +27,11 @@
  *                                                                                             *
  *              Original Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                      $Author:: Jani_p                                                      $*
+ *                      $Author:: Byon_g                                                      $*
  *                                                                                             *
- *                     $Modtime:: 6/27/01 7:50p                                               $*
+ *                     $Modtime:: 1/16/02 6:39p                                               $*
  *                                                                                             *
- *                    $Revision:: 5                                                           $*
+ *                    $Revision:: 7                                                           $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -200,6 +201,7 @@ HMorphAnimClass::HMorphAnimClass(void) :
 	PivotChannel(NULL)
 {
 	memset(Name,0,sizeof(Name));
+	memset(AnimName,0,sizeof(AnimName));	
 	memset(HierarchyName,0,sizeof(HierarchyName));
 }
 
@@ -230,7 +232,7 @@ void HMorphAnimClass::Free(void)
 }
 
 
-int Build_List_From_String
+static int Build_List_From_String
 (
 	const char *	buffer,
 	const char *	delimiter,
@@ -294,7 +296,7 @@ int Build_List_From_String
 				// Copy this entry into its own string
 				//
 				StringClass entry_string = entry;
-				const char *delim_start = ::strstr (entry_string, delimiter);				
+				const char *delim_start = ::strstr (entry_string, delimiter);
 				if (delim_start != NULL) {
 					((char *)delim_start)[0] = 0;
 				}
@@ -326,7 +328,7 @@ bool Is_Number (const char *str)
 {
 	bool retval = true;
 
-	while (retval && str[0] != '\0') {
+	while (retval && str[0] != NULL){
 		retval = ((str[0] >= '0' && str[0] <= '9') || str[0] == '-' || str[0] == '.'); 
 		str ++;
 	}
@@ -490,7 +492,7 @@ void HMorphAnimClass::Set_Name(const char * name)
 	StringClass full_name	= name;
 	const char *separator			= ::strchr (full_name, '.');
 	if (separator != NULL) {
-		
+
 		//
 		// Null out the separator and copy the two names
 		// into our two buffers
@@ -523,9 +525,8 @@ int HMorphAnimClass::Create_New_Morph(const int channels, HAnimClass *anim[])
 	
 	// set up info
 	//	FrameCount = anim[0]->Get_Num_Frames();
-	//	FrameRate = anim[0]->Get_Frame_Rate();
 	FrameCount = 0;
-	FrameRate = 30.0f;
+	FrameRate = anim[0]->Get_Frame_Rate();
 	NumNodes = anim[0]->Get_Num_Pivots();
 
 	// Set up the anim data for all the channels

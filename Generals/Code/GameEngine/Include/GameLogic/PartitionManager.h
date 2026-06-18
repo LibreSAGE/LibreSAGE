@@ -1482,6 +1482,7 @@ public:
 	*/
 	CellShroudStatus getShroudStatusForPlayer( Int playerIndex, Int x, Int y ) const;
 	CellShroudStatus getShroudStatusForPlayer( Int playerIndex, const Coord3D *loc ) const;
+	ObjectShroudStatus getPropShroudStatusForPlayer(Int playerIndex, const Coord3D *loc ) const;
 
 	Real getGroundOrStructureHeight(Real posx, Real posy);
 

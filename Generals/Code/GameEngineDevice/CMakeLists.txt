@@ -53,6 +53,7 @@ target_sources(
           Include/W3DDevice/GameClient/W3DParticleSys.h
           Include/W3DDevice/GameClient/W3DPoly.h
           Include/W3DDevice/GameClient/W3DProjectedShadow.h
+          Include/W3DDevice/GameClient/W3DPropBuffer.h
           Include/W3DDevice/GameClient/W3DRoadBuffer.h
           Include/W3DDevice/GameClient/W3DScene.h
           Include/W3DDevice/GameClient/W3DShaderManager.h
@@ -110,6 +111,8 @@ target_sources(
           Source/W3DDevice/GameClient/GUI/W3DGameFont.cpp
           Source/W3DDevice/GameClient/GUI/W3DGameWindow.cpp
           Source/W3DDevice/GameClient/GUI/W3DGameWindowManager.cpp
+          Source/W3DDevice/GameClient/BaseHeightMap.cpp
+          Source/W3DDevice/GameClient/FlatHeightMap.cpp
           Source/W3DDevice/GameClient/HeightMap.cpp
           Source/W3DDevice/GameClient/Shadow/W3DBufferManager.cpp
           Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp
@@ -135,11 +138,15 @@ target_sources(
           Source/W3DDevice/GameClient/W3DMouse.cpp
           Source/W3DDevice/GameClient/W3DParticleSys.cpp
           Source/W3DDevice/GameClient/W3DPoly.cpp
+          Source/W3DDevice/GameClient/W3DPropBuffer.cpp
           Source/W3DDevice/GameClient/W3DRoadBuffer.cpp
           Source/W3DDevice/GameClient/W3DScene.cpp
           Source/W3DDevice/GameClient/W3DShaderManager.cpp
           Source/W3DDevice/GameClient/W3DShroud.cpp
+          Source/W3DDevice/GameClient/W3DSmudge.cpp
+          Source/W3DDevice/GameClient/W3DSnow.cpp
           Source/W3DDevice/GameClient/W3DStatusCircle.cpp
+          Source/W3DDevice/GameClient/W3DTerrainBackground.cpp
           Source/W3DDevice/GameClient/W3DTerrainTracks.cpp
           Source/W3DDevice/GameClient/W3DTerrainVisual.cpp
           Source/W3DDevice/GameClient/W3DTreeBuffer.cpp

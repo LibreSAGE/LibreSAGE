@@ -70,7 +70,7 @@ class SegmentedLineClass;
 
 class W3DWaypointBuffer 
 {	
-	friend class HeightMapRenderObjClass;
+	friend class BaseHeightMapRenderObjClass;
 public:
 
 	W3DWaypointBuffer(void);

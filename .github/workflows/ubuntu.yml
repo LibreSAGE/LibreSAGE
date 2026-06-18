@@ -40,16 +40,11 @@ jobs:
       - name: Setup a new (or from cache) vcpkg (and does not build any package)
         uses: lukka/run-vcpkg@v11
 
-      # The virtual display is needed for running tests that require a display (e.g. WW3D testss).
-      - name: Start virtual display
-        run: |
-          Xvfb :1 -screen 0 1024x768x24 &
-          echo "DISPLAY=:1" >> $GITHUB_ENV
-
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
         env:
           VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg_cache,readwrite
+          SDL_VIDEODRIVER: offscreen
         with:
           configurePreset: "${{ matrix.preset }}"
           buildPreset: "${{ matrix.preset }}"

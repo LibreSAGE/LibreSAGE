@@ -1639,7 +1639,7 @@ void WaterRenderObjClass::Render(RenderInfoClass & rinfo)
 				DX8Wrapper::Set_DX8_Texture_Stage_State(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);	
 
 				// Set texture generation matrix for stage 1
-				DX8Wrapper::_Set_DX8_Transform(D3DTS_TEXTURE1, *((Matrix4*)&inv));
+				DX8Wrapper::_Set_DX8_Transform(D3DTS_TEXTURE1, *((Matrix4x4*)&inv));
 
 				// Disable bilinear filtering
 				DX8Wrapper::Set_DX8_Texture_Stage_State(1, D3DTSS_MINFILTER, D3DTEXF_POINT);

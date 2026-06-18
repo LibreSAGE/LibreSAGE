@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -176,7 +177,7 @@ void	DX8WebBrowser::Render(int backbufferindex)
 // ******************************************************************************************
 void	DX8WebBrowser::CreateBrowser(const char* browsername, const char* url, int x, int y, int w, int h, int updateticks, LONG options, LPDISPATCH gamedispatch)
 {
-	DEBUG_LOG(("DX8WebBrowser::CreateBrowser - Creating browser with the name %s, url = %s, (x, y, w, h) = (%d, %d, %d, %d), update ticks = %d\n", browsername, url, x, y, h, w, updateticks));
+	WWDEBUG_SAY(("DX8WebBrowser::CreateBrowser - Creating browser with the name %s, url = %s, (x, y, w, h) = (%d, %d, %d, %d), update ticks = %d\n", browsername, url, x, y, h, w, updateticks));
 	if(pBrowser)
 	{
 		_bstr_t brsname(browsername);
@@ -199,7 +200,7 @@ void	DX8WebBrowser::CreateBrowser(const char* browsername, const char* url, int 
 // ******************************************************************************************
 void	DX8WebBrowser::DestroyBrowser(const char* browsername)
 {
-	DEBUG_LOG(("DX8WebBrowser::DestroyBrowser - destroying browser %s\n", browsername));
+	WWDEBUG_SAY(("DX8WebBrowser::DestroyBrowser - destroying browser %s\n", browsername));
 	if(pBrowser)
 		pBrowser->DestroyBrowser(_bstr_t(browsername));
 }

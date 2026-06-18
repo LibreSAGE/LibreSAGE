@@ -132,6 +132,8 @@ public:
 	Int	m_waterType;
 	Bool m_showSoftWaterEdge;
 	Bool m_usingWaterTrackEditor;
+	Bool m_isWorldBuilder;
+	Bool m_TiVOFastMode;            ///< When true, the client speeds up the framerate... set by HOTKEY!
 
 	Int m_featherWater;
 

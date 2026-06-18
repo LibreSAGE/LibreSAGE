@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -66,11 +66,16 @@ public:
 	// unique to W3DAssetManager
 	virtual HAnimClass *	Get_HAnim(const char * name);
 	virtual bool Load_3D_Assets( const char * filename ); // This CANNOT be Bool, as it will not inherit properly if you make Bool == Int
-	virtual TextureClass *			Get_Texture(
+
+	virtual TextureClass *	Get_Texture
+	(
 		const char * filename, 
-		TextureClass::MipCountType mip_level_count=TextureClass::MIP_LEVELS_ALL,
+		MipCountType mip_level_count=MIP_LEVELS_ALL,
 		WW3DFormat texture_format=WW3D_FORMAT_UNKNOWN,
-		bool allow_compression=true);
+		bool allow_compression=true,
+		TextureBaseClass::TexAssetType type=TextureBaseClass::TEX_REGULAR,
+		bool allow_reduction=true
+	);
 
 	//'Generals' customizations
 	void Report_Used_Assets(void);

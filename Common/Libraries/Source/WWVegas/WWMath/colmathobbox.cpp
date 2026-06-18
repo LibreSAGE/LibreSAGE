@@ -54,7 +54,7 @@ CollisionMath::Overlap_Test(const OBBoxClass & box,const Vector3 & point)
 {
 	// transform point into box coordinate system
 	Vector3 localpoint;
-	Matrix3::Transpose_Rotate_Vector(box.Basis,(point - box.Center),&localpoint);
+	Matrix3x3::Transpose_Rotate_Vector(box.Basis,(point - box.Center),&localpoint);
 
 	// if the point is outside any of the extents, it is outside the box
 	if (WWMath::Fabs(localpoint.X) > box.Extent.X) {

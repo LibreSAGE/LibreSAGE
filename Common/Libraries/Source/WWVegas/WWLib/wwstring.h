@@ -50,6 +50,7 @@
 #include <wwdebug.h>
 #ifdef _UNIX
 #include "osdep.h"
+#include "trim.h"
 #endif
 
 
@@ -120,6 +121,9 @@ public:
 	void			Erase (int start_index, int char_count);
 	int  Format (const TCHAR *format, ...);
 	int  Format_Args (const TCHAR *format, va_list arg_list );
+
+	// Trim leading and trailing whitespace characters (values <= 32)
+	void Trim(void);
 
 	TCHAR *		Get_Buffer (int new_length);
 	TCHAR *		Peek_Buffer (void);
@@ -612,6 +616,13 @@ StringClass::Get_Allocated_Length (void) const
 // quite a lot cpu time if a lot of string combining operations are
 // performed.
 ///////////////////////////////////////////////////////////////////
+// Trim leading and trailing whitespace characters (values <= 32)
+inline void
+StringClass::Trim(void)
+{
+	strtrim(m_Buffer);
+}
+
 inline int
 StringClass::Get_Length (void) const
 {

@@ -124,40 +124,6 @@ int SHADOW_DECAL_INDEX_SIZE=65536;
 class W3DShadowTexture;	//forward reference
 class W3DShadowTextureManager;	//forward reference
 
-/** Object for maintaining and updating an object's shadow texture.
-*/
-class W3DProjectedShadow	: public Shadow
-{
-	friend class W3DProjectedShadowManager;
-
-	public:
-		W3DProjectedShadow(void);
-		~W3DProjectedShadow(void);
-		void setRenderObject( RenderObjClass	*robj) {m_robj=robj;}
-		void setObjPosHistory(const Vector3 &pos)	{m_lastObjPosition=pos;}	///<position of object when projection matrix was updated.
-		void setTexture(Int lightIndex,W3DShadowTexture *texture)	{m_shadowTexture[lightIndex]=texture;}	///<textur with light's shadow
-		void update(void);	///<updates the texture and/or projection parameters when the object or light moves.
-		void init(void);		///<allocates local member variables used for projection
-		void updateTexture(const Vector3 &lightPos);	///<updates the shadow texture image using render object and given light position.
-		void updateProjectionParameters(const Matrix3D &cameraXform);	///<recompute projection matrix - needed when light or object moves.
-		TexProjectClass *getShadowProjector(void)	{return m_shadowProjector;}
-		#if defined(_DEBUG) || defined(_INTERNAL)	
-		virtual void getRenderCost(RenderCost & rc) const;
-		#endif
-
-	protected:
-		W3DShadowTexture *m_shadowTexture[MAX_SHADOW_LIGHTS];		///<cached shadow data
-		TexProjectClass	 *m_shadowProjector;										///<object used to generate texture and projection matrix.
-		RenderObjClass	*m_robj;						///<render object used to cast the shadow.
-		Vector3		m_lastObjPosition;	///<position of  object at time of projection matrix update.		
-		W3DProjectedShadow *m_next;	/// for the shadow manager list
-		Bool	m_allowWorldAlign;	/// wrap shadow around world geometry - else align perpendicular to local z-axis.
-		Real	m_decalOffsetU;		/// texture coordinate offset so not centered at object origin.
-		Real	m_decalOffsetV;		/// texture coordinate offset so not centered at object origin.
-		Int		m_flags;			/// custom rendering flags
-		virtual void release(void)	{TheW3DProjectedShadowManager->removeShadow(this);}	///<release shadow from manager
-};
-
 /** This class will manage shadow textures for each render object.  Shadow textures may
 be based on render geometry but don't need to be.  This allows lower detail 'blob' textures
 to be substituted to improve performance.*/
@@ -211,8 +177,8 @@ class W3DShadowTexture : public RefCountClass, public	HashableClass
 		void					 setTexture(TextureClass *texture)	{m_texture = texture;}
 		void					 setLightPosHistory(const Vector3 &pos) {m_lastLightPosition=pos;}	///<updates the last position of light
 		Vector3&			 getLightPosHistory(void) {return m_lastLightPosition;}
-		void					 setObjectOrientationHistory(Matrix3 &mat) {m_lastObjectOrientation=mat;}	///<updates the last position of light
-		Matrix3&			 getObjectOrientationHistory(void) {return m_lastObjectOrientation;}
+		void					 setObjectOrientationHistory(Matrix3x3 &mat) {m_lastObjectOrientation=mat;}	///<updates the last position of light
+		Matrix3x3&			 getObjectOrientationHistory(void) {return m_lastObjectOrientation;}
 		SphereClass&	 getBoundingSphere(void)	{return m_areaEffectSphere;}
 		AABoxClass&		 getBoundingBox(void)		{return m_areaEffectBox;}
 		void	 setBoundingSphere(SphereClass &sphere)	{m_areaEffectSphere=sphere;}
@@ -227,7 +193,7 @@ class W3DShadowTexture : public RefCountClass, public	HashableClass
 
 		TextureClass *m_texture; ///<texture holding the shadow for this renderobject
 		Vector3		m_lastLightPosition;		///<position of light source at time of last texture update.
-		Matrix3		m_lastObjectOrientation;	///<orientation of shadow casting object when texture was generated.
+		Matrix3x3		m_lastObjectOrientation;	///<orientation of shadow casting object when texture was generated.
 		AABoxClass	m_areaEffectBox;			///<boundary defining object-space volume affected by shadow.
 		SphereClass	m_areaEffectSphere;			///<boundary defining object-space volume affected by shadow.
 		Vector3		m_shadowUV[2];		///world-space vectors defining the u and v texture coordinate axis.
@@ -302,7 +268,7 @@ Bool W3DProjectedShadowManager::ReAcquireResources(void)
 	DEBUG_ASSERTCRASH(m_dynamicRenderTarget == NULL, ("Acquire of existing shadow render target"));
 
 	m_renderTargetHasAlpha=TRUE;
-	if ((m_dynamicRenderTarget=DX8Wrapper::Create_Render_Target (DEFAULT_RENDER_TARGET_WIDTH, DEFAULT_RENDER_TARGET_HEIGHT, true)) == NULL)
+	if ((m_dynamicRenderTarget=DX8Wrapper::Create_Render_Target (DEFAULT_RENDER_TARGET_WIDTH, DEFAULT_RENDER_TARGET_HEIGHT, WW3D_FORMAT_A8R8G8B8)) == NULL)
 	{
 			m_renderTargetHasAlpha=FALSE;
 
@@ -383,7 +349,7 @@ void W3DProjectedShadowManager::updateRenderTargetTextures(void)
 ///Renders shadow on part of terrain covered by world-space bounding box.
 Int W3DProjectedShadowManager::renderProjectedTerrainShadow(W3DProjectedShadow *shadow, AABoxClass &box)
 {
-	static	Matrix4 mWorld(true);	//initialize to identity matrix
+	static	Matrix4x4 mWorld(true);	//initialize to identity matrix
 	struct SHADOW_VOLUME_VERTEX	//vertex structure passed to D3D
 	{
 		float x,y,z;
@@ -716,7 +682,7 @@ void TestBlendRender(RenderInfoClass & rinfo)
 
 void W3DProjectedShadowManager::flushDecals(W3DShadowTexture *texture, ShadowType type)
 {
-	static	Matrix4 mWorld(true);	//initialize to identity matrix
+	static	Matrix4x4 mWorld(true);	//initialize to identity matrix
 
 	if (nShadowDecalVertsInBatch == 0 && nShadowDecalPolysInBatch == 0)
 	{	//nothing to render
@@ -1425,7 +1391,7 @@ Int W3DProjectedShadowManager::renderShadows(RenderInfoClass & rinfo)
 					iter = ThePartitionManager->iterateObjectsInRange((const Coord3D*)&sphere.Center,sphere.Radius, FROM_CENTER_3D);
 					MemoryPoolObjectHolder hold( iter );
 
-					AABoxIntersectionTestClass boxtest(aaBox,COLLISION_TYPE_ALL);
+					AABoxIntersectionTestClass boxtest(aaBox,COLL_TYPE_ALL);
 
 					for( obj = iter->first(); obj; obj = iter->next() )
 					{
@@ -1529,9 +1495,9 @@ Shadow* W3DProjectedShadowManager::addDecal(Shadow::ShadowTypeInfo *shadowInfo)
 	{
 		//Adding a new decal texture
 		TextureClass *w3dTexture=WW3DAssetManager::Get_Instance()->Get_Texture(texture_name);
-		w3dTexture->Set_U_Addr_Mode(TextureClass::TEXTURE_ADDRESS_CLAMP);
-		w3dTexture->Set_V_Addr_Mode(TextureClass::TEXTURE_ADDRESS_CLAMP);
-		w3dTexture->Set_Mip_Mapping(TextureClass::FILTER_TYPE_NONE);
+		w3dTexture->Get_Filter().Set_U_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
+		w3dTexture->Get_Filter().Set_V_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
+		w3dTexture->Get_Filter().Set_Mip_Mapping(TextureFilterClass::FILTER_TYPE_NONE);
 
 		DEBUG_ASSERTCRASH(w3dTexture != NULL, ("Could not load decal texture: %s\n",texture_name));
 
@@ -1647,9 +1613,9 @@ Shadow* W3DProjectedShadowManager::addDecal(RenderObjClass *robj, Shadow::Shadow
 	{
 		//Adding a new decal texture
 		TextureClass *w3dTexture=WW3DAssetManager::Get_Instance()->Get_Texture(texture_name);
-		w3dTexture->Set_U_Addr_Mode(TextureClass::TEXTURE_ADDRESS_CLAMP);
-		w3dTexture->Set_V_Addr_Mode(TextureClass::TEXTURE_ADDRESS_CLAMP);
-		w3dTexture->Set_Mip_Mapping(TextureClass::FILTER_TYPE_NONE);
+		w3dTexture->Get_Filter().Set_U_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
+		w3dTexture->Get_Filter().Set_V_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
+		w3dTexture->Get_Filter().Set_Mip_Mapping(TextureFilterClass::FILTER_TYPE_NONE);
 
 		DEBUG_ASSERTCRASH(w3dTexture != NULL, ("Could not load decal texture: %s\n",texture_name));
 
@@ -1751,6 +1717,107 @@ Shadow* W3DProjectedShadowManager::addDecal(RenderObjClass *robj, Shadow::Shadow
 	return shadow;
 }
 
+W3DProjectedShadow* W3DProjectedShadowManager::createDecalShadow(Shadow::ShadowTypeInfo *shadowInfo)
+{
+	W3DShadowTexture *st=NULL;
+	static char	defaultDecalName[]={"shadow.tga"};
+	ShadowType shadowType=SHADOW_DECAL;		/// type of projection
+	Bool	allowWorldAlign=FALSE;	/// wrap shadow around world geometry - else align perpendicular to local z-axis.
+	Real	decalSizeX=0.0f;
+	Real	decalSizeY=0.0f;
+	Real	decalOffsetX=0.0f;
+	Real	decalOffsetY=0.0f;
+	const Real defaultWidth = 10.0f;
+
+	Char	texture_name[64];
+	Int nameLen;
+
+	//simple decal using the premade texture specified.
+	//can be always perpendicular to model's z-axis or projected
+	//onto world geometry.
+	nameLen=strlen(shadowInfo->m_ShadowName);
+	if (nameLen <= 1)	//no texture name given, use same as object
+	{	strcpy(texture_name,defaultDecalName);
+	}
+	else
+	{	strncpy(texture_name,shadowInfo->m_ShadowName,nameLen);
+		strcpy(texture_name+nameLen,".tga");	//append texture extension
+	}
+
+	st=m_W3DShadowTextureManager->getTexture(texture_name);
+	if (st == NULL)
+	{
+		//need to add this texture without creating it from a real renderobject
+		TextureClass *w3dTexture=WW3DAssetManager::Get_Instance()->Get_Texture(texture_name);
+		w3dTexture->Get_Filter().Set_U_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
+		w3dTexture->Get_Filter().Set_V_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
+		w3dTexture->Get_Filter().Set_Mip_Mapping(TextureFilterClass::FILTER_TYPE_NONE);
+
+		DEBUG_ASSERTCRASH(w3dTexture != NULL, ("Could not load decal texture"));
+
+		if (!w3dTexture)
+			return NULL;
+
+		st = NEW W3DShadowTexture;	// poolify
+		SET_REF_OWNER( st );
+		st->Set_Name(texture_name);
+		m_W3DShadowTextureManager->addTexture( st );
+		st->setTexture(w3dTexture);
+	}
+	shadowType=SHADOW_DECAL;
+	decalSizeX=shadowInfo->m_sizeX;
+	decalSizeY=shadowInfo->m_sizeY;
+	decalOffsetX=shadowInfo->m_offsetX;
+	decalOffsetY=shadowInfo->m_offsetY;
+
+	W3DProjectedShadow *shadow = NEW W3DProjectedShadow;
+
+	// sanity
+	if( shadow == NULL )
+		return NULL;
+
+	shadow->setTexture(0,st);
+	shadow->m_type = shadowType;		/// type of projection
+	shadow->m_allowWorldAlign=allowWorldAlign;	/// wrap shadow around world geometry - else align perpendicular to local z-axis.
+
+
+	//Check if app is overriding any of the default texture stretch factors.
+	if (decalSizeX)
+		decalSizeX=1.0f/decalSizeX; //world space distance to stretch full texture scale
+	else
+		decalSizeX=1.0f/(defaultWidth*2.0f);//use bounding box to determine size
+
+	if (decalSizeY)
+		decalSizeY=-1.0f/decalSizeY;
+	else
+		decalSizeY=-1.0f/(defaultWidth*2.0f);//world space distance to stretch full texture
+
+	if (decalOffsetX)
+		decalOffsetX=-decalOffsetX*decalSizeX;
+	else
+		decalOffsetX=0.0f;//-box.Center.X*decalSizeX;
+
+	if (decalOffsetY)
+		decalOffsetY=-decalOffsetY*decalSizeY;
+	else
+		decalOffsetY=0.0f;//-box.Center.Y*decalSizeY;
+
+	//Prestore some values used during projection to optimize out division.
+	shadow->m_oowDecalSizeX = decalSizeX;	//one over width
+	shadow->m_oowDecalSizeY = decalSizeY;	//one over height
+	shadow->m_decalSizeX = 1.0f/decalSizeX;	//width
+	shadow->m_decalSizeY = 1.0f/decalSizeY;	//height
+
+	shadow->m_decalOffsetU= decalOffsetX;
+	shadow->m_decalOffsetV= decalOffsetY;
+
+	shadow->m_flags	= 0;
+
+	shadow->init();
+
+	return shadow;
+}
+
 W3DProjectedShadow* W3DProjectedShadowManager::addShadow(RenderObjClass *robj, Shadow::ShadowTypeInfo *shadowInfo, Drawable *draw)
 {
 	W3DShadowTexture *st=NULL;
@@ -1792,9 +1859,9 @@ W3DProjectedShadow* W3DProjectedShadowManager::addShadow(RenderObjClass *robj, S
 				{
 					//need to add this texture without creating it from a real renderobject
 					TextureClass *w3dTexture=WW3DAssetManager::Get_Instance()->Get_Texture(texture_name);
-					w3dTexture->Set_U_Addr_Mode(TextureClass::TEXTURE_ADDRESS_CLAMP);
-					w3dTexture->Set_V_Addr_Mode(TextureClass::TEXTURE_ADDRESS_CLAMP);
-					w3dTexture->Set_Mip_Mapping(TextureClass::FILTER_TYPE_NONE);
+					w3dTexture->Get_Filter().Set_U_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
+					w3dTexture->Get_Filter().Set_V_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
+					w3dTexture->Get_Filter().Set_Mip_Mapping(TextureFilterClass::FILTER_TYPE_NONE);
 
 					DEBUG_ASSERTCRASH(w3dTexture != NULL, ("Could not load decal texture"));
 
@@ -2188,7 +2255,7 @@ Int W3DShadowTexture::init(RenderObjClass *robj)
 
 	TheW3DProjectedShadowManager->getRenderTarget()->Get_Level_Description(surface_desc);
 
-	TextureClass *new_texture = MSGNEW("TextureClass") TextureClass(surface_desc.Width,surface_desc.Height,surface_desc.Format,TextureClass::MIP_LEVELS_1);
+	TextureClass *new_texture = MSGNEW("TextureClass") TextureClass(surface_desc.Width,surface_desc.Height,surface_desc.Format,MIP_LEVELS_1);
 
 	setTexture(new_texture);
 

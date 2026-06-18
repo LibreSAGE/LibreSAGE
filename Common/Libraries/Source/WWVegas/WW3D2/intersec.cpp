@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -190,7 +191,7 @@ bool IntersectionClass::Intersect_Box(Vector3 &Box_Min, Vector3 &Box_Max, Inters
 	float distance[PLANE_COUNT];
 	float candidate_plane[PLANE_COUNT];
 	
-	Vector3 *intersection = &FinalResult->Intersection;
+	register Vector3 *intersection = &FinalResult->Intersection;
 	
 	// Find candidate planes and determine if the ray is outside the box
 	for (counter = 0; counter < PLANE_COUNT; counter++) {

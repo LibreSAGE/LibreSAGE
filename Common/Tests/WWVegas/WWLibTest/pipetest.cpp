@@ -2,7 +2,6 @@
 #include "pipe.h"
 #include "b64pipe.h"
 #include "crcpipe.h"
-#include "int.h"
 #include "lcwpipe.h"
 #include "lzopipe.h"
 #include "pkpipe.h"
@@ -41,55 +40,63 @@ Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit ame
 )";
 const int TESTSTRING_LONG_SZ = 602;
 
-PKey GeneratePKey(RandomStraw &random)
+// Fixed RSA test key, stored in DER form. This was captured once from the
+// original Generate_Prime() based GeneratePKey() (which was deterministic via
+// Seed_Byte(255)). Hardcoding it avoids regenerating 128-bit primes on every
+// process start-up: ctest launches this binary once per parameterized case and
+// prime generation runs during test registration, so it previously cost ~2s
+// per launch (~30s total) in a debug build for no added coverage.
+static const unsigned char PK_DER_MODULUS[] = {
+    0x02, 0x20, 0x79, 0x42, 0x4b, 0x54, 0x5d, 0x66, 0x6f, 0x78, 0x81, 0x8a,
+    0x93, 0x9c, 0xa5, 0xaf, 0xe5, 0xdc, 0x48, 0x3f, 0x36, 0x2d, 0x24, 0x1b,
+    0x12, 0x08, 0xff, 0xf6, 0xed, 0xe5, 0x97, 0xfe, 0x24, 0x39};
+static const unsigned char PK_DER_EXPONENT[] = {
+    0x02, 0x03, 0x01, 0x00, 0x01};
+
+// Ciphertext of TESTSTRING under the key above, with the PKPipe session RNG
+// seeded via Seed_Byte(255). Keep in sync if the key or the seed changes.
+static const char PK_ENCRYPTED[] =
+    "\xf1\x1b\x9b\x7e\xb3\xfb\x4f\x6c\x6f\x5b\xb9\x7d\x3a\x3a\x38"
+    "\xcd\x49\xbd\xa6\x6d\x9e\x54\xc9\xd1\x60\xd4\x06\xcb\xc2\x3c"
+    "\x8c\x0a\xee\x3c\x66\x3f\x1f\x4d\x6b\x74\x00\x8a\x97\x9e\x2f"
+    "\xdc\x6e\x5c\xa3\x26\x93\x28\x78\xd1\x9a\x28\xae\x3c\x5f\x3f"
+    "\x5b\xae\x00\x72\x4c\x6f\x72\x65\x6d\x20\x69\x70\x73\x75\x6d";
+static const int PK_ENCRYPTED_SZ = TESTSTRING_SZ + 64; // (+ blowfish block size)
+
+static const PKey &GetTestPKey()
 {
-    random.Seed_Byte(255);
-    PKey key;
-    BigInt p = Generate_Prime<BigInt>(random, 128, NULL);
-    BigInt q = Generate_Prime<BigInt>(random, 128, NULL);
-    BigInt e = PKey::Fast_Exponent();
-    BigInt n = p * q;
-    key.Exponent = e;
-    key.Modulus = n;
-    key.BitPrecision = n.BitCount() - 1;
+    static const PKey key(PK_DER_EXPONENT, PK_DER_MODULUS);
     return key;
 }
 
 PipeTestData *GeneratePKEncryptPipeTestData()
 {
+    // Seed deterministically so the session key (and thus the ciphertext) is
+    // reproducible without depending on prior RNG consumption.
     static RandomStraw random;
-    static PKey key = GeneratePKey(random);
+    random.Seed_Byte(255);
 
     PKPipe *pk_pipe = new PKPipe(PKPipe::ENCRYPT, random);
-    pk_pipe->Key(&key); // Use appropriate values for exponent and modulus
+    pk_pipe->Key(&GetTestPKey());
     return new PipeTestData{
         pk_pipe,
         TESTSTRING,
         TESTSTRING_SZ,
         true,
-        "\xfe\x0c\xd6\xe8\x4b\x0a\x62\x6c\x0f\xfa\xfc\xc2\x35\xb4\xb0"
-        "\xd8\x7e\x67\xb5\x4e\xa3\x11\x9e\xbc\x19\xfc\x41\xac\x61\xf7"
-        "\xbe\x76\xab\x4c\x0e\x42\x5e\x1c\x9c\x7f\xc2\x19\x73\xf0\xff"
-        "\x31\x47\xab\x77\x13\x16\xf3\x2c\xef\x98\xee\x8d\x22\x3c\x33"
-        "\xf5\xcf\xc7\x11Lorem ipsum",
-        TESTSTRING_SZ + 64}; // (+ blowfish block size)
+        PK_ENCRYPTED,
+        PK_ENCRYPTED_SZ};
 }
 
 PipeTestData *GeneratePKDecryptPipeTestData()
 {
     static RandomStraw random;
-    static PKey key = GeneratePKey(random);
 
     PKPipe *pk_pipe = new PKPipe(PKPipe::DECRYPT, random);
-    pk_pipe->Key(&key); // Use appropriate values for exponent and modulus
+    pk_pipe->Key(&GetTestPKey());
     return new PipeTestData{
         pk_pipe,
-        "\xfe\x0c\xd6\xe8\x4b\x0a\x62\x6c\x0f\xfa\xfc\xc2\x35\xb4\xb0"
-        "\xd8\x7e\x67\xb5\x4e\xa3\x11\x9e\xbc\x19\xfc\x41\xac\x61\xf7"
-        "\xbe\x76\xab\x4c\x0e\x42\x5e\x1c\x9c\x7f\xc2\x19\x73\xf0\xff"
-        "\x31\x47\xab\x77\x13\x16\xf3\x2c\xef\x98\xee\x8d\x22\x3c\x33"
-        "\xf5\xcf\xc7\x11Lorem ipsum",
-        TESTSTRING_SZ + 64,
+        PK_ENCRYPTED,
+        PK_ENCRYPTED_SZ,
         true,
         TESTSTRING,
         TESTSTRING_SZ};

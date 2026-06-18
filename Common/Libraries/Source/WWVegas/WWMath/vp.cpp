@@ -310,7 +310,7 @@ void VectorProcessorClass::Transform (Vector3* dst,const Vector3 *src, const Mat
 	}
 }
 
-void VectorProcessorClass::Transform(Vector4* dst,const Vector3 *src, const Matrix4& matrix, const int count)
+void VectorProcessorClass::Transform(Vector4* dst,const Vector3 *src, const Matrix4x4& matrix, const int count)
 {
 	if (count<=0) return;
 

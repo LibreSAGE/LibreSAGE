@@ -174,12 +174,12 @@ CollisionMath::Overlap_Test(const PlaneClass & plane,const OBBoxClass & box)
 	Vector3 local_normal;
 	Vector3 posfarpt;
 	Vector3 negfarpt;
-	Matrix3::Transpose_Rotate_Vector(box.Basis,plane.N,&local_normal);
+	Matrix3x3::Transpose_Rotate_Vector(box.Basis,plane.N,&local_normal);
 
 	get_far_extent(local_normal,box.Extent,&posfarpt);
 
 	// transform the two extreme box coordinates into world space
-	Matrix3::Rotate_Vector(box.Basis,posfarpt,&posfarpt);
+	Matrix3x3::Rotate_Vector(box.Basis,posfarpt,&posfarpt);
 	negfarpt = -posfarpt;
 	posfarpt += box.Center;
 	negfarpt += box.Center;

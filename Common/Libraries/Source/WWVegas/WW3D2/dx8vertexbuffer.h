@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -26,12 +27,13 @@
  *                                                                                             *
  *              Original Author:: Jani Penttinen                                               *
  *                                                                                             *
- *                      $Author:: Jani_p                                                      $*
+ *                      $Author:: Kenny Mitchell                                               * 
+ *                                                                                             * 
+ *                     $Modtime:: 06/26/02 5:06p                                             $*
  *                                                                                             *
- *                     $Modtime:: 7/09/01 8:15p                                               $*
+ *                    $Revision:: 26                                                          $*
  *                                                                                             *
- *                    $Revision:: 25                                                          $*
- *                                                                                             *
+ * 06/26/02 KM VB Vertex format size update for shaders                                       *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -84,7 +86,7 @@ class VertexBufferClass : public W3DMPO, public RefCountClass
 	//W3DMPO_GLUE(VertexBufferClass)
 
 protected:
-	VertexBufferClass(unsigned type, unsigned FVF, unsigned short VertexCount);
+	VertexBufferClass(unsigned type, unsigned FVF, unsigned short VertexCount, unsigned vertex_size=0);
 	virtual ~VertexBufferClass();
 public:
 
@@ -99,7 +101,7 @@ public:
 	class WriteLockClass : public VertexBufferLockClass
 	{
 	public:
-		WriteLockClass(VertexBufferClass* vertex_buffer);
+		WriteLockClass(VertexBufferClass* vertex_buffer, int flags=0);
 		~WriteLockClass();
 	};
 
@@ -216,7 +218,7 @@ public:
 		USAGE_NPATCHES=4
 	};
 
-	DX8VertexBufferClass(unsigned FVF, unsigned short VertexCount, UsageType usage=USAGE_DEFAULT);
+	DX8VertexBufferClass(unsigned FVF, unsigned short VertexCount, UsageType usage=USAGE_DEFAULT, unsigned vertex_size=0); // Vertex size not used with FVF formats
 	DX8VertexBufferClass(const Vector3* vertices, const Vector3* normals, const Vector2* tex_coords, unsigned short VertexCount,UsageType usage=USAGE_DEFAULT);
 	DX8VertexBufferClass(const Vector3* vertices, const Vector3* normals, const Vector4* diffuse, const Vector2* tex_coords, unsigned short VertexCount,UsageType usage=USAGE_DEFAULT);
 	DX8VertexBufferClass(const Vector3* vertices, const Vector4* diffuse, const Vector2* tex_coords, unsigned short VertexCount,UsageType usage=USAGE_DEFAULT);

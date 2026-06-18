@@ -123,11 +123,11 @@ inline float NormalCone::Get_Coplanar_Normals(const Vector3 & Input, Vector3 & O
 	// Make a matrix3 which uses it as an axis of rotation and
 	// rotate this about that axis twice, once +Angle, once -Angle.
 	float radians = (1.0f - Angle) * WWMATH_PI * 0.5f;
-	Matrix3 m1(cross, radians);
-	Matrix3 m2(cross, -radians);
+	Matrix3x3 m1(cross, radians);
+	Matrix3x3 m2(cross, -radians);
 
-	Matrix3::Rotate_Vector(m1, *this, & Output1);
-	Matrix3::Rotate_Vector(m2, *this, & Output2);
+	Matrix3x3::Rotate_Vector(m1, *this, & Output1);
+	Matrix3x3::Rotate_Vector(m2, *this, & Output2);
 
 	return length;
 }

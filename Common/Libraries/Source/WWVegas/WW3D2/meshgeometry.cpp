@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -22,15 +23,15 @@
  *                                                                                             *
  *                 Project Name : WW3D                                                         *
  *                                                                                             *
- *                     $Archive:: /VSS_Sync/ww3d2/meshgeometry.cpp                            $*
+ *                     $Archive:: /Commando/Code/ww3d2/meshgeometry.cpp                       $*
  *                                                                                             *
  *              Original Author:: Greg Hjelstrom                                               *
  *                                                                                             *
- *                      $Author:: Vss_sync                                                    $*
+ *                      $Author:: Jani_p                                                      $*
  *                                                                                             *
- *                     $Modtime:: 8/29/01 7:29p                                               $*
+ *                     $Modtime:: 11/24/01 5:34p                                              $*
  *                                                                                             *
- *                    $Revision:: 13                                                          $*
+ *                    $Revision:: 14                                                          $*
  *                                                                                             *
  *---------------------------------------------------------------------------------------------*
  * Functions:                                                                                  *
@@ -96,6 +97,10 @@
 #include "wwmemlog.h"
 #include "w3d_file.h"
 #include "vp.h"
+#include "htree.h"
+#include "matrix4.h"
+#include "rinfo.h"
+#include "camera.h"
 
 
 #if (OPTIMIZE_PLANEEQ_RAM)
@@ -216,7 +221,15 @@ MeshGeometryClass & MeshGeometryClass::operator = (const MeshGeometryClass & tha
 		REF_PTR_SET(PlaneEq,that.PlaneEq);
 		REF_PTR_SET(VertexShadeIdx,that.VertexShadeIdx);
 		REF_PTR_SET(VertexBoneLink,that.VertexBoneLink);
-		REF_PTR_SET(CullTree,that.CullTree);
+
+		// Clone the cull tree..
+		REF_PTR_RELEASE(CullTree);
+
+		if (that.CullTree) {
+			CullTree = NEW_REF(AABTreeClass, ());
+			*CullTree = *that.CullTree;
+			CullTree->Set_Mesh(this);
+		}
 	}
 	return * this;
 }
@@ -276,7 +289,7 @@ void MeshGeometryClass::Reset_Geometry(int polycount,int vertcount)
 
 	// allocate new geometry arrays
 	if ((polycount != 0) && (vertcount != 0)) {
-		Poly = NEW_REF(ShareBufferClass<Vector3i>,(PolyCount, "MeshGeometryClass::Poly"));
+		Poly = NEW_REF(ShareBufferClass<TriIndex>,(PolyCount, "MeshGeometryClass::Poly"));
 		PolySurfaceType = NEW_REF(ShareBufferClass<uint8>,(PolyCount, "MeshGeometryClass::PolySurfaceType"));
 		Vertex = NEW_REF(ShareBufferClass<Vector3>,(VertexCount, "MeshGeometryClass::Vertex"));
 
@@ -440,7 +453,7 @@ void MeshGeometryClass::Generate_Rigid_APT(const Vector3 & view_dir, SimpleDynVe
 {
 	const Vector3 * loc = Get_Vertex_Array();
 	const Vector4 * norms = Get_Plane_Array();
-	const Vector3i * polys = Get_Polygon_Array();
+	const TriIndex * polys = Get_Polygon_Array();
 	TriClass tri;
 
 	for (int poly_counter = 0; poly_counter < PolyCount; poly_counter++) {
@@ -480,7 +493,7 @@ void MeshGeometryClass::Generate_Rigid_APT(const OBBoxClass & local_box, SimpleD
 		// Beware, this is gonna be expensive!
 		const Vector3 * loc = Get_Vertex_Array();
 		const Vector4 * norms = Get_Plane_Array();
-		const Vector3i * polys = Get_Polygon_Array();
+		const TriIndex * polys = Get_Polygon_Array();
 		TriClass tri;
 
 		for (int poly_counter = 0; poly_counter < PolyCount; poly_counter++) {
@@ -519,7 +532,7 @@ void MeshGeometryClass::Generate_Rigid_APT(const OBBoxClass & local_box,const Ve
 		// Beware, this is gonna be expensive!
 		const Vector3 * loc = Get_Vertex_Array();
 		const Vector4 * norms = Get_Plane_Array();
-		const Vector3i * polys = Get_Polygon_Array();
+		const TriIndex * polys = Get_Polygon_Array();
 		TriClass tri;
 
 		for (int poly_counter = 0; poly_counter < PolyCount; poly_counter++) {
@@ -557,7 +570,7 @@ void MeshGeometryClass::Generate_Skin_APT(const OBBoxClass & world_box, SimpleDy
 	WWASSERT(world_vertex_locs);
 
 	// Beware, this is gonna be expensive!
-	const Vector3i * polys = Get_Polygon_Array();
+	const TriIndex * polys = Get_Polygon_Array();
 	TriClass tri;
 
 	for (int poly_counter=0; poly_counter < PolyCount; poly_counter++) {
@@ -828,7 +841,7 @@ int MeshGeometryClass::cast_semi_infinite_axis_aligned_ray(const Vector3 & start
 	
 		const Vector3 * loc = Get_Vertex_Array();
 		const Vector4 * plane = Get_Plane_Array();
-		const Vector3i * polyverts = Get_Polygon_Array();
+		const TriIndex * polyverts = Get_Polygon_Array();
 
 		// These tables translate between the axis_dir representation (which is an integer in which 0
 		// indicates a ray along the positive x axis, 1 along the negative x axis, 2 the positive y
@@ -1030,7 +1043,7 @@ bool MeshGeometryClass::intersect_obbox_brute_force(OBBoxIntersectionTestClass &
 {
 	TriClass tri;
 	const Vector3 * loc = Get_Vertex_Array();
-	const Vector3i * polyverts = Get_Polygon_Array();
+	const TriIndex * polyverts = Get_Polygon_Array();
 #ifndef COMPUTE_NORMALS
 	const Vector4 * norms = Get_Plane_Array();
 #endif
@@ -1079,7 +1092,7 @@ bool MeshGeometryClass::cast_ray_brute_force(RayCollisionTestClass & raytest)
 	int srtri;
 	TriClass tri;
 	const Vector3 * loc = Get_Vertex_Array();
-	const Vector3i * polyverts = Get_Polygon_Array();
+	const TriIndex * polyverts = Get_Polygon_Array();
 #ifndef COMPUTE_NORMALS
 	const Vector4 * norms = Get_Plane_Array();
 #endif
@@ -1103,8 +1116,8 @@ bool MeshGeometryClass::cast_ray_brute_force(RayCollisionTestClass & raytest)
 		tri.N = (Vector3 *)&(norms[srtri]);
 #endif
 		
-		hit = hit | CollisionMath::Collide(raytest.Ray, tri, raytest.Result);
-		if (hit) {
+		if (CollisionMath::Collide(raytest.Ray, tri, raytest.Result)) {
+			hit = true;
 			raytest.Result->SurfaceType = Get_Poly_Surface_Type (srtri);
 		}
 	
@@ -1138,7 +1151,7 @@ bool MeshGeometryClass::cast_aabox_brute_force(AABoxCollisionTestClass & boxtest
 	int polyhit = -1;
 
 	const Vector3 * loc = Get_Vertex_Array();
-	const Vector3i * polyverts = Get_Polygon_Array();
+	const TriIndex * polyverts = Get_Polygon_Array();
 #ifndef COMPUTE_NORMALS
 	const Vector4 * norms = Get_Plane_Array();
 #endif
@@ -1196,7 +1209,7 @@ bool MeshGeometryClass::cast_obbox_brute_force(OBBoxCollisionTestClass & boxtest
 	int polyhit = -1;
 
 	const Vector3 * loc = Get_Vertex_Array();
-	const Vector3i * polyverts = Get_Polygon_Array();
+	const TriIndex * polyverts = Get_Polygon_Array();
 #ifndef COMPUTE_NORMALS
 	const Vector4 * norms = Get_Plane_Array();
 #endif
@@ -1249,7 +1262,7 @@ void MeshGeometryClass::Compute_Plane_Equations(Vector4 * peq)
 {
 	WWASSERT(peq!=NULL);
 
-	Vector3i * poly	= Poly->Get_Array();
+	TriIndex * poly	= Poly->Get_Array();
 	Vector3 * vert		= Vertex->Get_Array();
 
 	for(int pidx = 0; pidx < PolyCount; pidx++)
@@ -1290,7 +1303,7 @@ void MeshGeometryClass::Compute_Vertex_Normals(Vector3 * vnorm)
 	}
 
 	const Vector4 * peq = Get_Plane_Array();
-	Vector3i * poly = Poly->Get_Array();
+	TriIndex * poly = Poly->Get_Array();
 	const uint32 * shadeIx	= Get_Vertex_Shade_Index_Array(false);
 
 	// Two cases, with or without vertex shade indices.  The vertex shade indices
@@ -1513,7 +1526,7 @@ void MeshGeometryClass::Compute_Plane(int pidx,PlaneClass * set_plane) const
 {
 	WWASSERT(pidx >= 0);
 	WWASSERT(pidx < PolyCount);
-	Vector3i & poly = Poly->Get_Array()[pidx];
+	TriIndex & poly = Poly->Get_Array()[pidx];
 	Vector3 * verts = Vertex->Get_Array();
 
 	set_plane->Set(verts[poly.I],verts[poly.J],verts[poly.K]);
@@ -1839,7 +1852,7 @@ WW3DErrorType MeshGeometryClass::read_triangles(ChunkLoadClass & cload)
 	W3dTriStruct tri;
 
 	// cache pointers to various arrays in the surrender mesh
-	Vector3i * vi = get_polys();
+	TriIndex * vi = get_polys();
 	Set_Flag(DIRTY_PLANES,false);
 	Vector4 * peq = get_planes();
 	uint8 * surface_types = Get_Poly_Surface_Type_Array();
@@ -2015,4 +2028,106 @@ void MeshGeometryClass::Scale(const Vector3 &sc)
 	}
 	// pnormals are plane equations...
 	Set_Flag(DIRTY_PLANES,true);
+
+	// the cull tree is invalid, release it and make a new one
+	if (CullTree) {
+		// If the scale is uniform, we can scale the cull tree, which is a lot faster than creating a new one
+		if (fabs(sc[0]-sc[1])<WWMATH_EPSILON && fabs(sc[0]-sc[2])<WWMATH_EPSILON) {
+			// create a copy of the old culltree
+			AABTreeClass *temp = NEW_REF(AABTreeClass, ());
+			*temp = *CullTree;
+			temp->Set_Mesh(this);
+			REF_PTR_SET(CullTree, temp);
+			REF_PTR_RELEASE(temp);
+			CullTree->Scale(sc[0]);
+		}
+		else {
+			REF_PTR_RELEASE(CullTree);
+			Generate_Culling_Tree();
+		}
+	}
+}
+
+
+// Destination pointers MUST point to arrays large enough to hold all vertices
+void MeshGeometryClass::get_deformed_vertices(Vector3 *dst_vert,const HTreeClass * htree)
+{
+	Vector3 * src_vert = Vertex->Get_Array();
+	uint16 * bonelink = VertexBoneLink->Get_Array();
+	for (int vi = 0; vi < Get_Vertex_Count(); vi++) {
+		const Matrix3D & tm = htree->Get_Transform(bonelink[vi]);
+		Matrix3D::Transform_Vector(tm, src_vert[vi], &(dst_vert[vi]));
+	}
+}
+
+
+// Destination pointers MUST point to arrays large enough to hold all vertices
+void MeshGeometryClass::get_deformed_vertices(Vector3 *dst_vert, Vector3 *dst_norm,const HTreeClass * htree)
+{
+	int vi;
+	int vertex_count=Get_Vertex_Count();
+	Vector3 * src_vert = Vertex->Get_Array();
+#if (OPTIMIZE_VNORMS)
+	Vector3 * src_norm = (Vector3 *)Get_Vertex_Normal_Array();
+#else
+	Vector3 * src_norm = VertexNorm->Get_Array();
+#endif
+	uint16 * bonelink = VertexBoneLink->Get_Array();
+
+	for (vi = 0; vi < vertex_count;) {
+		const Matrix3D & tm = htree->Get_Transform(bonelink[vi]);
+
+		// Make a copy so we can set the translation to zero
+		Matrix3D mytm=tm;		
+
+		int idx=bonelink[vi];
+		int cnt;
+		for (cnt = vi; cnt < vertex_count; cnt++) {
+			if (idx!=bonelink[cnt]) {
+				break;
+			}
+		}
+
+		VectorProcessorClass::Transform(dst_vert+vi,src_vert+vi,mytm,cnt-vi);
+		mytm.Set_Translation(Vector3(0.0f,0.0f,0.0f));
+		VectorProcessorClass::Transform(dst_norm+vi,src_norm+vi,mytm,cnt-vi);
+		vi=cnt;
+	}
+}
+
+// Destination pointers MUST point to arrays large enough to hold all vertices
+void MeshGeometryClass::get_deformed_screenspace_vertices(Vector4 *dst_vert,const RenderInfoClass & rinfo,const Matrix3D & mesh_transform,const HTreeClass * htree)
+{
+	Matrix4x4 prj = rinfo.Camera.Get_Projection_Matrix() * rinfo.Camera.Get_View_Matrix() * mesh_transform;
+
+	Vector3 * src_vert = Vertex->Get_Array();
+	int vertex_count=Get_Vertex_Count();
+	
+	if (Get_Flag(SKIN) && VertexBoneLink && htree) {
+		uint16 * bonelink = VertexBoneLink->Get_Array();
+		for (int vi = 0; vi < vertex_count;) {
+			int idx=bonelink[vi];
+
+			Matrix4x4 tm = prj * htree->Get_Transform(idx);
+
+			// Count equal matrices (the vertices should be pre-sorted by matrices they use)
+			int cnt;
+			for (cnt = vi; cnt < vertex_count; cnt++) if (idx!=bonelink[cnt]) break;
+
+			// Transform to screenspace (x,y,z,w)
+			VectorProcessorClass::Transform(
+				dst_vert+vi,
+				src_vert+vi,
+				tm,
+				cnt-vi);
+
+			vi=cnt;
+		}
+	} else {
+		VectorProcessorClass::Transform(
+			dst_vert,
+			src_vert,
+			prj,
+			vertex_count);
+	}
 }
