@@ -224,5 +224,22 @@ private:
 	float *  PResult;
 };
 
+// ----------------------------------------------------------------------------
+//
+// Use the first macro to log time and memory usage within the stack segment.
+// Use the second macro to log intermediate values. The intermediate values are
+// calculated from the previous intermediate log, so you can log how much each
+// item takes by placing the macro after each of the
+//
+// ----------------------------------------------------------------------------
+
+#ifdef ENABLE_TIME_AND_MEMORY_LOG
+#define WWLOG_PREPARE_TIME_AND_MEMORY(t) WWMemoryAndTimeLog memory_and_time_log(t)
+#define WWLOG_INTERMEDIATE(t) memory_and_time_log.Log_Intermediate(t)
+#else
+#define WWLOG_PREPARE_TIME_AND_MEMORY(t)
+#define WWLOG_INTERMEDIATE(t)
+#endif
+
 
 #endif	// WWPROFILE_H

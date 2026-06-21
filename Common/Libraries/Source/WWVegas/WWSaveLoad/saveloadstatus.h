@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -29,7 +30,11 @@
 namespace SaveLoadStatus
 {
 	void Set_Status_Text(const char* text,int id);
-	StringClass Get_Status_Text(int id);
+
+	void	Reset_Status_Count( void );
+	void	Inc_Status_Count( void );
+	int	Get_Status_Count( void );
+	void Get_Status_Text(StringClass& text, int id);
 };
 
 #define INIT_STATUS(t) SaveLoadStatus::Set_Status_Text(t,0)

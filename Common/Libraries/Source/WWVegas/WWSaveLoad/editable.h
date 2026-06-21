@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -56,7 +57,7 @@
 //	EditableClass
 //
 //////////////////////////////////////////////////////////////////////////////////
-class EditableClass : public PersistClass
+class EditableClass
 {
 public:
 
@@ -243,6 +244,27 @@ EditableClass::Unlock_Parameter (int i)
 		param->Set_Extension (extension);												\
 		plist_##_class.Add (param); }														\
 
+	#define NAMED_FILENAME_PARAM(_class, data, name, desc, extension) {						\
+		FilenameParameterClass *param = W3DNEW FilenameParameterClass (&data);	\
+		param->Set_Name (name);																\
+		param->Set_Description (desc);													\
+		param->Set_Extension (extension);												\
+		plist_##_class.Add (param); }														\
+
+	#define TEXTURE_FILENAME_PARAM(_class, data, desc, extension) {						\
+		TextureFilenameParameterClass *param = W3DNEW TextureFilenameParameterClass (&data);	\
+		param->Set_Name (#data);															\
+		param->Set_Description (desc);													\
+		param->Set_Extension (extension);												\
+		plist_##_class.Add (param); }														\
+
+	#define NAMED_TEXTURE_FILENAME_PARAM(_class, data, name, desc, extension) {						\
+		TextureFilenameParameterClass *param = W3DNEW TextureFilenameParameterClass (&data);	\
+		param->Set_Name (name);																\
+		param->Set_Description (desc);													\
+		param->Set_Extension (extension);												\
+		plist_##_class.Add (param); }														\
+
 	#define DEFIDLIST_PARAM(_class, data, root_class_id) {							\
 		DefIDListParameterClass *param = W3DNEW DefIDListParameterClass (&data);	\
 		param->Set_Name (#data);																\
@@ -292,8 +314,11 @@ EditableClass::Unlock_Parameter (int i)
 	#define SCRIPT_PARAM(_class, name, params)
 	#define SCRIPTLIST_PARAM(_class, name, name_list, param_list)
 	#define ENUM_PARAM(_class, data, params) 							
-	#define FILENAME_PARAM(_class, data, desc, extension) 						
-	#define DEFIDLIST_PARAM(_class, data, root_class_id) 							
+	#define FILENAME_PARAM(_class, data, desc, extension)
+	#define NAMED_FILENAME_PARAM(_class, data, name, desc, extension)
+	#define TEXTURE_FILENAME_PARAM(_class, data, desc, extension)
+	#define NAMED_TEXTURE_FILENAME_PARAM(_class, data, name, desc, extension)
+	#define DEFIDLIST_PARAM(_class, data, root_class_id)
 	#define CLASSID_DEFIDLIST_PARAM(_class, data, root_class_id, class_id, name) 	
 	#define ZONE_PARAM(_class, data, name) 											
 	#define PARAM_SEPARATOR(_class, name) 											

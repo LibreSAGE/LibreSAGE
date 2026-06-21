@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -42,6 +43,7 @@
 #include "persistfactory.h"
 #include "win.h"
 #include "wwhack.h"
+#include "systimer.h"
 
 
 DECLARE_FORCE_LINK( Twiddler )
@@ -111,7 +113,7 @@ TwiddlerClass::Twiddle (void) const
 		//
 		//	Get a random index into our definition list
 		//
-		RandomClass randomizer (::GetTickCount ());
+		RandomClass randomizer (TIMEGETTIME ());
 		int index = randomizer (0, m_DefinitionList.Count () - 1);
 
 		//

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -82,7 +83,7 @@ private:
 	/////////////////////////////////////////////////////////////////////
 	// Private member data
 	/////////////////////////////////////////////////////////////////////
-	DynamicVectorClass<ParameterClass *>		m_Parameters;
+	//DynamicVectorClass<ParameterClass *>		m_Parameters;
 };
 
 
@@ -151,7 +152,8 @@ ParameterListClass::Free_Parameters (void)
 		}
 	}
 
-	m_Parameters.Delete_All ();
+	Delete_All();
+//	m_Parameters.Delete_All ();
 	return ;
 }
 

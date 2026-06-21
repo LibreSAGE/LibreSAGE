@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -43,6 +44,9 @@
 #include "wwdebug.h"
 #include "saveloadstatus.h"
 #include "wwhack.h"
+#include "wwprofile.h"
+
+#include "systimer.h"
 
 
 SaveLoadSubSystemClass *		SaveLoadSystemClass::SubSystemListHead = NULL;
@@ -68,38 +72,58 @@ bool SaveLoadSystemClass::Save (ChunkSaveClass &csave,SaveLoadSubSystemClass & s
 
 bool SaveLoadSystemClass::Load (ChunkLoadClass &cload,bool auto_post_load)
 {
-//	WWASSERT(PostLoadList.Head() == NULL);
-
+	WWLOG_PREPARE_TIME_AND_MEMORY("SaveLoadSystemClass::Load");
 	PointerRemapper.Reset();
+	WWLOG_INTERMEDIATE("PointerRemapper.Reset()");
 	bool ok = true;
 
 	// Load each chunk we encounter and link the manager into the PostLoad list
 	while (cload.Open_Chunk ()) {
+		SaveLoadStatus::Inc_Status_Count();		// Count the sub systems loaded
 		SaveLoadSubSystemClass *sys = Find_Sub_System(cload.Cur_Chunk_ID ());
+		WWLOG_INTERMEDIATE("Find_Sub_System");
 		if (sys != NULL) {
+//WWRELEASE_SAY(("			Name: %s\n",sys->Name()));
 			INIT_SUB_STATUS(sys->Name());
 			ok &= sys->Load(cload);
+			WWLOG_INTERMEDIATE(sys->Name());
 		}
 		cload.Close_Chunk();
 	}
 
 	// Process all of the pointer remap requests
 	PointerRemapper.Process();
+	WWLOG_INTERMEDIATE("PointerRemapper.Process()");
 	PointerRemapper.Reset();
+	WWLOG_INTERMEDIATE("PointerRemapper.Reset()");
 
 	// Call PostLoad on each PersistClass that wanted post-load
 	if (auto_post_load) {
-		Post_Load_Processing();
+		Post_Load_Processing(NULL);
 	}
+	WWLOG_INTERMEDIATE("PostLoadProcessing");
 
 	return ok;
 }
 
-bool SaveLoadSystemClass::Post_Load_Processing (void)
+// Nework update macro for post loader.
+#define UPDATE_NETWORK 											\
+	if (network_callback) {                            \
+		unsigned long time2 = TIMEGETTIME();            \
+		if (time2 - time > 20) {                        \
+			network_callback();                          \
+			time = time2;                                \
+		}                                               \
+	}                                                  \
+
+bool SaveLoadSystemClass::Post_Load_Processing (void(*network_callback)(void))
 {
+	unsigned long time = TIMEGETTIME();
+
 	// Call PostLoad on each PersistClass that wanted post-load
 	PostLoadableClass * obj = PostLoadList.Remove_Head();
 	while (obj) {
+		UPDATE_NETWORK;
 		obj->On_Post_Load();
 		obj->Set_Post_Load_Registered(false);
 		obj = PostLoadList.Remove_Head();

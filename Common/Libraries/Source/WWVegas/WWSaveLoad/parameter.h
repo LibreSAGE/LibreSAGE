@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -97,6 +98,7 @@ public:
 		TYPE_SCRIPTLIST,
 		TYPE_VECTOR2,
 		TYPE_RECT,
+		TYPE_TEXTURE_FILENAME,
 		TYPE_STRINGSDB_ID
 
 	}	Type;
@@ -343,6 +345,46 @@ protected:
 	//////////////////////////////////////////////////////////////////////////////
 	StringClass				m_Extension;
 	StringClass				m_Description;
+};
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	TextureFilenameParameterClass
+//
+//////////////////////////////////////////////////////////////////////////////////
+class TextureFilenameParameterClass : public FilenameParameterClass
+{
+public:
+
+	//////////////////////////////////////////////////////////////////////////////
+	//	Public constructors/destructors
+	//////////////////////////////////////////////////////////////////////////////
+	TextureFilenameParameterClass(StringClass *string);
+	TextureFilenameParameterClass(const TextureFilenameParameterClass& src);
+	virtual ~TextureFilenameParameterClass() {}
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//	Public methods
+	//////////////////////////////////////////////////////////////////////////////
+
+	// Type identification
+	virtual Type			Get_Type (void) const { return TYPE_TEXTURE_FILENAME; }
+	virtual bool			Is_Type (Type type) const { return (type == TYPE_TEXTURE_FILENAME) || StringParameterClass::Is_Type (type); }
+
+	void						Set_Show_Alpha(bool show) { Show_Alpha=show; }
+	bool						Get_Show_Alpha() const { return Show_Alpha; }
+
+	void						Set_Show_Texture(bool show) { Show_Texture=show; }
+	bool						Get_Show_Texture() const { return Show_Texture; }
+
+	// Copy methods
+	virtual void			Copy_Value (const ParameterClass &src);
+
+protected:
+
+	bool						Show_Alpha;
+	bool						Show_Texture;
 };
 
 

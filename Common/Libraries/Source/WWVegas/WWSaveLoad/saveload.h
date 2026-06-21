@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -148,7 +149,7 @@ public:
 	*/
 	static bool		Save (ChunkSaveClass &csave, SaveLoadSubSystemClass & subsystem);
 	static bool		Load (ChunkLoadClass &cload,bool auto_post_load = true);	
-	static bool		Post_Load_Processing (void);
+	static bool		Post_Load_Processing (void(*network_callback)(void));
 
 	/*
 	** Look up the persist factory for a given chunk id

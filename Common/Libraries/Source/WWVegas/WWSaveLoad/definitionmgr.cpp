@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -868,10 +869,10 @@ DefinitionMgrClass::Get_New_ID (uint32 class_id)
 	uint32 idrange_start = (class_id - DEF_CLASSID_START) * IDRANGE_PER_CLASS;
 	uint32 idrange_end	= (idrange_start + IDRANGE_PER_CLASS);
 
-	uint32 new_id = idrange_start;
+	uint32 new_id = idrange_start + 1;
 
 	//
-	//	Loop through all the definition objects
+	//	Try to find the first empty slot in this ID range
 	//
 	for (int index = 0; index < _DefinitionCount; index ++) {
 		DefinitionClass *definition = _SortedDefinitionArray[index];
@@ -886,16 +887,34 @@ DefinitionMgrClass::Get_New_ID (uint32 class_id)
 			//	Is this id in the range we are looking for?
 			//
 			if (curr_id >= idrange_start && curr_id < idrange_end) {
-				
+
+				bool is_ok = false;
+				if (index < _DefinitionCount - 1) {
+
+					//
+					//	Check to see if the next definition in our array leaves a hole in the
+					// ID range.
+					//
+					DefinitionClass *next_definition = _SortedDefinitionArray[index + 1];
+					if (next_definition != NULL && next_definition->Get_ID () > (curr_id + 1)) {
+						is_ok = true;
+					}
+
+				} else {
+					is_ok = true;
+				}
+
 				//
-				//	Take the largest ID in the range
+				//	Return the new ID
 				//
-				new_id = max (new_id, curr_id);
+				if (is_ok) {
+					new_id = curr_id + 1;
+					break;
+				}
 			}
 		}
 	}
-	
-	new_id ++;
+
 	return new_id;
 }
 

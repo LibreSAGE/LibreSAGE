@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -103,6 +104,11 @@ ParameterClass::Construct (Type type, void *data, const char *name)
 
 		case TYPE_FILENAME:
 			new_param = W3DNEW FilenameParameterClass ((StringClass *)data);
+			new_param->Set_Name (name);
+			break;
+
+		case TYPE_TEXTURE_FILENAME:
+			new_param = W3DNEW TextureFilenameParameterClass ((StringClass *)data);
 			new_param->Set_Name (name);
 			break;
 
@@ -390,6 +396,55 @@ void
 FilenameParameterClass::Copy_Value (const ParameterClass &src)
 {
 	if (src.Is_Type (ParameterClass::TYPE_FILENAME)) {
+		Set_String (((FilenameParameterClass &)src).Get_String ());
+	}
+
+	StringParameterClass::Copy_Value (src);
+	return ;
+}
+
+
+//*******************************************************************************************//
+//
+//	Start of TextureFilenameParameterClass
+//
+//*******************************************************************************************//
+
+
+/////////////////////////////////////////////////////////////////////
+//
+//	TextureFilenameParameterClass
+//
+/////////////////////////////////////////////////////////////////////
+TextureFilenameParameterClass::TextureFilenameParameterClass (StringClass *string)
+:	FilenameParameterClass (string),
+	Show_Alpha(false),
+	Show_Texture(false)
+{
+}
+
+
+/////////////////////////////////////////////////////////////////////
+//
+//	TextureFilenameParameterClass
+//
+/////////////////////////////////////////////////////////////////////
+TextureFilenameParameterClass::TextureFilenameParameterClass (const TextureFilenameParameterClass &src)
+:	FilenameParameterClass (src),
+	Show_Alpha(false),
+	Show_Texture(false)
+{
+}
+
+/////////////////////////////////////////////////////////////////////
+//
+//	Copy_Value
+//
+/////////////////////////////////////////////////////////////////////
+void TextureFilenameParameterClass::Copy_Value (const ParameterClass &src)
+{
+	if (src.Is_Type (ParameterClass::TYPE_TEXTURE_FILENAME))
+	{
 		Set_String (((FilenameParameterClass &)src).Get_String ());
 	}
 
@@ -852,9 +907,7 @@ const DefParameterClass &
 DefParameterClass::operator= (const DefParameterClass &src)
 {
 	m_Value = src.m_Value;
-//MW: Had to comment out next line to remove infinite loop warning on
-//latest VC++.
-//	DefParameterClass::operator= (src);
+	ParameterClass::operator= (src);
 	return *this;
 }
 
