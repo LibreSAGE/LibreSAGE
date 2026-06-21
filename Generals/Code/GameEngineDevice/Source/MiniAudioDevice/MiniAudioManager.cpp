@@ -553,7 +553,8 @@ void MiniAudioManager::releasePlayingAudio( PlayingAudio *release )
 	}
 	releaseMilesHandles(release);	// forces stop of this audio
 	if (release->m_cleanupAudioEventRTS) {
-		releaseAudioEventRTS(release->m_audioEventRTS);
+		// This causes a double free in USA campaign and probably other places
+		//releaseAudioEventRTS(release->m_audioEventRTS);
 	}
 	delete release;
 	release = NULL;

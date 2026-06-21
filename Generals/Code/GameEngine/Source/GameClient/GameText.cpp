@@ -328,6 +328,10 @@ void GameTextManager::init( void )
 		return;
 	}
 
+	Int extraCount = 0;
+	getStringCount( "Data\\Patch.str", extraCount );
+	m_textCount += extraCount;
+
 	//Allocate StringInfo Array
 
 	m_stringInfo = NEW StringInfo[m_textCount];
@@ -354,6 +358,24 @@ void GameTextManager::init( void )
 			return;
 		}
 	}
+
+	StringInfo tempExtra[extraCount] = {};
+	StringInfo *pOriginal = m_stringInfo;
+	m_stringInfo = &tempExtra[0];
+	// Currently contains only two extra strings for Steam version
+	// If it fails, it's not that big of a deal
+	if ( parseStringFile( "Data\\Patch.str" ) )
+	{
+		for ( Int i = 0; i < extraCount; i++ )
+		{
+			if (tempExtra[i].label.isEmpty())
+			{
+				break;
+			}
+			pOriginal[m_textCount - extraCount + i] = tempExtra[i];
+		}
+	}
+	m_stringInfo = pOriginal;
 
 	m_stringLUT = NEW StringLookUp[m_textCount];
 

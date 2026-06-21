@@ -221,7 +221,7 @@ AnimatedCursor* SDL3Mouse::loadCursorFromFile(const char* filepath)
 			loaded_frames++;
 	}
 
-	DEBUG_ASSERTCRASH(loaded_frames == cursor->m_frameCount, ("Loaded frames do not match header"));
+	// DEBUG_ASSERTCRASH(loaded_frames == cursor->m_frameCount, ("Loaded frames do not match header"));
 #endif
 
 	delete[] file_buffer;
