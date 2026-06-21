@@ -14,5 +14,9 @@ qt_add_executable(
   wdumpwin.cpp
   wdumpwin.h)
 
+qt_add_resources(c_wdump "resources"
+  PREFIX "/"
+  FILES wdump.ico)
+
 set_target_properties(c_wdump PROPERTIES OUTPUT_NAME "wdump")
 target_link_libraries(c_wdump PRIVATE Qt6::Widgets c_wwlib c_ww3d2)

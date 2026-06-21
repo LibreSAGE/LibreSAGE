@@ -24,6 +24,7 @@
 
 class QTableView;
 class QTreeView;
+class QAction;
 namespace Ui
 {
     class WDumpWindow;
@@ -38,10 +39,20 @@ public:
 
 private slots:
     void OnFileOpen();
+    void OnOpenRecentFile();
+    void OnAbout();
     void OnExit();
     void OnTreeSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
+    void LoadFile(const QString &fileName);
+    void AddToRecentFiles(const QString &fileName);
+    void UpdateRecentFileActions();
+
+    static constexpr int MaxRecentFiles = 10;
+
     Ui::WDumpWindow *m_ui;
     ChunkData m_chunkData;
+    QAction *m_recentFileActions[MaxRecentFiles];
+    QAction *m_recentFileSeparator;
 };

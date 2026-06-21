@@ -16,10 +16,6 @@ qt_add_executable(
   graphicview.cpp
   graphicview.h
   loddefs.h
-  qfilewrapper.cpp
-  qfilewrapper.h
-  qsdlwindow.cpp
-  qsdlwindow.h
   utils.cpp
   utils.h
   viewerassetmgr.cpp
@@ -57,7 +53,7 @@ qt_add_resources(c_w3dview "icons" PREFIX "/icons" BASE Res FILES
 set_target_properties(c_w3dview PROPERTIES OUTPUT_NAME "W3DView")
 target_include_directories(c_w3dview PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(c_w3dview PRIVATE Qt6::Core Qt6::Widgets Qt6::Gui c_wwlib
-                                        c_ww3d2 c_wwstub)
+                                        c_ww3d2 c_wwstub c_wwqt6)
 if(TARGET Qt6::GuiPrivate)
   target_link_libraries(c_w3dview PRIVATE Qt6::GuiPrivate)
 endif()
