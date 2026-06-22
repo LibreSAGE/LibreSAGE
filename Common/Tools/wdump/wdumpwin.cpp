@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QCoreApplication>
+#include <QStatusBar>
+#include <QStyle>
 
 WDumpWindow::WDumpWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -16,9 +18,16 @@ WDumpWindow::WDumpWindow(QWidget *parent) : QMainWindow(parent)
 
     setWindowIcon(QIcon(":/wdump.ico"));
 
+    // Give the toolbar actions icons (the MFC port used a toolbar bitmap; we
+    // borrow the platform's standard icons here).
+    m_ui->actionOpen->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+    m_ui->actionAbout->setIcon(style()->standardIcon(QStyle::SP_MessageBoxInformation));
+
     connect(m_ui->actionOpen, &QAction::triggered, this, &WDumpWindow::OnFileOpen);
     connect(m_ui->actionAbout, &QAction::triggered, this, &WDumpWindow::OnAbout);
     connect(m_ui->actionExit, &QAction::triggered, this, &WDumpWindow::OnExit);
+
+    statusBar()->showMessage(tr("Ready"));
 
     // Insert the recent-files entries into the File menu, ahead of the Exit item.
     m_recentFileSeparator = m_ui->menuFile->insertSeparator(m_ui->actionExit);
@@ -64,6 +73,7 @@ void WDumpWindow::LoadFile(const QString &fileName)
     if(!m_chunkData.Load(fileName.toStdString().c_str()))
     {
         fprintf(stderr,"Failed to load file %s\n", fileName.toStdString().c_str());
+        statusBar()->showMessage(tr("Failed to load %1").arg(QFileInfo(fileName).fileName()));
         return;
     }
     m_ui->treeView->setModel(new ChunkDataModel(&m_chunkData, this));
@@ -75,6 +85,7 @@ void WDumpWindow::LoadFile(const QString &fileName)
                 &WDumpWindow::OnTreeSelectionChanged);
     }
     AddToRecentFiles(fileName);
+    statusBar()->showMessage(tr("Loaded %1").arg(QFileInfo(fileName).fileName()));
 }
 
 void WDumpWindow::AddToRecentFiles(const QString &fileName)

@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,43 +17,21 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// FILE: ImageInfo.h //////////////////////////////////////////////////////////
-//-----------------------------------------------------------------------------
-//                                                                          
-//                       Westwood Studios Pacific.                          
-//                                                                          
-//                       Confidential Information					         
-//                Copyright (C) 2001 - All Rights Reserved                  
-//                                                                          
-//-----------------------------------------------------------------------------
+// FILE: imageinfo.h //////////////////////////////////////////////////////////
 //
 // Project:    ImagePacker
-//
-// File name:  ImageInfo.h
 //
 // Created:    Colin Day, August 2001
 //
 // Desc:       Image descriptor for the image packer
 //
-//-----------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#ifndef __IMAGEINFO_H_
-#define __IMAGEINFO_H_
-
-// SYSTEM INCLUDES ////////////////////////////////////////////////////////////
-
-// USER INCLUDES //////////////////////////////////////////////////////////////
 #include "Lib/BaseType.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// FORWARD REFERENCES /////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
 class TexturePage;
-
-// TYPE DEFINES ///////////////////////////////////////////////////////////////
 
 // ImageInfo ------------------------------------------------------------------
 /** Image file information */
@@ -61,7 +40,7 @@ class ImageInfo
 {
 
 public:
-	
+
 	enum
 	{
 		UNPACKED					= 0x00000001,  ///< this image has not yet been packed
@@ -98,19 +77,12 @@ public:
 	TexturePage *m_page;  ///< pointer to page this image is now packed on
 	ImageInfo *m_nextPageImage;  ///< next image on texture page
 	ImageInfo *m_prevPageImage;  ///< previous image on texture page
-	IRegion2D m_pagePos;  /** once placed on a texture page this has the 
+	IRegion2D m_pagePos;  /** once placed on a texture page this has the
 												coords of the image on the page, it does not include
 												any padding from stretching borders and gutters */
-	
+
 	UnsignedInt m_fitBits;  /**< bit flags of the region used to fit this image on
 													a page and therefore to create m_pagePos */
 	ICoord2D m_gutterUsed;  ///< the gutter size actually used in this image fit
 
 };
-
-// INLINING ///////////////////////////////////////////////////////////////////
-
-// EXTERNALS //////////////////////////////////////////////////////////////////
-
-#endif // __IMAGEINFO_H_
-

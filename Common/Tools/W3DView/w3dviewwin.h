@@ -47,6 +47,7 @@ private slots:
     void OnOpenRecentFile();
     void OnAbout();
     void OnExit();
+    void OnListMissingTextures();
     void OnTreeSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 public:

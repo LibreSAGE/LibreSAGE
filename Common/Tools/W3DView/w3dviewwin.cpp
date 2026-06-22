@@ -51,6 +51,8 @@
 #include <QStatusBar>
 #include <QMessageBox>
 #include <QIcon>
+#include <QStyle>
+#include <QToolBar>
 #include "ui_w3dviewwin.h"
 
 // Status-bar refresh cadence (ms); also used to derive render FPS.
@@ -99,6 +101,29 @@ W3DViewWindow::W3DViewWindow(QWidget *parent) : QMainWindow(parent)
     connect(m_ui->actionOpen, &QAction::triggered, this, &W3DViewWindow::OnFileOpen);
     connect(m_ui->actionExit, &QAction::triggered, this, &W3DViewWindow::OnExit);
     connect(m_ui->actionAbout, &QAction::triggered, this, &W3DViewWindow::OnAbout);
+    connect(m_ui->actionListMissingTextures, &QAction::triggered, this, &W3DViewWindow::OnListMissingTextures);
+
+    // Main toolbar (the Qt equivalent of Renegade's IDR_MAINFRAME m_wndToolBar).
+    // The actions are shared with the menus; here we give them icons and let
+    // View > Toolbars > Main toggle the toolbar's visibility.
+    m_ui->actionNew->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
+    m_ui->actionOpen->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+    m_ui->actionExportEmitter->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    m_ui->actionExportAggregate->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    m_ui->actionExportLOD->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    m_ui->actionExportPrimitive->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    m_ui->actionExportSoundObject->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    m_ui->actionListMissingTextures->setIcon(style()->standardIcon(QStyle::SP_MessageBoxWarning));
+    m_ui->actionCopyAssets->setIcon(style()->standardIcon(QStyle::SP_DirIcon));
+    m_ui->actionAddToLineup->setIcon(style()->standardIcon(QStyle::SP_FileDialogNewFolder));
+    m_ui->actionAbout->setIcon(style()->standardIcon(QStyle::SP_MessageBoxInformation));
+
+    m_ui->actionToolbarMain->setCheckable(true);
+    m_ui->actionToolbarMain->setChecked(true);
+    connect(m_ui->actionToolbarMain, &QAction::toggled,
+            m_ui->mainToolBar, &QWidget::setVisible);
+    connect(m_ui->mainToolBar, &QToolBar::visibilityChanged,
+            m_ui->actionToolbarMain, &QAction::setChecked);
 
     // Recently-used file entries in the File menu, just ahead of Exit.
     m_recentFileSeparator = m_ui->menuFile->insertSeparator(m_ui->actionExit);
@@ -419,6 +444,33 @@ void W3DViewWindow::OnAbout()
                      "Qt port by Stephan Vedder.</p>")
                       .arg(QApplication::applicationVersion()));
     about.exec();
+}
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  OnListMissingTextures
+//
+//  Mirrors Renegade's CMainFrame::OnListMissingTextures - report the textures
+//  that could not be found while loading the current object.
+//
+////////////////////////////////////////////////////////////////////////////
+void W3DViewWindow::OnListMissingTextures()
+{
+    DynamicVectorClass<QString> &texture_list = _TheAssetMgr->Get_Missing_Texture_List();
+    if (texture_list.Count() > 0)
+    {
+        QString message = tr("Warning!  The following textures are missing:\n\n");
+        for (int index = 0; index < texture_list.Count(); ++index)
+        {
+            message += texture_list[index];
+            message += '\n';
+        }
+        QMessageBox::warning(this, tr("Missing Textures"), message);
+    }
+    else
+    {
+        QMessageBox::information(this, tr("Texture Info"), tr("No Missing Textures!"));
+    }
 }
 
 void W3DViewWindow::CreateStatusBar()

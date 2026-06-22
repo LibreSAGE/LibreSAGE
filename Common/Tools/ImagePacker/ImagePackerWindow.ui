@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImagePackerWindow</class>
+ <widget class="QMainWindow" name="ImagePackerWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>440</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Image Packer</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item>
+     <layout class="QHBoxLayout" name="topLayout">
+      <item>
+       <layout class="QVBoxLayout" name="leftLayout">
+        <item>
+         <layout class="QFormLayout" name="fileLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelFilename">
+            <property name="text">
+             <string>Output File Base Name:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="editFilename"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkIni">
+          <property name="text">
+           <string>Create INI Mapped Image File</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkAlpha">
+          <property name="text">
+           <string>Output Alpha Channel</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupSize">
+          <property name="title">
+           <string>Output Image Size</string>
+          </property>
+          <layout class="QVBoxLayout" name="sizeLayout">
+           <item>
+            <widget class="QRadioButton" name="radio128">
+             <property name="text">
+              <string>128 x 128</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radio256">
+             <property name="text">
+              <string>256 x 256</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radio512">
+             <property name="text">
+              <string>512 x 512</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="otherLayout">
+             <item>
+              <widget class="QRadioButton" name="radioOther">
+               <property name="text">
+                <string>Other</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="editWidth">
+               <property name="maximumWidth">
+                <number>48</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelX">
+               <property name="text">
+                <string>x</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="editHeight">
+               <property name="maximumWidth">
+                <number>48</number>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="otherSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkCompress">
+             <property name="text">
+              <string>Compress Final Texture Pages</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="leftSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="rightLayout">
+        <item>
+         <widget class="QGroupBox" name="groupGap">
+          <property name="title">
+           <string>Gap Method</string>
+          </property>
+          <layout class="QVBoxLayout" name="gapLayout">
+           <item>
+            <widget class="QCheckBox" name="checkExtendRgb">
+             <property name="text">
+              <string>Extend RGB at Image Edges (All Sides, NO Alpha)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="gutterLayout">
+             <item>
+              <widget class="QCheckBox" name="checkGutter">
+               <property name="text">
+                <string>Transparent Gap (Right and Bottom Only)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="editGutter">
+               <property name="maximumWidth">
+                <number>48</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelGutter">
+               <property name="text">
+                <string>Pixels Between Packed Images</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupFolders">
+          <property name="title">
+           <string>Folders Containing Source Images</string>
+          </property>
+          <layout class="QVBoxLayout" name="foldersLayout">
+           <item>
+            <layout class="QHBoxLayout" name="folderButtonLayout">
+             <item>
+              <widget class="QPushButton" name="buttonAddFolder">
+               <property name="text">
+                <string>Add Folder(s)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="buttonRemoveFolder">
+               <property name="text">
+                <string>Remove Folder(s)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkSubFolders">
+             <property name="text">
+              <string>Use Sub-folders</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="listFolders">
+             <property name="selectionMode">
+              <enum>QAbstractItemView::ExtendedSelection</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupPreview">
+          <property name="title">
+           <string>Preview</string>
+          </property>
+          <layout class="QVBoxLayout" name="previewLayout">
+           <item>
+            <layout class="QHBoxLayout" name="previewButtonLayout">
+             <item>
+              <widget class="QPushButton" name="buttonPreview">
+               <property name="text">
+                <string>Open Preview</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="buttonPrev">
+               <property name="text">
+                <string>&lt;- Prev</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="buttonNext">
+               <property name="text">
+                <string>Next -&gt;</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkShowTexture">
+             <property name="text">
+              <string>Show Texture In Preview</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="bottomLayout">
+      <item>
+       <widget class="QPushButton" name="buttonStart">
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonExit">
+        <property name="text">
+         <string>Exit</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="bottomSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

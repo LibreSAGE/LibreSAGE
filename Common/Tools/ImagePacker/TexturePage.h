@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,48 +17,24 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// FILE: TexturePage.h ////////////////////////////////////////////////////////
-//-----------------------------------------------------------------------------
-//                                                                          
-//                       Westwood Studios Pacific.                          
-//                                                                          
-//                       Confidential Information					         
-//                Copyright (C) 2001 - All Rights Reserved                  
-//                                                                          
-//-----------------------------------------------------------------------------
+// FILE: texturepage.h ////////////////////////////////////////////////////////
 //
 // Project:    ImagePacker
-//
-// File name:  TexturePage.h
 //
 // Created:    Colin Day, August 2001
 //
 // Desc:			 This class represents a texture that contains packed
 //						 images.
 //
-//-----------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#ifndef __TEXTUREPAGE_H_
-#define __TEXTUREPAGE_H_
-
-// SYSTEM INCLUDES ////////////////////////////////////////////////////////////
 #include <stdlib.h>
 
-///////////////////////////////////////////////////////////////////////////////
-// USER INCLUDES //////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-#include "WWLib/Targa.h"
+#include "targa.h"
 #include "Lib/BaseType.h"
 #include "ImageInfo.h"
-
-// FORWARD REFERENCES /////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
-// TYPE DEFINES ///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
 
 // TexturePage ----------------------------------------------------------------
 /** A texture page continaing multiple source images */
@@ -92,7 +69,7 @@ public:
 	Int getID( void );  ///< get page id
 
 	Bool generateTexture( void );  ///< generate the final packed texture
-	Bool writeFile( char *baseFilename );  ///< write generated texture to file
+	Bool writeFile( const char *baseFilename );  ///< write generated texture to file
 
 	ImageInfo *getFirstImage( void );  ///< get the first image in the list
 
@@ -114,9 +91,9 @@ protected:
 
 	/// build a region to try to fit given the position, size, and border options
 	UnsignedInt buildFitRegion( IRegion2D *region,
-															Int startX, Int startY, 
-															Int imageWidth, Int imageHeight, 
-															Int *xGutter, Int *yGutter, 
+															Int startX, Int startY,
+															Int imageWidth, Int imageHeight,
+															Int *xGutter, Int *yGutter,
 															Bool allSidesBorder );
 
 	void markRegionUsed( IRegion2D *region );  ///< mark this region as used
@@ -137,8 +114,8 @@ protected:
 												 Bool extendAlpha );
 
 	/// if the pixel at abolve/below row is open, extend pixel at src to its location
-	void extendToRowIfOpen( char *src, 
-													Int buffWidth, 
+	void extendToRowIfOpen( char *src,
+													Int buffWidth,
 													Int buffBPP,
 													Bool extendAlpha,
 													Int imageHeight,
@@ -157,16 +134,9 @@ protected:
 
 };
 
-///////////////////////////////////////////////////////////////////////////////
 // INLINING ///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
 inline void TexturePage::setID( Int id ) { m_id = id; }
 inline Int TexturePage::getID( void ) { return m_id; }
 inline ImageInfo *TexturePage::getFirstImage( void ) { return m_imageList; }
 inline Int TexturePage::getWidth( void ) { return m_size.x; }
 inline Int TexturePage::getHeight( void ) { return m_size.y; }
-
-// EXTERNALS //////////////////////////////////////////////////////////////////
-
-#endif // __TEXTUREPAGE_H_
-

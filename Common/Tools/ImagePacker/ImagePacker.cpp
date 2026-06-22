@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,59 +18,77 @@
 */
 
 // FILE: ImagePacker.cpp //////////////////////////////////////////////////////
-//-----------------------------------------------------------------------------
-//                                                                          
-//                       Westwood Studios Pacific.                          
-//                                                                          
-//                       Confidential Information                           
-//                Copyright (C) 2001 - All Rights Reserved                  
-//                                                                          
-//-----------------------------------------------------------------------------
 //
 // Project:    ImagePacker
-//
-// File name:  ImagePacker.cpp
 //
 // Created:    Colin Day, August 2001
 //
 // Desc:       Entry point for the image packer.  This program takes
-//						 separate image files and combines them into a single 
+//						 separate image files and combines them into a single
 //						 image as close as possible so that we can conserve texture
 //						 memory
 //
-//-----------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
 
-// SYSTEM INCLUDES ////////////////////////////////////////////////////////////
 #include <stdio.h>
-#include <io.h>
-#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
+#include <cassert>
+#include <string>
 
-// USER INCLUDES //////////////////////////////////////////////////////////////
-#include "Common/Debug.h"
-#include "WWLib/Targa.h"
-#include "Resource.h"
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QFileInfoList>
+#include <QString>
+
 #include "ImagePacker.h"
-#include "WinMain.h"
-#include "WindowProc.h"
 
-// DEFINES ////////////////////////////////////////////////////////////////////
-char *gAppPrefix = "ip_";	// So IP can have a different debug log file name if we need it.
-
-// PRIVATE TYPES //////////////////////////////////////////////////////////////
+// In the original tool this was a full-fledged assert/crash macro provided by
+// the game engine.  For the stand-alone Qt tool a plain assert is sufficient.
+#define DEBUG_ASSERTCRASH( cond, msg ) assert( cond )
 
 ///////////////////////////////////////////////////////////////////////////////
 // PRIVATE DATA ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 ImagePacker *TheImagePacker = NULL;
 
-// PUBLIC DATA ////////////////////////////////////////////////////////////////
-
-// PRIVATE PROTOTYPES /////////////////////////////////////////////////////////
-
 ///////////////////////////////////////////////////////////////////////////////
 // PRIVATE FUNCTIONS //////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+// hasTgaExtension ============================================================
+/** Does this filename end in a (case insensitive) .tga extension? */
+//=============================================================================
+static Bool hasTgaExtension( const std::string &name )
+{
+	size_t len = name.size();
+	if( len <= 4 )
+		return FALSE;
+
+	return name[ len - 4 ] == '.' &&
+				 (name[ len - 3 ] == 't' || name[ len - 3 ] == 'T') &&
+				 (name[ len - 2 ] == 'g' || name[ len - 2 ] == 'G') &&
+				 (name[ len - 1 ] == 'a' || name[ len - 1 ] == 'A');
+
+}  // end hasTgaExtension
+
+// ensureTrailingSlash ========================================================
+/** Make sure a directory string ends with a forward slash, the file name
+	* construction code below assumes that */
+//=============================================================================
+static std::string ensureTrailingSlash( const std::string &path )
+{
+	if( path.empty() )
+		return path;
+
+	char last = path[ path.size() - 1 ];
+	if( last == '/' || last == '\\' )
+		return path;
+
+	return path + "/";
+
+}  // end ensureTrailingSlash
 
 // ImagePacker::createNewTexturePage ==========================================
 /** Create a new texture page and add to the list */
@@ -80,13 +99,6 @@ TexturePage *ImagePacker::createNewTexturePage( void )
 
 	// allocate new page
 	page = new TexturePage( getTargetWidth(), getTargetHeight() );
-	if( page == NULL )
-	{
-
-		DEBUG_ASSERTCRASH( page, ("Unable to allocate new texture page.\n") );
-		return NULL;
-
-	}  // end if
 
 	// link page to list
 	page->m_prev = NULL;
@@ -157,32 +169,25 @@ Bool ImagePacker::validateImages( void )
 		}  // end if
 
 		//
-		// if this image is not the right format we can't process it, at 
+		// if this image is not the right format we can't process it, at
 		// present we only understand 32 and 24 bit images
 		//
 		if( image->m_colorDepth != 32 && image->m_colorDepth != 24 )
 		{
-		
+
 			errors = TRUE;
 			BitSet( image->m_status, ImageInfo::INVALIDCOLORDEPTH );
 			BitSet( image->m_status, ImageInfo::CANTPROCESS );
-			
+
 		}  // end if
 
 	}  // end for i
 
 	//
-	// if we have errors, build a list and show them to the user
+	// if we have errors, ask the user (through the host) whether to proceed
 	//
-	if( errors == TRUE )
-	{
-
-		proceed = DialogBox( ApplicationHInstance, 
-												 (LPCTSTR)IMAGE_ERRORS,
-												 TheImagePacker->getWindowHandle(), 
-												 (DLGPROC)ImageErrorProc );
-
-	}  // end if
+	if( errors == TRUE && m_host )
+		proceed = m_host->confirmImageErrors( this );
 
 	return proceed;
 
@@ -220,7 +225,7 @@ Bool ImagePacker::packImages( void )
 		// update status
 		sprintf( m_statusBuffer, "Fitting Image %d of %d.", i, m_imageCount );
 		statusMessage( m_statusBuffer );
-		 
+
 		// get this image out of the list
 		image = m_imageList[ i ];
 
@@ -252,7 +257,7 @@ Bool ImagePacker::packImages( void )
 
 				sprintf( buffer, "Unable to add image '%s' to a brand new page!\n", image->m_path );
 				DEBUG_ASSERTCRASH( 0, (buffer) );
-				MessageBox( NULL, buffer, "Internal Error", MB_OK | MB_ICONERROR );
+				reportError( "Internal Error", buffer );
 				return FALSE;
 
 			}  // end if
@@ -284,14 +289,14 @@ void ImagePacker::writeFinalTextures( void )
 	{
 
 		// update status message
-		sprintf( buffer, "Generating texture #%d of %d.", 
+		sprintf( buffer, "Generating texture #%d of %d.",
 						 page->getID(), m_pageCount );
 		statusMessage( buffer );
 
 		// generate the final texture for this page
 		if( page->generateTexture() == FALSE )
 		{
-			
+
 			errors = TRUE;
 			continue;  // could not generate this page, but try to continue
 
@@ -312,22 +317,15 @@ void ImagePacker::writeFinalTextures( void )
 	}  // end for page
 
 	// check for any errors and notify the user
-	if( errors == TRUE )
-	{
-
-		DialogBox( ApplicationHInstance, 
-							 (LPCTSTR)PAGE_ERRORS,
-							 TheImagePacker->getWindowHandle(), 
-							 (DLGPROC)PageErrorProc );
-
-	}  // end if
+	if( errors == TRUE && m_host )
+		m_host->reportPageErrors( this );
 
 }  // end writeFinalTextures
 
 // sortImageCompare ===========================================================
 /** Compare function for qsort
-	* -1 item1 less than item2 
-	*	0 item1 identical to item2 
+	* -1 item1 less than item2
+	*	0 item1 identical to item2
 	*	1 item1 greater than item2
 	*/
 //=============================================================================
@@ -359,85 +357,27 @@ void ImagePacker::sortImageList( void )
 // ImagePacker::addImagesInDirectory ==========================================
 /** Add all the images in the specified directory */
 //=============================================================================
-void ImagePacker::addImagesInDirectory( char *dir )
+void ImagePacker::addImagesInDirectory( const char *dir )
 {
 
 	// sanity
 	if( dir == NULL )
 		return;
 
-	char currDir[ _MAX_PATH ];
-	char filePath[ _MAX_PATH ];
-	WIN32_FIND_DATA item;  // search item
-	HANDLE hFile;  // handle for search resources
-	Int len;
+	QDir directory( QString::fromUtf8( dir ) );
+	const QFileInfoList entries = directory.entryInfoList( QDir::Files );
+	for( const QFileInfo &entry : entries )
+	{
 
-	// save the current directory
-	GetCurrentDirectory( _MAX_PATH, currDir );
-
-	// change into the directory
-	SetCurrentDirectory( dir );
-
-	// go through each item in the output directory		
-	hFile = FindFirstFile( "*", &item);
-	if( hFile != INVALID_HANDLE_VALUE )
-	{  
-
-		// if this is a file count it
-		if( !(item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-				strcmp( item.cFileName, "." ) && 
-				strcmp( item.cFileName, ".." ) )
+		std::string name = entry.fileName().toStdString();
+		if( hasTgaExtension( name ) )
 		{
-
-			len = strlen( item.cFileName );
-			if( len > 4 && 
-					item.cFileName[ len - 4 ] == '.' &&
-					(item.cFileName[ len - 3 ] == 't' || item.cFileName[ len - 3 ] == 'T') &&
-					(item.cFileName[ len - 2 ] == 'g' || item.cFileName[ len - 2 ] == 'G') &&
-					(item.cFileName[ len - 1 ] == 'a' || item.cFileName[ len - 1 ] == 'A') )
-			{
-
-				sprintf( filePath, "%s%s", dir, item.cFileName );
-				addImage( filePath );
-
-			}  // end if
+			std::string filePath = std::string( dir ) + name;
+			addImage( filePath.c_str() );
 
 		}  // end if
 
-		// find the rest of the files
-		while( FindNextFile( hFile, &item ) != 0 )
-		{
-
-			// if this is a file count it
-			if( !(item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-					strcmp( item.cFileName, "." ) && 
-					strcmp( item.cFileName, ".." ) )
-			{
-
-				len = strlen( item.cFileName );
-				if( len > 4 && 
-						item.cFileName[ len - 4 ] == '.' &&
-						(item.cFileName[ len - 3 ] == 't' || item.cFileName[ len - 3 ] == 'T') &&
-						(item.cFileName[ len - 2 ] == 'g' || item.cFileName[ len - 2 ] == 'G') &&
-						(item.cFileName[ len - 1 ] == 'a' || item.cFileName[ len - 1 ] == 'A') )
-				{
-
-					sprintf( filePath, "%s%s", dir, item.cFileName );
-					addImage( filePath );
-
-				}  // end if
-
-			}  // end if
-
-		}  // end while
-
-		// close search
-		FindClose( hFile );
-
-	}  //end if, items found
-
-	// restore our current directory
-	SetCurrentDirectory( currDir );
+	}  // end for
 
 }  // end addImagesInDirectory
 
@@ -452,103 +392,34 @@ void ImagePacker::addImagesInDirectory( char *dir )
 //=============================================================================
 Bool ImagePacker::checkOutputDirectory( void )
 {
-	WIN32_FIND_DATA item;  // search item
-	HANDLE hFile;  // handle for search resources
 	Int fileCount = 0;
-	char currDir[ _MAX_PATH ];
-	
-	// get the working directory
-	GetCurrentDirectory( _MAX_PATH, currDir );
 
 	// create the output directory if it does not exist
-	CreateDirectory( m_outputDirectory, NULL );
+	QDir().mkpath( QString::fromUtf8( m_outputDirectory ) );
 
-	// change into the output directory
-	SetCurrentDirectory( m_outputDirectory );
+	QDir outputDir( QString::fromUtf8( m_outputDirectory ) );
 
-	// go through each item in the output directory		
-	hFile = FindFirstFile( "*", &item);
-	if( hFile != INVALID_HANDLE_VALUE )
-	{  
-
-		// if this is a file count it
-		if( !(item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-				 strcmp( item.cFileName, "." ) && 
-				 strcmp( item.cFileName, ".." ) )
-			fileCount++;
-
-		// find the rest of the files
-		while( FindNextFile( hFile, &item ) != 0 )
-		{
-
-			// if this is a file count it
-			if( !(item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-					 strcmp( item.cFileName, "." ) && 
-					 strcmp( item.cFileName, ".." ) )
-				fileCount++;
-
-		}  // end while
-
-		// close search
-		FindClose( hFile );
-
-	}  //end if, items found
-
-	// switch back to the current directory
-	SetCurrentDirectory( currDir );
+	// count the files (not directories) in the output directory
+	fileCount = outputDir.entryInfoList( QDir::Files ).size();
 
 	if( fileCount != 0 )
 	{
-		char buffer[ 256 ];
-		Int response;
+		Bool proceed = TRUE;
 
-		sprintf( buffer, "The output directory (%s) must be empty before proceeding.  Delete '%d' files and continue with build process?",
-						 m_outputDirectory, fileCount );
-		response = MessageBox( NULL, buffer, 
-													 "Delete files to continue?", 
-													 MB_YESNO | MB_ICONWARNING );
+		// ask the user (through the host) whether to delete the files and continue
+		if( m_host )
+			proceed = m_host->confirmDeleteFiles( m_outputDirectory, fileCount );
 
 		// if they said no, do not delete the files and abort the pack process
-		if( response == IDNO )
+		if( proceed == FALSE )
 			return FALSE;
 
 		//
 		// they said yes, delete all the files in the output directory
 		//
-
-		// change into the output directory
-		SetCurrentDirectory( m_outputDirectory );
-		
-		// go through each item in the output directory		
-		hFile = FindFirstFile( "*", &item);
-		if( hFile != INVALID_HANDLE_VALUE )
-		{  
-
-			// if this is a file count it
-			if( !(item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-					 strcmp( item.cFileName, "." ) && 
-					 strcmp( item.cFileName, ".." ) )
-				DeleteFile( item.cFileName );
-
-			// find the rest of the files
-			while( FindNextFile( hFile, &item ) != 0 )
-			{
-
-				// if this is a file count it
-				if( !(item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-						 strcmp( item.cFileName, "." ) && 
-						 strcmp( item.cFileName, ".." ) )
-					DeleteFile( item.cFileName );
-
-			}  // end while
-
-			// close search
-			FindClose( hFile );
-
-		}  //end if, items found
-
-		// switch back to the current directory
-		SetCurrentDirectory( currDir );
+		const QFileInfoList files = outputDir.entryInfoList( QDir::Files );
+		for( const QFileInfo &entry : files )
+			QFile::remove( entry.absoluteFilePath() );
 
 	}  // end if
 
@@ -591,7 +462,7 @@ void ImagePacker::resetImageDirectoryList( void )
 		next = m_dirList->m_next;
 		delete m_dirList;
 		m_dirList = next;
-			
+
 	}  // end while
 
 	m_dirCount = 0;
@@ -606,7 +477,13 @@ void ImagePacker::resetImageList( void )
 {
 
 	if( m_imageList )
+	{
+
+		for( UnsignedInt i = 0; i < m_imageCount; i++ )
+			delete m_imageList[ i ];
 		delete [] m_imageList;
+
+	}  // end if
 	m_imageList = NULL;
 	m_imageCount = 0;
 
@@ -619,53 +496,35 @@ void ImagePacker::resetImageList( void )
 	* each directory will be unique and we therefore don't have to do
 	* any further checking for duplicates */
 //=============================================================================
-void ImagePacker::addDirectory( char *path, Bool subDirs )
+void ImagePacker::addDirectory( const char *path, Bool subDirs )
 {
-	char currDir[ _MAX_PATH ];
-	WIN32_FIND_DATA item;  // search item
-	HANDLE hFile;  // handle for search resources
 
 	// santiy
 	if( path == NULL )
 		return;
 
+	// always work with a trailing slash
+	std::string dirPath = ensureTrailingSlash( path );
+
 	// check to see if path is already in list
 	ImageDirectory *dir;
 	for( dir = m_dirList; dir; dir = dir->m_next )
-		if( stricmp( dir->m_path, path ) == 0 )
+		if( QString::fromUtf8( dir->m_path ).compare(
+					QString::fromUtf8( dirPath.c_str() ), Qt::CaseInsensitive ) == 0 )
 			return;  // already in list
 
-	// save our current directory
-	GetCurrentDirectory( _MAX_PATH, currDir );
-
-	// set our directory to this one
-	if( SetCurrentDirectory( path ) == 0 )
+	// the directory must exist
+	QDir directory( QString::fromUtf8( dirPath.c_str() ) );
+	if( !directory.exists() )
 		return;  // directory does not exist
 
 	// image is not in list, make a new entry and link to the list
 	dir = new ImageDirectory;
-	if( dir == NULL )
-	{
-		
-		MessageBox( NULL, "Unable to allocate image directory", "Error", 
-								MB_OK | MB_ICONERROR );
-		return;
-
-	}  // end if
 
 	// allocate space for the path
-	Int len = strlen( path );
+	Int len = dirPath.size();
 	dir->m_path = new char[ len + 1 ];
-	strcpy( dir->m_path, path );
-	if( dir->m_path == NULL )
-	{
-
-		MessageBox( NULL, "Unable to allocate path for directory", "Error",
-								MB_OK | MB_ICONERROR );
-		delete dir;
-		return;
-
-	}  // end if
+	strcpy( dir->m_path, dirPath.c_str() );
 
 	// tie to list
 	dir->m_prev = NULL;
@@ -673,7 +532,7 @@ void ImagePacker::addDirectory( char *path, Bool subDirs )
 	if( m_dirList )
 		m_dirList->m_prev = dir;
 	m_dirList = dir;
-	
+
 	// increase our directory count
 	m_dirCount++;
 
@@ -682,52 +541,10 @@ void ImagePacker::addDirectory( char *path, Bool subDirs )
 	statusMessage( m_statusBuffer );
 
 	// count how many image files are in this directory
-	hFile = FindFirstFile( "*", &item);
-	if( hFile != INVALID_HANDLE_VALUE )
-	{  
-
-		// if this is a file count it
-		if( !(item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-				strcmp( item.cFileName, "." ) && 
-				strcmp( item.cFileName, ".." ) )
-		{
-
-			len = strlen( item.cFileName );
-			if( len > 4 && 
-					item.cFileName[ len - 4 ] == '.' &&
-					(item.cFileName[ len - 3 ] == 't' || item.cFileName[ len - 3 ] == 'T') &&
-					(item.cFileName[ len - 2 ] == 'g' || item.cFileName[ len - 2 ] == 'G') &&
-					(item.cFileName[ len - 1 ] == 'a' || item.cFileName[ len - 1 ] == 'A') )
-				dir->m_imageCount++;
-
-		}  // end if
-
-		// find the rest of the files
-		while( FindNextFile( hFile, &item ) != 0 )
-		{
-
-			// if this is a file count it
-			if( !(item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-					strcmp( item.cFileName, "." ) && 
-					strcmp( item.cFileName, ".." ) )
-			{
-
-				len = strlen( item.cFileName );
-				if( len > 4 && 
-						item.cFileName[ len - 4 ] == '.' &&
-						(item.cFileName[ len - 3 ] == 't' || item.cFileName[ len - 3 ] == 'T') &&
-						(item.cFileName[ len - 2 ] == 'g' || item.cFileName[ len - 2 ] == 'G') &&
-						(item.cFileName[ len - 1 ] == 'a' || item.cFileName[ len - 1 ] == 'A') )
-					dir->m_imageCount++;
-
-			}  // end if
-
-		}  // end while
-
-		// close search
-		FindClose( hFile );
-
-	}  //end if, items found
+	const QFileInfoList files = directory.entryInfoList( QDir::Files );
+	for( const QFileInfo &entry : files )
+		if( hasTgaExtension( entry.fileName().toStdString() ) )
+			dir->m_imageCount++;
 
 	// add the image count of this directory to the total image count
 	m_imagesInDirs += dir->m_imageCount;
@@ -735,57 +552,24 @@ void ImagePacker::addDirectory( char *path, Bool subDirs )
 	// if we are adding subdirectories add them all
 	if( subDirs )
 	{
-		char subDir[ _MAX_PATH ];
 
-		// go through each item in the output directory		
-		hFile = FindFirstFile( "*", &item);
-		if( hFile != INVALID_HANDLE_VALUE )
-		{  
+		const QFileInfoList subdirs =
+			directory.entryInfoList( QDir::Dirs | QDir::NoDotAndDotDot );
+		for( const QFileInfo &entry : subdirs )
+		{
+			std::string subDir = dirPath + entry.fileName().toStdString() + "/";
+			addDirectory( subDir.c_str(), subDirs );
 
-			// if this is a file count it
-			if( (item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-					strcmp( item.cFileName, "." ) && 
-					strcmp( item.cFileName, ".." ) )
-			{
-
-				sprintf( subDir, "%s%s\\", path, item.cFileName );
-				addDirectory( subDir, subDirs );
-
-			}  // end if
-
-			// find the rest of the files
-			while( FindNextFile( hFile, &item ) != 0 )
-			{
-
-				// if this is a file count it
-				if( (item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-						strcmp( item.cFileName, "." ) && 
-						strcmp( item.cFileName, ".." ) )
-				{
-
-					sprintf( subDir, "%s%s\\", path, item.cFileName );
-					addDirectory( subDir, subDirs );
-
-				}  // end if
-
-			}  // end while
-
-			// close search
-			FindClose( hFile );
-
-		}  //end if, items found
+		}  // end for
 
 	}  // end if
-
-	// restore our current directory
-	SetCurrentDirectory( currDir );
 
 }  // end addDirectory
 
 // ImagePacker::addImage ======================================================
 /** Add the image to the image list */
 //=============================================================================
-void ImagePacker::addImage( char *path )
+void ImagePacker::addImage( const char *path )
 {
 
 	// sanity
@@ -794,28 +578,11 @@ void ImagePacker::addImage( char *path )
 
 	// allocate a new entry
 	ImageInfo *info = new ImageInfo;
-	if( info == NULL )
-	{
-
-		MessageBox( NULL, "Unable to allocate image info", "Error",
-								MB_OK | MB_ICONERROR );
-		return;
-
-	}  // end if
 
 	// allocate space for the path
 	Int len = strlen( path );
 	info->m_path = new char[ len + 1 ];
 	strcpy( info->m_path, path );
-	if( info->m_path == NULL )
-	{
-
-		MessageBox( NULL, "Unable to allcoate image path info", "Error",
-								MB_OK | MB_ICONERROR );
-		delete info;
-		return;
-
-	}  // end if
 
 	// load just the header information from the targa
 	m_targa->Load( info->m_path, 0, TRUE );
@@ -826,33 +593,22 @@ void ImagePacker::addImage( char *path )
 	info->m_size.y = m_targa->Header.Height;
 	info->m_area = info->m_size.x * info->m_size.y;
 
-	// save the filename only without path
-	Int i;
-	char *c;
-	for( i = len - 1; i >= 0; i-- )
-	{
+	// save the filename only without path (handle both path separators)
+	QFileInfo fileInfo( QString::fromUtf8( path ) );
+	std::string filenameOnly = fileInfo.fileName().toStdString();
+	info->m_filenameOnly = new char[ filenameOnly.size() + 1 ];
+	strcpy( info->m_filenameOnly, filenameOnly.c_str() );
 
-		if( path[ i ] == '\\' )
-		{
-			c = &path[ i + 1 ];
-			break;
-		}
-
-	}  // end for i
-
-	Int nameLen = strlen( c );
-	info->m_filenameOnly = new char[ nameLen + 1 ];
-	strcpy( info->m_filenameOnly, c );
-
-	info->m_filenameOnlyNoExt = new char[ nameLen - 4 + 1 ];
-	strncpy( info->m_filenameOnlyNoExt, c, nameLen - 4 );
-	info->m_filenameOnlyNoExt[ nameLen - 4 ] = '\0';
+	// save the filename without the extension
+	std::string filenameNoExt = fileInfo.completeBaseName().toStdString();
+	info->m_filenameOnlyNoExt = new char[ filenameNoExt.size() + 1 ];
+	strcpy( info->m_filenameOnlyNoExt, filenameNoExt.c_str() );
 
 	// assign to array
 	m_imageList[ m_imageCount++ ] = info;
 
 	// update status
-	sprintf( m_statusBuffer, "Loading Image %d of %d.", 
+	sprintf( m_statusBuffer, "Loading Image %d of %d.",
 					 m_imageCount, m_imagesInDirs );
 	statusMessage( m_statusBuffer );
 
@@ -876,20 +632,20 @@ Bool ImagePacker::generateINIFile( void )
 		char buffer[ _MAX_PATH + 64 ];
 
 		sprintf( buffer, "Cannot open INI file '%s' for writing.", filename );
-		MessageBox( NULL, buffer, "Error Opening File", MB_OK | MB_ICONERROR );
+		reportError( "Error Opening File", buffer );
 		return FALSE;
 
 	}  // end if
 
 	// print header for file
 	fprintf( fp, "; ------------------------------------------------------------\n" );
-	fprintf( fp, "; Do NOT edit by hand, ImagePacker.exe auto generated INI file\n" );
+	fprintf( fp, "; Do NOT edit by hand, ImagePacker auto generated INI file\n" );
 	fprintf( fp, "; ------------------------------------------------------------\n\n" );
 
 	//
 	// loop through all the pages so that we write image definitions that
 	// are on the same page close together in the file, note we're
-	// going backwards through the page list because page 1 is at the 
+	// going backwards through the page list because page 1 is at the
 	// tail and I want them to print out in number order, but it
 	// doesn't really matter
 	//
@@ -903,8 +659,8 @@ Bool ImagePacker::generateINIFile( void )
 			continue;
 
 		// go through each image on this page
-		for( image = page->getFirstImage(); 
-				 image; 
+		for( image = page->getFirstImage();
+				 image;
 				 image = image->m_nextPageImage )
 		{
 
@@ -921,8 +677,8 @@ Bool ImagePacker::generateINIFile( void )
 			fprintf( fp, "  Coords = Left:%d Top:%d Right:%d Bottom:%d\n",
 							 image->m_pagePos.lo.x, image->m_pagePos.lo.y,
 							 image->m_pagePos.hi.x + 1, image->m_pagePos.hi.y + 1 );
-			fprintf( fp, "  Status = %s\n", 
-							 BitTest( image->m_status, ImageInfo::ROTATED90C ) ? 
+			fprintf( fp, "  Status = %s\n",
+							 BitTest( image->m_status, ImageInfo::ROTATED90C ) ?
 												"ROTATED_90_CLOCKWISE" : "NONE" );
 			fprintf( fp, "End\n\n" );
 
@@ -941,163 +697,61 @@ Bool ImagePacker::generateINIFile( void )
 // PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-// ImagePacker::getSettingsFromDialog =========================================
-/** Given the current state of the option dialog passed in, get all the
-	* settings we need for the image packer from the GUI and validate them */
+// ImagePacker::reportError ===================================================
+/** Route an error message to the host, if any */
 //=============================================================================
-Bool ImagePacker::getSettingsFromDialog( HWND dialog )
+void ImagePacker::reportError( const char *title, const char *message )
 {
-	Int i;
 
-	// sanity
-	if( dialog == NULL )
-		return FALSE;
-
-	// if we are using a user target image size, it must be a power of 2
-	if( IsDlgButtonChecked( dialog, RADIO_TARGET_OTHER ) )
-	{
-		UnsignedInt size, val;
-		Int bitCount = 0;
-
-		size = GetDlgItemInt( dialog, EDIT_WIDTH, NULL, FALSE );
-		for( val = size; val; val >>= 1 )
-			if( BitTest( val, 0x1 ) )
-				bitCount++;
-
-		//
-		// if bit count was not 1, this is not a power of 2 ... it also
-		// guards us from entering a size of zero :)
-		//
-		if( bitCount != 1 )
-		{
-
-			MessageBox( NULL, "The target image size must be a power of 2.",
-									"Must Be Power Of 2", MB_OK | MB_ICONERROR );
-			return FALSE;
-
-		}  // end if
-
-		// set the size for the image packer
-		setTargetSize( size, size );
-
-	}  // end if
-	else if( IsDlgButtonChecked( dialog, RADIO_128X128 ) )
-		setTargetSize( 128, 128 );
-	else if( IsDlgButtonChecked( dialog, RADIO_256X256 ) )
-		setTargetSize( 256, 256 );
-	else if( IsDlgButtonChecked( dialog, RADIO_512X512 ) )
-		setTargetSize( 512, 512 );
+	if( m_host )
+		m_host->onError( title, message );
 	else
+		fprintf( stderr, "%s: %s\n", title, message );
+
+}  // end reportError
+
+// ImagePacker::setOutputFileName =============================================
+/** Set the base name used for the output files */
+//=============================================================================
+void ImagePacker::setOutputFileName( const char *name )
+{
+
+	if( name == NULL )
 	{
+		m_outputFile[ 0 ] = '\0';
+		return;
+	}
 
-		MessageBox( NULL, "Internal Error. Target Size Unknown.",
-								"Error", MB_OK | MB_ICONERROR );
-		return FALSE;
+	strncpy( m_outputFile, name, MAX_OUTPUT_FILE_LEN - 1 );
+	m_outputFile[ MAX_OUTPUT_FILE_LEN - 1 ] = '\0';
 
-	}  // end else
-	
-	// get alpha option
-	Bool outputAlpha = FALSE;
-	if( IsDlgButtonChecked( dialog, CHECK_ALPHA ) == BST_CHECKED )
-		outputAlpha = TRUE;
-	TheImagePacker->setOutputAlpha( outputAlpha );
+}  // end setOutputFileName
 
-	// get create INI option
-	Bool createINI = FALSE;
-	if( IsDlgButtonChecked( dialog, CHECK_INI ) == BST_CHECKED )
-		createINI = TRUE;
-	TheImagePacker->setINICreate( createINI );
+// ImagePacker::clearDirectories ==============================================
+/** Clear the list of source directories */
+//=============================================================================
+void ImagePacker::clearDirectories( void )
+{
 
-	// get preview with image option
-	Bool useBitmap = FALSE;
-	if( IsDlgButtonChecked( dialog, CHECK_BITMAP_PREVIEW ) == BST_CHECKED )
-		useBitmap = TRUE;
-	TheImagePacker->setUseTexturePreview( useBitmap );
-
-	// get option to compress final textures
-	Bool compress = FALSE;
-	if( IsDlgButtonChecked( dialog, CHECK_COMPRESS ) == BST_CHECKED )
-		compress = TRUE;
-	TheImagePacker->setCompressTextures( compress );
-
-	// get options for the gap options
-	TheImagePacker->clearGapMethod( ImagePacker::GAP_METHOD_EXTEND_RGB );
-	if( IsDlgButtonChecked( dialog, CHECK_GAP_EXTEND_RGB ) == BST_CHECKED )
-		TheImagePacker->setGapMethod( ImagePacker::GAP_METHOD_EXTEND_RGB );
-	TheImagePacker->clearGapMethod( ImagePacker::GAP_METHOD_GUTTER );
-	if( IsDlgButtonChecked( dialog, CHECK_GAP_GUTTER ) == BST_CHECKED )
-		TheImagePacker->setGapMethod( ImagePacker::GAP_METHOD_GUTTER );
-
-	// get gutter size whether we are using that option or not
-	Int gutter = GetDlgItemInt( dialog, EDIT_GUTTER, NULL, FALSE );
-	if( gutter < 0 )
-		gutter = 0;
-	setGutter( gutter );
-						
-	// save the filename to output
-	GetDlgItemText( dialog, EDIT_FILENAME, m_outputFile, MAX_OUTPUT_FILE_LEN - 1 );
-	
-	// check for illegal characters in the output name
-	Int len = strlen( m_outputFile );
-	for( i = 0; i < len; i++ )
-	{
-		char *illegal = "/\\:*?<>|";
-		Int illegalLen = strlen( illegal );
-		
-		for( Int j = 0; j < illegalLen; j++ )
-		{
-
-			if( m_outputFile[ i ] == illegal[ j ] )
-			{
-				char buffer[ 256 ];
-
-				sprintf( buffer, "Output filename '%s' contains one or more of the following illegal characters:\n\n%s", 
-								 m_outputFile, illegal );
-				MessageBox( NULL, buffer, "Illegal Filename", MB_OK | MB_ICONERROR );
-				return FALSE;
-
-			}  // end if
-
-		}  // end for j
-
-	}  // end for i
-
-	// get the work on sub-folders option
-	m_useSubFolders = IsDlgButtonChecked( dialog, CHECK_USE_SUB_FOLDERS );
-
-	// clear our list of image directories
 	resetImageDirectoryList();
 
-	// set a status message
-	statusMessage( "Gathering Directory Information, Please Wait ..." );
+}  // end clearDirectories
 
-	// add all the image directories specified in the folder listbox
-	Int count = SendDlgItemMessage( dialog, LIST_FOLDERS, LB_GETCOUNT, 0, 0 );
-	char buffer[ _MAX_PATH ];
-	for( i = 0; i < count; i++ )
-	{
+// ImagePacker::addSourceDirectory ============================================
+/** Add a source directory (and optionally its sub-directories) to scan */
+//=============================================================================
+void ImagePacker::addSourceDirectory( const char *path, Bool subDirs )
+{
 
-		// get text from the listbox
-		SendDlgItemMessage( dialog, LIST_FOLDERS,		
-												LB_GETTEXT, i, (LPARAM)buffer );
+	addDirectory( path, subDirs );
 
-		// add the directory
-		addDirectory( buffer, m_useSubFolders );
-
-	}  // end for i
-
-	// all done
-	return TRUE;
-
-}  // end getSettingsFromDialog
+}  // end addSourceDirectory
 
 // ImagePacker::ImagePacker ===================================================
-/** */
-//=============================================================================
 ImagePacker::ImagePacker( void )
 {
 
-	m_hWnd = NULL;
+	m_host = NULL;
 	m_targetSize.x = DEFAULT_TARGET_SIZE;
 	m_targetSize.y = DEFAULT_TARGET_SIZE;
 	m_useSubFolders = TRUE;
@@ -1118,7 +772,6 @@ ImagePacker::ImagePacker( void )
 	m_createINI = TRUE;
 
 	m_targetPreviewPage = 1;
-	m_hWndPreview = NULL;
 	m_showTextureInPreview = FALSE;
 
 	m_targa = NULL;
@@ -1127,8 +780,6 @@ ImagePacker::ImagePacker( void )
 }  // end ImagePacker
 
 // ImagePacker::~ImagePacker ==================================================
-/** */
-//=============================================================================
 ImagePacker::~ImagePacker( void )
 {
 
@@ -1151,15 +802,6 @@ Bool ImagePacker::init( void )
 
 	// allocate a targa to read the headers for the images
 	m_targa = new Targa;
-	if( m_targa == NULL )
-	{
-		
-		DEBUG_ASSERTCRASH( m_targa, ("Unable to allocate targa header during init\n") );
-		MessageBox( NULL, "ImagePacker can't init, unable to create targa",
-								"Internal Error", MB_OK | MB_ICONERROR );
-		return FALSE;
-
-	}  // end if
 
 	return TRUE;
 
@@ -1168,10 +810,11 @@ Bool ImagePacker::init( void )
 // ImagePacker::statusMessage =================================================
 /** Status message for the program */
 //=============================================================================
-void ImagePacker::statusMessage( char *message )
+void ImagePacker::statusMessage( const char *message )
 {
 
-	SetDlgItemText( getWindowHandle(), STATIC_STATUS, message );
+	if( m_host )
+		m_host->onStatus( message );
 
 }  // end statusMessage
 
@@ -1180,16 +823,16 @@ void ImagePacker::statusMessage( char *message )
 //=============================================================================
 Bool ImagePacker::process( void )
 {
-
 	// build the output directory based on the base name of the output images
-	char currDir[ _MAX_PATH ];
-	GetCurrentDirectory( _MAX_PATH, currDir );
-	sprintf( m_outputDirectory, "%s\\ImagePackerOutput\\", currDir );
-	CreateDirectory( m_outputDirectory, NULL );
+	QString base = QDir( QDir::currentPath() ).filePath( "ImagePackerOutput" );
+	QDir().mkpath( base );
 
-	// subdir of output directory based on output image name
-	strcat( m_outputDirectory, m_outputFile );
-	strcat( m_outputDirectory, "\\" );
+	// subdir of output directory based on output image name, keep a trailing
+	// slash since the file name construction code assumes that
+	QString outPath = QDir( base ).filePath( QString::fromUtf8( m_outputFile ) );
+	std::string outDir = ensureTrailingSlash( outPath.toStdString() );
+	strncpy( m_outputDirectory, outDir.c_str(), _MAX_PATH - 1 );
+	m_outputDirectory[ _MAX_PATH - 1 ] = '\0';
 
 	//
 	// check for existing images in the output directory ... if we have
@@ -1234,7 +877,8 @@ Bool ImagePacker::process( void )
 			generateINIFile();
 
 		// update preview window
-		UpdatePreviewWindow();
+		if( m_host )
+			m_host->onProcessComplete( this );
 
 		// all done
 		sprintf( m_statusBuffer, "Image Packing Complete: '%d' Texture Pages Generated from '%d' Images in '%d' Folder(s)",
@@ -1246,4 +890,3 @@ Bool ImagePacker::process( void )
 	return TRUE;
 
 }  // end process
-
