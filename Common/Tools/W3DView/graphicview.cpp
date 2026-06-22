@@ -21,11 +21,12 @@
 //
 #include "graphicview.h"
 #include "w3dview.h"
+#include "w3dviewwin.h"
 #include "ww3d.h"
 #include "globals.h"
 #include "w3dviewdoc.h"
 #include "part_emt.h"
-// #include "quat.h"
+#include "quat.h"
 // #include "mainfrm.h"
 #include "utils.h"
 #include "hlod.h"
@@ -38,13 +39,25 @@
 #include "qfilewrapper.h"
 #include <QDebug>
 #include <QGuiApplication>
+#include <QElapsedTimer>
+#include <QMouseEvent>
 #include <QSize>
+#include <QTimer>
+#include <QWheelEvent>
 #include <QWindow>
 #include <QResizeEvent>
 #include <QVBoxLayout>
 #include <SDL3/SDL.h>
 
 #include "ww3d.h"
+
+//
+//	Camera/object orbit state shared between the mouse handlers and the
+//	camera-reset helpers.
+//
+static float minZoomAdjust = 0.0F;
+static Vector3 sphereCenter;
+static Quaternion rotation;
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -76,6 +89,7 @@ GraphicView::GraphicView(QWidget *parent)
 	QSdlWindow *sdlWindow = new QSdlWindow();
 	QWidget *sdlWidget = QWidget::createWindowContainer(sdlWindow, this);
 	QVBoxLayout *layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
 	layout->addWidget(sdlWidget);
 
 	// The native surface can be unavailable in the constructor on Wayland.
@@ -83,6 +97,20 @@ GraphicView::GraphicView(QWidget *parent)
 	m_pSDLWindow = sdlWindow->GetSDLWindow();
 
 	setLayout(layout);
+
+	//
+	//	Mouse/wheel events are delivered to the embedded native SDL window
+	//	rather than to this QWidget, so we filter them off that window.
+	//
+	m_sdlQWindow = sdlWindow;
+	sdlWindow->installEventFilter (this);
+
+	//
+	//	Set up the "game loop" timer that continuously re-renders the scene
+	//	(advancing animations, particle systems and any active rotation).
+	//
+	m_renderTimer = new QTimer (this);
+	connect (m_renderTimer, &QTimer::timeout, this, [this]() { RepaintView (); });
 
 	// Set the global graphic view pointer to this instance
 	W3DViewApp *pApp = qobject_cast<W3DViewApp *>(QApplication::instance());
@@ -102,6 +130,13 @@ GraphicView::~GraphicView()
 {
 }
 
+QSize GraphicView::sizeHint() const
+{
+	// Match the SDL window's default size so the splitter gives the viewport a
+	// real width instead of collapsing the (hint-less) window container to 0.
+	return QSize(640, 480);
+}
+
 SDL_Window *GraphicView::GetSDLWindow() const
 {
 	return m_pSDLWindow;
@@ -110,29 +145,10 @@ SDL_Window *GraphicView::GetSDLWindow() const
 void GraphicView::paintEvent(QPaintEvent *event)
 {
 	QWidget::paintEvent(event);
-	QApplication::instance();
-	qDebug() << "Paint event triggered. Active:" << m_bActive;
-	W3DViewDoc *doc = GetCurrentDocument();
 
-	//
-	//	Render the background BMP
-	//		
-	WW3D::Begin_Render (TRUE, TRUE, doc->GetBackgroundColor ());
-	WW3D::Render (doc->Get2DScene (), doc->Get2DCamera (), FALSE, FALSE);
-
-	//
-	// Render the background scene
-	//
-	if (!doc->GetBackgroundObjectName ().isEmpty()) {			
-		WW3D::Render (doc->GetBackObjectScene (), doc->GetBackObjectCamera (), FALSE, FALSE);
-	}
-
-	//
-	// Render the main scene
-	//
-	WW3D::Render (doc->GetScene (), m_pCamera, FALSE, FALSE);
-
-	WW3D::End_Render();
+	// Repaint without advancing the animation/rotation - this is just an
+	// expose/refresh, the timer drives the actual animated updates.
+	RepaintView (FALSE);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -236,6 +252,14 @@ GraphicView::InitializeGraphicView(void)
 	// Remember whether or not we are initialized
 	 m_bInitialized = bReturn;
 
+	//
+	//	Kick off the render loop (~60 Hz) now that we are initialized.
+	//
+	if (m_bInitialized && (m_renderTimer != NULL) && !m_renderTimer->isActive ()) {
+		m_dwLastFrameUpdate = timeGetTime ();
+		m_renderTimer->start (16);
+	}
+
 	// Return the TRUE/FALSE result code
 	 return bReturn;
 }
@@ -281,6 +305,570 @@ GraphicView::Allow_Update (bool onoff)
 		m_UpdateCounter --;
 	} else {
 		m_UpdateCounter ++;
+	}
+
+	return ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  SetActiveUpdate
+//
+////////////////////////////////////////////////////////////////////////////
+void
+GraphicView::SetActiveUpdate (BOOL bActive)
+{
+	m_bActive = bActive;
+
+	if (m_renderTimer != NULL) {
+		if (bActive) {
+			if (m_bInitialized && !m_renderTimer->isActive ()) {
+				m_dwLastFrameUpdate = timeGetTime ();
+				m_renderTimer->start (16);
+			}
+		} else {
+			m_renderTimer->stop ();
+		}
+	}
+
+	return ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  RepaintView
+//
+////////////////////////////////////////////////////////////////////////////
+void
+GraphicView::RepaintView (BOOL bUpdateAnimation, DWORD ticks_to_use)
+{
+	//
+	//	Simple check to avoid re-entrance
+	//
+	static bool _already_painting = false;
+	if (_already_painting) return;
+	_already_painting = true;
+
+	//
+	// Are we in a valid state?
+	//
+	W3DViewDoc *doc = GetCurrentDocument ();
+	if ((doc != NULL) && doc->Is_Initialized () && doc->GetScene () && (m_UpdateCounter == 0)) {
+
+		// Advance the engine's sync time by the elapsed wall-clock time so that
+		// time-based effects (particle emitters, etc.) animate.
+		DWORD cur_ticks = timeGetTime ();
+		int ticks_elapsed = cur_ticks - m_dwLastFrameUpdate;
+		m_dwLastFrameUpdate = cur_ticks;
+
+		if (ticks_to_use == 0) {
+			WW3D::Sync (WW3D::Get_Sync_Time () + (DWORD)(ticks_elapsed * m_animationSpeed));
+		} else {
+			WW3D::Sync (WW3D::Get_Sync_Time () + ticks_to_use);
+		}
+
+		// Do we need to update the current (skeletal) animation?
+		if ((m_animationState == AnimPlaying) && bUpdateAnimation) {
+			// Advance the displayed animation by the elapsed wall-clock time
+			// (in seconds), scaled by the current playback speed.
+			float anim_speed = (((float)ticks_elapsed) / 1000.0F) * m_animationSpeed;
+			doc->UpdateFrame (anim_speed);
+		}
+
+		// Perform the object rotation if necessary
+		if ((m_objectRotation != NoRotation) && (bUpdateAnimation == TRUE)) {
+			Rotate_Object ();
+		}
+
+		// Perform the light rotation if necessary
+		if ((m_LightRotation != NoRotation) && (bUpdateAnimation == TRUE)) {
+			Rotate_Light ();
+		}
+
+		// Reset the current LOD to be the lowest possible level so it can
+		// re-evaluate which LOD to display this frame.
+		RenderObjClass *prender_obj = doc->GetDisplayedObject ();
+		if ((prender_obj != NULL) && (doc->GetScene ()->Are_LODs_Switching ())) {
+			Set_Lowest_LOD (prender_obj);
+		}
+
+		//
+		//	Render the background BMP
+		//
+		WW3D::Begin_Render (TRUE, TRUE, doc->GetBackgroundColor ());
+		WW3D::Render (doc->Get2DScene (), doc->Get2DCamera (), FALSE, FALSE);
+
+		//
+		// Render the background scene
+		//
+		if (!doc->GetBackgroundObjectName ().isEmpty ()) {
+			WW3D::Render (doc->GetBackObjectScene (), doc->GetBackObjectCamera (), FALSE, FALSE);
+		}
+
+		//
+		// Render the main scene
+		//
+		QElapsedTimer timer;
+    	timer.start();
+
+		WW3D::Render (doc->GetScene (), m_pCamera, FALSE, FALSE);
+
+		// TODO(animation): doc->Render_Dazzles (m_pCamera); once ported
+
+		WW3D::End_Render ();
+		
+		qint64 milliseconds = timer.elapsed();
+				//
+		//	Update the count of particles and polys in the status bar
+		//
+		if ((cur_ticks - m_ParticleCountUpdate > 250)) {
+			m_ParticleCountUpdate = cur_ticks;
+			doc->Update_Particle_Count ();
+			
+			int polys = (prender_obj != NULL) ? prender_obj->Get_Num_Polys () : 0;
+			Get_Main_Window()->UpdatePolygonCount (polys);
+		}
+
+		//
+		//	Update the frame time in the status bar
+		//
+		Get_Main_Window()->Update_Frame_Time (milliseconds);
+	}
+
+	_already_painting = false;
+	return ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  SetAnimationState
+//
+////////////////////////////////////////////////////////////////////////////
+void
+GraphicView::SetAnimationState (ANIMATION_STATE animationState)
+{
+	m_animationState = animationState;
+
+	// When (re)entering the playing state, reset the elapsed-time baseline so
+	// the first advance after a pause/idle isn't the entire accumulated gap.
+	if (animationState == AnimPlaying) {
+		m_dwLastFrameUpdate = timeGetTime ();
+	}
+
+	return ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  Rotate_Object
+//
+////////////////////////////////////////////////////////////////////////////
+void
+GraphicView::Rotate_Object (void)
+{
+	W3DViewDoc *doc = GetCurrentDocument ();
+	if (doc == NULL) return;
+
+	// Get the currently displayed object
+	RenderObjClass *prender_obj = doc->GetDisplayedObject ();
+	if (prender_obj != NULL) {
+
+		// Get the current transform for the object
+		Matrix3D transform = prender_obj->Get_Transform ();
+
+		if ((m_objectRotation & RotateX) == RotateX) {
+			transform.Rotate_X (0.05F);
+		} else if ((m_objectRotation & RotateXBack) == RotateXBack) {
+			transform.Rotate_X (-0.05F);
+		}
+
+		if ((m_objectRotation & RotateY) == RotateY) {
+			transform.Rotate_Y (-0.05F);
+		} else if ((m_objectRotation & RotateYBack) == RotateYBack) {
+			transform.Rotate_Y (0.05F);
+		}
+
+		if ((m_objectRotation & RotateZ) == RotateZ) {
+			transform.Rotate_Z (0.05F);
+		} else if ((m_objectRotation & RotateZBack) == RotateZBack) {
+			transform.Rotate_Z (-0.05F);
+		}
+
+		if (!transform.Is_Orthogonal ()) {
+			transform.Re_Orthogonalize ();
+		}
+
+		// Set the new transform for the object
+		prender_obj->Set_Transform (transform);
+	}
+
+	return ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  Rotate_Light
+//
+////////////////////////////////////////////////////////////////////////////
+void
+GraphicView::Rotate_Light (void)
+{
+	W3DViewDoc *doc = GetCurrentDocument ();
+	if (doc == NULL) return;
+
+	LightClass *pscene_light = doc->GetSceneLight ();
+	RenderObjClass *prender_obj = doc->GetDisplayedObject ();
+	if ((pscene_light != NULL) && (prender_obj != NULL)) {
+		Matrix3D rotation_matrix (1);
+
+		// Build a rotation matrix that contains the x,y,z
+		// rotations we want to apply to the light
+		if ((m_LightRotation & RotateX) == RotateX) {
+			rotation_matrix.Rotate_X (0.05F);
+		} else if ((m_LightRotation & RotateXBack) == RotateXBack) {
+			rotation_matrix.Rotate_X (-0.05F);
+		}
+
+		if ((m_LightRotation & RotateY) == RotateY) {
+			rotation_matrix.Rotate_Y (-0.05F);
+		} else if ((m_LightRotation & RotateYBack) == RotateYBack) {
+			rotation_matrix.Rotate_Y (0.05F);
+		}
+
+		if ((m_LightRotation & RotateZ) == RotateZ) {
+			rotation_matrix.Rotate_Z (0.05F);
+		} else if ((m_LightRotation & RotateZBack) == RotateZBack) {
+			rotation_matrix.Rotate_Z (-0.05F);
+		}
+
+		//
+		//	Now, use the rotation matrix to rotate the light 'around'
+		//	the displayed object (in its coordinate system)
+		//
+		Matrix3D coord_inv;
+		Matrix3D coord_to_obj;
+		Matrix3D coord_system = prender_obj->Get_Transform ();
+		coord_system.Get_Orthogonal_Inverse (coord_inv);
+
+		Matrix3D transform = pscene_light->Get_Transform ();
+		Matrix3D::Multiply (coord_inv, transform, &coord_to_obj);
+
+		Matrix3D::Multiply (coord_system, rotation_matrix, &transform);
+		Matrix3D::Multiply (transform, coord_to_obj, &transform);
+
+		// Ensure the matrix hasn't degenerated
+		if (!transform.Is_Orthogonal ()) {
+			transform.Re_Orthogonalize ();
+		}
+
+		// Pass the new transform onto the light
+		m_pLightMesh->Set_Transform (transform);
+		pscene_light->Set_Transform (transform);
+	}
+
+	return ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  eventFilter
+//
+////////////////////////////////////////////////////////////////////////////
+bool
+GraphicView::eventFilter (QObject *watched, QEvent *event)
+{
+	if (watched == m_sdlQWindow) {
+		switch (event->type ()) {
+			case QEvent::MouseButtonPress:
+				Handle_Mouse_Press (static_cast<QMouseEvent *>(event));
+				return true;
+			case QEvent::MouseButtonRelease:
+				Handle_Mouse_Release (static_cast<QMouseEvent *>(event));
+				return true;
+			case QEvent::MouseMove:
+				Handle_Mouse_Move (static_cast<QMouseEvent *>(event));
+				return true;
+			case QEvent::Wheel:
+				Handle_Wheel (static_cast<QWheelEvent *>(event));
+				return true;
+			default:
+				break;
+		}
+	}
+
+	return QWidget::eventFilter (watched, event);
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  Handle_Mouse_Press
+//
+////////////////////////////////////////////////////////////////////////////
+void
+GraphicView::Handle_Mouse_Press (QMouseEvent *event)
+{
+	m_lastPoint = event->position ().toPoint ();
+
+	if (event->button () == Qt::LeftButton) {
+		m_bMouseDown = TRUE;
+	} else if (event->button () == Qt::RightButton) {
+		m_bRMouseDown = TRUE;
+	}
+
+	return ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  Handle_Mouse_Release
+//
+////////////////////////////////////////////////////////////////////////////
+void
+GraphicView::Handle_Mouse_Release (QMouseEvent *event)
+{
+	if (event->button () == Qt::LeftButton) {
+		m_bMouseDown = FALSE;
+	} else if (event->button () == Qt::RightButton) {
+		m_bRMouseDown = FALSE;
+	}
+
+	return ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  Handle_Mouse_Move
+//
+//  Left drag        : orbit the camera around the object
+//  Right drag       : zoom (dolly) the camera in/out
+//  Left+Right drag  : pan the camera
+//  Ctrl + Left drag : rotate the scene light around the object
+//  Ctrl + Right drag: move the scene light toward/away from the object
+//
+////////////////////////////////////////////////////////////////////////////
+void
+GraphicView::Handle_Mouse_Move (QMouseEvent *event)
+{
+	QPoint point = event->position ().toPoint ();
+	int iDeltaY = m_lastPoint.y () - point.y ();
+
+	W3DViewDoc *doc = GetCurrentDocument ();
+	if ((doc == NULL) || (m_pCamera == NULL)) {
+		m_lastPoint = point;
+		return ;
+	}
+
+	bool ctrl = (event->modifiers () & Qt::ControlModifier) != 0;
+
+	// Add/remove the light 'mesh' from the scene depending on the Ctrl key
+	if (!ctrl && m_bLightMeshInScene) {
+		m_pLightMesh->Remove ();
+		m_bLightMeshInScene = false;
+	} else if (ctrl && (m_bLightMeshInScene == false) && (m_pLightMesh != NULL)) {
+		m_pLightMesh->Add (doc->GetScene ());
+		m_bLightMeshInScene = true;
+	}
+
+	int cx = m_sdlQWindow->width ();
+	int cy = m_sdlQWindow->height ();
+	if ((cx <= 0) || (cy <= 0)) {
+		m_lastPoint = point;
+		return ;
+	}
+
+	float midPointX = float (cx >> 1);
+	float midPointY = float (cy >> 1);
+	float lastPointX = ((float)m_lastPoint.x () - midPointX) / midPointX;
+	float lastPointY = (midPointY - (float)m_lastPoint.y ()) / midPointY;
+	float pointX = ((float)point.x () - midPointX) / midPointX;
+	float pointY = (midPointY - (float)point.y ()) / midPointY;
+
+	// Pan the camera (both buttons)
+	if (m_bMouseDown && m_bRMouseDown) {
+
+		Matrix3D transform = m_pCamera->Get_Transform ();
+		Vector3 cameraPan = Vector3 (-1.0F * m_CameraDistance * (pointX - lastPointX),
+											  -1.0F * m_CameraDistance * (pointY - lastPointY),
+											  0.0F);
+		transform.Translate (cameraPan);
+
+		Matrix3x3 view = Build_Matrix3 (rotation);
+		Vector3 move = view * cameraPan;
+		sphereCenter += move;
+
+		m_pCamera->Set_Transform (transform);
+	}
+	// Rotate the scene light around the object (Ctrl + left)
+	else if (ctrl && m_bMouseDown) {
+
+		LightClass *pSceneLight = doc->GetSceneLight ();
+		if ((pSceneLight != NULL) && (m_pLightMesh != NULL)) {
+
+			Quaternion mouse_motion = Inverse (Trackball (lastPointX, lastPointY, pointX, pointY, 0.8F));
+			Quaternion camera = Build_Quaternion (m_pCamera->Get_Transform ());
+			Quaternion cur_light = Build_Quaternion (pSceneLight->Get_Transform ());
+
+			Quaternion light_orientation = camera;
+			light_orientation = light_orientation * mouse_motion;
+			light_orientation = light_orientation * Inverse (camera);
+			light_orientation = light_orientation * cur_light;
+			light_orientation.Normalize ();
+
+			Vector3 to_center;
+			Matrix3D matrix = pSceneLight->Get_Transform ();
+			Matrix3D::Inverse_Transform_Vector (matrix, sphereCenter, &to_center);
+
+			Matrix3D light_tm (light_orientation, sphereCenter);
+			light_tm.Translate (-to_center);
+
+			m_pLightMesh->Set_Transform (light_tm);
+			pSceneLight->Set_Transform (light_tm);
+		}
+	}
+	// Move the light toward/away from the object (Ctrl + right)
+	else if (ctrl && m_bRMouseDown) {
+
+		LightClass *pscene_light = doc->GetSceneLight ();
+		RenderObjClass *prender_obj = doc->GetDisplayedObject ();
+		if ((pscene_light != NULL) && (prender_obj != NULL)) {
+
+			float deltay = ((float)iDeltaY) / (float)cy;
+			float adjustment = deltay * (m_ViewedSphere.Radius * 3.0F);
+
+			Matrix3D transform = pscene_light->Get_Transform ();
+			transform.Translate (Vector3 (0, 0, adjustment));
+
+			Vector3 light_pos = transform.Get_Translation ();
+			Vector3 obj_pos = prender_obj->Get_Position ();
+			float distance = (light_pos - obj_pos).Length ();
+
+			if (distance > m_ViewedSphere.Radius) {
+				m_pLightMesh->Set_Transform (transform);
+				pscene_light->Set_Transform (transform);
+			}
+		}
+	}
+	// Orbit the camera around the object (left only)
+	else if (m_bMouseDown) {
+
+		RenderObjClass *pCRenderObj = doc->GetDisplayedObject ();
+		if (m_bInitialized && doc->GetScene () && pCRenderObj) {
+
+			// Rotate around the object (orbit) using the mouse coordinates
+			rotation = Trackball (lastPointX, lastPointY, pointX, pointY, 0.8F);
+
+			// Optionally 'lock-out' all but a single rotation axis
+			if (m_allowedCameraRotation == OnlyRotateX) {
+				Matrix3D tempMatrix; Build_Matrix3D (rotation, tempMatrix);
+				Matrix3D tempMatrix2 (1);
+				tempMatrix2.Rotate_X (tempMatrix.Get_X_Rotation ());
+				tempMatrix2.Set_Translation (tempMatrix.Get_Translation ());
+				rotation = Build_Quaternion (tempMatrix2);
+			} else if (m_allowedCameraRotation == OnlyRotateY) {
+				Matrix3D tempMatrix; Build_Matrix3D (rotation, tempMatrix);
+				Matrix3D tempMatrix2 (1);
+				tempMatrix2.Rotate_Y (tempMatrix.Get_Y_Rotation ());
+				tempMatrix2.Set_Translation (tempMatrix.Get_Translation ());
+				rotation = Build_Quaternion (tempMatrix2);
+			} else if (m_allowedCameraRotation == OnlyRotateZ) {
+				Matrix3D tempMatrix; Build_Matrix3D (rotation, tempMatrix);
+				Matrix3D tempMatrix2 (1);
+				tempMatrix2.Rotate_Z (tempMatrix.Get_Z_Rotation ());
+				tempMatrix2.Set_Translation (tempMatrix.Get_Translation ());
+				rotation = Build_Quaternion (tempMatrix2);
+			}
+
+			// Get the transformation matrix for the camera and its inverse
+			Matrix3D transform = m_pCamera->Get_Transform ();
+			Matrix3D inverseMatrix;
+			transform.Get_Orthogonal_Inverse (inverseMatrix);
+
+			Vector3 to_object;
+			Matrix3D::Transform_Vector (inverseMatrix, sphereCenter, &to_object);
+			transform.Translate (to_object);
+
+			Matrix3D rot_matrix; Build_Matrix3D (rotation, rot_matrix);
+			Matrix3D::Multiply (transform, rot_matrix, &transform);
+
+			transform.Translate (-to_object);
+
+			// Rotate and translate the camera
+			m_pCamera->Set_Transform (transform);
+
+			doc->GetBackObjectCamera ()->Set_Transform (transform);
+			doc->GetBackObjectCamera ()->Set_Position (Vector3 (0.0F, 0.0F, 0.0F));
+		}
+	}
+	// Zoom (dolly) the camera (right only)
+	else if (m_bRMouseDown) {
+
+		Matrix3D transform = m_pCamera->Get_Transform ();
+		if (iDeltaY != 0) {
+
+			float deltay = ((float)iDeltaY) / (float)cy;
+			float adjustment = deltay * m_CameraDistance * 3.0F;
+
+			if ((adjustment < minZoomAdjust) && (adjustment >= 0.0F)) {
+				adjustment = minZoomAdjust;
+			}
+			if ((adjustment > -minZoomAdjust) && (adjustment <= 0.0F)) {
+				adjustment = -minZoomAdjust;
+			}
+
+			if ((m_CameraDistance + adjustment) > 0.0F) {
+				m_CameraDistance += adjustment;
+				transform.Translate (Vector3 (0.0F, 0.0F, adjustment));
+				m_pCamera->Set_Transform (transform);
+
+				doc->GetBackObjectCamera ()->Set_Transform (transform);
+				doc->GetBackObjectCamera ()->Set_Position (Vector3 (0.0F, 0.0F, 0.0F));
+			}
+		}
+	}
+
+	m_lastPoint = point;
+	return ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//  Handle_Wheel
+//
+//  Mouse wheel zooms the camera in/out (a modern convenience the original
+//  MFC tool lacked - it only zoomed via right-drag).
+//
+////////////////////////////////////////////////////////////////////////////
+void
+GraphicView::Handle_Wheel (QWheelEvent *event)
+{
+	if (m_pCamera == NULL) return;
+
+	float notches = (float)event->angleDelta ().y () / 120.0F;
+	if (notches == 0.0F) return;
+
+	float adjustment = -notches * (m_CameraDistance * 0.1F);
+	if ((m_CameraDistance + adjustment) <= 0.0F) return;
+
+	m_CameraDistance += adjustment;
+
+	Matrix3D transform = m_pCamera->Get_Transform ();
+	transform.Translate (Vector3 (0.0F, 0.0F, adjustment));
+	m_pCamera->Set_Transform (transform);
+
+	W3DViewDoc *doc = GetCurrentDocument ();
+	if (doc != NULL) {
+		doc->GetBackObjectCamera ()->Set_Transform (transform);
+		doc->GetBackObjectCamera ()->Set_Position (Vector3 (0.0F, 0.0F, 0.0F));
 	}
 
 	return ;
@@ -369,10 +957,6 @@ GraphicView::Reset_Camera_To_Display_Emitter (ParticleEmitterClass &emitter)
 	Reset_Camera_To_Display_Sphere (sphere);
 	return ;
 }
-
-float minZoomAdjust = 0.0F;
-Vector3 sphereCenter;
-Quaternion rotation;
 
 ////////////////////////////////////////////////////////////////////////////
 //

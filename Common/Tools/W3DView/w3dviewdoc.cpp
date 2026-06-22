@@ -1,5 +1,6 @@
 #include "w3dviewdoc.h"
 #include "w3dview.h"
+#include "w3dviewwin.h"
 #include "ffactory.h"
 #include "globals.h"
 #include "viewerassetmgr.h"
@@ -575,17 +576,376 @@ W3DViewDoc::DisplayObject
 GraphicView *
 W3DViewDoc::GetGraphicView (void)
 {
-    GraphicView *pGraphicView = NULL;
-
     // Get a pointer to the application instance
 	W3DViewApp *pApp = qobject_cast<W3DViewApp *>(QApplication::instance());
 	WWASSERT(pApp);
 
-    pApp->GetGraphicView();
-
     // Return a pointer to the graphic view
-    return pGraphicView;
+    return pApp->GetGraphicView();
 }
+
+
+///////////////////////////////////////////////////////////////
+//
+//  ResetAnimation
+//
+///////////////////////////////////////////////////////////////
+void
+W3DViewDoc::ResetAnimation (void)
+{
+	if (m_pCAnimation != NULL) {
+
+		//
+		// Reset the frame counter
+		//
+		m_CurrentFrame = 0;
+		m_animTime = 0.00F;
+
+		float frame_rate = m_pCAnimation->Get_Frame_Rate ();
+		float anim_speed = ::Get_Graphic_View ()->GetAnimationSpeed ();
+
+		//
+		// Update the status bar on the main window
+		//
+		Get_Main_Window()->UpdateFrameCount(0,
+											m_pCAnimation->Get_Num_Frames() - 1,
+											frame_rate * anim_speed);
+	}
+
+	return ;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  StepAnimation
+//
+///////////////////////////////////////////////////////////////
+void
+W3DViewDoc::StepAnimation (int iFrameInc)
+{
+	if (m_pCRenderObj && m_pCAnimation) {
+		int iTotalFrames = m_pCAnimation->Get_Num_Frames ();
+
+		// Increment the frame
+		m_CurrentFrame += iFrameInc;
+
+		//
+		// Wrap the animation
+		//
+		if (m_CurrentFrame >= iTotalFrames) {
+			m_CurrentFrame = 0;
+			m_animTime = 0.00F;
+		} else if (m_CurrentFrame < 0) {
+			m_CurrentFrame = iTotalFrames - 1;
+		}
+
+		//
+		// Update the status bar on the main window
+		//
+		float frame_rate = m_pCAnimation->Get_Frame_Rate ();
+		float anim_speed = ::Get_Graphic_View ()->GetAnimationSpeed ();
+		Get_Main_Window()->UpdateFrameCount (m_CurrentFrame, iTotalFrames - 1, frame_rate * anim_speed);
+
+		//
+		// Update the animation frame
+		//
+		if (m_pCAnimCombo) {
+			for (int i = 0; i < m_pCAnimCombo->Get_Num_Anims(); i++)
+			{
+			m_pCAnimCombo->Set_Frame(i, m_CurrentFrame);
+			}
+
+			m_pCRenderObj->Set_Animation (m_pCAnimCombo);
+		} else {
+			m_pCRenderObj->Set_Animation (m_pCAnimation, m_CurrentFrame);
+		}
+		//
+		// Update the animation frame
+		//
+		if (m_pCAnimCombo) {
+			for (int i = 0; i < m_pCAnimCombo->Get_Num_Anims (); i++) {
+				m_pCAnimCombo->Set_Frame (i, m_CurrentFrame);
+			}
+
+			m_pCRenderObj->Set_Animation (m_pCAnimCombo);
+		} else {
+			m_pCRenderObj->Set_Animation (m_pCAnimation, m_CurrentFrame);
+		}
+
+		Update_Camera ();
+	}
+
+	return ;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  PlayAnimation
+//
+///////////////////////////////////////////////////////////////
+void
+W3DViewDoc::PlayAnimation
+(
+	RenderObjClass *pCModel,
+	const char* pszAnimationName,
+	bool use_global_reset_flag,
+	bool allow_reset
+)
+{
+	WWASSERT (m_pCScene);
+	WWASSERT (pCModel);
+	WWASSERT (pszAnimationName);
+
+	// Data OK?
+	if (m_pCScene && pCModel && pszAnimationName) {
+
+		// Display this hierarchy on the screen
+		DisplayObject (pCModel);
+
+		// Get an instance of the animation object
+		SAFE_DELETE (m_pCAnimCombo);
+		MEMBER_RELEASE (m_pCAnimation);
+		m_pCAnimation = WW3DAssetManager::Get_Instance ()->Get_HAnim (pszAnimationName);
+		WWASSERT (m_pCAnimation);
+
+		// Reset the frame counter
+		m_CurrentFrame = 0;
+		m_animTime = 0.00F;
+
+		if (m_pCRenderObj && m_pCAnimation) {
+
+			// Update the animation frame
+			m_pCRenderObj->Set_Animation (m_pCAnimation, 0);
+
+			GraphicView *pGraphicView = GetGraphicView ();
+			if (pGraphicView) {
+
+				// Reset the camera so the user can see the whole object
+				if ((use_global_reset_flag && m_bAutoCameraReset) ||
+					 ((use_global_reset_flag == false) && allow_reset) ||
+					 m_bOneTimeReset) {
+					pGraphicView->Reset_Camera_To_Display_Object (*m_pCRenderObj);
+					m_bOneTimeReset = false;
+				}
+
+				// Start playback (replaces the MFC IDM_ANI_START command)
+				pGraphicView->SetAnimationState (GraphicView::AnimPlaying);
+			}
+		}
+
+		Update_Camera ();
+		Play_Animation_Sound ();
+	}
+
+	return ;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  PlayAnimation
+//
+///////////////////////////////////////////////////////////////
+void
+W3DViewDoc::PlayAnimation
+(
+	RenderObjClass *pCModel,
+	HAnimComboClass *pCAnimCombo,
+	bool use_global_reset_flag,
+	bool allow_reset
+)
+{
+	WWASSERT (m_pCScene);
+	WWASSERT (pCModel);
+	WWASSERT (pCAnimCombo);
+
+	// Data OK?
+	if (m_pCScene && pCModel && pCAnimCombo) {
+
+		// Display this hierarchy on the screen
+		DisplayObject (pCModel);
+
+		// Take ownership of the supplied combo
+		SAFE_DELETE (m_pCAnimCombo);
+		MEMBER_RELEASE (m_pCAnimation);
+		m_pCAnimCombo = pCAnimCombo;
+		m_pCAnimation = m_pCAnimCombo->Get_Motion (0);	// ref added by Get_Motion
+		WWASSERT (m_pCAnimation);
+
+		// It is assumed that every animation in the combo has the same number
+		// of frames and the same framerate as the first (m_pCAnimation).
+
+		// Reset the frame counter
+		m_CurrentFrame = 0;
+		m_animTime = 0.00F;
+
+		if (m_pCRenderObj) {
+
+			// Update the animation frame
+			for (int i = 0; i < m_pCAnimCombo->Get_Num_Anims (); i++) {
+				m_pCAnimCombo->Set_Frame (i, 0.0f);
+			}
+			m_pCRenderObj->Set_Animation (m_pCAnimCombo);
+
+			GraphicView *pGraphicView = GetGraphicView ();
+			if (pGraphicView) {
+
+				// Reset the camera so the user can see the whole object
+				if ((use_global_reset_flag && m_bAutoCameraReset) ||
+					 ((use_global_reset_flag == false) && allow_reset) ||
+					 m_bOneTimeReset) {
+					pGraphicView->Reset_Camera_To_Display_Object (*m_pCRenderObj);
+					m_bOneTimeReset = false;
+				}
+
+				pGraphicView->SetAnimationState (GraphicView::AnimPlaying);
+			}
+		}
+
+		Update_Camera ();
+		Play_Animation_Sound ();
+	}
+
+	return ;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  Play_Animation_Sound
+//
+///////////////////////////////////////////////////////////////
+void
+W3DViewDoc::Play_Animation_Sound (void)
+{
+	// TODO(audio): the original tool played a "<anim>.wav" alongside the
+	// animation via the Win32 PlaySound() API. Audio is not yet wired up in
+	// the SDL3/Qt port, so this is intentionally a no-op for now.
+	return ;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  Get_Camera_Transform
+//
+///////////////////////////////////////////////////////////////
+static bool
+Get_Camera_Transform (RenderObjClass *render_obj, Matrix3D &tm)
+{
+	bool retval = false;
+
+	if (render_obj != NULL) {
+		for (int index = 0; (index < render_obj->Get_Num_Sub_Objects ()) && !retval; index ++) {
+			RenderObjClass *psub_obj = render_obj->Get_Sub_Object (index);
+			if (psub_obj != NULL) {
+				retval = Get_Camera_Transform (psub_obj, tm);
+			}
+			MEMBER_RELEASE (psub_obj);
+		}
+
+		if (!retval) {
+			int index = render_obj->Get_Bone_Index ("CAMERA");
+			if (index > 0) {
+				tm = render_obj->Get_Bone_Transform (index);
+				retval = true;
+			}
+		}
+	}
+
+	return retval;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  Update_Camera
+//
+///////////////////////////////////////////////////////////////
+void
+W3DViewDoc::Update_Camera (void)
+{
+	// Should we update the camera's position as well?
+	if (m_bAnimateCamera && m_pCRenderObj != NULL) {
+
+		Matrix3D transform (1);
+		if (Get_Camera_Transform (m_pCRenderObj, transform)) {
+
+			// Convert the bone's transform into a camera transform
+			Matrix3D cam_transform (Vector3 (0, -1, 0), Vector3 (0, 0, 1), Vector3 (-1, 0, 0), Vector3 (0, 0, 0));
+			Matrix3D new_transform;
+			Matrix3D::Multiply (transform, cam_transform, &new_transform);
+
+			// Pass the new transform onto the camera
+			GraphicView *pGraphicView = GetGraphicView ();
+			if (pGraphicView && pGraphicView->GetCamera ()) {
+				pGraphicView->GetCamera ()->Set_Transform (new_transform);
+			}
+		}
+	}
+
+	return ;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  UpdateFrame
+//
+///////////////////////////////////////////////////////////////
+void
+W3DViewDoc::UpdateFrame (float relativeTimeSlice)
+{
+	if (m_pCRenderObj && m_pCAnimation) {
+
+		int total_frames = m_pCAnimation->Get_Num_Frames ();
+		float frame_rate = m_pCAnimation->Get_Frame_Rate ();
+		float loop_time = (frame_rate > 0.0F) ? (((float)(total_frames - 1)) / frame_rate) : 0.0F;
+
+		//
+		// Update the total elapsed animation time
+		//
+		m_animTime += relativeTimeSlice;
+		if (loop_time > 0.0F) {
+			while (m_animTime > loop_time) {
+				m_animTime -= loop_time;
+			}
+		}
+
+		// Adjust the current frame counter
+		m_CurrentFrame = (frame_rate * m_animTime);
+
+				//
+		// Update the status bar on the main window
+		//
+		float anim_speed = ::Get_Graphic_View ()->GetAnimationSpeed ();
+		Get_Main_Window()->UpdateFrameCount (m_CurrentFrame, total_frames - 1, frame_rate * anim_speed);
+
+
+		if (m_pCAnimCombo) {
+
+			//
+			// Update the animation frame for all anims in the combo.
+			//
+			for (int i = 0; i < m_pCAnimCombo->Get_Num_Anims (); i++) {
+				m_pCAnimCombo->Set_Frame (i, m_CurrentFrame);
+			}
+
+			m_pCRenderObj->Set_Animation (m_pCAnimCombo);
+		} else if (m_bAnimBlend) {
+			m_pCRenderObj->Set_Animation (m_pCAnimation, m_CurrentFrame);
+		} else {
+			m_pCRenderObj->Set_Animation (m_pCAnimation, (int)m_CurrentFrame);
+		}
+
+		Update_Camera ();
+	}
+
+	return ;
+}
+
 
 ///////////////////////////////////////////////////////////////
 //
@@ -625,6 +985,67 @@ W3DViewDoc::Remove_Object_From_Scene (RenderObjClass *prender_obj)
 		prender_obj->Remove ();
 	}
 
+	return ;
+}
+
+///////////////////////////////////////////////////////////////
+//
+//  Count_Particles
+//
+///////////////////////////////////////////////////////////////
+int
+W3DViewDoc::Count_Particles (RenderObjClass *render_obj)
+{
+	int count = 0;
+
+	//
+	// If the render object is NULL, then start from the current render object
+	//
+	if (render_obj == NULL) {
+		render_obj = m_pCRenderObj;
+	}
+
+	//
+	// Recursively walk through the subobjects
+	//
+	if (render_obj != NULL) {
+		for (int index = 0; index < render_obj->Get_Num_Sub_Objects (); index ++) {
+			RenderObjClass *psub_obj = render_obj->Get_Sub_Object (index);
+			if (psub_obj != NULL) {
+				count += Count_Particles (psub_obj);
+			}
+			MEMBER_RELEASE (psub_obj);
+		}
+
+
+		// If this is an emitter, then remove its buffer
+		if (render_obj->Class_ID () == RenderObjClass::CLASSID_PARTICLEEMITTER) {
+			
+			//
+			//	Add the number of particles in the buffer to the total
+			//
+			ParticleEmitterClass *emitter = static_cast<ParticleEmitterClass *> (render_obj);
+			ParticleBufferClass *buffer = emitter->Peek_Buffer ();
+			if (buffer != NULL) {
+				count += buffer->Get_Particle_Count ();
+			}		
+		}
+	}
+
+	return count;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  Update_Particle_Count
+//
+///////////////////////////////////////////////////////////////
+void
+W3DViewDoc::Update_Particle_Count (void)
+{
+	int particles = Count_Particles ();
+	Get_Main_Window ()->Update_Particle_Count (particles);
 	return ;
 }
 

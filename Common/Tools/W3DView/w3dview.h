@@ -25,15 +25,19 @@
 
 class GraphicView;
 class W3DViewDoc;
+class W3DViewWindow;
 class W3DViewApp : public QApplication
 {
     friend class GraphicView;
+    friend class W3DViewWindow;
     Q_OBJECT
 public:
     W3DViewApp(int &argc, char **argv);
     W3DViewDoc *GetCurrentDocument() { return m_currentDocument; }
     GraphicView *GetGraphicView() { return m_graphicView; }
+    W3DViewWindow *GetMainWindow() { return m_mainWindow; }
 protected:
     W3DViewDoc *m_currentDocument = NULL;
+    W3DViewWindow *m_mainWindow = NULL;
     GraphicView *m_graphicView = NULL;
 };

@@ -20,7 +20,14 @@
 #pragma once
 // GraphicView.h : header file
 #include <QWidget>
+#include <QPoint>
 //
+
+// Qt forward declarations
+class QTimer;
+class QWindow;
+class QMouseEvent;
+class QWheelEvent;
 
 /////////////////////////////////////////////////////////////////
 //
@@ -51,9 +58,13 @@ public:
     GraphicView(QWidget *parent = nullptr);
     ~GraphicView();
 
+    QSize sizeHint() const override;
+
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
     virtual void resizeEvent(QResizeEvent *event) override;
+    // Mouse/wheel events arrive on the embedded SDL QWindow, so we filter them.
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
     public:
 
@@ -183,6 +194,14 @@ protected:
 		  void					Rotate_Object (void);
 		  void					Rotate_Light (void);
 
+		  //
+		  //	Mouse interaction handlers (driven by eventFilter)
+		  //
+		  void					Handle_Mouse_Press (QMouseEvent *event);
+		  void					Handle_Mouse_Release (QMouseEvent *event);
+		  void					Handle_Mouse_Move (QMouseEvent *event);
+		  void					Handle_Wheel (QWheelEvent *event);
+
     private:
 
         /////////////////////////////////////////////////
@@ -215,4 +234,9 @@ protected:
         CAMERA_ROTATION		m_allowedCameraRotation;
 
         SDL_Window *		m_pSDLWindow;
+
+        // Render loop + input plumbing
+        QTimer *				m_renderTimer;
+        QWindow *			m_sdlQWindow;
+        QPoint				m_lastPoint;
 };

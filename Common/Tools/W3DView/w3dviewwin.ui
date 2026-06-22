@@ -68,8 +68,6 @@
 	<addaction name="actionTexturePath"/>
 	<addaction name="actionAnimatedSoundOptions"/>
 	<addaction name="separator"/>
-	<addaction name="actionRecentFile"/>
-	<addaction name="separator"/>
 	<addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuExport">
@@ -242,12 +240,11 @@
   <action name="actionExportSoundObject"><property name="text"><string>&amp;Sound Object...</string></property></action>
   <action name="actionTexturePath"><property name="text"><string>&amp;Texture Path...</string></property></action>
   <action name="actionAnimatedSoundOptions"><property name="text"><string>&amp;Animated Sound Options...</string></property></action>
-  <action name="actionRecentFile"><property name="text"><string>Recent File</string></property><property name="enabled"><bool>false</bool></property></action>
   <action name="actionExit"><property name="text"><string>E&amp;xit</string></property><property name="shortcut"><string>Ctrl+Q</string></property></action>
 
   <action name="actionToolbarMain"><property name="text"><string>&amp;Main</string></property></action>
   <action name="actionToolbarObject"><property name="text"><string>Object</string></property></action>
-  <action name="actionToolbarAnimation"><property name="text"><string>Animation</string></property></action>
+  <action name="actionToolbarAnimation"><property name="checkable"><bool>true</bool></property><property name="text"><string>Animation</string></property></action>
   <action name="actionStatusBar"><property name="text"><string>&amp;Status Bar</string></property></action>
   <action name="actionPrev"><property name="text"><string>&amp;Prev	PgUp</string></property></action>
   <action name="actionNext"><property name="text"><string>&amp;Next	PgDn</string></property></action>

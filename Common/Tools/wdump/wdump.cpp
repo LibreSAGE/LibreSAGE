@@ -7,7 +7,7 @@ WDumpApp::WDumpApp(int &argc, char **argv) : QApplication(argc, argv), DumpTextu
 {
     setOrganizationName("WWVegas");
     setApplicationName("wdump");
-    setApplicationVersion("1.0");
+    setApplicationVersion("3.0");
 
     QCommandLineParser parser;
     parser.setApplicationDescription("A UI tool to inspect Westwood 3D files");

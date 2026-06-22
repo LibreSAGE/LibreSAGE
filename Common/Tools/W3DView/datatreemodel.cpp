@@ -885,8 +885,8 @@ DataTreeModel::Display_Asset (QStandardItem* htree_item)
 					if (hParentItem != NULL) {
 
 						// Ask the document to start playing the animation for this object
-						RenderObjClass *prender_obj = Create_Render_Obj_To_Display (hParentItem);                         
-						// pdoc->PlayAnimation (prender_obj,asset_info->Get_Name ().toUtf8().constData());
+						RenderObjClass *prender_obj = Create_Render_Obj_To_Display (hParentItem);
+						pdoc->PlayAnimation (prender_obj,asset_info->Get_Name ().toUtf8().constData());
 						MEMBER_RELEASE (prender_obj);
 					}
 				}

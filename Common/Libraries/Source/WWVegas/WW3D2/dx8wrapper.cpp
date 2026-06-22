@@ -901,7 +901,7 @@ bool DX8Wrapper::Set_Render_Device(int dev, int width, int height, int bits, int
 	DX8Wrapper_IsWindowed = IsWindowed;
 
 	WWDEBUG_SAY(("Attempting Set_Render_Device: name: %s (%s:%s), width: %d, height: %d, windowed: %d\n",
-		_RenderDeviceNameTable[CurRenderDevice],_RenderDeviceDescriptionTable[CurRenderDevice].Get_Driver_Name(),
+		_RenderDeviceNameTable[CurRenderDevice].Peek_Buffer(),_RenderDeviceDescriptionTable[CurRenderDevice].Get_Driver_Name(),
 		_RenderDeviceDescriptionTable[CurRenderDevice].Get_Driver_Version(),ResolutionWidth,ResolutionHeight,(IsWindowed ? 1 : 0)));
 
 #ifdef _WINDOWS

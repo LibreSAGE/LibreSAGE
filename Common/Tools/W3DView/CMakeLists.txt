@@ -6,6 +6,8 @@ set(CMAKE_AUTOUIC ON)
 
 qt_add_executable(
   c_w3dview
+  animationtoolbar.cpp
+  animationtoolbar.h
   assetinfo.cpp
   assetinfo.h
   assettypes.h
@@ -48,7 +50,8 @@ qt_add_resources(c_w3dview "icons" PREFIX "/icons" BASE Res FILES
   Res/particle.ico
   Res/primitives.ico
   Res/rotation.ico
-  Res/sound.ico)
+  Res/sound.ico
+  Res/W3DView.ico)
 
 set_target_properties(c_w3dview PROPERTIES OUTPUT_NAME "W3DView")
 target_include_directories(c_w3dview PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

@@ -32,7 +32,7 @@ W3DViewApp::W3DViewApp(int &argc, char **argv) : QApplication(argc, argv)
 {
     setOrganizationName("WWVegas");
     setApplicationName("W3DView");
-    setApplicationVersion("1.0");
+    setApplicationVersion("5.3");
 
     QCommandLineParser parser;
     parser.setApplicationDescription("A UI tool to inspect Westwood 3D files");

@@ -336,3 +336,24 @@ Get_Graphic_View (void)
 
 	return view;
 }
+
+///////////////////////////////////////////////////////////////////////////
+//
+//  Get_Main_Window
+//
+///////////////////////////////////////////////////////////////////////////
+W3DViewWindow *
+Get_Main_Window (void)
+{
+	W3DViewWindow *window = NULL;
+
+	// Get a pointer to the application instance
+	W3DViewApp *pApp = qobject_cast<W3DViewApp *>(QApplication::instance());
+	WWASSERT(pApp);
+
+
+	window = pApp->GetMainWindow();
+	WWASSERT(window);
+
+	return window;
+}

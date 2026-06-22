@@ -106,7 +106,7 @@ inline void Delimit_Path (char* path)
 // Forward declarations
 class TextureClass;
 class GraphicView;
-
+class W3DViewWindow;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -114,6 +114,7 @@ class GraphicView;
 //
 class W3DViewDoc *	GetCurrentDocument (void);
 GraphicView *		Get_Graphic_View (void);
+W3DViewWindow *		Get_Main_Window (void);
 
 //
 //	String manipulation routines

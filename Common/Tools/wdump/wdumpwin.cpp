@@ -7,6 +7,7 @@
 #include <QItemSelectionModel>
 #include <QMessageBox>
 #include <QSettings>
+#include <QCoreApplication>
 
 WDumpWindow::WDumpWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -117,13 +118,14 @@ void WDumpWindow::OnAbout()
     about.setWindowTitle(tr("About wdump"));
     about.setIconPixmap(QIcon(":/wdump.ico").pixmap(48, 48));
     about.setTextFormat(Qt::RichText);
-    about.setText(tr("<h3>Westwood 3D File Viewer v3.0</h3>"
+    about.setText(tr("<h3>Westwood 3D File Viewer v%1</h3>"
                      "<p>A tool to inspect Westwood 3D (.w3d) files.</p>"
                      "<p>Copyright &copy; 1997 Westwood Studios<br>"
                      "Copyright &copy; 2025 Electronic Arts Inc.<br>"
                      "Copyright &copy; 2026 Stephan Vedder</p>"
                      "<p>Written by Eric Cosky, Greg Hjelstrom.<br>"
-                     "Qt port by Stephan Vedder.</p>"));
+                     "Qt port by Stephan Vedder.</p>")
+                      .arg(QCoreApplication::applicationVersion()));
     about.exec();
 }
 

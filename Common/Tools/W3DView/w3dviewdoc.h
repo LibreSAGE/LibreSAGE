@@ -87,6 +87,7 @@ public:
 	LightClass *			GetSceneLight (void) const				{ return m_pCSceneLight; }
 	RenderObjClass *		GetDisplayedObject (void) const		{ return m_pCRenderObj; }	
 	HAnimClass *			GetCurrentAnimation (void) const		{ return m_pCAnimation; }
+	int					GetCurrentFrame (void) const			{ return (int)m_CurrentFrame; }
 	const HTreeClass *	Get_Current_HTree (void) const;
 
 	//
