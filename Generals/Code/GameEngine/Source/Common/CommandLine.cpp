@@ -1100,7 +1100,7 @@ static CommandLineParam params[] =
 	{ "-yres", parseYRes },
 	{ "-fullscreen", parseNoWin },
 	{ "-fullVersion", parseFullVersion },
-	{	"-particleEdit", parseParticleEdit },
+	{ "-particleEdit", parseParticleEdit },
 	{ "-scriptDebug", parseScriptDebug },
 	{ "-playStats", parsePlayStats },
 	{ "-mod", parseMod },

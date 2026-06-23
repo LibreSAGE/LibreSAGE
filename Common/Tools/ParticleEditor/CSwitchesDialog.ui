@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CSwitchesDialog</class>
+ <widget class="QDialog" name="CSwitchesDialog">
+  <property name="windowTitle">
+   <string>Emission Switches</string>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <item>
+    <widget class="QGroupBox" name="EmitterProperties">
+     <property name="title">
+      <string>Emitter Properties</string>
+     </property>
+     <layout class="QVBoxLayout" name="boxLayout">
+      <item>
+       <widget class="QCheckBox" name="OneShot">
+        <property name="text"><string>One Shot Emitter</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="Hollow">
+        <property name="text"><string>Hollow Emitter</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="GroundAligned">
+        <property name="text"><string>Align on XY plane</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="EmitAboveGroundOnly">
+        <property name="text"><string>Emit above ground only</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="ParticleUpTowardsEmitter">
+        <property name="text"><string>Particle Up towards emitter</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

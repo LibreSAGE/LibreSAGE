@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CColorAlphaDialog</class>
+ <widget class="QDialog" name="CColorAlphaDialog">
+  <property name="windowTitle">
+   <string>Color and Alpha</string>
+  </property>
+  <layout class="QHBoxLayout" name="rootLayout">
+   <item>
+    <widget class="QGroupBox" name="ColorKeyframes">
+     <property name="title">
+      <string>Color Keyframes</string>
+     </property>
+     <layout class="QGridLayout" name="colorLayout">
+      <item row="0" column="1">
+       <widget class="QLabel" name="labelColorFrame"><property name="text"><string>Frame</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="CButtonShowColor" name="Color1"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="CF1_Frame"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="CButtonShowColor" name="Color2"/>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="CF2_Frame"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="CButtonShowColor" name="Color3"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="CF3_Frame"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="CButtonShowColor" name="Color4"/>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="CF4_Frame"/>
+      </item>
+      <item row="5" column="0">
+       <widget class="CButtonShowColor" name="Color5"/>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="CF5_Frame"/>
+      </item>
+      <item row="6" column="0">
+       <widget class="CButtonShowColor" name="Color6"/>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLineEdit" name="CF6_Frame"/>
+      </item>
+      <item row="7" column="0">
+       <widget class="CButtonShowColor" name="Color7"/>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="CF7_Frame"/>
+      </item>
+      <item row="8" column="0">
+       <widget class="CButtonShowColor" name="Color8"/>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLineEdit" name="CF8_Frame"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="AlphaKeyframes">
+     <property name="title">
+      <string>Alpha Keyframes</string>
+     </property>
+     <layout class="QGridLayout" name="alphaLayout">
+      <item row="0" column="1">
+       <widget class="QLabel" name="labelAlphaMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="labelAlphaMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="labelAlphaFrame"><property name="text"><string>Frame</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelAlpha1"><property name="text"><string>1</string></property></widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="AF1_Min"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLineEdit" name="AF1_Max"/>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLineEdit" name="AF1_Frame"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelAlpha2"><property name="text"><string>2</string></property></widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="AF2_Min"/>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLineEdit" name="AF2_Max"/>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLineEdit" name="AF2_Frame"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="labelAlpha3"><property name="text"><string>3</string></property></widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="AF3_Min"/>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLineEdit" name="AF3_Max"/>
+      </item>
+      <item row="3" column="3">
+       <widget class="QLineEdit" name="AF3_Frame"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="labelAlpha4"><property name="text"><string>4</string></property></widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="AF4_Min"/>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLineEdit" name="AF4_Max"/>
+      </item>
+      <item row="4" column="3">
+       <widget class="QLineEdit" name="AF4_Frame"/>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="labelAlpha5"><property name="text"><string>5</string></property></widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="AF5_Min"/>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLineEdit" name="AF5_Max"/>
+      </item>
+      <item row="5" column="3">
+       <widget class="QLineEdit" name="AF5_Frame"/>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="labelAlpha6"><property name="text"><string>6</string></property></widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLineEdit" name="AF6_Min"/>
+      </item>
+      <item row="6" column="2">
+       <widget class="QLineEdit" name="AF6_Max"/>
+      </item>
+      <item row="6" column="3">
+       <widget class="QLineEdit" name="AF6_Frame"/>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="labelAlpha7"><property name="text"><string>7</string></property></widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="AF7_Min"/>
+      </item>
+      <item row="7" column="2">
+       <widget class="QLineEdit" name="AF7_Max"/>
+      </item>
+      <item row="7" column="3">
+       <widget class="QLineEdit" name="AF7_Frame"/>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="labelAlpha8"><property name="text"><string>8</string></property></widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLineEdit" name="AF8_Min"/>
+      </item>
+      <item row="8" column="2">
+       <widget class="QLineEdit" name="AF8_Max"/>
+      </item>
+      <item row="8" column="3">
+       <widget class="QLineEdit" name="AF8_Frame"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CButtonShowColor</class>
+   <extends>QPushButton</extends>
+   <header>CButtonShowColor.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

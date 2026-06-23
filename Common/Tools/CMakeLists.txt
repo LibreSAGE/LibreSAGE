@@ -4,6 +4,8 @@ add_subdirectory(CRCDiff)
 add_subdirectory(versionUpdate)
 # Utility library for WWVegas & Qt6 compatibility
 add_subdirectory(WWQt6)
+add_subdirectory(DebugWindow)
 add_subdirectory(wdump)
 add_subdirectory(W3DView)
 add_subdirectory(ImagePacker)
+add_subdirectory(ParticleEditor)

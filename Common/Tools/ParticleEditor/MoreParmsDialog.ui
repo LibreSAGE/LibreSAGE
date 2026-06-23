@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MoreParmsDialog</class>
+ <widget class="QDialog" name="MoreParmsDialog">
+  <property name="windowTitle">
+   <string>More Parameters</string>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <item>
+    <layout class="QGridLayout" name="topLayout">
+     <item row="0" column="0">
+      <widget class="QGroupBox" name="InitialDelayGroup">
+       <property name="title">
+        <string>Initial Delay</string>
+       </property>
+       <layout class="QGridLayout" name="initialDelayLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelInitialDelayMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelInitialDelayMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="InitialDelayMin"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="InitialDelayMax"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QGroupBox" name="BurstDelayGroup">
+       <property name="title">
+        <string>Burst Delay</string>
+       </property>
+       <layout class="QGridLayout" name="burstDelayLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelBurstDelayMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelBurstDelayMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="BurstDelayMin"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="BurstDelayMax"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QGroupBox" name="DriftVelocityGroup">
+       <property name="title">
+        <string>Drift Velocity</string>
+       </property>
+       <layout class="QGridLayout" name="driftVelocityLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelDriftVelocityX"><property name="text"><string>X</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelDriftVelocityY"><property name="text"><string>Y</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="labelDriftVelocityZ"><property name="text"><string>Z</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="DriftVelocityX"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="DriftVelocityY"/>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="DriftVelocityZ"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QGroupBox" name="ParticleLifetimeGroup">
+       <property name="title">
+        <string>Particle Lifetime</string>
+       </property>
+       <layout class="QGridLayout" name="particleLifetimeLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelParticleLifetimeMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelParticleLifetimeMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="ParticleLifetimeMin"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="ParticleLifetimeMax"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QGroupBox" name="ColorScaleGroup">
+       <property name="title">
+        <string>Color Scale</string>
+       </property>
+       <layout class="QGridLayout" name="colorScaleLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelColorScaleMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelColorScaleMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="ColorScaleMin"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="ColorScaleMax"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QGroupBox" name="BurstCountGroup">
+       <property name="title">
+        <string>Burst Count</string>
+       </property>
+       <layout class="QGridLayout" name="burstCountLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelBurstCountMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelBurstCountMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="BurstCountMin"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="BurstCountMax"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QGroupBox" name="SystemLifeGroup">
+       <property name="title">
+        <string>System Life</string>
+       </property>
+       <layout class="QGridLayout" name="systemLifeLayout">
+        <item row="0" column="0">
+         <widget class="QLineEdit" name="SystemLifetime"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QGroupBox" name="StartSizeGroup">
+       <property name="title">
+        <string>Start Size</string>
+       </property>
+       <layout class="QGridLayout" name="startSizeLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelSizeMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelSizeMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="SizeMin"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="SizeMax"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QGroupBox" name="SizeRateGroup">
+       <property name="title">
+        <string>Size Rate</string>
+       </property>
+       <layout class="QGridLayout" name="sizeRateLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelSizeRateMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelSizeRateMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="SizeRateMin"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="SizeRateMax"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QGroupBox" name="StartSizeRateGroup">
+       <property name="title">
+        <string>Start Size Rate</string>
+       </property>
+       <layout class="QGridLayout" name="startSizeRateLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelStartSizeRateMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelStartSizeRateMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="StartSizeRateMin"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="StartSizeRateMax"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QGroupBox" name="SizeDampingGroup">
+       <property name="title">
+        <string>Size Damping</string>
+       </property>
+       <layout class="QGridLayout" name="sizeDampingLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelSizeDampingMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelSizeDampingMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="SizeDampingMin"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="SizeDampingMax"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QGroupBox" name="SlaveOffsetGroup">
+       <property name="title">
+        <string>Slave Offset</string>
+       </property>
+       <layout class="QGridLayout" name="slaveOffsetLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelSlaveOffsetX"><property name="text"><string>X</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelSlaveOffsetY"><property name="text"><string>Y</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="labelSlaveOffsetZ"><property name="text"><string>Z</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="SlaveOffsetX"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="SlaveOffsetY"/>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="SlaveOffsetZ"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="3" column="2" colspan="2">
+      <widget class="QGroupBox" name="SystemsGroup">
+       <property name="title">
+        <string>Systems</string>
+       </property>
+       <layout class="QGridLayout" name="systemsLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelSlaveSystem"><property name="text"><string>Slave</string></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="SlaveSystem">
+          <property name="editable"><bool>true</bool></property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelPerParticleSystem"><property name="text"><string>Per-Particle</string></property></widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="PerParticleSystem">
+          <property name="editable"><bool>false</bool></property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="4">
+      <widget class="QGroupBox" name="WindGroup">
+       <property name="title">
+        <string>Wind</string>
+       </property>
+       <layout class="QGridLayout" name="windLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelWindMotion"><property name="text"><string>Motion</string></property></widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="WindMotion">
+          <property name="editable"><bool>false</bool></property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelWindAngleChangeMin"><property name="text"><string>Angle Rate Min</string></property></widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="WindAngleChangeMin"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="labelWindAngleChangeMax"><property name="text"><string>Angle Rate Max</string></property></widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="WindAngleChangeMax"/>
+        </item>
+        <item row="0" column="2" rowspan="3">
+         <widget class="QGroupBox" name="PingPongWindGroup">
+          <property name="title">
+           <string>Ping Pong Wind</string>
+          </property>
+          <layout class="QGridLayout" name="pingPongWindLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelWindPingPongStartAngleMin"><property name="text"><string>Start Angle Min</string></property></widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="WindPingPongStartAngleMin"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelWindPingPongStartAngleMax"><property name="text"><string>Start Angle Max</string></property></widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="WindPingPongStartAngleMax"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="labelWindPingPongEndAngleMin"><property name="text"><string>End Angle Min</string></property></widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="WindPingPongEndAngleMin"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="labelWindPingPongEndAngleMax"><property name="text"><string>End Angle Max</string></property></widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="WindPingPongEndAngleMax"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ParticleEditorDialog</class>
+ <widget class="QMainWindow" name="ParticleEditorDialog">
+  <property name="windowTitle">
+   <string>Particle Editor</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item>
+     <layout class="QHBoxLayout" name="capLayout">
+      <item>
+       <widget class="QLabel" name="labelParticleCap"><property name="text"><string>Particle Cap:</string></property></widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="CurrentParticleCap"/>
+      </item>
+      <item>
+       <spacer name="capSpacer"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property></spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelCurrentCount"><property name="text"><string>Current Count:</string></property></widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="CurrentParticleCount"><property name="readOnly"><bool>true</bool></property></widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="systemLayout">
+      <item>
+       <widget class="QLabel" name="labelSystem"><property name="text"><string>System:</string></property></widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="ParticleSystem"><property name="editable"><bool>true</bool></property></widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="Go"><property name="text"><string>Go</string></property></widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="parentLayout">
+      <item>
+       <widget class="QLabel" name="labelParent"><property name="text"><string>Parent:</string></property></widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="ParentSystem"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="KillAll"><property name="text"><string>Kill All</string></property></widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="systemParameters">
+      <property name="title"><string>System Parameters</string></property>
+      <layout class="QVBoxLayout" name="systemParametersLayout">
+       <item>
+        <layout class="QFormLayout" name="typeLayout">
+         <item row="0" column="0"><widget class="QLabel" name="labelPriority"><property name="text"><string>Priority</string></property></widget></item>
+         <item row="0" column="1"><widget class="QComboBox" name="Priority"/></item>
+         <item row="1" column="0"><widget class="QLabel" name="labelEmissionType"><property name="text"><string>Emission Type:</string></property></widget></item>
+         <item row="1" column="1"><widget class="QComboBox" name="EmissionType"/></item>
+         <item row="2" column="0"><widget class="QLabel" name="labelVelocityType"><property name="text"><string>Velocity Type:</string></property></widget></item>
+         <item row="2" column="1"><widget class="QComboBox" name="VelocityType"/></item>
+         <item row="3" column="0"><widget class="QLabel" name="labelParticleType"><property name="text"><string>Particle Type:</string></property></widget></item>
+         <item row="3" column="1"><widget class="QComboBox" name="ParticleType"/></item>
+         <item row="4" column="0"><widget class="QLabel" name="labelShaderType"><property name="text"><string>Shader Type:</string></property></widget></item>
+         <item row="4" column="1"><widget class="QComboBox" name="ShaderType"/></item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="angleRowLayout">
+         <item>
+          <widget class="QGroupBox" name="angleGroup">
+           <property name="title"><string>Angle</string></property>
+           <layout class="QGridLayout" name="angleLayout">
+            <item row="0" column="1"><widget class="QLabel" name="labelAngleMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+            <item row="0" column="2"><widget class="QLabel" name="labelAngleMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="labelAngleX"><property name="text"><string>X:</string></property></widget></item>
+            <item row="1" column="1"><widget class="QLineEdit" name="AngleXMin"/></item>
+            <item row="1" column="2"><widget class="QLineEdit" name="AngleXMax"/></item>
+            <item row="2" column="0"><widget class="QLabel" name="labelAngleY"><property name="text"><string>Y:</string></property></widget></item>
+            <item row="2" column="1"><widget class="QLineEdit" name="AngleYMin"/></item>
+            <item row="2" column="2"><widget class="QLineEdit" name="AngleYMax"/></item>
+            <item row="3" column="0"><widget class="QLabel" name="labelAngleZ"><property name="text"><string>Z:</string></property></widget></item>
+            <item row="3" column="1"><widget class="QLineEdit" name="AngleZMin"/></item>
+            <item row="3" column="2"><widget class="QLineEdit" name="AngleZMax"/></item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="angularRateGroup">
+           <property name="title"><string>Angular Rate</string></property>
+           <layout class="QGridLayout" name="angularRateLayout">
+            <item row="0" column="1"><widget class="QLabel" name="labelAngularRateMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+            <item row="0" column="2"><widget class="QLabel" name="labelAngularRateMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="labelAngularRateX"><property name="text"><string>X:</string></property></widget></item>
+            <item row="1" column="1"><widget class="QLineEdit" name="AngularRateXMin"/></item>
+            <item row="1" column="2"><widget class="QLineEdit" name="AngularRateXMax"/></item>
+            <item row="2" column="0"><widget class="QLabel" name="labelAngularRateY"><property name="text"><string>Y:</string></property></widget></item>
+            <item row="2" column="1"><widget class="QLineEdit" name="AngularRateYMin"/></item>
+            <item row="2" column="2"><widget class="QLineEdit" name="AngularRateYMax"/></item>
+            <item row="3" column="0"><widget class="QLabel" name="labelAngularRateZ"><property name="text"><string>Z:</string></property></widget></item>
+            <item row="3" column="1"><widget class="QLineEdit" name="AngularRateZMin"/></item>
+            <item row="3" column="2"><widget class="QLineEdit" name="AngularRateZMax"/></item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="gravityGroup">
+           <property name="title"><string>Gravity</string></property>
+           <layout class="QVBoxLayout" name="gravityLayout">
+            <item><widget class="QLineEdit" name="Gravity"/></item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="dampingRowLayout">
+         <item>
+          <widget class="QGroupBox" name="angularDampingGroup">
+           <property name="title"><string>Angular Damping</string></property>
+           <layout class="QGridLayout" name="angularDampingLayout">
+            <item row="0" column="0"><widget class="QLabel" name="labelAngleDampingMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+            <item row="0" column="1"><widget class="QLabel" name="labelAngleDampingMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+            <item row="1" column="0"><widget class="QLineEdit" name="AngleDampingMin"/></item>
+            <item row="1" column="1"><widget class="QLineEdit" name="AngleDampingMax"/></item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="velocityDampingGroup">
+           <property name="title"><string>Velocity Damping</string></property>
+           <layout class="QGridLayout" name="velocityDampingLayout">
+            <item row="0" column="0"><widget class="QLabel" name="labelVelocityDampingMin"><property name="text"><string>Min</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+            <item row="0" column="1"><widget class="QLabel" name="labelVelocityDampingMax"><property name="text"><string>Max</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+            <item row="1" column="0"><widget class="QLineEdit" name="VelocityDampingMin"/></item>
+            <item row="1" column="1"><widget class="QLineEdit" name="VelocityDampingMax"/></item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QStackedWidget" name="EmissionPanel"/>
+       </item>
+       <item>
+        <widget class="QStackedWidget" name="VelocityPanel"/>
+       </item>
+       <item>
+        <widget class="QStackedWidget" name="ParticlePanel"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="buttonLayout">
+      <item>
+       <widget class="QPushButton" name="EditColorButton"><property name="text"><string>Colors/Alpha</string></property><property name="checkable"><bool>true</bool></property></widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="EditSwitchesButton"><property name="text"><string>Switches</string></property><property name="checkable"><bool>true</bool></property></widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="Continued"><property name="text"><string>Continued...</string></property><property name="checkable"><bool>true</bool></property></widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <widget class="QMenu" name="menuFile">
+    <property name="title"><string>File</string></property>
+    <addaction name="actionReloadCurrent"/>
+    <addaction name="actionReloadAll"/>
+    <addaction name="separator"/>
+    <addaction name="actionSaveCurrent"/>
+    <addaction name="actionSaveAll"/>
+    <addaction name="separator"/>
+    <addaction name="actionReloadTextures"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <action name="actionReloadCurrent"><property name="text"><string>Reload Current System</string></property></action>
+  <action name="actionReloadAll"><property name="text"><string>Reload All</string></property></action>
+  <action name="actionSaveCurrent"><property name="text"><string>Save Current</string></property></action>
+  <action name="actionSaveAll"><property name="text"><string>Save All</string></property></action>
+  <action name="actionReloadTextures"><property name="text"><string>Reload Textures</string></property></action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

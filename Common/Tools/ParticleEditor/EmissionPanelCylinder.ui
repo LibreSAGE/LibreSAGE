@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EmissionPanelCylinder</class>
+ <widget class="QWidget" name="EmissionPanelCylinder">
+  <layout class="QVBoxLayout" name="rootLayout">
+   <property name="leftMargin"><number>0</number></property>
+   <property name="topMargin"><number>0</number></property>
+   <property name="rightMargin"><number>0</number></property>
+   <property name="bottomMargin"><number>0</number></property>
+   <item>
+    <widget class="QGroupBox" name="EmissionProperties">
+     <property name="title">
+      <string>Emission Cylinder Properties</string>
+     </property>
+     <layout class="QGridLayout" name="boxLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelRadius"><property name="text"><string>Radius</string></property></widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="CylRadius"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelLength"><property name="text"><string>Length</string></property></widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="CylLength"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DebugWindowDialog</class>
+ <widget class="QDialog" name="DebugWindowDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>360</width>
+    <height>560</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Debug Window</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <item>
+      <widget class="QPushButton" name="Pause">
+       <property name="text"><string>Pause</string></property>
+       <property name="checkable"><bool>true</bool></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Step"><property name="text"><string>Step</string></property></widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="StepTen"><property name="text"><string>Step 10</string></property></widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="statusLayout">
+     <item>
+      <widget class="QLabel" name="labelFrame"><property name="text"><string>Frame</string></property></widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="FrameNumber"><property name="text"><string>0</string></property></widget>
+     </item>
+     <item>
+      <spacer name="statusSpacer"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property></spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="RUN_FAST">
+       <property name="text"><string>Run Fast (10 X)</string></property>
+       <property name="checkable"><bool>true</bool></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ClearWindows"><property name="text"><string>Clear</string></property></widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelVariables"><property name="text"><string>Variables</string></property></widget>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="Variables">
+     <property name="readOnly"><bool>true</bool></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelMessages"><property name="text"><string>Messages</string></property></widget>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="Messages">
+     <property name="readOnly"><bool>true</bool></property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
