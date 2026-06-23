@@ -27,10 +27,16 @@
 #ifndef __STACKDUMP_H_
 #define __STACKDUMP_H_
 
+#include <windows.h>
+#ifndef _WIN32
+class EXCEPTION_POINTERS;
+#endif
+
 #ifndef IG_DEGBUG_STACKTRACE
-#define IG_DEBUG_STACKTRACE	1
-#endif // Unsure about this one -ML 3/25/03
-#if defined(_DEBUG) || defined(_INTERNAL) || defined(IG_DEBUG_STACKTRACE)
+//#define IG_DEBUG_STACKTRACE1
+#endif
+
+#if (defined(_DEBUG) || defined(_INTERNAL) || defined(IG_DEBUG_STACKTRACE)) && defined(_WINDOWS)
 
 // Writes a stackdump (provide a callback : gets called per line)
 // If callback is NULL then will write using OuputDebugString

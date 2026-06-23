@@ -511,7 +511,7 @@ void SlowDeathBehavior::onDie( const DamageInfo *damageInfo )
 	// this returns a value from 1...total, inclusive
 	Int roll = GameLogicRandomValue(1, total);
 
-	for (/* UpdateModuleInterface** */ update = obj->getBehaviorModules(); *update; ++update)
+	for (BehaviorModule** update = obj->getBehaviorModules(); *update; ++update)
 	{
 		SlowDeathBehaviorInterface* sdu = (*update)->getSlowDeathBehaviorInterface();
 		if (sdu != NULL && sdu->isDieApplicable(damageInfo))

@@ -44,12 +44,12 @@
 
 // FORWARD DECLARATIONS ///////////////////////////////////////////////////////////////////////////
 struct FieldParse;
-typedef enum _TerrainLOD;
+typedef enum _TerrainLOD : int;
 class GlobalData;
 class INI;
 class WeaponBonusSet;
-enum BodyDamageType;
-enum AIDebugOptions;
+enum BodyDamageType : int;
+enum AIDebugOptions : int;
 
 // PUBLIC /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -510,6 +510,7 @@ public:
 	Bool				m_breakTheMovie;								///< The user has hit escape!
 	AsciiString m_modDir;
 	AsciiString m_modBIG;
+	std::vector<AsciiString> m_bigDirs;	///< List of BIG directories to load, in order
 
 	//-allAdvice feature
 	//Bool m_allAdvice;

@@ -82,9 +82,9 @@
 #include "W3DDevice/GameClient/W3DShadow.h"
 #include "W3DDevice/GameClient/W3DWater.h"
 #include "W3DDevice/GameClient/W3DShroud.h"
-#include "WW3D2/DX8Wrapper.h"
-#include "WW3D2/Light.h"
-#include "WW3D2/Scene.h"
+#include "WW3D2/dx8wrapper.h"
+#include "W3DDevice/GameClient/W3DDynamicLight.h"
+#include "W3DDevice/GameClient/W3DScene.h"
 #include "W3DDevice/GameClient/W3DPoly.h"
 #include "W3DDevice/GameClient/W3DCustomScene.h"
 
@@ -899,15 +899,15 @@ Real BaseHeightMapRenderObjClass::getHeightMapHeight(Real x, Real y, Coord3D* no
 	float xdiv = x * MAP_XY_FACTOR_INV;
 	float ydiv = y * MAP_XY_FACTOR_INV;
 
-	float ixf = FAST_REAL_FLOOR(xdiv);
-	float iyf = FAST_REAL_FLOOR(ydiv);
+	float ixf = floorf(xdiv);
+	float iyf = floorf(ydiv);
 
 	float fx = xdiv - ixf; //get fraction
 	float fy = ydiv - iyf; //get fraction
 
 	// since ixf & iyf are already floor'ed, we can use the fastest f->i conversion we have...
-	Int	ix = fast_float2long_round(ixf) + logicHeightMap->getBorderSizeInline();
-	Int	iy = fast_float2long_round(iyf) + logicHeightMap->getBorderSizeInline();
+	Int	ix = lroundf(ixf) + logicHeightMap->getBorderSizeInline();
+	Int	iy = lroundf(iyf) + logicHeightMap->getBorderSizeInline();
 	Int xExtent = logicHeightMap->getXExtent();
 
 	// Check for extent-3, not extent-1: we go into the next row/column of data for smoothed triangle points, so extent-1
@@ -1103,9 +1103,9 @@ Bool BaseHeightMapRenderObjClass::isClearLineOfSight(const Coord3D& pos, const C
 
 		Int idx = x + y*xExtent;
 		float height = data[idx];
-		height = __max(height, data[idx + 1]);
-		height = __max(height, data[idx + xExtent]);
-		height = __max(height, data[idx + xExtent + 1]);
+		height = max(height, (float)data[idx + 1]);
+		height = max(height, (float)data[idx + xExtent]);
+		height = max(height, (float)data[idx + xExtent + 1]);
 		height *= MAP_HEIGHT_SCALE;
 
 		// if terrainHeight > z, we can't see, so punt.
@@ -1241,9 +1241,9 @@ Real BaseHeightMapRenderObjClass::getMaxCellHeight(Real x, Real y) const
 	p3=data[iX+(iY+offset)*logicHeightMap->getXExtent()]*MAP_HEIGHT_SCALE;
 
 	height=p0;
-	height=__max(height,p1);
-	height=__max(height,p2);
-	height=__max(height,p3);
+	height=max(height,p1);
+	height=max(height,p2);
+	height=max(height,p3);
 
 	return height;
 }
@@ -1697,12 +1697,12 @@ void BaseHeightMapRenderObjClass::updateShorelineTiles(Int minX, Int minY, Int m
 
 	if (shoreLineSortInfosXMajor)
 		for (Int i=minX; i<maxX; i++)
-			for (j=minY; j<maxY; j++)
+			for (Int j=minY; j<maxY; j++)
 			{
 				updateShorelineTile(i,j,border,pMap);
 			}
 	else
-		for (j=minY; j<maxY; j++)
+		for (Int j=minY; j<maxY; j++)
 			for (Int i=minX; i<maxX; i++)
 			{
 				updateShorelineTile(i,j,border,pMap);
@@ -2698,8 +2698,9 @@ void BaseHeightMapRenderObjClass::renderShoreLinesSorted(CameraClass *pCamera)
 			try {
 			//Loop over visible terrain and extract all the tiles that need shoreline blend
 			if (m_shoreLineSortInfosXMajor)	//map is wider than taller.
-			{	
-				for (Int x=drawStartX; x<drawEdgeX; x++)
+			{
+				Int x;
+				for (x=drawStartX; x<drawEdgeX; x++)
 				{	//figure out how many tiles are available in this column
 					shoreLineTileSortInfo *sortInfo=&m_shoreLineSortInfos[x];
 
@@ -2819,7 +2820,8 @@ flushVertexBuffer0:
 			}
 			else
 			{
-				for (Int y=drawStartY; y<drawEdgeY; y++)
+				Int y;
+				for (y=drawStartY; y<drawEdgeY; y++)
 				{	//figure out how many tiles are available in this row
 					shoreLineTileSortInfo *sortInfo=&m_shoreLineSortInfos[y];
 

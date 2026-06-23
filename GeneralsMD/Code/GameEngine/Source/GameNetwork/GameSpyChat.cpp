@@ -54,17 +54,17 @@ typedef set<AsciiString>::const_iterator AsciiSetIter;
 static Bool handleSlashCommands( UnicodeString message, Bool isAction, GameWindow *playerListbox )
 {
 	/*
-	if (message.getCharAt(0) == L'/')
+	if (message.getCharAt(0) == u'/')
 	{
 		UnicodeString remainder = UnicodeString(message.str() + 1);
 		UnicodeString token;
 
 		switch (message.getCharAt(1))
 		{
-		case L'i':
-		case L'I':
+		case u'i':
+		case u'I':
 			remainder.nextToken(&token);
-			if (token.compareNoCase(L"i") == 0 || token.compareNoCase(L"ignore") == 0)
+			if (token.compareNoCase(u"i") == 0 || token.compareNoCase(u"ignore") == 0)
 			{
 				if (remainder.isEmpty())
 				{
@@ -91,14 +91,14 @@ static Bool handleSlashCommands( UnicodeString message, Bool isAction, GameWindo
 				{
 					AsciiString name;
 					int doIgnore = 0;
-					if (token.getCharAt(0) == L'+')
+					if (token.getCharAt(0) == u'+')
 					{
 						// Ignore somebody
 						token = UnicodeString(token.str() + 1);
 						name.translate(token);
 						doIgnore = 1;
 					}
-					else if (token.getCharAt(0) == L'-')
+					else if (token.getCharAt(0) == u'-')
 					{
 						// Listen to someone again
 						token = UnicodeString(token.str() + 1);
@@ -132,11 +132,11 @@ static Bool handleSlashCommands( UnicodeString message, Bool isAction, GameWindo
 				return true;
 			}
 			break;
-		case L'r':
-		case L'R':
+		case u'r':
+		case u'R':
 			remainder.nextToken(&token);
 #if defined _DEBUG || defined _INTERNAL
-			if (token.compareNoCase(L"raw") == 0)
+			if (token.compareNoCase(u"raw") == 0)
 			{
 				// Send raw IRC commands (Ascii only)
 				AsciiString str;
@@ -150,10 +150,10 @@ static Bool handleSlashCommands( UnicodeString message, Bool isAction, GameWindo
 #endif
 			break;
 #if defined _DEBUG || defined _INTERNAL
-		case L'k':
-		case L'K':
+		case u'k':
+		case u'K':
 			remainder.nextToken(&token);
-			if (token.compareNoCase(L"kick") == 0)
+			if (token.compareNoCase(u"kick") == 0)
 			{
 
 				while ( remainder.nextToken(&token) )
@@ -170,10 +170,10 @@ static Bool handleSlashCommands( UnicodeString message, Bool isAction, GameWindo
 			}
 			break;
 #endif
-		case L'o':
-		case L'O':
+		case u'o':
+		case u'O':
 			remainder.nextToken(&token);
-			if (token.compareNoCase(L"on") == 0 || token.compareNoCase(L"o") == 0)
+			if (token.compareNoCase(u"on") == 0 || token.compareNoCase(u"o") == 0)
 			{
 				remainder.nextToken(&token);
 				AsciiString userName;
@@ -195,7 +195,7 @@ static Bool handleSlashCommands( UnicodeString message, Bool isAction, GameWindo
 				return true; // show it anyway
 			}
 #if defined _DEBUG || defined _INTERNAL
-			else if (token.compareNoCase(L"oper") == 0)
+			else if (token.compareNoCase(u"oper") == 0)
 			{
 				// Send raw IRC oper command
 				AsciiString str;
@@ -208,10 +208,10 @@ static Bool handleSlashCommands( UnicodeString message, Bool isAction, GameWindo
 			}
 #endif
 			break;
-		case L'p':
-		case L'P':
+		case u'p':
+		case u'P':
 			remainder.nextToken(&token);
-			if (token.compareNoCase(L"page") == 0 || token.compareNoCase(L"p") == 0)
+			if (token.compareNoCase(u"page") == 0 || token.compareNoCase(u"p") == 0)
 			{
 				remainder.nextToken(&token);
 				AsciiString userName;
@@ -234,10 +234,10 @@ static Bool handleSlashCommands( UnicodeString message, Bool isAction, GameWindo
 				return true; // show it anyway
 			}
 			break;
-		case L'q':
-		case L'Q':
+		case u'q':
+		case u'Q':
 			remainder.nextToken(&token);
-			if (token.compareNoCase(L"quit") == 0)
+			if (token.compareNoCase(u"quit") == 0)
 			{
 				TheWOL->setState(WOLAPI_LOGIN);
 				TheWOL->addCommand(WOLCOMMAND_LOGOUT);
@@ -246,10 +246,10 @@ static Bool handleSlashCommands( UnicodeString message, Bool isAction, GameWindo
 			}
 			break;
 #if defined _DEBUG || defined _INTERNAL
-		case L'c':
-		case L'C':
+		case u'c':
+		case u'C':
 			remainder.nextToken(&token);
-			if (token.compareNoCase(L"colortest") == 0)
+			if (token.compareNoCase(u"colortest") == 0)
 			{
 				addColorText(token, 0xDD, 0xE2, 0x0D, 0xff);
 				addColorText(token, 0xFF, 0x19, 0x19, 0xff);
@@ -428,11 +428,11 @@ static handleUnicodeMessage( const char *nick, UnicodeString msg, Bool isPublic,
 	UnicodeString fullMsg;
 	if (isAction)
 	{
-		fullMsg.format( L"%ls %ls", name.str(), msg.str() );
+		fullMsg.format( u"%ls %ls", name.str(), msg.str() );
 	}
 	else
 	{
-		fullMsg.format( L"[%ls] %ls", name.str(), msg.str() );
+		fullMsg.format( u"[%ls] %ls", name.str(), msg.str() );
 	}
 	GameSpyAddText(fullMsg, style);
 }

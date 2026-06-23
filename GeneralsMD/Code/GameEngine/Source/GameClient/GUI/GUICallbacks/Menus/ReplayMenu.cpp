@@ -39,7 +39,7 @@
 #include "Common/Version.h"
 #include "GameClient/WindowLayout.h"
 #include "GameClient/Gadget.h"
-#include "GameClient/GadgetListbox.h"
+#include "GameClient/GadgetListBox.h"
 #include "GameClient/Shell.h"
 #include "GameClient/KeyDefs.h"
 #include "GameClient/GameWindowManager.h"
@@ -47,6 +47,8 @@
 #include "GameClient/MapUtil.h"
 #include "GameClient/GameText.h"
 #include "GameClient/GameWindowTransitions.h"
+
+#include <unicode/ustdio.h>
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -172,7 +174,7 @@ void PopulateReplayFileListbox(GameWindow *listbox)
 
 				UnicodeString displayTimeBuffer = getUnicodeTimeBuffer(header.timeVal);
 
-				//displayTimeBuffer.format( L"%ls", timeBuffer);
+				//displayTimeBuffer.format( u"%ls", timeBuffer);
 
 				// version (no-op)
 
@@ -197,7 +199,7 @@ void PopulateReplayFileListbox(GameWindow *listbox)
 //					Int mins = totalSeconds/60;
 //					Int secs = totalSeconds%60;
 //					Real fps = header.frameDuration/totalSeconds;
-//					extraStr.format(L"%d:%d (%g fps) %hs", mins, secs, fps, header.desyncGame?"OOS ":"");
+//					extraStr.format(u"%d:%d (%g fps) %hs", mins, secs, fps, header.desyncGame?"OOS ":"");
 //
 //					for (Int i=0; i<MAX_SLOTS; ++i)
 //					{
@@ -205,9 +207,9 @@ void PopulateReplayFileListbox(GameWindow *listbox)
 //						if (slot && slot->isHuman())
 //						{
 //							if (i)
-//								extraStr.concat(L", ");
+//								extraStr.concat(u", ");
 //							if (header.playerDiscons[i])
-//								extraStr.concat(L'*');
+//								extraStr.concat(u'*');
 //							extraStr.concat(info.getConstSlot(i)->getName());
 //						}
 //					}
@@ -219,7 +221,7 @@ void PopulateReplayFileListbox(GameWindow *listbox)
 //					Int mins = totalSeconds/60;
 //					Int secs = totalSeconds%60;
 //					Real fps = header.frameDuration/totalSeconds;
-//					extraStr.format(L"%d:%d (%g fps)", mins, secs, fps);
+//					extraStr.format(u"%d:%d (%g fps)", mins, secs, fps);
 //				}
 
 				// pick a color
@@ -296,7 +298,7 @@ void ReplayMenuInit( WindowLayout *layout, void *userData )
 	instData.init();
 	BitSet( instData.m_style, GWS_PUSH_BUTTON | GWS_MOUSE_TRACK );
 	instData.m_textLabelString = "Debug: Analyze Replay";
-	instData.setTooltipText(UnicodeString(L"Only Used in Debug and Internal!"));
+	instData.setTooltipText(UnicodeString(u"Only Used in Debug and Internal!"));
 	buttonAnalyzeReplay = TheWindowManager->gogoGadgetPushButton( parentReplayMenu, 
 																									 WIN_STATUS_ENABLED | WIN_STATUS_IMAGE, 
 																									 4, 4, 
@@ -521,7 +523,7 @@ WindowMsgHandledType ReplayMenuSystem( GameWindow *window, UnsignedInt msg,
 					GadgetListBoxGetSelected( listboxReplayFiles,  &selected );
 					if(selected < 0)
 					{
-						MessageBoxOk(UnicodeString(L"Blah Blah"),UnicodeString(L"Please select something munkee boy"), NULL);
+						MessageBoxOk(UnicodeString(u"Blah Blah"),UnicodeString(u"Please select something munkee boy"), NULL);
 						break;
 					}
 
@@ -628,6 +630,7 @@ void deleteReplay( void )
 	filename = TheRecorder->getReplayDir();
 	translate.translate(GetReplayFilenameFromListbox(listboxReplayFiles, selected));
 	filename.concat(translate);
+#ifdef _WIN32
 	if(DeleteFile(filename.str()) == 0)
 	{
 		char buffer[1024];
@@ -637,6 +640,17 @@ void deleteReplay( void )
 		errorStr.translate(translate);
 		MessageBoxOk(TheGameText->fetch("GUI:Error"),errorStr, NULL);
 	}
+#else
+	if(remove(filename.str()) != 0)
+	{
+		UChar buffer[1024];
+		u_printf_u(buffer, 1024, u"Unable to delete file %ls", filename.str());
+		UnicodeString errorStr;
+		errorStr.set(buffer);
+		MessageBoxOk(TheGameText->fetch("GUI:Error"),errorStr, NULL);
+	}
+#endif
+
 	//Load the listbox shiznit
 	GadgetListBoxReset(listboxReplayFiles);
 	PopulateReplayFileListbox(listboxReplayFiles);
@@ -657,7 +671,8 @@ void copyReplay( void )
 	filename = TheRecorder->getReplayDir();
 	translate.translate(GetReplayFilenameFromListbox(listboxReplayFiles, selected));
 	filename.concat(translate);
-	
+
+#ifdef _WIN32
 	char path[1024];
 	LPITEMIDLIST pidl;
 	SHGetSpecialFolderLocation(NULL, CSIDL_DESKTOPDIRECTORY, &pidl);
@@ -675,6 +690,8 @@ void copyReplay( void )
 		errorStr.trim();
 		MessageBoxOk(TheGameText->fetch("GUI:Error"),errorStr, NULL);
 	}
-
+#else
+	// TODO: implement file copy for other platforms, and error handling
+#endif
 }
 

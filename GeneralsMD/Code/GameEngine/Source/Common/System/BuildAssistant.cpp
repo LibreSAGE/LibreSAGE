@@ -274,7 +274,7 @@ void BuildAssistant::update( void )
 
 			// for debugging
 			// UnicodeString msg;
-			// msg.format( L"'%S' has been sold\n", obj->getTemplate()->getName().str() );
+			// msg.format( u"'%S' has been sold\n", obj->getTemplate()->getName().str() );
 			// TheInGameUI->message( msg );
 
 			// destroy the object

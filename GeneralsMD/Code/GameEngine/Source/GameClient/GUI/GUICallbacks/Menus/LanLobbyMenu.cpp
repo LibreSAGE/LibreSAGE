@@ -216,9 +216,9 @@ UnicodeString LANPreferences::getRemoteIPEntry(Int i)
 	ret.translate(ipstr);
 	if (asciientry.getLength() > 0)
 	{
-		ret.concat(L"(");
+		ret.concat(u"(");
 		ret.concat(QuotedPrintableToUnicodeString(asciientry));
-		ret.concat(L")");
+		ret.concat(u")");
 	}
 
 	return ret;
@@ -325,7 +325,7 @@ static void playerTooltip(GameWindow *window,
 		return;
 	}
 
-	UnsignedInt playerIP = (UnsignedInt)GadgetListBoxGetItemData( window, row, col );
+	UnsignedInt playerIP = (uintptr_t)GadgetListBoxGetItemData( window, row, col );
 	LANPlayer *player = TheLAN->LookupPlayer(playerIP);
 	if (!player)
 	{
@@ -417,7 +417,7 @@ void LanLobbyMenuInit( WindowLayout *layout, void *userData )
 		}
 
 		//UnicodeString str;
-		//str.format(L"Local IP chosen: %hs", IPlist->getIPstring().str());
+		//str.format(u"Local IP chosen: %hs", IPlist->getIPstring().str());
 		//GadgetListBoxAddEntryText(listboxChatWindow, str, chatSystemColor, -1, 0);
 		IP = IPlist->getIP();
 	}
@@ -425,7 +425,7 @@ void LanLobbyMenuInit( WindowLayout *layout, void *userData )
 	{
 		/*
 		UnicodeString str;
-		str.format(L"Default local IP: %d.%d.%d.%d",
+		str.format(u"Default local IP: %d.%d.%d.%d",
 			(IP >> 24),
 			(IP >> 16) & 0xFF,
 			(IP >> 8) & 0xFF,
@@ -462,7 +462,7 @@ void LanLobbyMenuInit( WindowLayout *layout, void *userData )
 	/*
 	UnicodeString unicodeChat;
 
-	unicodeChat = L"Local IP list:";
+	unicodeChat = u"Local IP list:";
 	GadgetListBoxAddEntryText(listboxChatWindow, unicodeChat, chatSystemColor, -1, 0);
 
 	IPlist = IPs.getAddresses();
@@ -759,7 +759,7 @@ WindowMsgHandledType LanLobbyMenuSystem( GameWindow *window, UnsignedInt msg,
 				} //if ( controlID == buttonBack )
 				else if ( controlID == buttonHostID )
 				{
-					TheLAN->RequestGameCreate( UnicodeString(L""), FALSE);
+					TheLAN->RequestGameCreate( UnicodeString(u""), FALSE);
 					
 				}//else if ( controlID == buttonHostID )
 				else if ( controlID == buttonClearID )
@@ -841,13 +841,13 @@ WindowMsgHandledType LanLobbyMenuSystem( GameWindow *window, UnsignedInt msg,
 					while (txtInput.getLength() > g_lanPlayerNameLength)
 						txtInput.removeLastChar();
 					
-					if (!txtInput.isEmpty() && txtInput.getCharAt(txtInput.getLength()-1) == L',')
+					if (!txtInput.isEmpty() && txtInput.getCharAt(txtInput.getLength()-1) == u',')
 						txtInput.removeLastChar(); // we use , for strtok's so we can't allow them in names.  :(
 
-					if (!txtInput.isEmpty() && txtInput.getCharAt(txtInput.getLength()-1) == L':')
+					if (!txtInput.isEmpty() && txtInput.getCharAt(txtInput.getLength()-1) == u':')
 						txtInput.removeLastChar(); // we use : for strtok's so we can't allow them in names.  :(
 
-					if (!txtInput.isEmpty() && txtInput.getCharAt(txtInput.getLength()-1) == L';')
+					if (!txtInput.isEmpty() && txtInput.getCharAt(txtInput.getLength()-1) == u';')
 						txtInput.removeLastChar(); // we use ; for strtok's so we can't allow them in names.  :(
 
 					// send it over the network

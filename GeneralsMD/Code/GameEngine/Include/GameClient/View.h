@@ -36,7 +36,7 @@
 #include "Common/GameType.h"
 #include "Common/Snapshot.h"
 #include "Lib/BaseType.h"
-#include "WW3D2/ColType.h"			///< we don't generally do this, but we need the W3D collision types
+#include "WW3D2/coltype.h"			///< we don't generally do this, but we need the W3D collision types
 
 #define DEFAULT_VIEW_WIDTH 640
 #define DEFAULT_VIEW_HEIGHT 480
@@ -66,6 +66,8 @@ enum PickType
 // ------------------------------------------------------------------------------------------------
 /** The implementation of common view functionality. */
 // ------------------------------------------------------------------------------------------------
+enum FilterModes : int;
+enum FilterTypes : int;
 class View : public Snapshot
 {
 

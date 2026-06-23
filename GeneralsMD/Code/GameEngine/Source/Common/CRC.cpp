@@ -28,8 +28,6 @@
 #include "Common/CRC.h"
 #include "Common/Debug.h"
 
-#ifdef _DEBUG
-
 void CRC::addCRC( UnsignedByte val )
 {
 	int hibit;
@@ -79,5 +77,3 @@ UnsignedInt CRC::get( void )
 	return tcrc;
 
 }  // end skip
-
-#endif

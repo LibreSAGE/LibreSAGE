@@ -35,8 +35,6 @@ static void drawFramerateBar(void);
 
 // SYSTEM INCLUDES ////////////////////////////////////////////////////////////
 #include <stdlib.h>
-#include <windows.h>
-#include <io.h>
 #include <time.h>
 
 // USER INCLUDES //////////////////////////////////////////////////////////////
@@ -75,28 +73,28 @@ static void drawFramerateBar(void);
 #include "W3DDevice/GameClient/W3DScene.h"
 #include "W3DDevice/GameClient/W3DTerrainTracks.h"
 #include "W3DDevice/GameClient/W3DWater.h"
-#include "W3DDevice/GameClient/W3DVideoBuffer.h"
+#include "W3DDevice/GameClient/W3DVideobuffer.h"
 #include "W3DDevice/GameClient/W3DShaderManager.h"
 #include "W3DDevice/GameClient/W3DDebugDisplay.h"
 #include "W3DDevice/GameClient/W3DProjectedShadow.h"
 #include "W3DDevice/GameClient/W3DShroud.h"
-#include "WWMath/WWMath.h"
-#include "WWLib/Registry.h"
-#include "WW3D2/WW3D.h"
-#include "WW3D2/PredLod.h"
-#include "WW3D2/Part_Emt.h"
-#include "WW3D2/Part_Ldr.h"
-#include "WW3D2/DX8Caps.h"
-#include "WW3D2/WW3DFormat.h"
+#include "WWMath/wwmath.h"
+#include "WWLib/registry.h"
+#include "WW3D2/ww3d.h"
+#include "WW3D2/predlod.h"
+#include "WW3D2/part_emt.h"
+#include "WW3D2/part_ldr.h"
+#include "WW3D2/dx8caps.h"
+#include "WW3D2/ww3dformat.h"
 #include "WW3D2/agg_def.h"
-#include "WW3D2/Render2DSentence.h"
-#include "WW3D2/SortingRenderer.h"
-#include "WW3D2/Textureloader.h"
-#include "WW3D2/DX8WebBrowser.h"
-#include "WW3D2/Mesh.h"
-#include "WW3D2/HLOD.h"
-#include "WW3D2/Meshmatdesc.h"
-#include "WW3D2/Meshmdl.h"
+#include "WW3D2/render2dsentence.h"
+#include "WW3D2/sortingrenderer.h"
+#include "WW3D2/textureloader.h"
+#include "WW3D2/dx8webbrowser.h"
+#include "WW3D2/mesh.h"
+#include "WW3D2/hlod.h"
+#include "WW3D2/meshmatdesc.h"
+#include "WW3D2/meshmdl.h"
 #include "WW3D2/rddesc.h"
 #include "targa.h"
 #include "Lib/BaseType.h"
@@ -107,7 +105,8 @@ static void drawFramerateBar(void);
 #include "GameLogic/PartitionManager.h"
 #endif
 
-#include "WinMain.h"
+#include <SDL3/SDL.h>
+extern SDL_Window* ApplicationWindow;
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -376,16 +375,12 @@ W3DAssetManager *W3DDisplay::m_assetManager = NULL;
 	// only valid when "-vtune" is used... (srj)
 inline Int64 getPerformanceCounter()
 {
-	Int64 tmp;
-	QueryPerformanceCounter((LARGE_INTEGER*)&tmp);
-	return tmp;
+	return SDL_GetPerformanceCounter();
 }
 
 inline Int64 getPerformanceCounterFrequency()
 {
-	Int64 tmp;
-	QueryPerformanceFrequency((LARGE_INTEGER*)&tmp);
-	return tmp;
+	return SDL_GetPerformanceFrequency();
 }
 
 // W3DDisplay::W3DDisplay =====================================================
@@ -557,6 +552,7 @@ void Reset_D3D_Device(bool active)
 		{	
 			//switch back to desired mode when user alt-tabs back into game
 			WW3D::Set_Render_Device( WW3D::Get_Render_Device(),TheDisplay->getWidth(),TheDisplay->getHeight(),TheDisplay->getBitDepth(),TheDisplay->getWindowed(),true, true);
+#ifdef _WINDOWS
 			OSVERSIONINFO	osvi;
 			osvi.dwOSVersionInfoSize=sizeof(OSVERSIONINFO);
 			if (GetVersionEx(&osvi))
@@ -567,6 +563,7 @@ void Reset_D3D_Device(bool active)
 						WW3D::_Invalidate_Textures();
 				}
 			}
+#endif
 		}
 		else
 		{
@@ -730,7 +727,7 @@ void W3DDisplay::init( void )
 	{
 		SortingRendererClass::SetMinVertexBufferSize(1);
 	}
-	if (WW3D::Init( ApplicationHWnd ) != WW3D_ERROR_OK)
+	if (WW3D::Init( ApplicationWindow ) != WW3D_ERROR_OK)
 		throw ERROR_INVALID_D3D;	//failed to initialize.  User probably doesn't have DX 8.1
 
 	WW3D::Set_Prelit_Mode( WW3D::PRELIT_MODE_LIGHTMAP_MULTI_PASS );
@@ -1028,26 +1025,26 @@ void W3DDisplay::gatherDebugStats( void )
 		double skinPolysPerFrame = Debug_Statistics::Get_DX8_Skin_Polygons();
 
 		Int LOD = TheGlobalData->m_terrainLOD;
-		//unibuffer.format( L"FPS: %.2f, %.2fms mapLOD=%d [cumu FPS=%.2f] draws: %.2f sort: %.2f", fps, ms, LOD, cumuFPS, drawsPerFrame,sortPolysPerFrame);
+		//unibuffer.format( u"FPS: %.2f, %.2fms mapLOD=%d [cumu FPS=%.2f] draws: %.2f sort: %.2f", fps, ms, LOD, cumuFPS, drawsPerFrame,sortPolysPerFrame);
 		if (TheGlobalData->m_useFpsLimit) 
-				unibuffer.format( L"%.2f/%d FPS, ", fps, TheGameEngine->getFramesPerSecondLimit());
+				unibuffer.format( u"%.2f/%d FPS, ", fps, TheGameEngine->getFramesPerSecondLimit());
 		else
-				unibuffer.format( L"%.2f FPS, ", fps);
+				unibuffer.format( u"%.2f FPS, ", fps);
 
-		unibuffer2.format( L"%.2fms [cumuFPS=%.2f] draws: %d skins: %d sortP: %d skinP: %d LOD %d", ms, cumuFPS, (Int)drawsPerFrame,(Int)skinDrawsPerFrame,(Int)sortPolysPerFrame, (Int)skinPolysPerFrame, LOD);
+		unibuffer2.format( u"%.2fms [cumuFPS=%.2f] draws: %d skins: %d sortP: %d skinP: %d LOD %d", ms, cumuFPS, (Int)drawsPerFrame,(Int)skinDrawsPerFrame,(Int)sortPolysPerFrame, (Int)skinPolysPerFrame, LOD);
 		unibuffer.concat(unibuffer2);
 #else
 		//Int LOD = TheGlobalData->m_terrainLOD;
-		//unibuffer.format( L"FPS: %.2f, %.2fms mapLOD=%d draws: %.2f sort %.2f", fps, ms, LOD, drawsPerFrame,sortPolysPerFrame);
-		unibuffer.format( L"FPS: %.2f, %.2fms draws: %.2f skins: %.2f sort %.2f", fps, ms, drawsPerFrame,skinDrawsPerFrame,sortPolysPerFrame);
+		//unibuffer.format( u"FPS: %.2f, %.2fms mapLOD=%d draws: %.2f sort %.2f", fps, ms, LOD, drawsPerFrame,sortPolysPerFrame);
+		unibuffer.format( u"FPS: %.2f, %.2fms draws: %.2f skins: %.2f sort %.2f", fps, ms, drawsPerFrame,skinDrawsPerFrame,sortPolysPerFrame);
 		if (TheGlobalData->m_useFpsLimit) 
 		{
-			unibuffer2.format(L", FPSLock %d",TheGlobalData->m_framesPerSecondLimit);
+			unibuffer2.format(u", FPSLock %d",TheGlobalData->m_framesPerSecondLimit);
 			unibuffer.concat(unibuffer2);
 		}
 #endif
 
-		fpsString.format( L"FPS: %.2f", fps);
+		fpsString.format( u"FPS: %.2f", fps);
 		m_benchmarkDisplayString->setText( fpsString );
 
 		Int polyPerFrame = Debug_Statistics::Get_DX8_Polygons();
@@ -1146,10 +1143,10 @@ void W3DDisplay::gatherDebugStats( void )
 			objectMS = 0.0f;
 		}
 		if (statMode != disabled) {
-			unibuffer.format(L"FPS: %.2f, %.2fms - Collecting extended stats.", fps, ms);
+			unibuffer.format(u"FPS: %.2f, %.2fms - Collecting extended stats.", fps, ms);
 		} else if (extendedStats>0) {
 			extendedStats--;
-			unibuffer.format( L"FPS: %.2f, %.2fms - OH %.2fms, Console %.2fms, 3D OH %.2fms, Terrain %.2fms, Obs %.2fms, CPU %.2fms", 
+			unibuffer.format( u"FPS: %.2f, %.2fms - OH %.2fms, Console %.2fms, 3D OH %.2fms, Terrain %.2fms, Obs %.2fms, CPU %.2fms", 
 				fps, ms, gameOverheadMS, consoleMS, threeDOverheadMS, terrainMS, objectMS, overlapMS);
 			if (extendedStats==SHOW_STATS_TIME-2) {
 				char bufferA[ 256 ];
@@ -1189,32 +1186,32 @@ void W3DDisplay::gatherDebugStats( void )
 			}
 		}
 		if (debugD3D) {
-			unibuffer.concat(L", DEBUG D3D");
+			unibuffer.concat(u", DEBUG D3D");
 		}
 #ifdef _DEBUG
-		unibuffer.concat(L", DEBUG app");
+		unibuffer.concat(u", DEBUG app");
 #endif
 
 		m_displayStrings[FPS]->setText( unibuffer );
 
 		// Actual GameLogic frame number
-		unibuffer.format(L"Frame: %d", TheGameLogic->getFrame());
+		unibuffer.format(u"Frame: %d", TheGameLogic->getFrame());
 		m_displayStrings[Frame]->setText( unibuffer );
 
 		// polygons this frame	
-		unibuffer.format( L"Polygons: per frame %d, per second %d", polyPerFrame,
+		unibuffer.format( u"Polygons: per frame %d, per second %d", polyPerFrame,
 				(Int)(polyPerFrame*fps));
 		m_displayStrings[Polygons]->setText( unibuffer );
 
 		// vertices this frame
-		unibuffer.format( L"Vertices: %d", Debug_Statistics::Get_DX8_Vertices() );
+		unibuffer.format( u"Vertices: %d", Debug_Statistics::Get_DX8_Vertices() );
 		m_displayStrings[Vertices]->setText( unibuffer );		
 
 		//
 		// I'm adjusting the texture memory usage counter by subtracting 
 		// out the terrain alpha texture (since it's really == terrain texture).
 		//
-		unibuffer.format( L"Video RAM: %d", Debug_Statistics::Get_Record_Texture_Size() - 1376256 );
+		unibuffer.format( u"Video RAM: %d", Debug_Statistics::Get_Record_Texture_Size() - 1376256 );
 		m_displayStrings[VideoRam]->setText( unibuffer );
 
 		s_lastUpdateTime64 = time64;
@@ -1224,7 +1221,7 @@ void W3DDisplay::gatherDebugStats( void )
 		s_sortedPolysSinceLastUpdate = 0;
 
 		// terrain stats
-		unibuffer.format( L"3-Way Blends: %d/%d, Shoreline Blends: %d/%d", TheTerrainRenderObject->getNumExtraBlendTiles(TRUE),
+		unibuffer.format( u"3-Way Blends: %d/%d, Shoreline Blends: %d/%d", TheTerrainRenderObject->getNumExtraBlendTiles(TRUE),
 			TheTerrainRenderObject->getNumExtraBlendTiles(FALSE),
 			TheTerrainRenderObject->getNumShoreLineTiles(TRUE),
 			TheTerrainRenderObject->getNumShoreLineTiles(FALSE));
@@ -1242,7 +1239,7 @@ void W3DDisplay::gatherDebugStats( void )
 		Real terrainHeight = TheTacticalView->getTerrainHeightUnderCamera();
 		Real actualHeightAboveGround = TheTacticalView->getCurrentHeightAboveGround();
 
-		unibuffer.format( L"Camera zoom: %g, pitch: %g/%g, yaw: %g, pos: %g, %g, %g, FOV: %g\n       Height above ground: %g Terrain height: %g",
+		unibuffer.format( u"Camera zoom: %g, pitch: %g/%g, yaw: %g, pos: %g, %g, %g, FOV: %g\n       Height above ground: %g Terrain height: %g",
 												zoom,
 												pitch,
 												FXPitch,
@@ -1261,60 +1258,60 @@ void W3DDisplay::gatherDebugStats( void )
 		m_displayStrings[DebugInfo]->setText( unibuffer );
 
 		// display the keyboard modifier and mouse states.
-		unibuffer.format( L"States: " );
+		unibuffer.format( u"States: " );
 		if( TheKeyboard->isShift() )
 		{
-			unibuffer.concat( L"Shift(" );
+			unibuffer.concat( u"Shift(" );
 			if( TheKeyboard->getModifierFlags() & KEY_STATE_LSHIFT )
 			{
-				unibuffer.concat( L"L" );
+				unibuffer.concat( u"u" );
 			}
 			if( TheKeyboard->getModifierFlags() & KEY_STATE_RSHIFT )
 			{
-				unibuffer.concat( L"R" );
+				unibuffer.concat( u"R" );
 			}
-			unibuffer.concat( L") " );
+			unibuffer.concat( u") " );
 		}
 		if( TheKeyboard->isCtrl() )
 		{
-			unibuffer.concat( L"Ctrl(" );
+			unibuffer.concat( u"Ctrl(" );
 			if( TheKeyboard->getModifierFlags() & KEY_STATE_LCONTROL )
 			{
-				unibuffer.concat( L"L" );
+				unibuffer.concat( u"u" );
 			}
 			if( TheKeyboard->getModifierFlags() & KEY_STATE_RCONTROL )
 			{
-				unibuffer.concat( L"R" );
+				unibuffer.concat( u"R" );
 			}
-			unibuffer.concat( L") " );
+			unibuffer.concat( u") " );
 		}
 		if( TheKeyboard->isAlt() )
 		{
-			unibuffer.concat( L"Alt(" );
+			unibuffer.concat( u"Alt(" );
 			if( TheKeyboard->getModifierFlags() & KEY_STATE_LALT )
 			{
-				unibuffer.concat( L"L" );
+				unibuffer.concat( u"u" );
 			}
 			if( TheKeyboard->getModifierFlags() & KEY_STATE_RALT )
 			{
-				unibuffer.concat( L"R" );
+				unibuffer.concat( u"R" );
 			}
-			unibuffer.concat( L") " );
+			unibuffer.concat( u") " );
 		}
 
 		const MouseIO *mouseStatus = TheMouse->getMouseStatus();
 
 		if( mouseStatus->leftState )
 		{
-			unibuffer.concat( L"LMB " );
+			unibuffer.concat( u"LMB " );
 		}
 		if( mouseStatus->middleState )
 		{
-			unibuffer.concat( L"MMB " );
+			unibuffer.concat( u"MMB " );
 		}
 		if( mouseStatus->rightState )
 		{
-			unibuffer.concat( L"RMB " );
+			unibuffer.concat( u"RMB " );
 		}
 
 		Object *object = NULL;
@@ -1327,12 +1324,12 @@ void W3DDisplay::gatherDebugStats( void )
 			object = draw->getObject();
 		if( object )
 		{
-			unibuffer2.format( L"Moused over object: %S (%d) ", object->getTemplate()->getName().str(), object->getID() );
+			unibuffer2.format( u"Moused over object: %S (%d) ", object->getTemplate()->getName().str(), object->getID() );
 			unibuffer.concat( unibuffer2 );
 		}
 		else
 		{
-			unibuffer.concat( L"Moused over object: TERRAIN " );
+			unibuffer.concat( u"Moused over object: TERRAIN " );
 		}
 		
 		m_displayStrings[ KEY_MOUSE_STATES ]->setText( unibuffer );
@@ -1341,36 +1338,36 @@ void W3DDisplay::gatherDebugStats( void )
 		const MouseIO *mouseIO = TheMouse->getMouseStatus();
 		Coord3D worldPos;
 		TheTacticalView->screenToTerrain(&mouseIO->pos, &worldPos);
-		unibuffer.format( L"Mouse position: screen: (%d, %d), world: (%g, %g, %g)", mouseIO->pos.x, mouseIO->pos.y,
+		unibuffer.format( u"Mouse position: screen: (%d, %d), world: (%g, %g, %g)", mouseIO->pos.x, mouseIO->pos.y,
 			worldPos.x, worldPos.y, worldPos.z);
 		m_displayStrings[MousePosition]->setText( unibuffer );
 		
 		//display the number of particles in the world and being displayed on screen
 		Int totalParticles = TheParticleSystemManager->getParticleCount();
 		Int onScreenParticleCount = TheParticleSystemManager->getOnScreenParticleCount();
-		unibuffer.format( L"Particles: %d in world, %d being displayed", totalParticles, onScreenParticleCount );
+		unibuffer.format( u"Particles: %d in world, %d being displayed", totalParticles, onScreenParticleCount );
 		m_displayStrings[Particles]->setText( unibuffer );
 
 		//display the number of objects in the world
 		UnsignedInt objCount = TheGameLogic->getObjectCount();
 		UnsignedInt objScreenCount = TheGameClient->getRenderedObjectCount();
 
-		unibuffer.format(L"Objects: %d in world, %d being displayed", objCount, objScreenCount );
+		unibuffer.format(u"Objects: %d in world, %d being displayed", objCount, objScreenCount );
 		m_displayStrings[Objects]->setText( unibuffer );
 
 		// Network incoming bandwidth stats
 		if (TheNetwork != NULL) {
-			unibuffer.format(L"IN: %.2f bytes/sec, %.2f packets/sec",
+			unibuffer.format(u"IN: %.2f bytes/sec, %.2f packets/sec",
 				TheNetwork->getIncomingBytesPerSecond(), TheNetwork->getIncomingPacketsPerSecond());
 			m_displayStrings[NetIncoming]->setText( unibuffer );
 
 			// Network outgoing bandwidth stats
-			unibuffer.format(L"OUT: %.2f bytes/sec, %.2f packets/sec",
+			unibuffer.format(u"OUT: %.2f bytes/sec, %.2f packets/sec",
 				TheNetwork->getOutgoingBytesPerSecond(), TheNetwork->getOutgoingPacketsPerSecond());
 			m_displayStrings[NetOutgoing]->setText( unibuffer );
 
 			// Network performance stats
-			unibuffer.format(L"Run Ahead: %d, Net FPS: %d, Packet arrival cushion: %d",
+			unibuffer.format(u"Run Ahead: %d, Net FPS: %d, Packet arrival cushion: %d",
 				TheNetwork->getRunAhead(), TheNetwork->getFrameRate(), TheNetwork->getPacketArrivalCushion());
 			m_displayStrings[NetStats]->setText( unibuffer );
 
@@ -1379,19 +1376,19 @@ void W3DDisplay::gatherDebugStats( void )
 			Int numPlayers = TheNetwork->getNumPlayers();
 			for (Int i = 0; i < numPlayers; ++i) {
 				UnicodeString tempstr;
-				tempstr.format(L"%s: %d ", TheNetwork->getPlayerName(i).str(), TheNetwork->getSlotAverageFPS(i));
+				tempstr.format(u"%s: %d ", TheNetwork->getPlayerName(i).str(), TheNetwork->getSlotAverageFPS(i));
 				unibuffer.concat(tempstr);
 			}
 			m_displayStrings[NetFPSAverages]->setText( unibuffer );
 		} else {
-//			unibuffer.format(L"IN: 0.0 bytes/sec, 0.0 packets/sec");
+//			unibuffer.format(u"IN: 0.0 bytes/sec, 0.0 packets/sec");
 //			m_displayStrings[NetIncoming]->setText( unibuffer );
 
 			// Network outgoing bandwidth stats
-//			unibuffer.format(L"OUT: 0.0 bytes/sec, 0.0 packets/sec");
+//			unibuffer.format(u"OUT: 0.0 bytes/sec, 0.0 packets/sec");
 //			m_displayStrings[NetOutgoing]->setText( unibuffer );
-      unibuffer.format(L"");
-//			unibuffer.format(L"Network not present");
+      unibuffer.format(u"");
+//			unibuffer.format(u"Network not present");
 			m_displayStrings[NetOutgoing]->setText(unibuffer);
 			m_displayStrings[NetIncoming]->setText(unibuffer);
 			m_displayStrings[NetStats]->setText(unibuffer);
@@ -1399,7 +1396,7 @@ void W3DDisplay::gatherDebugStats( void )
 		}
 
 		// selected object info stats
-		unibuffer.format( L"Select Info: '%d' drawables selected", TheInGameUI->getSelectCount() );
+		unibuffer.format( u"Select Info: '%d' drawables selected", TheInGameUI->getSelectCount() );
 		
 
 
@@ -1419,7 +1416,7 @@ void W3DDisplay::gatherDebugStats( void )
 			if( obj && obj->getName().isEmpty() == FALSE )
 				objectName = obj->getName();
 
-			unibuffer.format( L"Select Info: '%S'(%S) at (%.3f,%.3f,%.3f)",
+			unibuffer.format( u"Select Info: '%S'(%S) at (%.3f,%.3f,%.3f)",
 												draw->getTemplate()->getName().str(),
 												objectName.str(),
 												draw->getPosition()->x,
@@ -1433,7 +1430,7 @@ void W3DDisplay::gatherDebugStats( void )
 			const DrawableLocoInfo *locoInfo = draw->getLocoInfo();
 			if( locoInfo )
 			{
-				unibuffer2.format( L"\nPhysics Info -- Turn: %d, Pitch(accel): %.3f(%.3f), Roll(accel): %.3f(%.3f)",
+				unibuffer2.format( u"\nPhysics Info -- Turn: %d, Pitch(accel): %.3f(%.3f), Roll(accel): %.3f(%.3f)",
 													 turnType,
 													 locoInfo->m_accelerationPitch, locoInfo->m_accelerationPitchRate,
 													 locoInfo->m_accelerationRoll, locoInfo->m_accelerationRollRate );
@@ -1454,27 +1451,27 @@ void W3DDisplay::gatherDebugStats( void )
 			}
 			if (rcost.getDrawCallCount() > 0) 
 			{
-				unibuffer2.format( L"\ndraw calls: %d(+%d) sort meshes: %d skins: %d  bones: %d",rcost.getDrawCallCount(),rcost.getShadowDrawCount(),rcost.getSortedMeshCount(),rcost.getSkinMeshCount(),rcost.getBoneCount());
+				unibuffer2.format( u"\ndraw calls: %d(+%d) sort meshes: %d skins: %d  bones: %d",rcost.getDrawCallCount(),rcost.getShadowDrawCount(),rcost.getSortedMeshCount(),rcost.getSkinMeshCount(),rcost.getBoneCount());
 				unibuffer.concat( unibuffer2 );
 			}
 #endif
 
-			unibuffer.concat( L"\nModelStates: " );
+			unibuffer.concat( u"\nModelStates: " );
 			ModelConditionFlags mcFlags = draw->getModelConditionFlags();
-			const numEntriesPerLine = 4;
+			const int numEntriesPerLine = 4;
 			int lineCount = 0;
 
 			for( int i = 0; i < MODELCONDITION_COUNT; i++ )
 			{
 				if( mcFlags.test( i ) )
 				{
-					unibuffer2.format( L"%S ", ModelConditionFlags::getBitNames()[ i ] );
+					unibuffer2.format( u"%S ", ModelConditionFlags::getBitNames()[ i ] );
 					unibuffer.concat( unibuffer2 );
 					lineCount++;
 					if( lineCount == numEntriesPerLine )
 					{
 						lineCount = 0;
-						unibuffer.concat( L"\n" );
+						unibuffer.concat( u"\n" );
 					}
 				}
 			}
@@ -1557,7 +1554,7 @@ void W3DDisplay::drawCurrentDebugDisplay( void )
 		if ( m_debugDisplay && m_debugDisplayCallback )
 		{
 			m_debugDisplay->reset();
-			m_debugDisplayCallback( m_debugDisplay, m_debugDisplayUserData );
+			m_debugDisplayCallback( m_debugDisplay, m_debugDisplayUserData, NULL );
 		}
 	}
 }  // end drawCurrentDebugDisplay
@@ -1666,8 +1663,7 @@ void W3DDisplay::draw( void )
 	//USE_PERF_TIMER(W3DDisplay_draw)
 	static UnsignedInt syncTime = 0;
 
-	extern HWND ApplicationHWnd;
-	if (ApplicationHWnd && ::IsIconic(ApplicationHWnd)) {
+	if (ApplicationWindow && SDL_GetWindowFlags(ApplicationWindow) & SDL_WINDOW_MINIMIZED) {
 		return;
 	}
 
@@ -1704,7 +1700,7 @@ AGAIN:
     if ( TheGameLogic->getFrame() > 0 && (TheGameLogic->getFrame() % interval) == 0 )
     {
   	  TheStatDump.dumpStats( TRUE, TRUE );
-    	TheInGameUI->message( UnicodeString( L"-stats is running, at interval: %d." ), TheGlobalData->m_statsInterval );
+    	TheInGameUI->message( UnicodeString( u"-stats is running, at interval: %d." ), TheGlobalData->m_statsInterval );
     }
   }
 
@@ -2696,10 +2692,10 @@ void W3DDisplay::drawImage( const Image *image, Int startX, Int startY,
 				//	Clip the polygons to the specified area
 				//
 				
-				clipped_rect.Left		= __max (screen_rect.Left, m_clipRegion.lo.x);
-				clipped_rect.Right	= __min (screen_rect.Right, m_clipRegion.hi.x);
-				clipped_rect.Top		= __max (screen_rect.Top, m_clipRegion.lo.y);
-				clipped_rect.Bottom	= __min (screen_rect.Bottom, m_clipRegion.hi.y);
+				clipped_rect.Left		= max (screen_rect.Left, (float)m_clipRegion.lo.x);
+				clipped_rect.Right	= min (screen_rect.Right, (float)m_clipRegion.hi.x);
+				clipped_rect.Top		= max (screen_rect.Top, (float)m_clipRegion.lo.y);
+				clipped_rect.Bottom	= min (screen_rect.Bottom, (float)m_clipRegion.hi.y);
 
 				//
 				//	Clip the texture to the specified area
@@ -2725,10 +2721,10 @@ void W3DDisplay::drawImage( const Image *image, Int startX, Int startY,
 				//	Clip the polygons to the specified area
 				//
 				
-				clipped_rect.Left		= __max (screen_rect.Left, m_clipRegion.lo.x);
-				clipped_rect.Right	= __min (screen_rect.Right, m_clipRegion.hi.x);
-				clipped_rect.Top		= __max (screen_rect.Top, m_clipRegion.lo.y);
-				clipped_rect.Bottom	= __min (screen_rect.Bottom, m_clipRegion.hi.y);
+				clipped_rect.Left		= max (screen_rect.Left, (float)m_clipRegion.lo.x);
+				clipped_rect.Right	= min (screen_rect.Right, (float)m_clipRegion.hi.x);
+				clipped_rect.Top		= max (screen_rect.Top, (float)m_clipRegion.lo.y);
+				clipped_rect.Bottom	= min (screen_rect.Bottom, (float)m_clipRegion.hi.y);
 
 				//
 				//	Clip the texture to the specified area
@@ -2916,79 +2912,6 @@ void W3DDisplay::setShroudLevel( Int x, Int y, CellShroudStatus setting )
 }
 
 //=============================================================================
-///Utility function to dump data into a .BMP file
-static void CreateBMPFile(LPTSTR pszFile, char *image, Int width, Int height)
-{ 
-     HANDLE hf;                 // file handle 
-    BITMAPFILEHEADER hdr;       // bitmap file-header 
-    PBITMAPINFOHEADER pbih;     // bitmap info-header 
-    LPBYTE lpBits;              // memory pointer 
-    DWORD dwTotal;              // total count of bytes 
-    DWORD cb;                   // incremental count of bytes 
-    BYTE *hp;                   // byte pointer 
-    DWORD dwTmp; 
-
-    PBITMAPINFO pbmi; 
-
-    pbmi = (PBITMAPINFO) LocalAlloc(LPTR,sizeof(BITMAPINFOHEADER));
-    pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER); 
-    pbmi->bmiHeader.biWidth = width; 
-    pbmi->bmiHeader.biHeight = height; 
-    pbmi->bmiHeader.biPlanes = 1; 
-    pbmi->bmiHeader.biBitCount = 24;
-    pbmi->bmiHeader.biCompression = BI_RGB;
-    pbmi->bmiHeader.biSizeImage = (pbmi->bmiHeader.biWidth + 7) /8 * pbmi->bmiHeader.biHeight * 24;
-    pbmi->bmiHeader.biClrImportant = 0; 
-
-
-    pbih = (PBITMAPINFOHEADER) pbmi; 
-    lpBits = (LPBYTE) image;
-
-    // Create the .BMP file. 
-    hf = CreateFile(pszFile, 
-                   GENERIC_READ | GENERIC_WRITE, 
-                   (DWORD) 0, 
-                    NULL, 
-                   CREATE_ALWAYS, 
-                   FILE_ATTRIBUTE_NORMAL, 
-                   (HANDLE) NULL); 
-    if (hf == INVALID_HANDLE_VALUE) 
-		return;
-    hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M" 
-    // Compute the size of the entire file. 
-    hdr.bfSize = (DWORD) (sizeof(BITMAPFILEHEADER) + 
-                 pbih->biSize + pbih->biClrUsed 
-                 * sizeof(RGBQUAD) + pbih->biSizeImage); 
-    hdr.bfReserved1 = 0; 
-    hdr.bfReserved2 = 0; 
-
-    // Compute the offset to the array of color indices. 
-    hdr.bfOffBits = (DWORD) sizeof(BITMAPFILEHEADER) + 
-                    pbih->biSize + pbih->biClrUsed 
-                    * sizeof (RGBQUAD); 
-
-    // Copy the BITMAPFILEHEADER into the .BMP file. 
-    if (!WriteFile(hf, (LPVOID) &hdr, sizeof(BITMAPFILEHEADER), 
-        (LPDWORD) &dwTmp,  NULL)) 
-		return;
-
-    // Copy the BITMAPINFOHEADER and RGBQUAD array into the file. 
-    if (!WriteFile(hf, (LPVOID) pbih, sizeof(BITMAPINFOHEADER) + pbih->biClrUsed * sizeof (RGBQUAD),(LPDWORD) &dwTmp, NULL)) 
-		return;
-
-    // Copy the array of color indices into the .BMP file. 
-    dwTotal = cb = pbih->biSizeImage; 
-    hp = lpBits; 
-    if (!WriteFile(hf, (LPSTR) hp, (int) cb, (LPDWORD) &dwTmp,NULL)) 
-		return;
-
-    // Close the .BMP file. 
-     if (!CloseHandle(hf))
-		 return;
-
-    // Free memory. 
-	LocalFree( (HLOCAL) pbmi);
-}
 
 ///Save Screen Capture to a file
 void W3DDisplay::takeScreenShot(void)
@@ -3007,7 +2930,7 @@ void W3DDisplay::takeScreenShot(void)
 #endif
 		strcpy(pathname, TheGlobalData->getPath_UserData().str());
 		strcat(pathname, leafname);
-		if (_access( pathname, 0 ) == -1)
+		if (access( pathname, 0 ) == -1)
 			done = true;
 	}
 
@@ -3021,98 +2944,13 @@ void W3DDisplay::takeScreenShot(void)
 	RECT bounds;
 	POINT point;
 
-	GetClientRect(ApplicationHWnd,&bounds);
-	point.x=bounds.left; point.y=bounds.top;
-	ClientToScreen(ApplicationHWnd, &point);
-	bounds.left=point.x; bounds.top=point.y; 
-	point.x=bounds.right; point.y=bounds.bottom;
-	ClientToScreen(ApplicationHWnd, &point);
-	bounds.right=point.x; bounds.bottom=point.y;
- 
 	D3DLOCKED_RECT lrect;
 
 	DX8_ErrorCode(fb->LockRect(&lrect,&bounds,D3DLOCK_READONLY));
 
-	unsigned int x,y,index,index2,width,height;
-
-	width=bounds.right-bounds.left;
-	height=bounds.bottom-bounds.top;
-
-	char *image=NEW char[3*width*height];
-#ifdef CAPTURE_TO_TARGA
-	//bytes are mixed in targa files, not rgb order.
-	for (y=0; y<height; y++)
-	{
-		for (x=0; x<width; x++)
-		{
-			// index for image
-			index=3*(x+y*width);
-			// index for fb
-			index2=y*lrect.Pitch+4*x;
-
-			image[index]=*((char *) lrect.pBits + index2+2);
-			image[index+1]=*((char *) lrect.pBits + index2+1);
-			image[index+2]=*((char *) lrect.pBits + index2+0);
-		}
-	}
+	// TODO: write pixels to file via stb_image
 
 	fb->Release();
-
-	Targa targ;
-	memset(&targ.Header,0,sizeof(targ.Header));
-	targ.Header.Width=width;
-	targ.Header.Height=height;
-	targ.Header.PixelDepth=24;
-	targ.Header.ImageType=TGA_TRUECOLOR;
-	targ.SetImage(image);
-	targ.YFlip();
-
-	targ.Save(pathname,TGAF_IMAGE,false);
-#else	//capturing to bmp file
-	//bmp is same byte order
-	for (y=0; y<height; y++)
-	{
-		for (x=0; x<width; x++)
-		{
-			// index for image
-			index=3*(x+y*width);
-			// index for fb
-			index2=y*lrect.Pitch+4*x;
-
-			image[index]=*((char *) lrect.pBits + index2+0);
-			image[index+1]=*((char *) lrect.pBits + index2+1);
-			image[index+2]=*((char *) lrect.pBits + index2+2);
-		}
-	}
-
-	fb->Release();
-
-	//Flip the image
-	char *ptr,*ptr1;
-	char  v,v1;
-
-	for (y = 0; y < (height >> 1); y++)
-	{
-		/* Compute address of lines to exchange. */
-		ptr = (image + ((width * y) * 3));
-		ptr1 = (image + ((width * (height - 1)) * 3));
-		ptr1 -= ((width * y) * 3);
-
-		/* Exchange all the pixels on this scan line. */
-		for (x = 0; x < (width * 3); x++)
-			{
-			v = *ptr;
-			v1 = *ptr1;
-			*ptr = v1;
-			*ptr1 = v;
-			ptr++;
-			ptr1++;
-			}
-	}
-	CreateBMPFile(pathname, image, width, height);
-#endif
-
-	delete [] image;
 
 	UnicodeString ufileName;
 	ufileName.translate(leafname);
@@ -3299,7 +3137,7 @@ void W3DDisplay::dumpAssetUsage(const char* mapname)
 	while (true)
 	{
 		sprintf(buf, "AssetUsage_%s_%04d.txt",leafname,idx);
-		if (_access(buf, 0) != 0)
+		if (access(buf, 0) != 0)
 			break;	// it exists, we're good
 		++idx;
 	}

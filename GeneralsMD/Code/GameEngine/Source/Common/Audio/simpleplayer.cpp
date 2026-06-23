@@ -17,8 +17,8 @@
 */
 
 
-#include "Common/SimplePlayer.h"
-#include "Common/URLLaunch.h"
+#include "Common/simpleplayer.h"
+#include "Common/urllaunch.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -224,9 +224,9 @@ HRESULT CSimplePlayer::Play( LPCWSTR pszUrl, DWORD dwSecDuration, HANDLE hComple
     //
     WCHAR wszFullUrl[ MAX_PATH ];
 
-    if( ( 0 == wcsstr( pszUrl, L"\\\\" ) )
-        && ( 0 == wcsstr( pszUrl, L":\\" ) )
-        && ( 0 == wcsstr( pszUrl, L"://" ) ) )
+    if( ( 0 == wcsstr( pszUrl, u"\\\\" ) )
+        && ( 0 == wcsstr( pszUrl, u":\\" ) )
+        && ( 0 == wcsstr( pszUrl, u"://" ) ) )
     {
         //
         // Expand to a full path name
@@ -589,7 +589,7 @@ HRESULT STDMETHODCALLTYPE CSimplePlayer::OnStatus(
             {
                 WCHAR wszURL[ 0x1000 ];
 
-                swprintf( wszURL, L"%s&filename=%s&embedded=false", pValue, pwszEscapedURL );
+                swprintf( wszURL, u"%s&filename=%s&embedded=false", pValue, pwszEscapedURL );
 
                 hr = LaunchURL( wszURL );
 

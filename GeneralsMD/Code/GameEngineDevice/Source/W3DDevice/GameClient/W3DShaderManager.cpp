@@ -63,17 +63,18 @@
 #include "W3DDevice/GameClient/HeightMap.h"
 #include "W3DDevice/GameClient/W3DCustomScene.h"
 #include "W3DDevice/GameClient/W3DSmudge.h"
-#include "GameClient/view.h"
+#include "GameClient/View.h"
 #include "GameClient/CommandXlat.h"
-#include "GameClient/display.h"
+#include "GameClient/Display.h"
 #include "GameClient/Water.h"
 #include "GameLogic/GameLogic.h"
-#include "common/GlobalData.h"
-#include "common/GameLOD.h"
+#include "Common/GlobalData.h"
+#include "Common/GameLOD.h"
 #include "d3dx8tex.h"
+#include "d3dx8math.h"
 #include "dx8caps.h"
-#include "common/gamelod.h"
-#include "Benchmark.h"
+#include "Common/GameLOD.h"
+// #include "benchmark.h"
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -113,7 +114,7 @@ FilterTypes W3DShaderManager::m_currentFilter=FT_NULL_FILTER; ///< Last filter t
 Int W3DShaderManager::m_currentShaderPass;
 ChipsetType W3DShaderManager::m_currentChipset;
 GraphicsVenderID W3DShaderManager::m_currentVendor;
-__int64 W3DShaderManager::m_driverVersion;
+Int64 W3DShaderManager::m_driverVersion;
 
 Bool W3DShaderManager::m_renderingToTexture = false;
 IDirect3DSurface8 *W3DShaderManager::m_oldRenderSurface=NULL;	///<previous render target
@@ -2700,8 +2701,8 @@ void W3DShaderManager::shutdown(void)
 		}
 	}
 
-	for (i=0; i < FT_MAX; i++)
-	{	
+	for (Int i=0; i < FT_MAX; i++)
+	{
 		if (W3DFilters[i])
 		{
 			W3DFilters[i]->shutdown();
@@ -2904,7 +2905,7 @@ IDirect3DTexture8 *W3DShaderManager::getRenderTexture(void)
 	return m_renderTexture;
 }
 
-enum GraphicsVenderID
+enum GraphicsVenderID : int
 {
 	DC_NVIDIA_VENDOR_ID	= 0x10DE,
 	DC_3DFX_VENDOR_ID	= 0x121A,
@@ -3009,7 +3010,7 @@ ChipsetType W3DShaderManager::getChipset( void )
 //=============================================================================
 /** Loads and creates a D3D pixel or vertex shader.*/
 //=============================================================================
-HRESULT W3DShaderManager::LoadAndCreateD3DShader(char* strFilePath, const DWORD* pDeclaration, DWORD Usage, Bool ShaderType, DWORD* pHandle)
+HRESULT W3DShaderManager::LoadAndCreateD3DShader(const char* strFilePath, const DWORD* pDeclaration, DWORD Usage, Bool ShaderType, DWORD* pHandle)
 {
 	if (getChipset() < DC_GENERIC_PIXEL_SHADER_1_1)
 		return E_FAIL;	//don't allow loading any shaders if hardware can't handle it.
@@ -3030,7 +3031,7 @@ HRESULT W3DShaderManager::LoadAndCreateD3DShader(char* strFilePath, const DWORD*
 		TheFileSystem->getFileInfo(AsciiString(strFilePath), &fileInfo);
 		DWORD dwFileSize = fileInfo.sizeLow;
 
-		const DWORD* pShader = (DWORD*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, dwFileSize);
+		const DWORD* pShader = (DWORD*)calloc(1, dwFileSize);
 		if (!pShader)
 		{
 			OutputDebugString( "Failed to allocate memory to load shader\n " );
@@ -3051,7 +3052,7 @@ HRESULT W3DShaderManager::LoadAndCreateD3DShader(char* strFilePath, const DWORD*
 			hr = DX8Wrapper::_Get_D3D_Device8()->CreatePixelShader(pShader, pHandle);
 		}
 
-		HeapFree(GetProcessHeap(), 0, (void*)pShader);
+		free((void*)pShader);
 
 		if (FAILED(hr))
 		{
@@ -3076,12 +3077,12 @@ HRESULT W3DShaderManager::LoadAndCreateD3DShader(char* strFilePath, const DWORD*
 #define MIN_ACCEPTED_TEXTURE_MEMORY	(1024*1024*30)	//30 MB
 
 /**Hack to give gameengine access to this function*/
-Bool testMinimumRequirements(ChipsetType *videoChipType, CpuType *cpuType, Int *cpuFreq, Int *numRAM, Real *intBenchIndex, Real *floatBenchIndex, Real *memBenchIndex)
+Bool testMinimumRequirements(ChipsetType *videoChipType, CpuType *cpuType, Int *cpuFreq, Int64 *numRAM, Real *intBenchIndex, Real *floatBenchIndex, Real *memBenchIndex)
 {
 	return W3DShaderManager::testMinimumRequirements(videoChipType,cpuType,cpuFreq,numRAM,intBenchIndex,floatBenchIndex,memBenchIndex);
 }
 
-Bool W3DShaderManager::testMinimumRequirements(ChipsetType *videoChipType, CpuType *cpuType, Int *cpuFreq, Int *numRAM, Real *intBenchIndex, Real *floatBenchIndex, Real *memBenchIndex)
+Bool W3DShaderManager::testMinimumRequirements(ChipsetType *videoChipType, CpuType *cpuType, Int *cpuFreq, Int64 *numRAM, Real *intBenchIndex, Real *floatBenchIndex, Real *memBenchIndex)
 {
 	if (videoChipType)
 		*videoChipType = getChipset();
@@ -3113,7 +3114,7 @@ Bool W3DShaderManager::testMinimumRequirements(ChipsetType *videoChipType, CpuTy
 
 	if (intBenchIndex && floatBenchIndex && memBenchIndex)
 	{
-		RunBenchmark(0, NULL, floatBenchIndex, intBenchIndex, memBenchIndex);
+		//RunBenchmark(0, NULL, floatBenchIndex, intBenchIndex, memBenchIndex);
 	}
 
 	return TRUE;
@@ -3151,9 +3152,11 @@ Real W3DShaderManager::GetCPUBenchTime(void)
 	float ztot, yran, ymult, ymod, x, y, z, pi, prod;
     long int low, ixran, itot, j, iprod;
 
-  	__int64 endTime64,freq64,startTime64;
+  	int64_t endTime64,freq64,startTime64;
+#ifdef _WINDOWS
 	QueryPerformanceFrequency((LARGE_INTEGER *)&freq64);
 	QueryPerformanceCounter((LARGE_INTEGER *)&startTime64);
+#endif
 
     ztot = 0.0;
     low = 1;
@@ -3180,7 +3183,9 @@ Real W3DShaderManager::GetCPUBenchTime(void)
 	}
 	pi = 4.0 * (float)low/(float)itot;
 
+#ifdef _WINDOWS
 	QueryPerformanceCounter((LARGE_INTEGER *)&endTime64);
+#endif
 	return ((double)(endTime64-startTime64)/(double)(freq64));
 }
 

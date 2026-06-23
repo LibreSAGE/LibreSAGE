@@ -48,7 +48,7 @@
 
 #include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
 
-#include "Common/crc.h"
+#include "Common/CRC.h"
 #include "Common/UserPreferences.h"
 #include "GameNetwork/FirewallHelper.h"
 #include "GameNetwork/NAT.h"
@@ -109,9 +109,9 @@ FirewallHelperClass::FirewallHelperClass(void)
 		m_sparePorts[i] = 0;
 	}
 
-	for (i = 0; i < MAX_NUM_MANGLERS; i++)
+	for (Int i = 0; i < MAX_NUM_MANGLERS; i++)
 	{
-		m_manglers[i] = 0;
+		m_manglers[i] = NULL;
 	}
 	
 	m_currentState = DETECTIONSTATE_IDLE;
@@ -322,7 +322,7 @@ UnsignedShort FirewallHelperClass::getNextTemporarySourcePort(Int skip)
  * HISTORY:                                                                                    *
  *   3/15/01 12:47PM ST : Created                                                              *
  *=============================================================================================*/
-Bool FirewallHelperClass::sendToManglerFromPort(UnsignedInt address, UnsignedShort port, UnsignedShort packetID, Bool blitzme)
+Bool FirewallHelperClass::sendToManglerFromPort(NET_Address* address, UnsignedShort port, UnsignedShort packetID, Bool blitzme)
 {
 	DEBUG_LOG(("sizeof(ManglerMessage) == %d, sizeof(ManglerData) == %d\n",
 		sizeof(ManglerMessage), sizeof(ManglerData)));
@@ -362,11 +362,8 @@ Bool FirewallHelperClass::sendToManglerFromPort(UnsignedInt address, UnsignedSho
 
 	packet.length = sizeof(ManglerData);
 
-	DEBUG_LOG(("FirewallHelperClass::sendToManglerFromPort - Sending from port %d to %d.%d.%d.%d:%d\n", (UnsignedInt)port,
-		(address & 0xFF000000) >> 24,
-		(address & 0xFF0000) >> 16,
-		(address & 0xFF00) >> 8,
-		(address & 0xFF), MANGLER_PORT));
+	DEBUG_LOG(("FirewallHelperClass::sendToManglerFromPort - Sending from port %d to %s:%d\n", (UnsignedInt)port,
+		NET_GetAddressString(address), MANGLER_PORT));
 /*
 	DEBUG_LOG(("Buffer = "));
 	for (i = 0; i < sizeof(ManglerData); ++i) {
@@ -444,7 +441,8 @@ UnsignedShort FirewallHelperClass::getManglerResponse(UnsignedShort packetID, In
 
 //	SpareSocketStruct *spareSocket = NULL;
 
-	sockaddr_in addr;
+	NET_Address* addr = NULL;
+	UnsignedShort fromPort = 0;
 
 	for (Int i = 0; i < MAX_SPARE_SOCKETS; ++i) {
 		if (m_spareSockets[i].udp != NULL) {
@@ -452,7 +450,14 @@ UnsignedShort FirewallHelperClass::getManglerResponse(UnsignedShort packetID, In
 			if (message == NULL) {
 				break;
 			}
-			Int retval = m_spareSockets[i].udp->Read((unsigned char *)message, sizeof(ManglerData), &addr);
+			Int retval = m_spareSockets[i].udp->Read((unsigned char *)message, sizeof(ManglerData), addr, fromPort);
+
+			// We don't need the sender's address here; release Read()'s reference.
+			if (addr != NULL) {
+				NET_UnrefAddress(addr);
+				addr = NULL;
+			}
+
 			if (retval > 0) {
 				CRC crc;
 				crc.computeCRC((unsigned char *)(&(message->data.magic)), sizeof(ManglerData) - sizeof(unsigned int));
@@ -480,7 +485,7 @@ UnsignedShort FirewallHelperClass::getManglerResponse(UnsignedShort packetID, In
 
 	// See if we have already received it and saved it.
 	if (msg == NULL) {
-		for (i = 0; i < MAX_SPARE_SOCKETS; ++i) {
+		for (Int i = 0; i < MAX_SPARE_SOCKETS; ++i) {
 			if ((m_messages[i].length != 0) && (m_messages[i].data.PacketID == packetID)) {
 				msg = &(m_messages[i]);
 				msg->length = 0;
@@ -631,7 +636,7 @@ Bool FirewallHelperClass::detectionBeginUpdate() {
 	** Well, we are going to need some manglers.
 	*/
 
-	UnsignedByte mangler_addresses[4][4];
+	NET_Address* mangler_addresses[4] = {0};
 
 //	Int delta = 0;
 
@@ -685,12 +690,9 @@ Bool FirewallHelperClass::detectionBeginUpdate() {
 		/*
 		** Do the lookup.
 		*/
-		char temp_name[256];
-		strcpy(temp_name, mangler_name_ptr);
-		struct hostent *host_info = gethostbyname(temp_name);
-
-		if (!host_info) {
-			DEBUG_LOG(("gethostbyname failed! Error code %d\n", WSAGetLastError()));
+	    NET_Address *addr = NET_ResolveHostname(mangler_name_ptr);
+		if (!addr) {
+			DEBUG_LOG(("NET_ResolveHostname failed! Error code %s\n", SDL_GetError()));
 			break;
 		}
 
@@ -699,7 +701,7 @@ Bool FirewallHelperClass::detectionBeginUpdate() {
 		*/
 		Bool found = FALSE;
 		for (Int i=0 ; i<m_numManglers; i++) {
-			if (memcmp(mangler_addresses[i], &host_info->h_addr_list[0][0], 4) == 0) {
+			if (NET_CompareAddresses(mangler_addresses[i], addr) == 0) {
 				found = TRUE;
 				break;
 			}
@@ -709,9 +711,8 @@ Bool FirewallHelperClass::detectionBeginUpdate() {
 		*/
 		if (!found) {
 			Int m = m_numManglers++;
-			memcpy(&mangler_addresses[m][0], &host_info->h_addr_list[0][0], 4);
-			ntohl((UnsignedInt)mangler_addresses[m]);
-			DEBUG_LOG(("Found mangler address at %d.%d.%d.%d\n", mangler_addresses[m][0], mangler_addresses[m][1], mangler_addresses[m][2], mangler_addresses[m][3]));
+			mangler_addresses[m] = addr;
+			DEBUG_LOG(("Found mangler address at %s\n", NET_GetAddressString(mangler_addresses[m])));
 		}
 
 	} while ((m_numManglers < MAX_NUM_MANGLERS) && ((timeGetTime() - m_timeoutStart) < m_timeoutLength));
@@ -724,13 +725,7 @@ Bool FirewallHelperClass::detectionBeginUpdate() {
 	}
 
 	for (Int i=0 ; i<m_numManglers ; i++) {
-		UnsignedInt temp = 0;
-		temp = mangler_addresses[i][3];
-		temp += mangler_addresses[i][2] << 8;
-		temp += mangler_addresses[i][1] << 16;
-		temp += mangler_addresses[i][0] << 24;
-		m_manglers[i] = temp;
-//		memcpy(&(m_manglers[i]), &mangler_addresses[i][0], 4);
+		m_manglers[i] = mangler_addresses[i];
 	}
 
 	DEBUG_LOG(("FirewallHelperClass::detectionBeginUpdate - Testing for Netgear bug\n"));
@@ -937,7 +932,7 @@ Bool FirewallHelperClass::detectionTest3Update() {
 		m_timeoutLength = 12000;
 
 		DEBUG_LOG(("FirewallHelperClass::detectionTest3Update - Sending to %d manglers\n", NUM_TEST_PORTS));
-		for (i=0 ; i<NUM_TEST_PORTS ; i++) {
+		for (Int i=0 ; i<NUM_TEST_PORTS ; i++) {
 			if (m_mangledPorts[i] == 0) {
 				sendToManglerFromPort(m_manglers[0], m_sparePorts[i], m_packetID+i);
 			}
@@ -956,7 +951,8 @@ Bool FirewallHelperClass::detectionTest3Update() {
 }
 
 Bool FirewallHelperClass::detectionTest3WaitForResponsesUpdate() {
-	for (Int i = 0; i < NUM_TEST_PORTS; ++i) {
+	Int i;
+	for (i = 0; i < NUM_TEST_PORTS; ++i) {
 		if (m_mangledPorts[i] == 0) {
 			m_mangledPorts[i] = getManglerResponse(m_packetID + i);
 			if (m_mangledPorts[i] != 0) {
@@ -1130,7 +1126,7 @@ Bool FirewallHelperClass::detectionTest4Stage1Update() {
 	** Send out to a different port at that IP.
 	** We won't get a response for this.
 	*/
-	UnsignedInt addr = m_manglers[0];
+	NET_Address* addr = m_manglers[0];
 	UnsignedShort port1 = m_sparePorts[0] + 1;
 	sendToManglerFromPort(addr, port1, m_packetID);
 	sendToManglerFromPort(addr, port1, m_packetID);
@@ -1525,7 +1521,8 @@ Int FirewallHelperClass::getFirewallRetries(FirewallBehaviorType behavior)
  *  returns TRUE if successful, FALSE otherwise.
  */
 Bool FirewallHelperClass::openSpareSocket(UnsignedShort port) {
-	for (Int i = 0; i < MAX_SPARE_SOCKETS; ++i) {
+	Int i;
+	for (i = 0; i < MAX_SPARE_SOCKETS; ++i) {
 		if (m_spareSockets[i].port == 0) {
 			break;
 		}
@@ -1543,7 +1540,7 @@ Bool FirewallHelperClass::openSpareSocket(UnsignedShort port) {
 		return FALSE;
 	}
 
-	if (m_spareSockets[i].udp->Bind((UnsignedInt)0, port) != 0) {
+	if (m_spareSockets[i].udp->Bind((NET_Address*)NULL, port) != 0) {
 		DEBUG_CRASH(("FirewallHelperClass::openSpareSocket - Failed to init spare socket"));
 		return FALSE;
 	}

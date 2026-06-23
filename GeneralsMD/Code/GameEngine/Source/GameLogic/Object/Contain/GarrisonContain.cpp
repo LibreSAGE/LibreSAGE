@@ -219,7 +219,7 @@ void GarrisonContain::putObjectAtGarrisonPoint( Object *obj,
 
 /*
 UnicodeString msg;
-msg.format( L"Added object '%S'(%d) to point '%d'", 
+msg.format( u"Added object '%S'(%d) to point '%d'", 
 						obj->getTemplate()->getName().str(),
 						obj->getID(),
 						pointIndex );
@@ -491,7 +491,7 @@ void GarrisonContain::removeObjectFromGarrisonPoint( Object *obj, Int index )
 
 /*
 UnicodeString msg;
-msg.format( L"Removed object '%S'(%d) from point '%d'", 
+msg.format( u"Removed object '%S'(%d) from point '%d'", 
 						obj->getTemplate()->getName().str(),
 						obj->getID(),
 						removeIndex );
@@ -2013,7 +2013,8 @@ void GarrisonContain::loadStationGarrisonPoints( void )
 
 
     Coord3D tempBuffer[MAX_GARRISON_POINTS];
-  	for( int t = 0; t < MAX_GARRISON_POINTS; ++t )
+    int t;
+  	for( t = 0; t < MAX_GARRISON_POINTS; ++t )
 		  tempBuffer[ t ] = *(structure->getPosition());
 
 		count = structure->getMultiLogicalBonePosition("STATION", modData->m_containMax, tempBuffer, NULL);

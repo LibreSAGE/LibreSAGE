@@ -670,7 +670,7 @@ Bool MapCache::addMap( AsciiString dirName, AsciiString fname, FileInfo *fileInf
 				if (md.m_numPlayers >= 2)
 				{
 					UnicodeString extension;
-					extension.format(L" (%d)", md.m_numPlayers);
+					extension.format(u" (%d)", md.m_numPlayers);
 					(*this)[lowerFname].m_displayName.concat(extension);
 				}
 			}
@@ -681,7 +681,7 @@ Bool MapCache::addMap( AsciiString dirName, AsciiString fname, FileInfo *fileInf
 				if (md.m_numPlayers >= 2)
 				{
 					UnicodeString extension;
-					extension.format(L" (%d)", md.m_numPlayers);
+					extension.format(u" (%d)", md.m_numPlayers);
 					(*this)[lowerFname].m_displayName.concat(extension);
 				}
 			}
@@ -726,7 +726,7 @@ Bool MapCache::addMap( AsciiString dirName, AsciiString fname, FileInfo *fileInf
 		if (md.m_numPlayers >= 2)
 		{
 			UnicodeString extension;
-			extension.format(L" (%d)", md.m_numPlayers);
+			extension.format(u" (%d)", md.m_numPlayers);
 			md.m_displayName.concat(extension);
 		}
 		TheGameText->reset();
@@ -743,7 +743,7 @@ Bool MapCache::addMap( AsciiString dirName, AsciiString fname, FileInfo *fileInf
 		if (md.m_numPlayers >= 2)
 		{
 			UnicodeString extension;
-			extension.format(L" (%d)", md.m_numPlayers);
+			extension.format(u" (%d)", md.m_numPlayers);
 			md.m_displayName.concat(extension);
 		}
 		DEBUG_LOG(("Map name is now '%ls'\n", md.m_displayName.str()));

@@ -210,17 +210,18 @@ GameState::SnapshotBlock *GameState::findBlockInfoByToken( AsciiString token, Sn
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-UnicodeString getUnicodeDateBuffer(SYSTEMTIME timeVal) 
+UnicodeString getUnicodeDateBuffer(SYSTEMTIME timeVal)
 {
+	UnicodeString displayDateBuffer;
 	// setup date buffer for local region date format
+#ifdef _WINDOWS
 	#define DATE_BUFFER_SIZE 256
 	OSVERSIONINFO	osvi;
 	osvi.dwOSVersionInfoSize=sizeof(OSVERSIONINFO);
-	UnicodeString displayDateBuffer;
 	if (GetVersionEx(&osvi))
 	{	//check if we're running Win9x variant since they may need different characters
 		if (osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
-		{		
+		{
 			char dateBuffer[ DATE_BUFFER_SIZE ];
 			GetDateFormat( LOCALE_SYSTEM_DEFAULT,
 										 DATE_SHORTDATE,
@@ -229,7 +230,7 @@ UnicodeString getUnicodeDateBuffer(SYSTEMTIME timeVal)
 										 dateBuffer, sizeof(dateBuffer) );
 			displayDateBuffer.translate(dateBuffer);
 			return displayDateBuffer;
-		}	
+		}
 	}
 	wchar_t dateBuffer[ DATE_BUFFER_SIZE ];
 	GetDateFormatW( LOCALE_SYSTEM_DEFAULT,
@@ -238,20 +239,24 @@ UnicodeString getUnicodeDateBuffer(SYSTEMTIME timeVal)
 								 NULL,
 								 dateBuffer, sizeof(dateBuffer) );
 	displayDateBuffer.set(dateBuffer);
+#else
+	// TODO: implement this for non-windows platforms. for now, just return a blank string.
+#endif
 	return displayDateBuffer;
-	//displayDateBuffer.format( L"%ls", dateBuffer );
-}															
+	//displayDateBuffer.format( u"%ls", dateBuffer );
+}
 
-UnicodeString getUnicodeTimeBuffer(SYSTEMTIME timeVal) 
+UnicodeString getUnicodeTimeBuffer(SYSTEMTIME timeVal)
 {
 	// setup time buffer for local region time format
 	UnicodeString displayTimeBuffer;
+#ifdef _WINDOWS
 	OSVERSIONINFO	osvi;
 	osvi.dwOSVersionInfoSize=sizeof(OSVERSIONINFO);
 	if (GetVersionEx(&osvi))
 	{	//check if we're running Win9x variant since they may need different characters
 		if (osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
-		{		
+		{
 			char timeBuffer[ DATE_BUFFER_SIZE ];
 			GetTimeFormat( LOCALE_SYSTEM_DEFAULT,
 										 TIME_NOSECONDS|TIME_FORCE24HOURFORMAT|TIME_NOTIMEMARKER,
@@ -272,6 +277,9 @@ UnicodeString getUnicodeTimeBuffer(SYSTEMTIME timeVal)
 								 timeBuffer,
 								 sizeof(timeBuffer) );
 	displayTimeBuffer.set(timeBuffer);
+#else
+	// TODO: implement this for non-windows platforms. for now, just return a blank string.
+#endif
 	return displayTimeBuffer;
 }
 
@@ -508,7 +516,7 @@ AsciiString GameState::findNextSaveFilename( UnicodeString desc )
 			fullPath = getFilePathInSaveDirectory(filename);
 
 			// if file does not exist we're all good
-			if( _access( fullPath.str(), 0 ) == -1 )
+			if( access( fullPath.str(), 0 ) == -1 )
 				return filename;
 
 			// test the text filename
@@ -555,7 +563,11 @@ SaveCode GameState::saveGame( AsciiString filename, UnicodeString desc,
 	}  // end if
 
 	// make absolutely sure the save directory exists
+#ifdef _WINDOWS
 	CreateDirectory( getSaveDirectory().str(), NULL );
+#else
+	// TODO: implement for other platforms
+#endif
 
 	// construct path to file
 	AsciiString filepath = getFilePathInSaveDirectory(filename);
@@ -789,7 +801,7 @@ Bool GameState::isInSaveDirectory(const AsciiString& path) const
 // ------------------------------------------------------------------------------------------------
 AsciiString GameState::getMapLeafName(const AsciiString& in) const
 {
-	char* p = strrchr(in.str(), '\\');
+	const char* p = strrchr(in.str(), '\\');
 	if (p)
 	{
 		//
@@ -798,6 +810,7 @@ AsciiString GameState::getMapLeafName(const AsciiString& in) const
 		// be a *directory*  Just move to the first character beyond it so we are looking
 		// at the name only
 		//
+		char* p = (char*)p;
 		++p;
 		DEBUG_ASSERTCRASH( p != NULL && *p != 0, ("GameState::xfer - Illegal map name encountered\n") );
 		return p;
@@ -1211,7 +1224,7 @@ void GameState::populateSaveGameListbox( GameWindow *listbox, SaveLoadLayoutType
 			
 			displayLabel = TheGameText->fetch( saveGameInfo->mapLabel, &exists );
 			if( exists == FALSE )
-				displayLabel.format( L"%S", saveGameInfo->mapLabel.str() );
+				displayLabel.format( u"%s", saveGameInfo->mapLabel.str() );
 
 		}  // end if
 
@@ -1253,6 +1266,7 @@ void GameState::iterateSaveFiles( IterateSaveFileCallback callback, void *userDa
 	if( callback == NULL )
 		return;
 
+#ifdef _WINDOWS
 	// save the current directory
 	char currentDirectory[ _MAX_PATH ];
 	GetCurrentDirectory( _MAX_PATH, currentDirectory );
@@ -1313,7 +1327,9 @@ void GameState::iterateSaveFiles( IterateSaveFileCallback callback, void *userDa
 
 	// restore the current directory
 	SetCurrentDirectory( currentDirectory );
-
+#else
+	// TODO: implement for other platforms
+#endif
 }  // end iterateSaveFiles
 
 // ------------------------------------------------------------------------------------------------
@@ -1391,7 +1407,7 @@ void GameState::xferSaveData( Xfer *xfer, SnapshotType which )
 				{
 
 					DEBUG_CRASH(( "Error saving block '%s' in file '%s'\n",
-												blockName.str(), xfer->getIdentifier() ));
+												blockName.str(), xfer->getIdentifier().str() ));
 					throw;
 
 				}  // end catch
@@ -1437,7 +1453,7 @@ void GameState::xferSaveData( Xfer *xfer, SnapshotType which )
 				{
 
 					// log the block not found
-					DEBUG_LOG(( "GameState::xferSaveData - Skipping unknown block '%s'\n", token ));
+					DEBUG_LOG(( "GameState::xferSaveData - Skipping unknown block '%s'\n", token.str() ));
 
 					//
 					// block was not found, this could have been a block from an older file
@@ -1468,7 +1484,7 @@ void GameState::xferSaveData( Xfer *xfer, SnapshotType which )
 				{
 
 					DEBUG_CRASH(( "Error loading block '%s' in file '%s'\n",
-												blockInfo->blockName.str(), xfer->getIdentifier() ));
+												blockInfo->blockName.str(), xfer->getIdentifier().str() ));
 					throw;
 
 				}  // end catch

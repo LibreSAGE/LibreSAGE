@@ -55,7 +55,7 @@
 #include "GameClient/MetaEvent.h"
 #include "GameClient/GameWindow.h"
 #include "GameClient/GameWindowManager.h"
-#include "GameClient/keyboard.h"
+#include "GameClient/Keyboard.h"
 #include "GameClient/GameText.h"
 #include "Common/AudioEventRTS.h"
 //-----------------------------------------------------------------------------
@@ -211,7 +211,7 @@ AsciiString HotKeyManager::searchHotKey( const UnicodeString& uStr )
 	const WideChar *marker = (const WideChar *)uStr.str();
 	while (marker && *marker)
 	{
-		if (*marker == L'&')
+		if (*marker == u'&')
 		{
 			// found a '&' - now look for the next char
 			UnicodeString tmp = UnicodeString::TheEmptyString;

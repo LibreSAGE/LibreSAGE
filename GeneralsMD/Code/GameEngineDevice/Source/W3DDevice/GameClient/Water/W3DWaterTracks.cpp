@@ -43,15 +43,15 @@
 //			  and alpha.
 //-----------------------------------------------------------------------------
 
-#include "W3DDevice/GameClient/heightmap.h"
+#include "W3DDevice/GameClient/HeightMap.h"
 #include "W3DDevice/GameClient/W3DWaterTracks.h"
 #include "W3DDevice/GameClient/W3DShaderManager.h"
 #include "W3DDevice/GameClient/W3DShroud.h"
 #include "GameClient/InGameUI.h"
 #include "GameClient/Water.h"
 #include "GameLogic/TerrainLogic.h"
-#include "common/GlobalData.h"
-#include "common/UnicodeString.h"
+#include "Common/GlobalData.h"
+#include "Common/UnicodeString.h"
 #include "Common/File.h"
 #include "Common/FileSystem.h"
 #include "texture.h"
@@ -60,7 +60,7 @@
 #include "rinfo.h"
 #include "camera.h"
 #include "assetmgr.h"
-#include "WW3D2/DX8Wrapper.h"
+#include "WW3D2/dx8wrapper.h"
 
 //#pragma optimize("", off)
 
@@ -80,7 +80,7 @@ WaterTracksRenderSystem *TheWaterTracksRenderSystem=NULL;	///< singleton for tra
 
 static Bool pauseWaves=FALSE;
 
-enum waveType
+enum waveType : int
 {
 	WaveTypeFirst,
 	WaveTypePond=WaveTypeFirst,
@@ -853,7 +853,7 @@ void WaterTracksRenderSystem::update()
 }
 
 
-void TestWaterUpdate(void);
+static void TestWaterUpdate(void);
 void setFPMode( void );
 
 //=============================================================================
@@ -872,8 +872,10 @@ Try improving the fit to vertical surfaces like cliffs.
 	if (!TheGlobalData->m_showSoftWaterEdge || TheWaterTransparency->m_transparentWaterDepth ==0 )
 		return;
 
+#ifdef _WIN32
 	if (TheGlobalData->m_usingWaterTrackEditor)
 		TestWaterUpdate();
+#endif
 
 	update();	//update positions of all the tracks
 
@@ -1098,6 +1100,8 @@ Will need to move this code to an external editor at some pont. */
 #include "GameClient/Display.h"
 
 extern HWND ApplicationHWnd;
+
+#ifdef _WIN32
 
 //TODO: Fix editor so it actually draws the wave segment instead of line while editing
 //Could freeze all the water while editing?  Or keep setting elapsed time on current segment.
@@ -1326,3 +1330,4 @@ static void TestWaterUpdate(void)
 		}
 	}
 }
+#endif

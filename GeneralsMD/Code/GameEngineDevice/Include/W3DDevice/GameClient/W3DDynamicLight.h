@@ -31,8 +31,8 @@
 #ifndef W3D_DYNAMIC_LIGHT_H
 #define W3D_DYNAMIC_LIGHT_H
 
-#include "WW3D2/Light.h"
-#include "lib/baseType.h"
+#include "WW3D2/light.h"
+#include "Lib/BaseType.h"
 class HeightMapRenderObjClass;
 
 /*************************************************************************
@@ -41,7 +41,7 @@ class HeightMapRenderObjClass;
 class W3DDynamicLight : public LightClass
 {
 friend class BaseHeightMapRenderObjClass;
-friend class BaseHeightMapRenderObjClass;
+friend class HeightMapRenderObjClass;
 protected:
 	/// Values used by HeightMapRenderObjClass to update the height map.
 	Bool		m_priorEnable;

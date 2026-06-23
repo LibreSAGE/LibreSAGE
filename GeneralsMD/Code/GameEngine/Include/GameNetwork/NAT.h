@@ -32,9 +32,10 @@
 #ifndef __NAT_H
 #define __NAT_H
 
-#include "Lib\BaseType.h"
+#include "Lib/BaseType.h"
 #include "GameNetwork/NetworkInterface.h"
 #include "GameNetwork/FirewallHelper.h"
+#include <SDL3_net/SDL_net.h>
 
 class Transport;
 class GameSlot;
@@ -123,7 +124,7 @@ protected:
 
 	Bool m_beenProbed; ///< have I been notified that I've been probed this round?
 	
-	UnsignedInt m_manglerAddress;
+	NET_Address* m_manglerAddress;
 
 	time_t m_timeTillNextSend; ///< The number of milliseconds till we send to the other guy's port again.
 	NATConnectionState m_connectionStates[MAX_SLOTS]; ///< connection states for this round for all the nodes.

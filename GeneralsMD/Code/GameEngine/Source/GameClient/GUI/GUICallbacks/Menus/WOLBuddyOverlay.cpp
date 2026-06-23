@@ -54,6 +54,7 @@
 #include "GameNetwork/GameSpy/PersistentStorageDefs.h"
 #include "GameNetwork/GameSpy/PersistentStorageThread.h"
 #include "GameNetwork/GameSpy/ThreadUtils.h"
+#include <unicode/ustdio.h>
 
 // PRIVATE DATA ///////////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +99,7 @@ static GameWindow *parentIgnore = NULL;
 static GameWindow *listboxIgnore = NULL;
 
 static Bool isOverlayActive = false;
-void insertChat( BuddyMessage msg );
+static void insertChat( BuddyMessage msg );
 // RightClick pointers ---------------------------------------------------------------------
 static GameWindow *rcMenu = NULL;
 static WindowLayout *noticeLayout = NULL;
@@ -177,7 +178,7 @@ void InitBuddyControls(Int type)
 		buddyControls.listboxChatID = TheNameKeyGenerator->nameToKey( AsciiString( "WOLBuddyOverlay.wnd:ListboxBuddyChat" ) );
 		buddyControls.listboxBuddies = TheWindowManager->winGetWindowFromId( NULL,  buddyControls.listboxBuddiesID );
 		buddyControls.listboxChat = TheWindowManager->winGetWindowFromId( NULL,  buddyControls.listboxChatID);
-		GadgetTextEntrySetText(buddyControls.textEntryEdit, UnicodeString.TheEmptyString);
+		GadgetTextEntrySetText(buddyControls.textEntryEdit, UnicodeString::TheEmptyString);
 		buddyControls.isInit = TRUE;
 		break;
 	case BUDDY_WINDOW_DIPLOMACY:
@@ -187,7 +188,7 @@ void InitBuddyControls(Int type)
 		buddyControls.listboxChatID = TheNameKeyGenerator->nameToKey( AsciiString( "Diplomacy.wnd:ListboxBuddyChat" ) );
 		buddyControls.listboxBuddies = TheWindowManager->winGetWindowFromId( NULL,  buddyControls.listboxBuddiesID );
 		buddyControls.listboxChat = TheWindowManager->winGetWindowFromId( NULL,  buddyControls.listboxChatID);
-		GadgetTextEntrySetText(buddyControls.textEntryEdit, UnicodeString.TheEmptyString);
+		GadgetTextEntrySetText(buddyControls.textEntryEdit, UnicodeString::TheEmptyString);
 		buddyControls.isInit = TRUE;
 		break;
 	case BUDDY_WINDOW_WELCOME_SCREEN:
@@ -220,8 +221,8 @@ WindowMsgHandledType BuddyControlSystem( GameWindow *window, UnsignedInt msg,
 					if(rc->pos < 0)
 						break;
 
-					GPProfile profileID = (GPProfile)GadgetListBoxGetItemData(control, rc->pos, 0);
-					RCItemType itemType = (RCItemType)(Int)GadgetListBoxGetItemData(control, rc->pos, 1);
+					GPProfile profileID = (GPProfile)(intptr_t)GadgetListBoxGetItemData(control, rc->pos, 0);
+					RCItemType itemType = (RCItemType)(intptr_t)GadgetListBoxGetItemData(control, rc->pos, 1);
 					UnicodeString nick = GadgetListBoxGetText(control, rc->pos);
 
 					GadgetListBoxSetSelected(control, rc->pos);
@@ -272,7 +273,7 @@ WindowMsgHandledType BuddyControlSystem( GameWindow *window, UnsignedInt msg,
 				GadgetListBoxGetSelected(buddyControls.listboxBuddies, &selected);
 				if (selected >= 0)
 				{
-					GPProfile selectedProfile = (GPProfile)GadgetListBoxGetItemData(buddyControls.listboxBuddies, selected);
+					GPProfile selectedProfile = (GPProfile)(intptr_t)GadgetListBoxGetItemData(buddyControls.listboxBuddies, selected);
 					BuddyInfoMap *m = TheGameSpyInfo->getBuddyMap();
 					BuddyInfoMap::iterator recipIt = m->find(selectedProfile);
 					if (recipIt == m->end())
@@ -309,7 +310,7 @@ WindowMsgHandledType BuddyControlSystem( GameWindow *window, UnsignedInt msg,
 						// Send the message
 						BuddyRequest req;
 						req.buddyRequestType = BuddyRequest::BUDDYREQUEST_MESSAGE;
-						wcsncpy(req.arg.message.text, txtInput.str(), MAX_BUDDY_CHAT_LEN);
+						u_strncpy(req.arg.message.text, txtInput.str(), MAX_BUDDY_CHAT_LEN);
 						req.arg.message.text[MAX_BUDDY_CHAT_LEN-1] = 0;
 						req.arg.message.recipient = selectedProfile;
 						TheGameSpyBuddyMessageQueue->addRequest(req);
@@ -360,7 +361,7 @@ static void insertChat( BuddyMessage msg )
 		UnicodeString timeStr;
 		if (localSender /*&& recipientIt != m->end()*/)
 		{
-			s.format(L"[%hs -> %hs] %s", TheGameSpyInfo->getLocalBaseName().str(), msg.m_recipientNick.str(), msg.m_message.str());
+			s.format(u"[%hs -> %hs] %s", TheGameSpyInfo->getLocalBaseName().str(), msg.m_recipientNick.str(), msg.m_message.str());
 			Int index = GadgetListBoxAddEntryText( buddyControls.listboxChat, s, GameSpyColor[GSCOLOR_PLAYER_SELF], -1, -1 );
 			GadgetListBoxAddEntryText( buddyControls.listboxChat, timeStr, GameSpyColor[GSCOLOR_PLAYER_SELF], index, 1);
 		}
@@ -374,7 +375,7 @@ static void insertChat( BuddyMessage msg )
 			}
 			else
 			{
-				s.format(L"[%hs] %s", msg.m_senderNick.str(), msg.m_message.str());
+				s.format(u"[%hs] %s", msg.m_senderNick.str(), msg.m_message.str());
 				Int index = GadgetListBoxAddEntryText( buddyControls.listboxChat, s, GameSpyColor[GSCOLOR_PLAYER_BUDDY], -1, -1 );
 				GadgetListBoxAddEntryText( buddyControls.listboxChat, timeStr, GameSpyColor[GSCOLOR_PLAYER_BUDDY], index, 1);
 			}
@@ -399,7 +400,7 @@ void updateBuddyInfo( void )
 
 	GadgetListBoxGetSelected(buddyControls.listboxBuddies, &selected);
 	if (selected >= 0)
-		selectedProfile = (GPProfile)GadgetListBoxGetItemData(buddyControls.listboxBuddies, selected);
+		selectedProfile = (GPProfile)(intptr_t)GadgetListBoxGetItemData(buddyControls.listboxBuddies, selected);
 
 	selected = -1;
 	GadgetListBoxReset(buddyControls.listboxBuddies);
@@ -422,22 +423,24 @@ void updateBuddyInfo( void )
 		// insert status into box
 		AsciiString marker;
 		marker.format("Buddy:%ls", info.m_statusString.str());
-		if (!info.m_statusString.compareNoCase(L"Offline") ||
-			!info.m_statusString.compareNoCase(L"Online") ||
-			!info.m_statusString.compareNoCase(L"Matching"))
+		if (!info.m_statusString.compareNoCase(u"Offline") ||
+			!info.m_statusString.compareNoCase(u"Online") ||
+			!info.m_statusString.compareNoCase(u"Matching"))
 		{
 			formatStr = TheGameText->fetch(marker);
 		}
-		else if (!info.m_statusString.compareNoCase(L"Staging") ||
-			!info.m_statusString.compareNoCase(L"Loading") ||
-			!info.m_statusString.compareNoCase(L"Playing"))
+		else if (!info.m_statusString.compareNoCase(u"Staging") ||
+			!info.m_statusString.compareNoCase(u"Loading") ||
+			!info.m_statusString.compareNoCase(u"Playing"))
 		{
 			formatStr.format(TheGameText->fetch(marker), info.m_locationString.str());
 		}
-		else if (!info.m_statusString.compareNoCase(L"Chatting"))
+		else if (!info.m_statusString.compareNoCase(u"Chatting"))
 		{
 			UnicodeString roomName;
-			GroupRoomMap::iterator gIt = TheGameSpyInfo->getGroupRoomList()->find( _wtoi(info.m_locationString.str()) );
+			Int location;
+			u_sscanf_u(info.m_locationString.str(), u"%d", &location);
+			GroupRoomMap::iterator gIt = TheGameSpyInfo->getGroupRoomList()->find(location);
 			if (gIt != TheGameSpyInfo->getGroupRoomList()->end())
 			{
 				AsciiString s;
@@ -514,7 +517,7 @@ void HandleBuddyResponses( void )
 				break;
 			case BuddyResponse::BUDDYRESPONSE_MESSAGE:
 				{
-					if ( !wcscmp(resp.arg.message.text, L"I have authorized your request to add me to your list") )
+					if ( !u_strcmp(resp.arg.message.text, u"I have authorized your request to add me to your list") )
 						break;
 
 					if (TheGameSpyInfo->isSavedIgnored(resp.profile))
@@ -614,8 +617,8 @@ void HandleBuddyResponses( void )
 					RefreshGameListBoxes();
 					if ( (newStatus == GP_OFFLINE && seenPreviously) ||
 						(newStatus == GP_ONLINE && (oldStatus == GP_OFFLINE || !seenPreviously)) )
-					//if (!info.m_statusString.compareNoCase(L"Offline") ||
-					//!info.m_statusString.compareNoCase(L"Online"))
+					//if (!info.m_statusString.compareNoCase(u"Offline") ||
+					//!info.m_statusString.compareNoCase(u"Online"))
 					{
 						// insert status into box
 						AsciiString marker;
@@ -892,7 +895,7 @@ WindowMsgHandledType WOLBuddyOverlaySystem( GameWindow *window, UnsignedInt msg,
 						break;
 
 					Bool isBuddy = false, isRequest = false;
-					GPProfile profileID = (GPProfile)GadgetListBoxGetItemData(control, rc->pos);
+					GPProfile profileID = (GPProfile)(intptr_t)GadgetListBoxGetItemData(control, rc->pos);
 					UnicodeString nick = GadgetListBoxGetText(control, rc->pos);
 					BuddyInfoMap *buddies = TheGameSpyInfo->getBuddyMap();
 					BuddyInfoMap::iterator bIt;
@@ -1018,7 +1021,7 @@ WindowMsgHandledType WOLBuddyOverlaySystem( GameWindow *window, UnsignedInt msg,
 							gpGetBuddyStatus(TheGPConnection, rowSelected, &status);
 
 							UnicodeString string;
-							string.format(L"To join %s in %hs:", buddyName.str(), status.locationString);
+							string.format(u"To join %s in %hs:", buddyName.str(), status.locationString);
 							GameSpyAddText(string, GSCOLOR_DEFAULT);
 
 							if (status.status == GP_CHATTING)
@@ -1029,14 +1032,14 @@ WindowMsgHandledType WOLBuddyOverlaySystem( GameWindow *window, UnsignedInt msg,
 								location.nextToken(&val, "/");
 								location.nextToken(&val, "/");
 
-								string.format(L"  ???");
+								string.format(u"  ???");
 								if (!val.isEmpty())
 								{
 									Int groupRoom = atoi(val.str());
 									if (TheGameSpyChat->getCurrentGroupRoomID() == groupRoom)
 									{
 										// already there
-										string.format(L"  nothing");
+										string.format(u"  nothing");
 										GameSpyAddText(string, GSCOLOR_DEFAULT);
 									}
 									else
@@ -1051,7 +1054,7 @@ WindowMsgHandledType WOLBuddyOverlaySystem( GameWindow *window, UnsignedInt msg,
 												// he's in a different room
 												if (TheGameSpyChat->getCurrentGroupRoomID())
 												{
-													string.format(L"  leave group room");
+													string.format(u"  leave group room");
 													GameSpyAddText(string, GSCOLOR_DEFAULT);
 
 													TheGameSpyChat->leaveRoom(GroupRoom);
@@ -1060,13 +1063,13 @@ WindowMsgHandledType WOLBuddyOverlaySystem( GameWindow *window, UnsignedInt msg,
 												{
 													if (TheGameSpyGame->isGameInProgress())
 													{
-														string.format(L"  can't leave game in progress");
+														string.format(u"  can't leave game in progress");
 														GameSpyAddText(string, GSCOLOR_DEFAULT);
 														needToJoin = false;
 													}
 													else
 													{
-														string.format(L"  leave game setup");
+														string.format(u"  leave game setup");
 														GameSpyAddText(string, GSCOLOR_DEFAULT);
 
 														TheGameSpyChat->leaveRoom(StagingRoom);
@@ -1075,7 +1078,7 @@ WindowMsgHandledType WOLBuddyOverlaySystem( GameWindow *window, UnsignedInt msg,
 												}
 												if (needToJoin)
 												{
-													string.format(L"  join lobby %d", groupRoom);
+													string.format(u"  join lobby %d", groupRoom);
 													TheGameSpyChat->joinGroupRoom(groupRoom);
 													GameSpyAddText(string, GSCOLOR_DEFAULT);
 												}
@@ -1192,7 +1195,7 @@ void RequestBuddyAdd(Int profileID, AsciiString nick)
 	req.arg.addbuddy.id = profileID;
 	UnicodeString buddyAddstr;
 	buddyAddstr = TheGameText->fetch("GUI:BuddyAddReq");
-	wcsncpy(req.arg.addbuddy.text, buddyAddstr.str(), MAX_BUDDY_CHAT_LEN);
+	u_strncpy(req.arg.addbuddy.text, buddyAddstr.str(), MAX_BUDDY_CHAT_LEN);
 	req.arg.addbuddy.text[MAX_BUDDY_CHAT_LEN-1] = 0;
 	TheGameSpyBuddyMessageQueue->addRequest(req);
 

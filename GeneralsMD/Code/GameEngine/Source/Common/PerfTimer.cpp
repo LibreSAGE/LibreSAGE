@@ -35,7 +35,8 @@
 #include "GameClient/Display.h"
 #include "GameClient/GraphDraw.h"
 
-__forceinline void ProfileGetTime(__int64 &t)
+#ifdef _WIN32
+__forceinline void ProfileGetTime(_Int64 &t)
 {
   _asm
   {
@@ -49,6 +50,16 @@ __forceinline void ProfileGetTime(__int64 &t)
     pop eax
   };
 }
+#else
+inline void ProfileGetTime(Int64 &t)
+{
+  // Linux: read the timestamp counter via the compiler intrinsic.
+  // (Only used by the optional PERF_TIMERS/DUMP_PERF_STATS code paths.)
+  unsigned int lo, hi;
+  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+  t = ((Int64)hi << 32) | lo;
+}
+#endif
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -83,7 +94,7 @@ void InitPrecisionTimer()
 
   // measure clock cycles 3 times for 20 msec each
   // then take the 2 counts that are closest, average
-  _int64 n[ 3 ];
+  Int64 n[ 3 ];
   for( int k = 0; k < 3; k++ )
   {
     // wait for end of current tick
@@ -91,8 +102,8 @@ void InitPrecisionTimer()
     while( timeGetTime() < timeEnd ); //do nothing
  
     // get cycles
-    _int64 start, startQPC, endQPC;
-    QueryPerformanceCounter( (LARGE_INTEGER *)&startQPC );
+    Int64 start, startQPC, endQPC;
+	startQPC = SDL_GetPerformanceCounter();
     ProfileGetTime( start );
     timeEnd += 20;
     while( timeGetTime() < timeEnd ); //do nothing
@@ -100,21 +111,15 @@ void InitPrecisionTimer()
     n[ k ] -= start;
  
     // convert to 1 second
-    if( QueryPerformanceCounter( (LARGE_INTEGER*)&endQPC ) )
-    {
-      QueryPerformanceFrequency( (LARGE_INTEGER*)&s_ticksPerSec );
-      n[ k ] = ( n[ k ] * s_ticksPerSec ) / ( endQPC - startQPC );
-    }
-    else
-    {
-      n[ k ] = ( n[ k ] * 1000 ) / 20;
-    }
+	endQPC = SDL_GetPerformanceCounter();
+	s_ticksPerSec = SDL_GetPerformanceFrequency();
+    n[ k ] = ( n[ k ] * s_ticksPerSec ) / ( endQPC - startQPC );
   }
  
   // find two closest values
-  _int64 d01 = n[ 1 ] - n[ 0 ];
-	_int64 d02 = n[ 2 ] - n[ 0 ];
-	_int64 d12 = n[ 2 ] - n[ 1 ];
+  Int64 d01 = n[ 1 ] - n[ 0 ];
+	Int64 d02 = n[ 2 ] - n[ 0 ];
+	Int64 d12 = n[ 2 ] - n[ 1 ];
 
   if( d01 < 0 )
 	{
@@ -129,7 +134,7 @@ void InitPrecisionTimer()
 		d12 = -d12;
 	}
 
-  _int64 avg;
+  Int64 avg;
   if( d01 < d02 )
   {
     avg = d01 < d12 ? n[ 0 ] + n[ 1 ] : n[ 1 ] + n[ 2 ];
@@ -151,7 +156,7 @@ void InitPrecisionTimer()
 	//whenever we fire up the game.
 
 	#ifdef USE_QPF
-		QueryPerformanceFrequency((LARGE_INTEGER*)&s_ticksPerSec);
+  		s_ticksPerSec = SDL_GetPerformanceFrequency();
 	#else
 		// Init the precision timers
 		Int64 totalTime = 0;

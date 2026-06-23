@@ -50,7 +50,7 @@ public:
 };
 
 #else
-#include "WW3D2/RendObj.h"
+#include "WW3D2/rendobj.h"
 #endif
 #include "Common/SparseMatchFinder.h"
 #include "GameClient/ParticleSys.h"
@@ -62,7 +62,7 @@ class RenderObjClass;
 class Shadow;
 class TerrainTracksRenderObjClass;
 class HAnimClass;
-enum GameLODLevel;
+enum GameLODLevel : int;
 //-------------------------------------------------------------------------------------------------
 /** The default client update module */
 //-------------------------------------------------------------------------------------------------

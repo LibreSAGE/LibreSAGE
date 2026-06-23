@@ -36,6 +36,8 @@
 //#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
 #endif
 
+#ifdef _WINDOWS
+
 Bool  getStringFromRegistry(HKEY root, AsciiString path, AsciiString key, AsciiString& val)
 {
 	HKEY handle;
@@ -145,9 +147,22 @@ Bool GetStringFromRegistry(AsciiString path, AsciiString key, AsciiString& val)
 
 	return getStringFromRegistry(HKEY_CURRENT_USER, fullPath.str(), key.str(), val);
 }
+#else
+Bool GetStringFromGeneralsRegistry(AsciiString path, AsciiString key, AsciiString& val)
+{
+	return FALSE;
+}
+
+Bool GetStringFromRegistry(AsciiString path, AsciiString key, AsciiString& val)
+{
+	return FALSE;
+}
+#endif // _WINDOWS
+
 
 Bool GetUnsignedIntFromRegistry(AsciiString path, AsciiString key, UnsignedInt& val)
 {
+#ifdef _WINDOWS
 	AsciiString fullPath = "SOFTWARE\\Electronic Arts\\EA Games\\Command and Conquer Generals Zero Hour";
 
 	fullPath.concat(path);
@@ -158,6 +173,9 @@ Bool GetUnsignedIntFromRegistry(AsciiString path, AsciiString key, UnsignedInt& 
 	}
 
 	return getUnsignedIntFromRegistry(HKEY_CURRENT_USER, fullPath.str(), key.str(), val);
+#else
+	return FALSE;
+#endif
 }
 
 AsciiString GetRegistryLanguage(void)

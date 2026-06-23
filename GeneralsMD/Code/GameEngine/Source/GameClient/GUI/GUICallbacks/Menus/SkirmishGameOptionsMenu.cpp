@@ -402,7 +402,7 @@ void setFPSTextBox( Int sliderPos )
 	if(sliderPos > GREATER_NO_FPS_LIMIT)
 	{
 		// set static text to --
-		text.set(L"--");
+		text.set(u"--");
 		GadgetStaticTextSetText(staticTextGameSpeed, text);
 		return;
 	}
@@ -411,7 +411,7 @@ void setFPSTextBox( Int sliderPos )
 		// set different color
 		staticTextGameSpeed->winEnable(FALSE);
 	}
-	text.format(L"%2d", sliderPos);
+	text.format(u"%2d", sliderPos);
 	GadgetStaticTextSetText(staticTextGameSpeed, text);
 }
 
@@ -493,8 +493,10 @@ void CheckForCDAtGameStart( gameStartCallback callback )
 	if (!IsFirstCDPresent())
 	{
 		// popup a dialog asking for a CD
+#ifdef _WIN32
 		ExMessageBoxOkCancel(TheGameText->fetch("GUI:InsertCDPrompt"), TheGameText->fetch("GUI:InsertCDMessage"),
 			callback, checkCDCallback, cancelStartBecauseOfNoCD);
+#endif
 	}
 	else
 	{
@@ -776,8 +778,9 @@ void positionStartSpots( AsciiString mapName, GameWindow *buttonMapStartPosition
 
 		positionAdditionalImages(&mmd, mapWindow, TRUE);
 
-		AsciiString waypointName;				
-		for(Int i = 0; i < mmd.m_numPlayers && mmd.m_isMultiplayer; ++i )
+		AsciiString waypointName;
+		Int i;
+		for(i = 0; i < mmd.m_numPlayers && mmd.m_isMultiplayer; ++i )
 		{
 			waypointName.format("Player_%d_Start", i+1); // start pos waypoints are 1-based
 			WaypointMap::iterator wmIt = mmd.m_waypoints.find(waypointName);
@@ -854,7 +857,7 @@ void updateMapStartSpots( GameInfo *myGame, GameWindow *buttonMapStartPositions[
 		  }
     }
 	}
-	for( i = 0; i < MAX_SLOTS; ++i)
+	for( Int i = 0; i < MAX_SLOTS; ++i)
 	{
     if ( buttonMapStartPositions[i] == NULL )
       continue;
@@ -897,7 +900,7 @@ static void handlePlayerSelection(int index)
 	Int playerType, selIndex;
 	GadgetComboBoxGetSelectedPos(combo, &selIndex);
   UnicodeString title = GadgetComboBoxGetText(combo);
-	playerType = (Int)GadgetComboBoxGetItemData(combo, selIndex);
+	playerType = (intptr_t)GadgetComboBoxGetItemData(combo, selIndex);
 	GameInfo *myGame = TheSkirmishGameInfo;
 
 	if (myGame)
@@ -916,7 +919,7 @@ static void handleColorSelection(int index)
 	GameWindow *combo = comboBoxColor[index];
 	Int color, selIndex;
 	GadgetComboBoxGetSelectedPos(combo, &selIndex);
-	color = (Int)GadgetComboBoxGetItemData(combo, selIndex);
+	color = (intptr_t)GadgetComboBoxGetItemData(combo, selIndex);
 
 	GameInfo *myGame = TheSkirmishGameInfo;
 
@@ -956,7 +959,7 @@ static void handlePlayerTemplateSelection(int index)
 	GameWindow *combo = comboBoxPlayerTemplate[index];
 	Int playerTemplate, selIndex;
 	GadgetComboBoxGetSelectedPos(combo, &selIndex);
-	playerTemplate = (Int)GadgetComboBoxGetItemData(combo, selIndex);
+	playerTemplate = (intptr_t)GadgetComboBoxGetItemData(combo, selIndex);
 	GameInfo *myGame = TheSkirmishGameInfo;
 
 	if (myGame)
@@ -1009,7 +1012,7 @@ static void handleTeamSelection(int index)
 	GameWindow *combo = comboBoxTeam[index];
 	Int team, selIndex;
 	GadgetComboBoxGetSelectedPos(combo, &selIndex);
-	team = (Int)GadgetComboBoxGetItemData(combo, selIndex);
+	team = (intptr_t)GadgetComboBoxGetItemData(combo, selIndex);
 	GameInfo *myGame = TheSkirmishGameInfo;
 
 	if (myGame)
@@ -1035,7 +1038,7 @@ static void handleStartingCashSelection()
     GadgetComboBoxGetSelectedPos(comboBoxStartingCash, &selIndex);
 
     Money startingCash;
-    startingCash.deposit( (UnsignedInt)GadgetComboBoxGetItemData( comboBoxStartingCash, selIndex ), FALSE );
+    startingCash.deposit( (uintptr_t)GadgetComboBoxGetItemData( comboBoxStartingCash, selIndex ), FALSE );
     myGame->setStartingCash( startingCash );
   }
 }
@@ -1107,7 +1110,8 @@ void InitSkirmishGameGadgets( void )
 
 	windowMap->winSetTooltipFunc(MapSelectorTooltip);
 
-	for (Int i = 0; i < MAX_SLOTS; i++)
+	Int i;
+	for (i = 0; i < MAX_SLOTS; i++)
 	{
 		AsciiString tmpString;
 		tmpString.format("SkirmishGameOptionsMenu.wnd:ComboBoxPlayer%d", i);
@@ -1277,9 +1281,10 @@ void updateSkirmishGameOptions( void )
 
   GadgetCheckBoxSetChecked( checkBoxLimitSuperweapons, TheSkirmishGameInfo->getSuperweaponRestriction() != 0 );
   Int itemCount = GadgetComboBoxGetLength(comboBoxStartingCash);
-  for ( Int index = 0; index < itemCount; index++ )
+  Int index;
+  for ( index = 0; index < itemCount; index++ )
   {
-    Int value  = (Int)GadgetComboBoxGetItemData(comboBoxStartingCash, index);
+    Int value  = (intptr_t)GadgetComboBoxGetItemData(comboBoxStartingCash, index);
     if ( value == TheSkirmishGameInfo->getStartingCash().countMoney() )
     {
       GadgetComboBoxSetSelectedPos(comboBoxStartingCash, index, TRUE);
@@ -1803,25 +1808,25 @@ void populateSkirmishBattleHonors(void)
 	GameWindow *streakWindow = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY("SkirmishGameOptionsMenu.wnd:StaticTextStreakValue") );
 	if (streakWindow)
 	{
-		uStr.format(L"%d", stats.getWinStreak());
+		uStr.format(u"%d", stats.getWinStreak());
 		GadgetStaticTextSetText(streakWindow, uStr);
 	}
 	GameWindow *bestStreakWindow = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY("SkirmishGameOptionsMenu.wnd:StaticTextBestStreakValue") );
 	if (bestStreakWindow)
 	{
-		uStr.format(L"%d", stats.getBestWinStreak());
+		uStr.format(u"%d", stats.getBestWinStreak());
 		GadgetStaticTextSetText(bestStreakWindow, uStr);
 	}
 	GameWindow *winsWindow = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY("SkirmishGameOptionsMenu.wnd:StaticTextWinsValue") );
 	if (winsWindow)
 	{
-		uStr.format(L"%d", stats.getWins());
+		uStr.format(u"%d", stats.getWins());
 		GadgetStaticTextSetText(winsWindow, uStr);
 	}
 	GameWindow *lossesWindow = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY("SkirmishGameOptionsMenu.wnd:StaticTextLossesValue") );
 	if (lossesWindow)
 	{
-		uStr.format(L"%d", stats.getLosses());
+		uStr.format(u"%d", stats.getLosses());
 		GadgetStaticTextSetText(lossesWindow, uStr);
 	}
 
@@ -2019,7 +2024,7 @@ void populateSkirmishBattleHonors(void)
 
 	// TEST FOR STREAK HONOR
 	Int streak = stats.getBestWinStreak();
-	uStr.format(L"%10d", streak);
+	uStr.format(u"%10d", streak);
 	if (streak >= 1000)
 	{
 		InsertBattleHonor(list, TheMappedImageCollection->findImageByName("HonorStreak_1000"), TRUE,
@@ -2058,7 +2063,7 @@ void populateSkirmishBattleHonors(void)
 
 	// TEST FOR DOMINATION HONOR
 	Int totalWins = stats.getWins();
-	uStr.format(L"%10d", totalWins);
+	uStr.format(u"%10d", totalWins);
 	if (totalWins >= 10000)
 	{
 		InsertBattleHonor(list, TheMappedImageCollection->findImageByName("Domination_10000"), TRUE,

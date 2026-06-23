@@ -30,6 +30,7 @@
 #include "Common/Xfer.h"
 #include "GameClient/Drawable.h"
 #include "W3DDevice/GameClient/Module/W3DSupplyDraw.h"
+#include <limits.h>
 
 //-------------------------------------------------------------------------------------------------
 W3DSupplyDrawModuleData::W3DSupplyDrawModuleData() 

@@ -38,15 +38,13 @@
 #define DEFAULT_WORLD_HEIGHT	64
 
 /// A unique, generic "identifier" used to access Objects.
-enum ObjectID
-{
+enum ObjectID : int {
 	INVALID_ID = 0,
 	FORCE_OBJECTID_TO_LONG_SIZE = 0x7ffffff
 };
 
 /// A unique, generic "identifier" used to access Drawables.
-enum DrawableID
-{
+enum DrawableID : int {
 	INVALID_DRAWABLE_ID = 0,
 	FORCE_DRAWABLEID_TO_LONG_SIZE = 0x7ffffff
 };
@@ -65,8 +63,7 @@ class INI;
 //-------------------------------------------------------------------------------------------------
 /** The time of day enumeration, keep in sync with TimeOfDayNames[] */
 //-------------------------------------------------------------------------------------------------
-enum TimeOfDay
-{
+enum TimeOfDay : int {
 	TIME_OF_DAY_INVALID = 0,
 	TIME_OF_DAY_FIRST = 1,
 	TIME_OF_DAY_MORNING = TIME_OF_DAY_FIRST,
@@ -170,8 +167,7 @@ enum Scorches
 };
 
 //-------------------------------------------------------------------------------------------------
-enum WeaponSlotType
-{
+enum WeaponSlotType : int {
 	PRIMARY_WEAPON = 0,
 	SECONDARY_WEAPON,
 	TERTIARY_WEAPON,

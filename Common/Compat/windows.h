@@ -90,3 +90,9 @@ inline void SetCursor(void*)
 #ifndef FACILITY_ITF
 #define FACILITY_ITF 7
 #endif
+
+#ifndef _WIN32
+// Interlocked* shims for non-Windows builds (used for lock-free refcounting).
+inline long InterlockedIncrement(long volatile *addend) { return __sync_add_and_fetch(addend, 1); }
+inline long InterlockedDecrement(long volatile *addend) { return __sync_sub_and_fetch(addend, 1); }
+#endif

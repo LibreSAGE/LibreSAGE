@@ -22,6 +22,7 @@
 
 #include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
 #include <set>
+#include <filesystem>
 
 #include "Common/GameState.h"
 #include "Common/RandomValue.h"
@@ -53,7 +54,7 @@
 #endif
 
 GameSpyInfoInterface *TheGameSpyInfo = NULL;
-extern GameSpyStagingRoom *TheGameSpyGame = NULL;
+GameSpyStagingRoom *TheGameSpyGame = NULL;
 void deleteNotificationBox( void );
 
 bool AsciiComparator::operator()(AsciiString s1, AsciiString s2) const
@@ -334,7 +335,7 @@ void GameSpyInfo::addGroupRoom( GameSpyGroupRoom room )
 				GameSpyGroupRoom room = iter->second;
 				if (room.m_groupID != TheGameSpyConfig->getQMChannel())
 				{
-					room.m_translatedName.format(L"%ls %d", names[nameIndex].str(), timesThrough);
+					room.m_translatedName.format(u"%ls %d", names[nameIndex].str(), timesThrough);
 					nameIndex = (nameIndex+1)%names.size();
 					m_groupRooms[room.m_groupID] = room;
 					if (!nameIndex)
@@ -617,12 +618,9 @@ void SetUpGameSpy( const char *motdBuffer, const char *configBuffer )
 		configBuffer = "";
 	TearDownGameSpy();
 
-	AsciiString dir = TheGlobalData->getPath_UserData();
-	CreateDirectory(dir.str(), NULL);
-	dir.format("%sGeneralsOnline", TheGlobalData->getPath_UserData().str());
-	CreateDirectory(dir.str(), NULL);
+	AsciiString dir;
 	dir.format("%sGeneralsOnline\\Ladders", TheGlobalData->getPath_UserData().str());
-	CreateDirectory(dir.str(), NULL);
+	std::filesystem::create_directories(dir.str());
 
 	TheGameSpyBuddyMessageQueue = GameSpyBuddyMessageQueueInterface::createNewMessageQueue();
 	TheGameSpyBuddyMessageQueue->startThread();

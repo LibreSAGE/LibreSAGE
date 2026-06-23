@@ -77,11 +77,12 @@ GameSpyGameSlot::GameSpyGameSlot()
 /*
 ** Function definitions for the MIB-II entry points.
 */
-
+#ifdef _WIN32
 BOOL (__stdcall *SnmpExtensionInitPtr)(IN DWORD dwUpTimeReference, OUT HANDLE *phSubagentTrapEvent, OUT AsnObjectIdentifier *pFirstSupportedRegion);
 BOOL (__stdcall *SnmpExtensionQueryPtr)(IN BYTE bPduType, IN OUT RFC1157VarBindList *pVarBindList, OUT AsnInteger32 *pErrorStatus, OUT AsnInteger32 *pErrorIndex);
 LPVOID (__stdcall *SnmpUtilMemAllocPtr)(IN DWORD bytes);
 VOID (__stdcall *SnmpUtilMemFreePtr)(IN LPVOID pMem);
+#endif
 
 typedef struct tConnInfoStruct {
 	unsigned int State;
@@ -145,12 +146,9 @@ Bool GetLocalChatConnectionAddress(AsciiString serverName, UnsignedShort serverP
 	unsigned char serverAddress[4];
 	unsigned char remoteAddress[4];
 	HANDLE trap_handle;
-	AsnObjectIdentifier first_supported_region;
 	std::vector<ConnInfoStruct> connectionVector;
 	int last_field;
 	int index;
-	AsnInteger error_status;
-	AsnInteger error_index;
 	int conn_entry_type_index;
 	int conn_entry_type;
 	Bool found;
@@ -195,6 +193,11 @@ Bool GetLocalChatConnectionAddress(AsciiString serverName, UnsignedShort serverP
 	*((unsigned long*)(&serverAddress[0])) = temp;
 
 	DEBUG_LOG(("Host address is %d.%d.%d.%d\n", serverAddress[3], serverAddress[2], serverAddress[1], serverAddress[0]));
+
+#ifdef _WIN32
+	AsnObjectIdentifier first_supported_region;
+	AsnInteger error_status;
+	AsnInteger error_index;
 
 	/*
 	** Load the MIB-II SNMP DLL.
@@ -442,6 +445,9 @@ Bool GetLocalChatConnectionAddress(AsciiString serverName, UnsignedShort serverP
 	FreeLibrary(snmpapi_dll);
 	FreeLibrary(mib_ii_dll);
 	return(found);
+#else
+	return false;
+#endif
 }
 
 // GameSpyGameSlot ----------------------------------------

@@ -30,6 +30,13 @@
 #include "GameNetwork/NetworkDefs.h"
 #include "GameNetwork/NetworkInterface.h"
 
+
+// Forward declaration so callers don't have to pull in <SDL3_net/SDL_net.h>.
+typedef struct NET_Address NET_Address;
+
+NET_Address *IPToNetAddress(UnsignedInt ip);
+UnsignedInt NetAddressToIP(NET_Address *addr);
+
 UnsignedInt ResolveIP(AsciiString host);
 UnsignedShort GenerateNextCommandID();
 Bool DoesCommandRequireACommandID(NetCommandType type);

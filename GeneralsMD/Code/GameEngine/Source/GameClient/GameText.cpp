@@ -56,6 +56,7 @@
 #include "Common/File.h"
 #include "Common/FileSystem.h"
 
+#include <SDL3/SDL.h>
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -257,7 +258,7 @@ GameTextManager::GameTextManager()
 #endif
 	m_mapStringInfo(NULL),
 	m_mapStringLUT(NULL),
-	m_failed(L"***FATAL*** String Manager failed to initilaize properly")
+	m_failed(u"***FATAL*** String Manager failed to initilaize properly")
 {
 	// Added By Sadullah Nader
 	// Initializations missing and needed
@@ -327,6 +328,10 @@ void GameTextManager::init( void )
 		return;
 	}
 
+	Int extraCount = 0;
+	getStringCount( "Data\\Patch.str", extraCount );
+	m_textCount += extraCount;
+
 	//Allocate StringInfo Array
 
 	m_stringInfo = NEW StringInfo[m_textCount];
@@ -354,6 +359,24 @@ void GameTextManager::init( void )
 		}
 	}
 
+	StringInfo tempExtra[extraCount] = {};
+	StringInfo *pOriginal = m_stringInfo;
+	m_stringInfo = &tempExtra[0];
+	// Currently contains only two extra strings for Steam version
+	// If it fails, it's not that big of a deal
+	if ( parseStringFile( "Data\\Patch.str" ) )
+	{
+		for ( Int i = 0; i < extraCount; i++ )
+		{
+			if (tempExtra[i].label.isEmpty())
+			{
+				break;
+			}
+			pOriginal[m_textCount - extraCount + i] = tempExtra[i];
+		}
+	}
+	m_stringInfo = pOriginal;
+
 	m_stringLUT = NEW StringLookUp[m_textCount];
 
 	StringLookUp *lut = m_stringLUT;
@@ -370,14 +393,11 @@ void GameTextManager::init( void )
 	qsort( m_stringLUT, m_textCount, sizeof(StringLookUp), compareLUT  );
 
 	UnicodeString ourName = fetch("GUI:Command&ConquerGenerals");
-	AsciiString ourNameA;
-	ourNameA.translate(ourName);	//get ASCII version for Win 9x
-
-	extern HWND ApplicationHWnd;  ///< our application window handle
-	if (ApplicationHWnd) {
-		//Set it twice because Win 9x does not support SetWindowTextW.
-		::SetWindowText(ApplicationHWnd, ourNameA.str());
-		::SetWindowTextW(ApplicationHWnd, ourName.str());
+	extern SDL_Window* ApplicationWindow;  ///< our application window handle
+	if (ApplicationWindow) {
+		AsciiString ourNameA;
+		ourNameA.translate(ourName);
+		SDL_SetWindowTitle(ApplicationWindow, ourNameA.str());
 	}
 
 }
@@ -755,7 +775,7 @@ void GameTextManager::translateCopy( WideChar *outbuf, Char *inbuf )
 	}
 	else if( m_munkee )
 	{
-		wcscpy(outbuf, L"Munkee");
+		u_strcpy(outbuf, u"Munkee");
 		return;
 	}
 #endif
@@ -1298,7 +1318,7 @@ UnicodeString GameTextManager::fetch( const Char *label, Bool *exists )
 
 		// See if we already have the missing string
 		UnicodeString missingString;
-		missingString.format(L"MISSING: '%hs'", label);
+		missingString.format(u"MISSING: '%hs'", label);
 
 		NoString *noString = m_noStringList;
 

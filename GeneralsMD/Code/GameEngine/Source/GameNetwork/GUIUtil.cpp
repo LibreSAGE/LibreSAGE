@@ -195,9 +195,9 @@ void PopulateColorComboBox(Int comboBox, GameWindow *comboArray[], GameInfo *myG
 	for (Int i = 0; i < numColors; i++)
 		availableColors.push_back(true);
 
-	for (i = 0; i < MAX_SLOTS; i++)
+	for (Int i = 0; i < MAX_SLOTS; i++)
 	{
-		GameSlot *slot = myGame->getSlot(i);	
+		GameSlot *slot = myGame->getSlot(i);
 		if( slot && (i != comboBox) && (slot->getColor() >= 0 )&& (slot->getColor() < numColors))
 		{
 			DEBUG_ASSERTCRASH(slot->getColor() >= 0,("We've tried to access array %d and that ain't good",slot->getColor()));
@@ -338,11 +338,12 @@ void PopulateStartingCashComboBox(GameWindow *comboBox, GameInfo *myGame)
   const MultiplayerStartingMoneyList & startingCashMap = TheMultiplayerSettings->getStartingMoneyList(); 
   Int currentSelectionIndex = -1;
   
-  for ( MultiplayerStartingMoneyList::const_iterator it = startingCashMap.begin(); it != startingCashMap.end(); it++ )
+  MultiplayerStartingMoneyList::const_iterator it;
+  for ( it = startingCashMap.begin(); it != startingCashMap.end(); it++ )
   {
-    Int newIndex = GadgetComboBoxAddEntry(comboBox, formatMoneyForStartingCashComboBox( *it ), 
+    Int newIndex = GadgetComboBoxAddEntry(comboBox, formatMoneyForStartingCashComboBox( *it ),
                                           comboBox->winGetEnabled() ? comboBox->winGetEnabledTextColor() : comboBox->winGetDisabledTextColor());
-    GadgetComboBoxSetItemData(comboBox, newIndex, (void *)it->countMoney());
+    GadgetComboBoxSetItemData(comboBox, newIndex, (void *)(uintptr_t)it->countMoney());
 
     if ( myGame->getStartingCash().amountEqual( *it ) )
     {
@@ -353,9 +354,9 @@ void PopulateStartingCashComboBox(GameWindow *comboBox, GameInfo *myGame)
   if ( currentSelectionIndex == -1 )
   {
     DEBUG_CRASH( ("Current selection for starting cash not found in list") );
-    currentSelectionIndex = GadgetComboBoxAddEntry(comboBox, formatMoneyForStartingCashComboBox( myGame->getStartingCash() ), 
+    currentSelectionIndex = GadgetComboBoxAddEntry(comboBox, formatMoneyForStartingCashComboBox( myGame->getStartingCash() ),
                                           comboBox->winGetEnabled() ? comboBox->winGetEnabledTextColor() : comboBox->winGetDisabledTextColor());
-    GadgetComboBoxSetItemData(comboBox, currentSelectionIndex, (void *)it->countMoney() );
+    GadgetComboBoxSetItemData(comboBox, currentSelectionIndex, (void *)(uintptr_t)it->countMoney() );
   }
 
   GadgetComboBoxSetSelectedPos(comboBox, currentSelectionIndex);
@@ -476,7 +477,7 @@ void UpdateSlotList( GameInfo *myGame, GameWindow *comboPlayer[],
 				max = GadgetComboBoxGetLength(comboColor[i]);
 				for (idx=0; idx<max; ++idx)
 				{
-					Int color = (Int)GadgetComboBoxGetItemData(comboColor[i], idx);
+					Int color = (intptr_t)GadgetComboBoxGetItemData(comboColor[i], idx);
 					if (color == slot->getColor())
 					{
 						GadgetComboBoxSetSelectedPos(comboColor[i], idx, TRUE);
@@ -489,7 +490,7 @@ void UpdateSlotList( GameInfo *myGame, GameWindow *comboPlayer[],
 				max = GadgetComboBoxGetLength(comboTeam[i]);
 				for (idx=0; idx<max; ++idx)
 				{
-					Int team = (Int)GadgetComboBoxGetItemData(comboTeam[i], idx);
+					Int team = (intptr_t)GadgetComboBoxGetItemData(comboTeam[i], idx);
 					if (team == slot->getTeamNumber())
 					{
 						GadgetComboBoxSetSelectedPos(comboTeam[i], idx, TRUE);
@@ -502,7 +503,7 @@ void UpdateSlotList( GameInfo *myGame, GameWindow *comboPlayer[],
 				max = GadgetComboBoxGetLength(comboPlayerTemplate[i]);
 				for (idx=0; idx<max; ++idx)
 				{
-					Int playerTemplate = (Int)GadgetComboBoxGetItemData(comboPlayerTemplate[i], idx);
+					Int playerTemplate = (intptr_t)GadgetComboBoxGetItemData(comboPlayerTemplate[i], idx);
 					if (playerTemplate == slot->getPlayerTemplate())
 					{
 						GadgetComboBoxSetSelectedPos(comboPlayerTemplate[i], idx, TRUE);

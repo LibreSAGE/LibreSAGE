@@ -43,7 +43,7 @@
 #include "Common/FileSystem.h"
 #include "Common/GameAudio.h"
 #include "Common/INI.h"
-#include "Common/registry.h"
+#include "Common/Registry.h"
 #include "Common/UserPreferences.h"
 #include "Common/Version.h"
 
@@ -55,6 +55,7 @@
 #include "GameClient/TerrainVisual.h"
 
 #include "GameNetwork/FirewallHelper.h"
+#include <SDL3/SDL_filesystem.h>
 
 // PUBLIC DATA ////////////////////////////////////////////////////////////////////////////////////
 GlobalData* TheWritableGlobalData = NULL;				///< The global data singleton
@@ -1051,8 +1052,9 @@ GlobalData::GlobalData()
 
 	m_keyboardCameraRotateSpeed = 0.1f;
 
-  // Set user data directory based on registry settings instead of INI parameters. This allows us to 
+  // Set user data directory based on registry settings instead of INI parameters. This allows us to
   // localize the leaf name.
+#ifdef _WIN32
   char temp[_MAX_PATH + 1];
   if (::SHGetSpecialFolderPath(NULL, temp, CSIDL_PERSONAL, true))
   {
@@ -1062,7 +1064,7 @@ GlobalData::GlobalData()
       myDocumentsDirectory.concat( '\\' );
 
     AsciiString leafName;
-    
+
     if ( !GetStringFromRegistry( "", "UserDataLeafName", leafName ) )
     {
       // Use something, anything
@@ -1077,6 +1079,16 @@ GlobalData::GlobalData()
     CreateDirectory(myDocumentsDirectory.str(), NULL);
     m_userDataDir = myDocumentsDirectory;
   }
+#else
+  const char* userDataDir = SDL_GetUserFolder(SDL_FOLDER_HOME);
+  if (userDataDir != NULL)
+  {
+    AsciiString myDocumentsDirectory = userDataDir;
+    myDocumentsDirectory.concat( "Command and Conquer Generals Zero Hour Data" );
+    myDocumentsDirectory.concat( "/" );
+    m_userDataDir = myDocumentsDirectory;
+  }
+#endif
 	
 	//-allAdvice feature
 	//m_allAdvice = FALSE;

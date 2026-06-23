@@ -167,7 +167,7 @@ ObjectID CountermeasuresBehavior::calculateCountermeasureToDivertTo( const Objec
 	//Start at the end of the list and go towards the beginning.
 	CountermeasuresVec::iterator it = m_counterMeasures.end();
 	//end is actually the end so advance the iterator.
-	if( it )
+	if( !m_counterMeasures.empty() )
 	{
 		--it;
 		while( iteratorMax-- )

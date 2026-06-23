@@ -60,14 +60,13 @@ class WindowLayout;
 class Anim2DTemplate;
 class Anim2D;
 class Shadow;
-enum LegalBuildCode;
-enum KindOfType;
-enum ShadowType;
-enum CanAttackResult;
+enum LegalBuildCode : int;
+enum KindOfType : int;
+enum ShadowType : int;
+enum CanAttackResult : int;
 
 // ------------------------------------------------------------------------------------------------
-enum RadiusCursorType
-{
+enum RadiusCursorType : int {
 	RADIUSCURSOR_NONE = 0,
 	RADIUSCURSOR_ATTACK_DAMAGE_AREA,
 	RADIUSCURSOR_ATTACK_SCATTER_AREA,
@@ -647,7 +646,7 @@ protected:
 
 	struct MilitarySubtitleData
 	{
-		UnicodeString subtitle;										///< The complete subtitle to be drawn, each line is separated by L"\n"
+		UnicodeString subtitle;										///< The complete subtitle to be drawn, each line is separated by u"\n"
 		UnsignedInt index;												///< the current index that we are at through the sibtitle
 		ICoord2D position;												///< Where on the screen the subtitle should be drawn
 		DisplayString *displayStrings[MAX_SUBTITLE_LINES];	///< We'll only allow MAX_SUBTITLE_LINES worth of display strings

@@ -52,18 +52,19 @@
 #include "Common/CriticalSection.h"
 #endif
 #include "Common/Debug.h"
+#include "Common/Registry.h"
 #include "Common/SystemInfo.h"
 #include "Common/UnicodeString.h"
 #include "GameClient/GameText.h"
 #include "GameClient/Keyboard.h"
 #include "GameClient/Mouse.h"
-#if defined(DEBUG_STACKTRACE) || defined(IG_DEBUG_STACKTRACE)
-	#include "Common/StackDump.h"
-#endif
+#include "Common/StackDump.h"
+
+#include <SDL3/SDL.h>
 
 // Horrible reference, but we really, really need to know if we are windowed.
 extern bool DX8Wrapper_IsWindowed;
-extern HWND ApplicationHWnd;
+extern SDL_Window* ApplicationWindow;
 
 extern char *gAppPrefix; /// So WB can have a different log file name.
 
@@ -143,22 +144,15 @@ inline Bool ignoringAsserts()
 // ----------------------------------------------------------------------------
 inline HWND getThreadHWND()
 {
+#ifdef _WIN32
 	return (theMainThreadID == GetCurrentThreadId())?ApplicationHWnd:NULL;
+#else
+	return NULL;
+#endif
 }
 
 // ----------------------------------------------------------------------------
-
-int MessageBoxWrapper( LPCSTR lpText, LPCSTR lpCaption, UINT uType )
-{
-	HWND threadHWND = getThreadHWND();
-	if (!threadHWND)
-		return (uType & MB_ABORTRETRYIGNORE)?IDIGNORE:IDYES;
-
-	return ::MessageBox(threadHWND, lpText, lpCaption, uType);
-}
-
-// ----------------------------------------------------------------------------
-// getCurrentTimeString 
+// getCurrentTimeString
 /** 
 	Return the current time in string form
 */
@@ -243,30 +237,44 @@ static int doCrashBox(const char *buffer, Bool logResult)
 {
 	int result;
 
+	const SDL_MessageBoxButtonData buttons[] = {
+		{ /* .flags, .buttonid, .text */        0, 0, "Abort" },
+		{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Retry" },
+		{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "Ignore" },
+	};
+	const SDL_MessageBoxData messageboxdata = {
+		SDL_MESSAGEBOX_WARNING, /* .flags */
+		NULL, /* .window */
+		"Assertion Failure", /* .title */
+		buffer, /* .message */
+		SDL_arraysize(buttons), /* .numbuttons */
+		buttons, /* .buttons */
+		NULL /* .colorScheme */
+	};
+
 	if (!ignoringAsserts()) {
-		result = MessageBoxWrapper(buffer, "Assertion Failure", MB_ABORTRETRYIGNORE|MB_TASKMODAL|MB_ICONWARNING|MB_DEFBUTTON3);
-		//result = MessageBoxWrapper(buffer, "Assertion Failure", MB_ABORTRETRYIGNORE|MB_TASKMODAL|MB_ICONWARNING);
+		SDL_ShowMessageBox(&messageboxdata, &result);
 	}	else {
-		result = IDIGNORE;
+		result = 2;
 	}
 
 	switch(result)
 	{
-		case IDABORT:
+		case 0: // ABORT
 #ifdef DEBUG_LOGGING
 			if (logResult)
 				DebugLog("[Abort]\n");
 #endif
 			_exit(1);
 			break;
-		case IDRETRY:
+		case 1: // RETRY
 #ifdef DEBUG_LOGGING
 			if (logResult)
 				DebugLog("[Retry]\n");
 #endif
-			::DebugBreak();
+			__debugbreak();
 			break;
-		case IDIGNORE:
+		case 2: // IGNORE
 #ifdef DEBUG_LOGGING
 			// do nothing, just keep going
 			if (logResult)
@@ -333,9 +341,9 @@ void DebugInit(int flags)
 	if (theDebugFlags == 0) 
 	{
 		theDebugFlags = flags;
-
+	#ifdef _WINDOWS
 		theMainThreadID = GetCurrentThreadId();
-
+	#endif
 	#ifdef DEBUG_LOGGING
 
 		char dirbuf[ _MAX_PATH ];
@@ -388,7 +396,7 @@ void DebugLog(const char *format, ...)
 #endif
 
 	if (theDebugFlags == 0)
-		MessageBoxWrapper("DebugLog - Debug not inited properly", "", MB_OK|MB_TASKMODAL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "DebugLog - Debug not inited properly", "", ApplicationWindow);
 
 	format = prepBuffer(format, theBuffer);
 
@@ -398,7 +406,7 @@ void DebugLog(const char *format, ...)
   va_end(arg);
 
 	if (strlen(theBuffer) >= sizeof(theBuffer))
-		MessageBoxWrapper("String too long for debug buffer", "", MB_OK|MB_TASKMODAL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "String too long for debug buffer", "", ApplicationWindow);
 
 	whackFunnyCharacters(theBuffer);
 	doLogOutput(theBuffer);
@@ -425,11 +433,11 @@ void DebugCrash(const char *format, ...)
 	if (theDebugFlags == 0)
 	{
 		if (!DX8Wrapper_IsWindowed) {
-			if (ApplicationHWnd) {
-				ShowWindow(ApplicationHWnd, SW_HIDE);
+			if (ApplicationWindow) {
+				SDL_HideWindow(ApplicationWindow);
 			}
 		}
-		MessageBoxWrapper("DebugCrash - Debug not inited properly", "", MB_OK|MB_TASKMODAL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "", "DebugCrash - Debug not inited properly", ApplicationWindow);
 	}
 
 	format = prepBuffer(format, theCrashBuffer);
@@ -443,11 +451,11 @@ void DebugCrash(const char *format, ...)
 	if (strlen(theCrashBuffer) >= sizeof(theCrashBuffer))
 	{
 		if (!DX8Wrapper_IsWindowed) {
-			if (ApplicationHWnd) {
-				ShowWindow(ApplicationHWnd, SW_HIDE);
+			if (ApplicationWindow) {
+				SDL_HideWindow(ApplicationWindow);
 			}
 		}
-		MessageBoxWrapper("String too long for debug buffers", "", MB_OK|MB_TASKMODAL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "", "String too long for debug buffers", ApplicationWindow);
 	}
 
 #ifdef DEBUG_LOGGING
@@ -469,18 +477,30 @@ void DebugCrash(const char *format, ...)
 
 	int result = doCrashBox(theCrashBuffer, true);
 
-	if (result == IDIGNORE && TheCurrentIgnoreCrashPtr != NULL) 
+	// doCrashBox returns 2 for IGNORE
+	if (result == 2 && TheCurrentIgnoreCrashPtr != NULL)
 	{
-		int yn;
-		if (!ignoringAsserts()) 
+		bool ignoreFromNowOn = true;
+		if (!ignoringAsserts())
 		{
-			yn = MessageBoxWrapper("Ignore this crash from now on?", "", MB_YESNO|MB_TASKMODAL);
-		}	
-		else 
-		{
-			yn = IDYES;
+			const SDL_MessageBoxButtonData buttons[] = {
+				{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Yes" },
+				{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "No" },
+			};
+			const SDL_MessageBoxData messageboxdata = {
+				SDL_MESSAGEBOX_WARNING, /* .flags */
+				NULL, /* .window */
+				"", /* .title */
+				"Ignore this crash from now on?", /* .message */
+				SDL_arraysize(buttons), /* .numbuttons */
+				buttons, /* .buttons */
+				NULL /* .colorScheme */
+			};
+			int yn = 1;
+			SDL_ShowMessageBox(&messageboxdata, &yn);
+			ignoreFromNowOn = (yn == 1);
 		}
-		if (yn == IDYES)
+		if (ignoreFromNowOn)
 			*TheCurrentIgnoreCrashPtr = 1;
 		if( TheKeyboard )
 			TheKeyboard->resetKeys();
@@ -488,7 +508,7 @@ void DebugCrash(const char *format, ...)
 			TheMouse->reset();
 	}
 
-}  
+}
 #endif
 
 // ----------------------------------------------------------------------------
@@ -545,7 +565,9 @@ void DebugSetFlags(int flags)
 // ----------------------------------------------------------------------------
 SimpleProfiler::SimpleProfiler()
 {
+#ifdef _WINDOWS
 	QueryPerformanceFrequency((LARGE_INTEGER*)&m_freq);
+#endif
 	m_startThisSession = 0;
 	m_totalThisSession = 0;
 	m_totalAllSessions = 0;
@@ -556,7 +578,9 @@ SimpleProfiler::SimpleProfiler()
 void SimpleProfiler::start()
 {
 	DEBUG_ASSERTCRASH(m_startThisSession == 0, ("already started"));
+#ifdef _WINDOWS
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_startThisSession);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -564,8 +588,10 @@ void SimpleProfiler::stop()
 {
 	if (m_startThisSession != 0) 
 	{
-		__int64 stop;
+		int64_t stop;
+	#ifdef _WINDOWS
 		QueryPerformanceCounter((LARGE_INTEGER*)&stop);
+	#endif
 		m_totalThisSession = stop - m_startThisSession;
 		m_totalAllSessions += stop - m_startThisSession;
 		m_startThisSession = 0;
@@ -651,8 +677,8 @@ void ReleaseCrash(const char *reason)
 	/// do additional reporting on the crash, if possible
 
 	if (!DX8Wrapper_IsWindowed) {
-		if (ApplicationHWnd) {
-			ShowWindow(ApplicationHWnd, SW_HIDE);
+		if (ApplicationWindow) {
+			SDL_HideWindow(ApplicationWindow);
 		}
 	}
 //#if defined(_DEBUG) || defined(_INTERNAL)
@@ -696,30 +722,33 @@ void ReleaseCrash(const char *reason)
 	}
 
 	if (!DX8Wrapper_IsWindowed) {
-		if (ApplicationHWnd) {
-			ShowWindow(ApplicationHWnd, SW_HIDE);
+		if (ApplicationWindow) {
+			SDL_HideWindow(ApplicationWindow);
 		}
 	}
+
 #if defined(_DEBUG) || defined(_INTERNAL)
 	/* static */ char buff[8192]; // not so static so we can be threadsafe
 	_snprintf(buff, 8192, "Sorry, a serious error occurred. (%s)", reason);
 	buff[8191] = 0;
-	::MessageBox(NULL, buff, "Technical Difficulties...", MB_OK|MB_SYSTEMMODAL|MB_ICONERROR);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Technical Difficulties...", buff, ApplicationWindow);
 #else
 // crash error messaged changed 3/6/03 BGC
 //	::MessageBox(NULL, "Sorry, a serious error occurred.", "Technical Difficulties...", MB_OK|MB_TASKMODAL|MB_ICONERROR);
-//	::MessageBox(NULL, "You have encountered a serious error.  Serious errors can be caused by many things including viruses, overheated hardware and hardware that does not meet the minimum specifications for the game. Please visit the forums at www.generals.ea.com for suggested courses of action or consult your manual for Technical Support contact information.", "Technical Difficulties...", MB_OK|MB_TASKMODAL|MB_ICONERROR);
 
-// crash error message changed again 8/22/03 M Lorenzen... made this message box modal to the system so it will appear on top of any task-modal windows, splash-screen, etc.
-  ::MessageBox(NULL, "You have encountered a serious error.  Serious errors can be caused by many things including viruses, overheated hardware and hardware that does not meet the minimum specifications for the game. Please visit the forums at www.generals.ea.com for suggested courses of action or consult your manual for Technical Support contact information.", 
-   "Technical Difficulties...", 
-   MB_OK|MB_SYSTEMMODAL|MB_ICONERROR);
-
+	if (!GetRegistryLanguage().compareNoCase("german2") || !GetRegistryLanguage().compareNoCase("german") )
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fehler...", u8"Es ist ein gravierender Fehler aufgetreten. Solche Fehler können durch viele verschiedene Dinge wie Viren, Überhitzte Hardware und Hardware, die den Mindestanforderungen des Spiels nicht entspricht, ausgelöst werden. Tipps zur Vorgehensweise findest du in den Foren unter www.generals.ea.com, Informationen zum Technischen Kundendienst im Handbuch zum Spiel.", ApplicationWindow);
+	}
+	else
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Technical Difficulties...", "You have encountered a serious error.  Serious errors can be caused by many things including viruses, overheated hardware and hardware that does not meet the minimum specifications for the game. Please visit the forums at www.generals.ea.com for suggested courses of action or consult your manual for Technical Support contact information.", ApplicationWindow);
+	}
 
 #endif
 
 	_exit(1);
-}  
+}
 
 void ReleaseCrashLocalized(const AsciiString& p, const AsciiString& m)
 {
@@ -736,25 +765,27 @@ void ReleaseCrashLocalized(const AsciiString& p, const AsciiString& m)
 	/// do additional reporting on the crash, if possible
 
 	if (!DX8Wrapper_IsWindowed) {
-		if (ApplicationHWnd) {
-			ShowWindow(ApplicationHWnd, SW_HIDE);
+		if (ApplicationWindow) {
+			SDL_HideWindow(ApplicationWindow);
 		}
 	}
 
-	if (TheSystemIsUnicode) 
+	// if (TheSystemIsUnicode)
+	// {
+	// 	::MessageBoxW(NULL, mesg.str(), prompt.str(), MB_OK|MB_SYSTEMMODAL|MB_ICONERROR);
+	// }
+	// else
 	{
-		::MessageBoxW(NULL, mesg.str(), prompt.str(), MB_OK|MB_SYSTEMMODAL|MB_ICONERROR);
-	} 
-	else 
-	{
-		// However, if we're using the default version of the message box, we need to 
+		// However, if we're using the default version of the message box, we need to
 		// translate the string into an AsciiString
 		AsciiString promptA, mesgA;
 		promptA.translate(prompt);
 		mesgA.translate(mesg);
 		//Make sure main window is not TOP_MOST
-		::SetWindowPos(ApplicationHWnd, HWND_NOTOPMOST, 0, 0, 0, 0,SWP_NOSIZE |SWP_NOMOVE);
-		::MessageBoxA(NULL, mesgA.str(), promptA.str(), MB_OK|MB_TASKMODAL|MB_ICONERROR);
+		SDL_HideWindow(ApplicationWindow);
+		// ::SetWindowPos(ApplicationHWnd, HWND_NOTOPMOST, 0, 0, 0, 0,SWP_NOSIZE |SWP_NOMOVE);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, promptA.str(), mesgA.str(), ApplicationWindow);
+		// ::MessageBoxA(NULL, mesgA.str(), promptA.str(), MB_OK|MB_TASKMODAL|MB_ICONERROR);
 	}
 
 	char prevbuf[ _MAX_PATH ];

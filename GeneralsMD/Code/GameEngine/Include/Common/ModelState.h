@@ -34,7 +34,6 @@
 #include "Lib/BaseType.h"
 #include "Common/INI.h"
 #include "Common/BitFlags.h"
-#include "Common/BitFlagsIO.h"
 
 //-------------------------------------------------------------------------------------------------
 
@@ -90,8 +89,7 @@
 // IMPORTANT NOTE: you should endeavor to set up states such that the most "normal"
 // state is defined by the bit being off. That is, the typical "normal" condition
 // has all condition flags set to zero.
-enum ModelConditionFlagType
-{
+enum ModelConditionFlagType : int {
 	MODELCONDITION_INVALID = -1,
 
 	MODELCONDITION_FIRST = 0,

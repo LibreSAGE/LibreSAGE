@@ -37,7 +37,7 @@
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
 #include "GameNetwork/NetworkInterface.h"
-#include "GameNetwork/Udp.h"
+#include "GameNetwork/udp.h"
 #include "GameNetwork/Transport.h"
 #include "strtok_r.h"
 #include "GameClient/Shell.h"
@@ -206,9 +206,9 @@ protected:
 	Int m_lastExecutionFrame;																	///< The highest frame number that a command could have been executed on.
 	Int m_lastFrameCompleted;
 	Bool m_didSelfSlug;
-	__int64 m_perfCountFreq;														///< The frequency of the performance counter.
+	int64_t m_perfCountFreq;														///< The frequency of the performance counter.
 
-	__int64 m_nextFrameTime;														///< When did we execute the last frame?  For slugging the GameLogic...
+	int64_t m_nextFrameTime;														///< When did we execute the last frame?  For slugging the GameLogic...
 
 	Bool m_frameDataReady;																		///< Is the frame data for the next frame ready to be executed by TheGameLogic?
 
@@ -342,7 +342,14 @@ void Network::init()
 
 	m_localStatus = NETLOCALSTATUS_PREGAME;
 
+#ifdef _WIN32
 	QueryPerformanceFrequency((LARGE_INTEGER *)&m_perfCountFreq);
+#else
+	// No QueryPerformanceCounter on non-Windows; timeForNewFrame() falls back to
+	// timeGetTime() (milliseconds), so the performance-counter "frequency" is
+	// 1000 ticks/second. Without initializing this, m_perfCountFreq was garbage.
+	m_perfCountFreq = 1000;
+#endif
 	m_nextFrameTime = 0;
 	m_sawCRCMismatch = FALSE;
 	m_checkCRCsThisFrame = FALSE;
@@ -758,9 +765,16 @@ void Network::endOfGameCheck() {
 }
 
 Bool Network::timeForNewFrame() {
-	__int64 curTime;
+	int64_t curTime;
+#ifdef _WIN32
 	QueryPerformanceCounter((LARGE_INTEGER *)&curTime);
-	__int64 frameDelay = m_perfCountFreq / m_frameRate;
+#else
+	// Match the millisecond clock used to set m_perfCountFreq above. Previously
+	// curTime was left uninitialized on non-Windows, so this comparison was random
+	// and the network frame pacer never advanced the sim past frame 1.
+	curTime = (int64_t)timeGetTime();
+#endif
+	int64_t frameDelay = m_perfCountFreq / m_frameRate;
 
 	/*
 	 * If we're pushing up against the edge of our run ahead, we should slow the framerate down a bit

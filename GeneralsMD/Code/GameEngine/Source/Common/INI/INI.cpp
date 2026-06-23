@@ -321,22 +321,23 @@ static INIBlockParse findBlockParse(const char* token)
 }
 
 //-------------------------------------------------------------------------------------------------
-static INIFieldParseProc findFieldParse(const FieldParse* parseTable, const char* token, int& offset, const void*& userData)
+static INIFieldParseProc findFieldParse(const FieldParse* parseTable, const char* token, int& offset, void*& userData)
 {
-	for (const FieldParse* parse = parseTable; parse->token; ++parse)
+	const FieldParse* parse;
+	for (parse = parseTable; parse->token; ++parse)
 	{
 		if (strcmp( parse->token, token ) == 0)
 		{
 			offset = parse->offset;
-			userData = parse->userData;
+			userData = (void*)parse->userData;
 			return parse->parse;
 		}
 	}
 
-	if (!parse->token && parse->parse) 
+	if (!parse->token && parse->parse)
 	{
 		offset = parse->offset;
-		userData = token;
+		userData = (void*)token;
 		return parse->parse;
 	}
 	else
@@ -621,7 +622,7 @@ void INI::parseBool( INI* ini, void * /*instance*/, void *store, const void* /*u
 void INI::parseBitInInt32( INI *ini, void *instance, void *store, const void* userData )
 {
 	UnsignedInt* s = (UnsignedInt*)store;
-	UnsignedInt mask = (UnsignedInt)userData;
+	UnsignedInt mask = (UnsignedInt)(uintptr_t)userData;
 
 	if (INI::scanBool(ini->getNextToken()))
 		*s |= mask;

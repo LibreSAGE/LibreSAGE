@@ -59,8 +59,8 @@ class HackInternetAIInterface;
 class AssaultTransportAIInterface;
 class JetAIUpdate;
 
-enum AIStateType;
-enum ObjectID;
+enum AIStateType : int;
+enum ObjectID : int;
 
 
 //-------------------------------------------------------------------------------------------------
@@ -71,8 +71,7 @@ const Real FAST_AS_POSSIBLE = 999999.0f;
 // Note: these values are saved in save files, so you MUST NOT REMOVE OR CHANGE
 // existing values!
 //
-enum LocomotorSetType
-{
+enum LocomotorSetType : int {
 	LOCOMOTORSET_INVALID = -1,
 
 	LOCOMOTORSET_NORMAL = 0,

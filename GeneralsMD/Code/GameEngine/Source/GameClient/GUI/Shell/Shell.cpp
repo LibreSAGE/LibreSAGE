@@ -42,7 +42,9 @@
 #include "GameNetwork/GameSpyOverlay.h"
 #include "GameNetwork/GameSpy/PeerDefsImplementation.h"
 
+#ifdef _PROFILE
 #include <rts/profile.h>
+#endif
 
 // PUBLIC DATA ////////////////////////////////////////////////////////////////////////////////////
 Shell *TheShell = NULL;  ///< the shell singleton definition

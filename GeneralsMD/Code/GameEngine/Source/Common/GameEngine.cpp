@@ -169,7 +169,9 @@ void initSubsystem(SUBSYSTEM*& sysref, AsciiString name, SUBSYSTEM* sys, Xfer *p
 
 //-------------------------------------------------------------------------------------------------
 extern HINSTANCE ApplicationHInstance;  ///< our application instance
+#ifdef _WINDOWS
 extern CComModule _Module;
+#endif
 
 //-------------------------------------------------------------------------------------------------
 static void updateTGAtoDDS();
@@ -190,7 +192,9 @@ GameEngine::GameEngine( void )
 	m_quitting = FALSE;
 	m_isActive = FALSE;
 
+#ifdef _WINDOWS
 	_Module.Init(NULL, ApplicationHInstance);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -228,7 +232,9 @@ GameEngine::~GameEngine()
 
 	Drawable::killStaticImages();
 
+#ifdef _WINDOWS
 	_Module.Term();
+#endif
 
 #ifdef PERF_TIMERS
 	PerfGather::termPerfDump();
@@ -285,8 +291,8 @@ void GameEngine::init( int argc, char *argv[] )
 
 
 	#ifdef DUMP_PERF_STATS////////////////////////////////////////////////////////////
-	__int64 startTime64;//////////////////////////////////////////////////////////////
-	__int64 endTime64,freq64;///////////////////////////////////////////////////////////
+	Int64 startTime64;//////////////////////////////////////////////////////////////
+	Int64 endTime64,freq64;///////////////////////////////////////////////////////////
 	GetPrecisionTimerTicksPerSec(&freq64);///////////////////////////////////////////////
 	GetPrecisionTimer(&startTime64);////////////////////////////////////////////////////
   char Buf[256];//////////////////////////////////////////////////////////////////////
@@ -308,7 +314,11 @@ void GameEngine::init( int argc, char *argv[] )
 		//I was unable to resolve the RTPatch method of deleting a shipped file. English, Chinese, and Korean
 		//SKU's shipped with two INIZH.big files. One properly in the Run directory and the other in Run\INI\Data.
 		//We need to toast the latter in order for the game to patch properly.
+#ifdef _WIN32
 		DeleteFile( "Data\\INI\\INIZH.big" );
+#else
+		remove( "Data/INI/INIZH.big" );
+#endif
 
 		// not part of the subsystem list, because it should normally never be reset!
 		TheNameKeyGenerator = MSGNEW("GameEngineSubsystem") NameKeyGenerator;
@@ -379,6 +389,11 @@ void GameEngine::init( int argc, char *argv[] )
 		
 		// special-case: parse command-line parameters after loading global data
 		parseCommandLine(argc, argv);
+		// Load any extra BIG directories specified on the command line
+		for (const auto& bigDir : TheWritableGlobalData->m_bigDirs)
+		{
+			TheArchiveFileSystem->loadBigFilesFromDirectory(bigDir, "*.big");
+		}
 
 		// doesn't require resets so just create a single instance here.
 		TheGameLODManager = MSGNEW("GameEngineSubsystem") GameLODManager;
@@ -1006,4 +1021,4 @@ void updateTGAtoDDS()
 // If we're using the Wide character version of MessageBox, then there's no additional
 // processing necessary. Please note that this is a sleazy way to get this information,
 // but pending a better one, this'll have to do.
-extern const Bool TheSystemIsUnicode = (((void*) (::MessageBox)) == ((void*) (::MessageBoxW)));
+extern const Bool TheSystemIsUnicode = FALSE;

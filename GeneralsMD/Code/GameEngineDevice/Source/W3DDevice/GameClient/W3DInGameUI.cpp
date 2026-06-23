@@ -47,8 +47,8 @@
 #include "W3DDevice/GameClient/W3DDisplay.h"
 #include "W3DDevice/GameClient/W3DScene.h"
 #include "W3DDevice/Common/W3DConvert.h"
-#include "WW3D2/WW3D.h"
-#include "WW3D2/HAnim.h"
+#include "WW3D2/ww3d.h"
+#include "WW3D2/hanim.h"
 
 #include "Common/UnitTimings.h" //Contains the DO_UNIT_TIMINGS define jba.		 
 
@@ -61,9 +61,9 @@
 
 #ifdef _DEBUG
 #include "W3DDevice/GameClient/HeightMap.h"
-#include "WW3D2/DX8IndexBuffer.h"
-#include "WW3D2/DX8VertexBuffer.h"
-#include "WW3D2/VertMaterial.h"
+#include "WW3D2/dx8indexbuffer.h"
+#include "WW3D2/dx8vertexbuffer.h"
+#include "WW3D2/vertmaterial.h"
 class DebugHintObject : public RenderObjClass
 {	
 
@@ -194,7 +194,7 @@ void DebugHintObject::initData(void)
 	m_vertexMaterialClass = VertexMaterialClass::Get_Preset(VertexMaterialClass::PRELIT_DIFFUSE);
 
 	//use a multi-texture shader: (text1*diffuse)*text2.
-	m_shaderClass = ShaderClass::ShaderClass(SC_ALPHA);
+	m_shaderClass = ShaderClass(SC_ALPHA);
 }
 
 void DebugHintObject::setLocAndColorAndSize(const Coord3D *loc, Int argb, Int size)
@@ -329,7 +329,7 @@ static void loadText( char *filename, GameWindow *listboxText )
 		line.translate(buffer);
 		line.trim();
 		if (line.isEmpty())
-			line = UnicodeString(L" ");
+			line = UnicodeString(u" ");
 		GadgetListBoxAddEntryText(listboxText, line, color, -1, -1);
 	}  // end while
 

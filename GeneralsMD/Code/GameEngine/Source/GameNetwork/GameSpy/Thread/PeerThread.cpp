@@ -249,7 +249,7 @@ public:
 	UnsignedInt exeCRC( void ) { return m_exeCRC; }
 	UnsignedInt iniCRC( void ) { return m_iniCRC; }
 	UnsignedInt gameVersion( void ) { return m_gameVersion; }
-	std::wstring getLocalStagingServerName( void ) { return m_localStagingServerName; }
+	std::u16string getLocalStagingServerName( void ) { return m_localStagingServerName; }
 	Int getLocalRoomID( void ) { return m_localRoomID; }
 	std::string ladderIP( void ) { return m_ladderIP; }
 	UnsignedShort ladderPort( void ) { return m_ladderPort; }
@@ -331,7 +331,7 @@ private:
 
 	Int m_nextStagingServer;
 	std::map<Int, SBServer> m_stagingServers;
-	std::wstring m_localStagingServerName;
+	std::u16string m_localStagingServerName;
 	Int m_localRoomID;
 
 	void doQuickMatch( PEER peer );
@@ -513,7 +513,7 @@ Int PeerThreadClass::findServer( SBServer server )
 	return addServerToMap(server);
 }
 
-static enum CallbackType
+enum CallbackType
 {
 	CALLBACK_CONNECT,
 	CALLBACK_ERROR,
@@ -523,7 +523,7 @@ static enum CallbackType
 	CALLBACK_MAX
 };
 
-void connectCallbackWrapper( PEER peer, PEERBool success, void *param )
+void connectCallbackWrapper( PEER peer, PEERBool success, int failureReason, void *param )
 {
 #ifdef SERVER_DEBUGGING
 	DEBUG_LOG(("In connectCallbackWrapper()\n"));
@@ -535,7 +535,7 @@ void connectCallbackWrapper( PEER peer, PEERBool success, void *param )
 	}
 }
 
-void nickErrorCallbackWrapper( PEER peer, Int type, const char *nick, void *param )
+void nickErrorCallbackWrapper( PEER peer, Int type, const char *nick, int numSuggestedNicks, const gsi_char** suggestedNicks, void *param )
 {
 	if (param != NULL)
 	{
@@ -662,7 +662,7 @@ static void playerFlagsChangedCallback(PEER peer, RoomType roomType, const char 
 static void listingGamesCallback(PEER peer, PEERBool success, const char * name, SBServer server, PEERBool staging, int msg, Int percentListed, void * param);
 static void roomUTMCallback(PEER peer, RoomType roomType, const char * nick, const char * command, const char * parameters, PEERBool authenticated, void * param);
 static void playerUTMCallback(PEER peer, const char * nick, const char * command, const char * parameters, PEERBool authenticated, void * param);
-static void gameStartedCallback(PEER peer, UnsignedInt IP, const char *message, void *param);
+static void gameStartedCallback(PEER peer, SBServer server, const char *message, void *param);
 static void globalKeyChangedCallback(PEER peer, const char *nick, const char *key, const char *val, void *param);
 static void roomKeyChangedCallback(PEER peer, RoomType roomType, const char *nick, const char *key, const char *val, void *param);
 
@@ -1140,7 +1140,7 @@ void checkQR2Queries( PEER peer, SOCKET sock )
 {
 	static char indata[INBUF_LEN];
 	struct sockaddr_in saddr;
-	int saddrlen = sizeof(struct sockaddr_in);
+	socklen_t saddrlen = sizeof(struct sockaddr_in);
 	fd_set set;
 	struct timeval timeout = {0,0};
 	int error;
@@ -1151,11 +1151,11 @@ void checkQR2Queries( PEER peer, SOCKET sock )
 	while (1)
 	{
 		error = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
-		if (SOCKET_ERROR == error || 0 == error)
+		if ( error <= 0)
 			return;
 		//else we have data
 		error = recvfrom(sock, indata, INBUF_LEN - 1, 0, (struct sockaddr *)&saddr, &saddrlen);
-		if (error != SOCKET_ERROR)
+		if (error != -1)
 		{
 			indata[error] = '\0';
 			peerParseQuery( peer, indata, error, (sockaddr *)&saddr );
@@ -1168,8 +1168,9 @@ static UnsignedInt localIP = 0;
 void PeerThreadClass::Thread_Function()
 {
 	try {
+#ifdef _WIN32
 	_set_se_translator( DumpExceptionInfo ); // Hook that allows stack trace.
-
+#endif
 	PEER peer;
 
 	// Setup the callbacks.
@@ -1268,7 +1269,7 @@ void PeerThreadClass::Thread_Function()
 	peerSetRoomWatchKeys(peer, GroupRoom, 1, &key, PEERTrue);
 
 	m_localRoomID = 0;
-	m_localStagingServerName = L"";
+	m_localStagingServerName = u"";
 
 	m_qmStatus = QM_IDLE;
 
@@ -1630,7 +1631,7 @@ void PeerThreadClass::Thread_Function()
 							peerJoinGroupRoom( peer, oldGroupID, joinRoomCallback, (void *)this, PEERTrue );
 						}
 						m_isHosting = FALSE;
-						m_localStagingServerName = L"";
+						m_localStagingServerName = u"";
 						m_playerNames[0] = "";
 					}
 					else
@@ -1842,7 +1843,7 @@ void PeerThreadClass::handleQMMatch(PEER peer, Int mapIndex, Int seed,
 		PeerResponse resp;
 		resp.peerResponseType = PeerResponse::PEERRESPONSE_QUICKMATCHSTATUS;
 		resp.qmStatus.status = QM_MATCHED;
-		for (i=0; i<MAX_SLOTS; ++i)
+		for (Int i=0; i<MAX_SLOTS; ++i)
 		{
 			if (playerName[i])
 			{
@@ -2421,7 +2422,7 @@ void roomMessageCallback(PEER peer, RoomType roomType, const char * nick, const 
 	}
 }
 
-void gameStartedCallback( PEER peer, UnsignedInt IP, const char *message, void *param )
+void gameStartedCallback( PEER peer, SBServer server, const char *message, void *param )
 {
 	PeerResponse resp;
 	resp.peerResponseType = PeerResponse::PEERRESPONSE_GAMESTART;

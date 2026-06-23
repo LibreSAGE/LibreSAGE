@@ -827,7 +827,7 @@ Bool SpecialAbilityUpdate::isWithinStartAbilityRange() const
   //stopping.
   Real range = data->m_startAbilityRange;
   const Real UNDERSIZE = PATHFIND_CELL_SIZE_F * 0.25f;
-  range = __max( 0.0f, range - UNDERSIZE );
+  range = max( 0.0f, range - UNDERSIZE );
 
   if( m_withinStartAbilityRange )
   {
@@ -907,7 +907,7 @@ Bool SpecialAbilityUpdate::isWithinAbilityAbortRange() const
   //stopping.
   Real range = data->m_startAbilityRange;
   const Real UNDERSIZE = PATHFIND_CELL_SIZE_F * 0.25f;
-  range = __max( 0.0f, range - UNDERSIZE );
+  range = max( 0.0f, range - UNDERSIZE );
 
   Real fDistSquared = 0.0f;
   Object *target = NULL;

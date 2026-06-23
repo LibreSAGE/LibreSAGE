@@ -46,8 +46,7 @@ class AsciiString;
 // ------------------------------------------------------------------------------------------------
 /** Bridges have 4 towers around it that the player can attack or use to repair the bridge */
 // ------------------------------------------------------------------------------------------------
-enum BridgeTowerType
-{
+enum BridgeTowerType : int {
 	BRIDGE_TOWER_FROM_LEFT = 0,
 	BRIDGE_TOWER_FROM_RIGHT,
 	BRIDGE_TOWER_TO_LEFT,

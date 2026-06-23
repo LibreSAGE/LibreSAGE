@@ -47,8 +47,10 @@
 
 #include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
 
-#include "Windows.h"
+#include "windows.h"
+#ifdef _WIN32
 #include "mbstring.h"
+#endif
 
 #include "Common/Debug.h"
 #include "Common/Language.h"
@@ -68,8 +70,10 @@
 //#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
 #endif
 
+#ifdef _WINDOWS
+
 //----------------------------------------------------------------------------
-//         Externals                                                     
+//         Externals
 //----------------------------------------------------------------------------
 
 extern HWND ApplicationHWnd;  ///< our application window handle
@@ -318,11 +322,15 @@ IMEManager::MessageInfo IMEManager::m_setSmodeInfo[] =
 
 #endif
 
+#endif // _WINDOWS
+
 //----------------------------------------------------------------------------
-//         Public Data                                                      
+//         Public Data
 //----------------------------------------------------------------------------
 
 IMEManagerInterface *TheIMEManager = NULL;
+
+#ifdef _WINDOWS
 
 
 //----------------------------------------------------------------------------
@@ -1612,4 +1620,6 @@ void IMEManager::updateStatusWindow( void )
 {
 
 }
+
+#endif // _WINDOWS
 

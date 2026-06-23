@@ -166,7 +166,7 @@ W3DAssetManager::~W3DAssetManager(void)
 }
 
 #ifdef DUMP_PERF_STATS
-__int64 Total_Get_Texture_Time=0;
+Int64 Total_Get_Texture_Time=0;
 #endif
 
 TextureClass *	W3DAssetManager::Get_Texture
@@ -204,7 +204,7 @@ TextureClass *W3DAssetManager::Get_Texture(
 )
 {
 	#ifdef DUMP_PERF_STATS
-	__int64 startTime64,endTime64;
+	Int64 startTime64,endTime64;
 	GetPrecisionTimer(&startTime64);
 	#endif
 
@@ -449,7 +449,7 @@ static void remapTexture16Bit(Int dx, Int dy, Int pitch, SurfaceClass::SurfaceDe
 		Convert_Pixel((unsigned char *)&pal[y],*sd,rgb);
 	}
 
-	for (y=0; y<dy; y++)
+	for (Int y=0; y<dy; y++)
 	{	for (Int x=0; x<dx; x++)
 		{	//check if this pixel is part of team color palette
 			for (Int p=0; p<TEAM_COLOR_PALETTE_SIZE; p++)
@@ -552,7 +552,7 @@ static void remapTexture32Bit(Int dx, Int dy, Int pitch, SurfaceClass::SurfaceDe
 		Convert_Pixel((unsigned char *)&pal[y],*sd,rgb);
 	}
 
-	for (y=0; y<dy; y++)
+	for (Int y=0; y<dy; y++)
 	{	for (Int x=0; x<dx; x++)
 		{	//check if this pixel is part of team color palette
 			for (Int p=0; p<TEAM_COLOR_PALETTE_SIZE; p++)
@@ -710,7 +710,7 @@ TextureClass * W3DAssetManager::Recolor_Texture_One_Time(TextureClass *texture, 
 }
 
 #ifdef DUMP_PERF_STATS
-__int64 Total_Create_Render_Obj_Time=0;
+Int64 Total_Create_Render_Obj_Time=0;
 #endif
 //---------------------------------------------------------------------
 /** Generals specific code to generate customized render objects for each team color
@@ -725,7 +725,7 @@ RenderObjClass * W3DAssetManager::Create_Render_Obj(
 )
 {
 	#ifdef DUMP_PERF_STATS
-	__int64 startTime64,endTime64;
+	Int64 startTime64,endTime64;
 	GetPrecisionTimer(&startTime64);
 	#endif
 
@@ -796,10 +796,10 @@ RenderObjClass * W3DAssetManager::Create_Render_Obj(
 	{	
 		// If we didn't find one, try to load on demand
 		char filename [MAX_PATH];
-		char *mesh_name = ::strchr (name, '.');
-		if (mesh_name != NULL) 
+		const char *mesh_name = ::strchr (name, '.');
+		if (mesh_name != NULL)
 		{
-			::lstrcpyn(filename, name, ((int)mesh_name) - ((int)name) + 1);
+			::lstrcpyn(filename, name, ((intptr_t)mesh_name) - ((intptr_t)name) + 1);
 #ifdef	INCLUDE_GRANNY_IN_BUILD
 			if (isGranny)
 				::lstrcat(filename, ".gr2");
@@ -1004,8 +1004,8 @@ void W3DAssetManager::Recolor_Vertex_Material(VertexMaterialClass *vmat, const i
 }
 
 #ifdef DUMP_PERF_STATS
-__int64 Total_Load_3D_Assets=0;
-static Load_3D_Asset_Recursions=0;
+Int64 Total_Load_3D_Assets=0;
+static Int Load_3D_Asset_Recursions=0;
 #endif
 //---------------------------------------------------------------------
 bool W3DAssetManager::Load_3D_Assets( const char * filename )
@@ -1013,7 +1013,7 @@ bool W3DAssetManager::Load_3D_Assets( const char * filename )
 #ifdef DUMP_PERF_STATS
 		Load_3D_Asset_Recursions++;
 
-		__int64 startTime64,endTime64;
+		Int64 startTime64,endTime64;
 		GetPrecisionTimer(&startTime64);
 #endif
 
@@ -1106,8 +1106,8 @@ bool W3DAssetManager::Load_3D_Assets( const char * filename )
 }
 
 #ifdef DUMP_PERF_STATS
-__int64 Total_Get_HAnim_Time=0;
-static HAnim_Recursions=0;
+Int64 Total_Get_HAnim_Time=0;
+static Int HAnim_Recursions=0;
 #endif
 //---------------------------------------------------------------------
 HAnimClass *	W3DAssetManager::Get_HAnim(const char * name)
@@ -1115,7 +1115,7 @@ HAnimClass *	W3DAssetManager::Get_HAnim(const char * name)
 #ifdef DUMP_PERF_STATS
 	HAnim_Recursions++;
 
-	__int64 startTime64,endTime64;
+	Int64 startTime64,endTime64;
 	GetPrecisionTimer(&startTime64);
 #endif
 	WWPROFILE( "WW3DAssetManager::Get_HAnim" );

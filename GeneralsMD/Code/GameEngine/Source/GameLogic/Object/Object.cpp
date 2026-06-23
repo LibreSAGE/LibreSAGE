@@ -152,7 +152,7 @@ extern void addIcon(const Coord3D *pos, Real width, Int numFramesDuration, RGBCo
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
-#ifdef DEBUG_LOGGING
+#if 1//def DEBUG_LOGGING
 AsciiString DescribeObject(const Object *obj)
 {
 	if (!obj)
@@ -162,17 +162,17 @@ AsciiString DescribeObject(const Object *obj)
 
 	if (obj->getName().isNotEmpty())
 	{
-		ret.format("Object %d (%s) [%s, owned by player %d (%ls)]",
+		ret.format("Object %d (%s) [%s, owned by player %d (%s)]",
 			obj->getID(), obj->getName().str(), obj->getTemplate()->getName().str(),
 			obj->getControllingPlayer()->getPlayerIndex(),
-			obj->getControllingPlayer()->getPlayerDisplayName().str());
+			obj->getControllingPlayer()->getPlayerDisplayName().toUTF8String().str());
 	}
 	else
 	{
-		ret.format("Object %d [%s, owned by player %d (%ls)]",
+		ret.format("Object %d [%s, owned by player %d (%s)]",
 			obj->getID(), obj->getTemplate()->getName().str(),
 			obj->getControllingPlayer()->getPlayerIndex(),
-			obj->getControllingPlayer()->getPlayerDisplayName().str());
+			obj->getControllingPlayer()->getPlayerDisplayName().toUTF8String().str());
 	}
 
 	return ret;
@@ -1764,7 +1764,7 @@ void Object::reactToTurretChange( WhichTurretType turret, Real oldRotation, Real
 void Object::reactToTransformChange(const Matrix3D* oldMtx, const Coord3D* oldPos, Real oldAngle)
 {
 	//USE_PERF_TIMER(Object_reactToTransformChange)
-	if(_isnan(getPosition()->x) || _isnan(getPosition()->y) || _isnan(getPosition()->z)) {
+	if(isnan(getPosition()->x) || isnan(getPosition()->y) || isnan(getPosition()->z)) {
 		DEBUG_CRASH(("Object pos is nan."));
 		TheGameLogic->destroyObject(this);
 	}

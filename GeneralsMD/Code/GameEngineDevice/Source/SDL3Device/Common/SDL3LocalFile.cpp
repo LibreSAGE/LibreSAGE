@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals Zero Hour(tm)
+**	Command & Conquer Generals(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -16,22 +16,8 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/////////////////////////////////////////////////////////////////////////EA-V1
-// $File: //depot/GeneralsMD/Staging/code/Libraries/Include/rts/debug.h $
-// $Author: mhoffe $
-// $Revision: #1 $
-// $DateTime: 2003/07/03 11:55:26 $
-//
-// ©2003 Electronic Arts
-//
-// Proxy header for debug module
-//////////////////////////////////////////////////////////////////////////////
-#ifdef _MSC_VER
-#  pragma once
-#endif
-#ifndef PROXY_DEBUG_H // Include guard
-#define PROXY_DEBUG_H
+#include "SDL3Device/Common/SDL3LocalFile.h"
 
-#include "../../source/debug/debug.h"
+SDL3LocalFile::SDL3LocalFile() : LocalFile() {}
 
-#endif // PROXY_DEBUG_H
+SDL3LocalFile::~SDL3LocalFile() {}

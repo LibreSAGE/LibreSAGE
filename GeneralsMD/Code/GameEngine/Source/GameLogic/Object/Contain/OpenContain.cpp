@@ -632,7 +632,7 @@ void OpenContain::removeFromContainViaIterator( ContainedItemsList::iterator it,
 
 /*
 	#ifdef _DEBUG
-		TheInGameUI->message( UnicodeString( L"'%S(%d)' no longer contains '%S(%d)'" ), 
+		TheInGameUI->message( UnicodeString( u"'%S(%d)' no longer contains '%S(%d)'" ), 
 													getObject()->getTemplate()->getName().str(),
 													getObject()->getID(),
 													itemToRemove->m_object->getTemplate()->getName().str(),

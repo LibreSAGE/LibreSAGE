@@ -26,7 +26,7 @@
 
 #include "Common/Recorder.h"
 #include "Common/FileSystem.h"
-#include "Common/playerlist.h"
+#include "Common/PlayerList.h"
 #include "Common/Player.h"
 #include "Common/GlobalData.h"
 #include "Common/GameEngine.h"
@@ -44,6 +44,8 @@
 #include "Common/RandomValue.h"
 #include "Common/CRCDebug.h"
 #include "Common/Version.h"
+
+#include <unicode/ustdio.h>
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -288,7 +290,7 @@ void RecorderClass::logGameEnd( void )
 
 void RecorderClass::cleanUpReplayFile( void )
 {
-#if defined(_DEBUG) || defined(_INTERNAL)
+#if (defined(_DEBUG) || defined(_INTERNAL)) && defined(_WINDOWS)
 	if (TheGlobalData->m_saveStats)
 	{
 		char fname[_MAX_PATH+1];
@@ -572,11 +574,13 @@ void RecorderClass::startRecording(GameDifficulty diff, Int originalGameMode, In
 		fwrite(&b, sizeof(Bool), 1, m_file);	// reserve space for flag (true if player i disconnects)
 	}
 
+	UFILE* uFile = u_finit(m_file, NULL, NULL);
+
 	// Print out the name of the replay.
 	UnicodeString replayName;
 	replayName = TheGameText->fetch("GUI:LastReplay");
-	fwprintf(m_file, L"%ws", replayName.str());
-	fputwc(0, m_file);
+	u_fprintf_u(uFile, u"%ws", replayName.str());
+	u_fputc(0, uFile);
 
 	// Date and Time
 	SYSTEMTIME systemTime;
@@ -587,10 +591,10 @@ void RecorderClass::startRecording(GameDifficulty diff, Int originalGameMode, In
 	UnicodeString versionString = TheVersion->getUnicodeVersion();
 	UnicodeString versionTimeString = TheVersion->getUnicodeBuildTime();
 	UnsignedInt versionNumber = TheVersion->getVersionNumber();
-	fwprintf(m_file, L"%ws", versionString.str());
-	fputwc(0, m_file);
-	fwprintf(m_file, L"%ws", versionTimeString.str());
-	fputwc(0, m_file);
+	u_fprintf_u(uFile, u"%ws", versionString.str());
+	u_fputc(0, uFile);
+	u_fprintf_u(uFile, u"%ws", versionTimeString.str());
+	u_fputc(0, uFile);
 	fwrite(&versionNumber, sizeof(UnsignedInt), 1, m_file);
 	fwrite(&(TheGlobalData->m_exeCRC), sizeof(UnsignedInt), 1, m_file);
 	fwrite(&(TheGlobalData->m_iniCRC), sizeof(UnsignedInt), 1, m_file);
@@ -659,10 +663,10 @@ void RecorderClass::startRecording(GameDifficulty diff, Int originalGameMode, In
 			continue;
 		}
 		UnicodeString name = player->getPlayerDisplayName();
-		fwprintf(m_file, L"%s", name.str());
+		fwprintf(m_file, u"%s", name.str());
 		fputwc(0, m_file);
 		UnicodeString faction = player->getFaction()->getFactionDisplayName();
-		fwprintf(m_file, L"%s", faction.str());
+		fwprintf(m_file, u"%s", faction.str());
 		fputwc(0, m_file);
 		Int color = player->getColor()->getAsInt();
 		fwrite(&color, sizeof(color), 1, m_file);
@@ -1165,7 +1169,7 @@ Bool RecorderClass::playbackFile(AsciiString filename)
  * Read a unicode string from the current file position. The string is assumed to be 0-terminated.
  */
 UnicodeString RecorderClass::readUnicodeString() {
-	UnsignedShort str[1024] = L"";
+	UChar str[1024] = u"";
 	Int index = 0;
 
 	Int c = fgetwc(m_file);
@@ -1183,7 +1187,7 @@ UnicodeString RecorderClass::readUnicodeString() {
 		}
 		str[index] = c;
 	}
-	str[1023] = L'\0';
+	str[1023] = u'\0';
 
 	UnicodeString retval(str);
 	return retval;
@@ -1482,7 +1486,7 @@ void RecorderClass::cullBadCommands() {
  */
 AsciiString RecorderClass::getReplayDir() 
 {
-	const char* replayDir = "Replays\\";
+	const char* replayDir = "Replays/";
 
 	AsciiString tmp = TheGlobalData->getPath_UserData();
 	tmp.concat(replayDir);

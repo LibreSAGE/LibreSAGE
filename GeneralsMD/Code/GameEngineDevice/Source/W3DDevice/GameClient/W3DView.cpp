@@ -79,23 +79,19 @@
 #include "W3DDevice/GameClient/W3DDisplay.h"
 #include "W3DDevice/GameClient/W3DScene.h"
 #include "W3DDevice/GameClient/W3DView.h"
-#include "D3dx8math.h"
+#include "d3dx8math.h"
 #include "W3DDevice/GameClient/W3DShaderManager.h"
 #include "W3DDevice/GameClient/Module/W3DModelDraw.h"
 #include "W3DDevice/GameClient/W3DCustomScene.h"
 
-#include "WW3D2/DX8Renderer.h"
-#include "WW3D2/Light.h"
-#include "WW3D2/Camera.h"
-#include "WW3D2/Coltype.h"
-#include "WW3D2/PredLod.h"
-#include "WW3D2/WW3D.h"
+#include "WW3D2/dx8renderer.h"
+#include "WW3D2/light.h"
+#include "WW3D2/camera.h"
+#include "WW3D2/coltype.h"
+#include "WW3D2/predlod.h"
+#include "WW3D2/ww3d.h"
 
 #include "W3DDevice/GameClient/camerashakesystem.h"
-
-#include "WinMain.h"  /** @todo Remove this, it's only here because we
-													are using timeGetTime, but we can remove that
-													when we have our own timer */
 #ifdef _INTERNAL
 // for occasional debugging...
 //#pragma optimize("", off)
@@ -759,7 +755,7 @@ void drawDebugCircle( const Coord3D & center, Real radius, Real width, Color col
   }
 }
 
-void drawDrawableExtents( Drawable *draw, void *userData );  // FORWARD DECLARATION
+static void drawDrawableExtents( Drawable *draw, void *userData );  // FORWARD DECLARATION
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 static void drawContainedDrawable( Object *obj, void *userData )
@@ -869,7 +865,7 @@ static void drawDrawableExtents( Drawable *draw, void *userData )
 }  // end drawDrawableExtents
 
 
-void drawAudioLocations( Drawable *draw, void *userData );
+static void drawAudioLocations( Drawable *draw, void *userData );
 // ------------------------------------------------------------------------------------------------
 // Helper for drawAudioLocations
 // ------------------------------------------------------------------------------------------------
@@ -1087,8 +1083,8 @@ void W3DView::update(void)
 	Bool recalcCamera = false;
 	Bool didScriptedMovement = false;
 #ifdef LOG_FRAME_TIMES
-	__int64 curTime64,freq64;
-	static __int64 prevTime64=0;
+	Int64 curTime64,freq64;
+	static Int64 prevTime64=0;
 	QueryPerformanceFrequency((LARGE_INTEGER *)&freq64);
 	QueryPerformanceCounter((LARGE_INTEGER *)&curTime64);
 	freq64 /= 1000;

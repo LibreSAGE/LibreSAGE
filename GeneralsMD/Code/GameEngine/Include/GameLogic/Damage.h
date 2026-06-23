@@ -47,8 +47,7 @@ class ThingTemplate;
 //-------------------------------------------------------------------------------------------------
 /** Damage types, keep this in sync with DamageTypeFlags::s_bitNameList[] */
 //-------------------------------------------------------------------------------------------------
-enum DamageType
-{	
+enum DamageType : int {	
 	DAMAGE_EXPLOSION							= 0,			
 	DAMAGE_CRUSH									= 1,					
 	DAMAGE_ARMOR_PIERCING					= 2,

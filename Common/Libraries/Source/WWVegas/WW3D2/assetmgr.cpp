@@ -816,7 +816,7 @@ RenderObjClass * WW3DAssetManager::Create_Render_Obj(const char * name)
 
 		// If we can't find it, try the parent directory
 		if ( Load_3D_Assets( filename ) == false ) {
-			StringClass	new_filename(StringClass("..\\"),true);
+			StringClass	new_filename(StringClass("../"),true);
 			new_filename+=filename;
 			Load_3D_Assets( new_filename );
 		}

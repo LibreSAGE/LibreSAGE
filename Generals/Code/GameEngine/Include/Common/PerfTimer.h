@@ -69,7 +69,7 @@ void GetPrecisionTimerTicksPerSec(Int64* t);
 __forceinline void GetPrecisionTimer(Int64* t)
 {
 #ifdef USE_QPF
-	QueryPerformanceCounter((LARGE_INTEGER*)t);
+	*t = SDL_GetPerformanceCounter();
 #else
 	// CPUID is needed to force serialization of any previous instructions. 
 	__asm 

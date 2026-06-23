@@ -61,11 +61,11 @@
 #include "W3DDevice/GameClient/W3DShadow.h"
 #include "W3DDevice/GameClient/W3DTerrainTracks.h"
 #include "W3DDevice/GameClient/WorldHeightMap.h"
-#include "WW3D2/HAnim.h"
-#include "WW3D2/HLod.h"
-#include "WW3D2/RendObj.h"
-#include "WW3D2/Mesh.h"
-#include "WW3D2/MeshMdl.h"
+#include "WW3D2/hanim.h"
+#include "WW3D2/hlod.h"
+#include "WW3D2/rendobj.h"
+#include "WW3D2/mesh.h"
+#include "WW3D2/meshmdl.h"
 #include "Common/BitFlagsIO.h"
 
 #ifdef _INTERNAL
@@ -1091,7 +1091,7 @@ void W3DModelDrawModuleData::validateStuffForTimeAndWeather(const Drawable* draw
 
 		Bool a = false;
 		Bool b = false;
-		for (c_it = m_conditionStates.begin(); c_it != m_conditionStates.end(); ++c_it)
+		for (ModelConditionVector::iterator c_it = m_conditionStates.begin(); c_it != m_conditionStates.end(); ++c_it)
 		{
 
 			if (!a && c_it->m_transitionKey == src && c_it->matchesMode(night, snowy))
@@ -1232,7 +1232,7 @@ enum AnimParseType
 //-------------------------------------------------------------------------------------------------
 static void parseAnimation(INI* ini, void *instance, void * /*store*/, const void* userData)
 {
-	AnimParseType animType = (AnimParseType)(UnsignedInt)userData;
+	AnimParseType animType = (AnimParseType)(uintptr_t)userData;
 
 	AsciiString animName = ini->getNextAsciiString();
 	animName.toLower();
@@ -1446,7 +1446,7 @@ void W3DModelDrawModuleData::parseConditionState(INI* ini, void *instance, void 
 
 	ModelConditionInfo info;
 	W3DModelDrawModuleData* self = (W3DModelDrawModuleData*)instance;
-	ParseCondStateType cst = (ParseCondStateType)(UnsignedInt)userData;
+	ParseCondStateType cst = (ParseCondStateType)(uintptr_t)userData;
 	switch (cst)
 	{
 		case PARSE_DEFAULT:
@@ -3488,7 +3488,7 @@ Int W3DModelDraw::getPristineBonePositionsForConditionState(
 	
 	if (positions && transforms)
 	{
-		for (i = 0; i < posCount; ++i)
+		for (Int i = 0; i < posCount; ++i)
 		{
 			Vector3 pos = transforms[i].Get_Translation();
 			positions[i].x = pos.X;
@@ -3628,7 +3628,7 @@ Int W3DModelDraw::getCurrentBonePositions(
 	
 	if (positions && transforms)
 	{
-		for (i = 0; i < posCount; ++i)
+		for (Int i = 0; i < posCount; ++i)
 		{
 			Vector3 pos = transforms[i].Get_Translation();
 			positions[i].x = pos.X;
@@ -4308,7 +4308,7 @@ void W3DModelDrawModuleData::xfer( Xfer *x )
 				x->xferInt(&(info->m_turrets[i].m_turretAngleBone));
 				x->xferInt(&(info->m_turrets[i].m_turretPitchBone));
 			}
-			for (i=0; i<WEAPONSLOT_COUNT; ++i)
+			for (Int i=0; i<WEAPONSLOT_COUNT; ++i)
 			{
 				for (ModelConditionInfo::WeaponBarrelInfoVec::iterator wit = info->m_weaponBarrelInfoVec[i].begin(); wit != info->m_weaponBarrelInfoVec[i].end(); ++wit)
 				{

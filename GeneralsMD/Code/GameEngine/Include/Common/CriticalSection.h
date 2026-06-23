@@ -37,17 +37,31 @@
 extern PerfGather TheCritSecPerfGather;
 #endif
 
+#ifndef _WIN32
+#include <pthread.h>
+#endif
+
 class CriticalSection
 {
+#ifdef _WIN32
 	CRITICAL_SECTION m_windowsCriticalSection;
-
+#else
+	pthread_mutex_t m_mutex;
+#endif
 	public:
 		CriticalSection()
 		{
 			#ifdef PERF_TIMERS
 			AutoPerfGather a(TheCritSecPerfGather);
 			#endif
+			#ifdef _WIN32
 			InitializeCriticalSection( &m_windowsCriticalSection );
+			#else
+			pthread_mutexattr_t attr;
+			pthread_mutexattr_init(&attr);
+			pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+			pthread_mutex_init(&m_mutex, &attr);
+			#endif
 		}
 
 		virtual ~CriticalSection()
@@ -55,7 +69,11 @@ class CriticalSection
 			#ifdef PERF_TIMERS
 			AutoPerfGather a(TheCritSecPerfGather);
 			#endif
+			#ifdef _WIN32
 			DeleteCriticalSection( &m_windowsCriticalSection );
+			#else
+			pthread_mutex_destroy(&m_mutex);
+			#endif
 		}
 
 	public:	// Use these when entering/exiting a critical section.
@@ -64,7 +82,11 @@ class CriticalSection
 			#ifdef PERF_TIMERS
 			AutoPerfGather a(TheCritSecPerfGather);
 			#endif
+			#ifdef _WIN32
 			EnterCriticalSection( &m_windowsCriticalSection );
+			#else
+			pthread_mutex_lock(&m_mutex);
+			#endif
 		}
 		
 		void exit( void )
@@ -72,7 +94,11 @@ class CriticalSection
 			#ifdef PERF_TIMERS
 			AutoPerfGather a(TheCritSecPerfGather);
 			#endif
+			#ifdef _WIN32
 			LeaveCriticalSection( &m_windowsCriticalSection );
+			#else
+			pthread_mutex_unlock(&m_mutex);
+			#endif
 		}
 };
 
@@ -95,11 +121,9 @@ class ScopedCriticalSection
 		}
 };
 
-#include "mutex.h"
-
 // These should be NULL on creation then non-NULL in WinMain or equivalent.
 // This allows us to be silently non-threadsafe for WB and other single-threaded apps.
-extern FastCriticalSectionClass TheAsciiStringCriticalSection;
+extern CriticalSection *TheAsciiStringCriticalSection;
 extern CriticalSection *TheUnicodeStringCriticalSection;
 extern CriticalSection *TheDmaCriticalSection;
 extern CriticalSection *TheMemoryPoolCriticalSection;

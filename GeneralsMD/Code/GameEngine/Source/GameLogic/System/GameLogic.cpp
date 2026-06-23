@@ -110,8 +110,6 @@
 #include "GameNetwork/NetworkInterface.h"
 #include "GameNetwork/GameSpy/PersistentStorageThread.h"
 
-#include <rts/profile.h>
-
 DECLARE_PERF_TIMER(SleepyMaintenance)
 
 #include "Common/UnitTimings.h" //Contains the DO_UNIT_TIMINGS define jba.		 
@@ -206,6 +204,7 @@ void setFPMode( void )
 	// anything as long as it is consistent, really, but this
 	// is in the (vain?) hope of any slight speed boost.
 	//
+#ifdef _WIN32
 	_fpreset();
 
 	UnsignedInt curVal = _statusfp();
@@ -215,6 +214,7 @@ void setFPMode( void )
 	newVal = (newVal & ~_MCW_PC) | (_PC_24   & _MCW_PC);
 
 	_controlfp(newVal, _MCW_PC | _MCW_RC);
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1106,8 +1106,8 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 {
 
 	#ifdef DUMP_PERF_STATS
-	__int64 startTime64;
-	__int64 endTime64,freq64;
+	Int64 startTime64;
+	Int64 endTime64,freq64;
 	GetPrecisionTimerTicksPerSec(&freq64);
 	GetPrecisionTimer(&startTime64);
 	#endif
@@ -1461,7 +1461,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 		Dict d;
 		d.setAsciiString(TheKey_playerName, "ReplayObserver");
 		d.setBool(TheKey_playerIsHuman, TRUE);
-		d.setUnicodeString(TheKey_playerDisplayName, UnicodeString(L"Observer"));
+		d.setUnicodeString(TheKey_playerDisplayName, UnicodeString(u"Observer"));
 		const PlayerTemplate* pt;
 		pt = ThePlayerTemplateStore->findPlayerTemplate( TheNameKeyGenerator->nameToKey("FactionObserver") );
 		if (pt)
@@ -2597,7 +2597,7 @@ void GameLogic::processCommandList( CommandList *list )
 			{
 				Player *player = ThePlayerList->getNthPlayer(crcIt->first);
 				DEBUG_LOG(("CRC from player %d (%ls) = %X\n", crcIt->first,
-					player?player->getPlayerDisplayName().str():L"<NONE>", crcIt->second));
+					player?player->getPlayerDisplayName().str():u"<NONE>", crcIt->second));
 			}
 #endif DEBUG_LOGGING
 			TheNetwork->setSawCRCMismatch();
@@ -2835,8 +2835,8 @@ Int GameLogic::rebalanceChildSleepyUpdate(Int i)
 
 	// our children are i*2 and i*2+1
   Int child = ((i+1)<<1)-1;
-	UpdateModulePtr* pChild = &m_sleepyUpdates[child];
-	UpdateModulePtr* pSZ = &m_sleepyUpdates[m_sleepyUpdates.size()];	// yes, this is off the end.
+	UpdateModulePtr* pChild = m_sleepyUpdates.data() + child;
+	UpdateModulePtr* pSZ = m_sleepyUpdates.data() + m_sleepyUpdates.size();	// yes, this is off the end.
 
   while (pChild < pSZ) 
 	{
@@ -2867,7 +2867,7 @@ Int GameLogic::rebalanceChildSleepyUpdate(Int i)
 		pI = pChild;
 
 		child = ((i+1)<<1)-1;
-		pChild = &m_sleepyUpdates[child];
+		pChild = m_sleepyUpdates.data() + child;
   }
 #else
 	// our children are i*2 and i*2+1
@@ -3132,8 +3132,8 @@ static void unitTimings(void)
 
 	static Int side = 0;
 
-	static __int64 startTime64;
-	static __int64 endTime64,freq64;
+	static Int64 startTime64;
+	static Int64 endTime64,freq64;
 	static int drawCallTotal;
 	static enum { LOGIC, NO_PARTICLES, NO_SPAWN, ALL} mode;
 	static double timeAll, timeAllNoAnim, timeNoPart, timeNoSpawn, timeLogic, timeLogicNoAnim;
@@ -3560,10 +3560,10 @@ DECLARE_PERF_TIMER(GameLogic_update_normal)
 DECLARE_PERF_TIMER(GameLogic_update_sleepy)
 
 #ifdef DUMP_PERF_STATS
-extern __int64 Total_Get_Texture_Time;
-extern __int64 Total_Get_HAnim_Time;
-extern __int64 Total_Create_Render_Obj_Time;
-extern __int64 Total_Load_3D_Assets;
+extern Int64 Total_Get_Texture_Time;
+extern Int64 Total_Get_HAnim_Time;
+extern Int64 Total_Create_Render_Obj_Time;
+extern Int64 Total_Load_3D_Assets;
 #endif
 
 // ------------------------------------------------------------------------------------------------
@@ -3601,7 +3601,7 @@ void GameLogic::update( void )
 
 	#ifdef DUMP_PERF_STATS
 		char Buf[1024];
-		__int64 freq64;
+		Int64 freq64;
 		GetPrecisionTimerTicksPerSec(&freq64);
 
 		sprintf(Buf,"Texture=%f, Anim=%f, CreateRobj=%f, Load3DAssets=%f\n",

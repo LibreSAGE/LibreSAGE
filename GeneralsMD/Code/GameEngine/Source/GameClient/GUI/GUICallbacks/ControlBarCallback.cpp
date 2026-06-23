@@ -167,10 +167,10 @@ WindowMsgHandledType LeftHUDInput( GameWindow *window, UnsignedInt msg,
 				Object *obj = TheRadar->objectUnderRadarPixel( &mouse );
 				UnicodeString msg;
 				if( obj )
-					msg.format( L"Object under mouse on radar '%S'(%d)", 
+					msg.format( u"Object under mouse on radar '%S'(%d)", 
 											obj->getTemplate()->getName().str(), obj->getID() );
 				else
-					msg.format( L"Mouse (%d,%d) in Radar window L(%d,%d)", mouse.x, mouse.y, radar.x, radar.y );
+					msg.format( u"Mouse (%d,%d) in Radar window L(%d,%d)", mouse.x, mouse.y, radar.x, radar.y );
 				TheInGameUI->message( msg );
 */
 
@@ -475,7 +475,7 @@ WindowMsgHandledType ControlBarSystem( GameWindow *window, UnsignedInt msg,
 					{
 						msg->appendWideCharArgument( *c++ );
 					}
-					msg->appendWideCharArgument( L'\0' ); // trailing NULL
+					msg->appendWideCharArgument( u'\0' ); // trailing NULL
 				}
 			}
 			break;

@@ -39,7 +39,7 @@
 #include "Common/GameType.h"
 #include "Common/MultiplayerSettings.h"
 #include "Common/NameKeyGenerator.h"
-#include "Common/OVERRIDE.h"
+#include "Common/Override.h"
 #include "Common/PlayerTemplate.h"
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
@@ -386,7 +386,7 @@ void ControlBar::populatePurchaseScience( Player* player )
 	win = TheWindowManager->winGetWindowFromId( m_contextParent[ CP_PURCHASE_SCIENCE ], TheNameKeyGenerator->nameToKey( "GeneralsExpPoints.wnd:StaticTextRankPointsAvailable" ) );
 	if(win)
 	{
-		tempUS.format(L"%d", player->getSciencePurchasePoints());
+		tempUS.format(u"%d", player->getSciencePurchasePoints());
 		GadgetStaticTextSetText(win, tempUS);
 	}
 	
@@ -449,7 +449,7 @@ void ControlBar::populatePurchaseScience( Player* player )
 		u.translate(foo);
 		GadgetListBoxAddEntryText(win, u, color, -1, -1);
 	}
-	GadgetListBoxAddEntryText(win, UnicodeString(L"Cancel"), color, -1, -1);*/
+	GadgetListBoxAddEntryText(win, UnicodeString(u"Cancel"), color, -1, -1);*/
 
 }
 
@@ -808,7 +808,7 @@ void CommandSet::parseCommandButton( INI* ini, void *instance, void *store, cons
 
 	// get the index to store the command at, and the command array itself
 	const CommandButton **buttonArray = (const CommandButton **)store;
-	Int buttonIndex = (Int)userData;
+	Int buttonIndex = (Int)(intptr_t)userData;
 
 	// sanity
 	DEBUG_ASSERTCRASH( buttonIndex < MAX_COMMANDS_PER_SET, ("parseCommandButton: button index '%d' out of range\n", 
@@ -2485,7 +2485,7 @@ void ControlBar::setControlCommand( GameWindow *button, const CommandButton *com
 		button->winSetTooltipFunc(commandButtonTooltip);
 	}
 	else
-		GadgetButtonSetText( button, UnicodeString( L"" ) );
+		GadgetButtonSetText( button, UnicodeString( u"" ) );
 
 	// save the command in the user data of the window
 	GadgetButtonSetData(button, (void*)commandButton);
@@ -3259,7 +3259,7 @@ void ControlBar::initSpecialPowershortcutBar( Player *player)
 	parentName = layoutName;
 	parentName.concat(":ButtonParent%d");
 	m_currentlyUsedSpecialPowersButtons = MIN(pt->getSpecialPowerShortcutButtonCount(), MAX_SPECIAL_POWER_SHORTCUTS);
-	for( i = 0; i < MAX_SPECIAL_POWER_SHORTCUTS; i++ )
+	for( Int i = 0; i < MAX_SPECIAL_POWER_SHORTCUTS; i++ )
 	{
 		windowName.format( tempName, i+1 );
 		id = TheNameKeyGenerator->nameToKey( windowName.str() );
@@ -3695,7 +3695,7 @@ void ControlBar::drawSpecialPowerShortcutMultiplierText()
 			if( numReady > 1 ) // Lorenzen changed... Displaying a "1" is superfluous
 			{
 				UnicodeString unibuffer;
-				unibuffer.format( L"%d", numReady );
+				unibuffer.format( u"%d", numReady );
 				
 				GadgetButtonSetText( win, unibuffer );
 

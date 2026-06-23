@@ -68,8 +68,7 @@ struct AcademyAdviceInfo
 	UnsignedInt numTips;
 };
 
-enum AcademyClassificationType
-{
+enum AcademyClassificationType : int {
 	//Don't forget to update the strings too!
 	ACT_NONE,
 	ACT_UPGRADE_RADAR,

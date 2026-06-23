@@ -82,7 +82,7 @@ ConnectionManager::~ConnectionManager(void)
 		}
 	}
 
-	for (i = 0; i < NUM_CONNECTIONS; ++i) {
+	for (Int i = 0; i < NUM_CONNECTIONS; ++i) {
 		if (m_connections[i] != NULL) {
 			m_connections[i]->deleteInstance();
 			m_connections[i] = NULL;
@@ -117,7 +117,7 @@ ConnectionManager::~ConnectionManager(void)
 
 	s_fileCommandMap.clear();
 	s_fileRecipientMaskMap.clear();
-	for (i = 0; i < MAX_SLOTS; ++i) {
+	for (Int i = 0; i < MAX_SLOTS; ++i) {
 		s_fileProgressMap[i].clear();
 	}
 }
@@ -172,11 +172,11 @@ void ConnectionManager::init()
 	TheMemoryPoolFactory->debugSetInitFillerIndex(m_localSlot);
 #endif
 	m_packetRouterSlot = 0; /// @todo The LAN/WOL interface should be telling us who the packet router is based on machine specs passed around through game options.
-	for (i = 0; i < MAX_SLOTS; ++i) {
+	for (Int i = 0; i < MAX_SLOTS; ++i) {
 		m_packetRouterFallback[i] = -1;
 	}
 
-	for (i = 0; i < MAX_SLOTS; ++i) {
+	for (Int i = 0; i < MAX_SLOTS; ++i) {
 		if (m_frameData[i] != NULL) {
 			m_frameData[i]->deleteInstance();
 			m_frameData[i] = NULL;
@@ -186,10 +186,10 @@ void ConnectionManager::init()
 //	m_averageFps = 30;			// since 30 fps is the desired rate, we'll start off at that.
 //	m_averageLatency = (Real)0.2; // 200ms seems like a good starting point.
 
-	for (i = 0; i < MAX_SLOTS; ++i) {
+	for (Int i = 0; i < MAX_SLOTS; ++i) {
 		m_fpsAverages[i] = -1;
 	}
-	for (i = 0; i < MAX_SLOTS; ++i) {
+	for (Int i = 0; i < MAX_SLOTS; ++i) {
 		m_latencyAverages[i] = 0.0; // using zero since all floating point standards should be able to specify 0.0 accurately.
 	}
 	m_smallestPacketArrivalCushion = -1;
@@ -210,7 +210,7 @@ void ConnectionManager::init()
 
 	s_fileCommandMap.clear();
 	s_fileRecipientMaskMap.clear();
-	for (i = 0; i < MAX_SLOTS; ++i) {
+	for (Int i = 0; i < MAX_SLOTS; ++i) {
 		s_fileProgressMap[i].clear();
 	}
 }
@@ -236,7 +236,7 @@ void ConnectionManager::reset()
 		}
 	}
 
-	for (i=0; i<MAX_SLOTS; ++i)
+	for (Int i=0; i<MAX_SLOTS; ++i)
 	{
 		if (m_frameData[i] != NULL) {
 			m_frameData[i]->deleteInstance();
@@ -268,14 +268,14 @@ void ConnectionManager::reset()
 #endif
 	m_packetRouterSlot = -1;
 
-	for (i = 0; i < TheGlobalData->m_networkFPSHistoryLength; ++i) {
+	for (Int i = 0; i < TheGlobalData->m_networkFPSHistoryLength; ++i) {
 		m_fpsAverages[i] = -1;
 	}
-	for (i = 0; i < TheGlobalData->m_networkLatencyHistoryLength; ++i) {
+	for (Int i = 0; i < TheGlobalData->m_networkLatencyHistoryLength; ++i) {
 		m_latencyAverages[i] = 0.0;
 	}
 
-	for (i = 0; i < MAX_SLOTS; ++i) {
+	for (Int i = 0; i < MAX_SLOTS; ++i) {
 		m_packetRouterFallback[i] = -1;
 	}
 
@@ -631,7 +631,7 @@ void ConnectionManager::processDisconnectChat(NetDisconnectChatCommandMsg *msg)
 	} else if (isPlayerConnected(playerID)) {
 		name = m_connections[playerID]->getUser()->GetName();
 	}
-	unitext.format(L"[%ls] %ls", name.str(), msg->getText().str());
+	unitext.format(u"[%ls] %ls", name.str(), msg->getText().str());
 //	DEBUG_LOG(("ConnectionManager::processDisconnectChat - got message from player %d, message is %ls\n", playerID, unitext.str()));
 	TheDisconnectMenu->showChat(unitext); // <-- need to implement this
 }
@@ -649,7 +649,7 @@ void ConnectionManager::processChat(NetChatCommandMsg *msg)
 		name = m_connections[playerID]->getUser()->GetName();
 		//DEBUG_LOG(("connection is non-NULL, using %ls\n", name.str()));
 	}
-	unitext.format(L"[%ls] %ls", name.str(), msg->getText().str());
+	unitext.format(u"[%ls] %ls", name.str(), msg->getText().str());
 //	DEBUG_LOG(("ConnectionManager::processChat - got message from player %d (mask %8.8X), message is %ls\n", playerID, msg->getPlayerMask(), unitext.str()));
 	
 	AsciiString playerName;
@@ -657,7 +657,7 @@ void ConnectionManager::processChat(NetChatCommandMsg *msg)
 	const Player *player = ThePlayerList->findPlayerWithNameKey( TheNameKeyGenerator->nameToKey( playerName ) );
 	if (!player)
 	{
-		TheInGameUI->message(UnicodeString(L"%ls"), unitext.str());
+		TheInGameUI->message(UnicodeString(u"%ls"), unitext.str());
 		return;
 	}
 	
@@ -669,7 +669,7 @@ void ConnectionManager::processChat(NetChatCommandMsg *msg)
 	{
 		RGBColor rgb;
 		rgb.setFromInt(player->getPlayerColor());
-		TheInGameUI->messageColor(&rgb, UnicodeString(L"%ls"), unitext.str());
+		TheInGameUI->messageColor(&rgb, UnicodeString(u"%ls"), unitext.str());
 
 		// feedback for received chat messages in-game
 		AudioEventRTS audioEvent("GUICommunicatorIncoming");
@@ -681,7 +681,7 @@ void ConnectionManager::processFile(NetFileCommandMsg *msg)
 {
 #ifdef _INTERNAL
 	UnicodeString log;
-	log.format(L"Saw file transfer: '%hs' of %d bytes from %d", msg->getPortableFilename().str(), msg->getFileLength(), msg->getPlayerID());
+	log.format(u"Saw file transfer: '%hs' of %d bytes from %d", msg->getPortableFilename().str(), msg->getFileLength(), msg->getPlayerID());
 	DEBUG_LOG(("%ls\n", log.str()));
 #endif
 
@@ -1579,7 +1579,7 @@ Bool ConnectionManager::allCommandsReady(UnsignedInt frame, Bool justTesting /* 
 
 	if (frameRetVal == FRAMEDATA_RESEND) {
 		// this frame's data is really screwed up, we need to clean it out so it can be resent to us.
-		for (i = 0; i < MAX_SLOTS; ++i) {
+		for (Int i = 0; i < MAX_SLOTS; ++i) {
 			if ((m_frameData[i] != NULL) && (i != m_localSlot)) {
 				m_frameData[i]->resetFrame(frame, FALSE);
 			}
@@ -2108,10 +2108,10 @@ UnsignedShort ConnectionManager::sendFileAnnounce(AsciiString path, UnsignedByte
 	if (!theFile || !theFile->size())
 	{
 		UnicodeString log;
-		log.format(L"Not sending file '%hs' to %X\n", path.str(), playerMask);
+		log.format(u"Not sending file '%hs' to %X\n", path.str(), playerMask);
 		DEBUG_LOG(("%ls\n", log.str()));
 		if (TheLAN)
-			TheLAN->OnChat(UnicodeString(L"sendFile"), 0, log, LANAPI::LANCHAT_SYSTEM);
+			TheLAN->OnChat(UnicodeString(u"sendFile"), 0, log, LANAPI::LANCHAT_SYSTEM);
 		return 0;
 	}
 
@@ -2146,10 +2146,10 @@ void ConnectionManager::sendFile(AsciiString path, UnsignedByte playerMask, Unsi
 	if (!theFile || !theFile->size())
 	{
 		UnicodeString log;
-		log.format(L"Not sending file '%hs' to %X\n", path.str(), playerMask);
+		log.format(u"Not sending file '%hs' to %X\n", path.str(), playerMask);
 		DEBUG_LOG(("%ls\n", log.str()));
 		if (TheLAN)
-			TheLAN->OnChat(UnicodeString(L"sendFile"), 0, log, LANAPI::LANCHAT_SYSTEM);
+			TheLAN->OnChat(UnicodeString(u"sendFile"), 0, log, LANAPI::LANCHAT_SYSTEM);
 		return;
 	}
 

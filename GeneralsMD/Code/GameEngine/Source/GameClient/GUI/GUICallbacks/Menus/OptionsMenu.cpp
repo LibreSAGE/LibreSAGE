@@ -30,7 +30,7 @@
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
 
-#include "GameSpy/ghttp/ghttp.h"
+#include "gamespy/ghttp/ghttp.h"
 
 #include "Common/AudioAffect.h"
 #include "Common/AudioSettings.h"
@@ -73,7 +73,7 @@
 #include "GameClient/MessageBox.h"
 
 // This is for non-RC builds only!!!
-#define VERBOSE_VERSION L"Release"
+#define VERBOSE_VERSION u"Release"
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -1124,14 +1124,14 @@ static void saveOptions( void )
 	GadgetComboBoxGetSelectedPos(comboBoxLANIP, &index);
 	if (index>=0 && TheGlobalData)
 	{
-		ip = (UnsignedInt)GadgetComboBoxGetItemData(comboBoxLANIP, index);
+		ip = (uintptr_t)GadgetComboBoxGetItemData(comboBoxLANIP, index);
 		TheWritableGlobalData->m_defaultIP = ip;
 		pref->setLANIPAddress(ip);
 	}
 	GadgetComboBoxGetSelectedPos(comboBoxOnlineIP, &index);
 	if (index>=0)
 	{
-		ip = (UnsignedInt)GadgetComboBoxGetItemData(comboBoxOnlineIP, index);
+		ip = (uintptr_t)GadgetComboBoxGetItemData(comboBoxOnlineIP, index);
 		pref->setOnlineIPAddress(ip);
 	}
 
@@ -1471,7 +1471,7 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 		if (TheVersion)
 		{
 			UnicodeString version;
-			version.format(L"(%s) %s -- %s", versionString.str(), TheVersion->getFullUnicodeVersion().str(), TheVersion->getUnicodeBuildTime().str());
+			version.format(u"(%s) %s -- %s", versionString.str(), TheVersion->getFullUnicodeVersion().str(), TheVersion->getUnicodeBuildTime().str());
 			GadgetStaticTextSetText( labelVersion, version );
 		}
 		else
@@ -1613,10 +1613,10 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 	// populate resolution modes
 	GadgetComboBoxReset(comboBoxResolution);
 	Int numResolutions = TheDisplay->getDisplayModeCount();
-	for( i = 0; i < numResolutions; ++i )
+	for( Int i = 0; i < numResolutions; ++i )
 	{	Int xres,yres,bitDepth;
 		TheDisplay->getDisplayModeDescription(i,&xres,&yres,&bitDepth);
-		str.format(L"%d x %d",xres,yres);
+		str.format(u"%d x %d",xres,yres);
 		GadgetComboBoxAddEntry( comboBoxResolution, str, color);
 		if (xres == 800 && yres == 600)	//keep track of default mode in case we need it.
 			defaultResIndex=i;

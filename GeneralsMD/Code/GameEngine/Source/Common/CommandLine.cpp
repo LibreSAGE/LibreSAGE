@@ -1106,14 +1106,14 @@ Int parseMod(char *args[], Int num)
 		}
 
 		// now check for dir-ness
-		struct _stat statBuf;
-		if (_stat(modPath.str(), &statBuf) != 0)
+		struct stat statBuf;
+		if (stat(modPath.str(), &statBuf) != 0)
 		{
 			DEBUG_LOG(("Could not _stat() mod.\n"));
 			return 2; // could not stat the file/dir.
 		}
 
-		if (statBuf.st_mode & _S_IFDIR)
+		if (statBuf.st_mode & S_IFDIR)
 		{
 			if (!modPath.endsWith("\\") && !modPath.endsWith("/"))
 				modPath.concat('\\');
@@ -1131,6 +1131,16 @@ Int parseMod(char *args[], Int num)
 	return 1;
 }
 
+Int parseBigDir(char *args[], Int num)
+{
+	if (TheWritableGlobalData && num > 1)
+	{
+		TheWritableGlobalData->m_bigDirs.push_back(args[1]);
+		return 2;
+	}
+	return 1;
+}
+
 static CommandLineParam params[] =
 {
 	{ "-noshellmap", parseNoShellMap },
@@ -1139,10 +1149,11 @@ static CommandLineParam params[] =
 	{ "-yres", parseYRes },
 	{ "-fullscreen", parseNoWin },
 	{ "-fullVersion", parseFullVersion },
-	{	"-particleEdit", parseParticleEdit },
+	{ "-particleEdit", parseParticleEdit },
 	{ "-scriptDebug", parseScriptDebug },
 	{ "-playStats", parsePlayStats },
 	{ "-mod", parseMod },
+	{ "-bigdir", parseBigDir },
 	{ "-noshaders", parseNoShaders },
 	{ "-quickstart", parseQuickStart },
 

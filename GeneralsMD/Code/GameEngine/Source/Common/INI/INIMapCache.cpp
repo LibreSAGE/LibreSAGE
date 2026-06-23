@@ -157,7 +157,7 @@ void INI::parseMapCacheDefinition( INI* ini )
 		if (md.m_numPlayers >= 2)
 		{
 			UnicodeString extension;
-			extension.format(L" (%d)", md.m_numPlayers);
+			extension.format(u" (%d)", md.m_numPlayers);
 			md.m_displayName.concat(extension);
 		}
 	}
@@ -168,7 +168,7 @@ void INI::parseMapCacheDefinition( INI* ini )
 		if (md.m_numPlayers >= 2)
 		{
 			UnicodeString extension;
-			extension.format(L" (%d)", md.m_numPlayers);
+			extension.format(u" (%d)", md.m_numPlayers);
 			md.m_displayName.concat(extension);
 		}
 	}

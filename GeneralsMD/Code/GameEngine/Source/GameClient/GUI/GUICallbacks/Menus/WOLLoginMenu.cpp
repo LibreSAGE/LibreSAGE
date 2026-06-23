@@ -117,13 +117,13 @@ static AsciiString obfuscate( AsciiString in )
 {
 	char *buf = NEW char[in.getLength() + 1];
 	strcpy(buf, in.str());
-	static const char *xor = "1337Munkee";
+	static const char *xor_ = "1337Munkee";
 	char *c = buf;
-	const char *c2 = xor;
+	const char *c2 = xor_;
 	while (*c)
 	{
 		if (!*c2)
-			c2 = xor;
+			c2 = xor_;
 		if (*c != *c2)
 			*c = *c++ ^ *c2++;
 		else
@@ -589,7 +589,7 @@ void WOLLoginMenuInit( WindowLayout *layout, void *userData )
 #endif // ALLOW_NON_PROFILED_LOGIN
 		// Read login names from registry...
 		GadgetComboBoxReset(comboBoxEmail);
-		GadgetTextEntrySetText(textEntryPassword, UnicodeString.TheEmptyString);
+		GadgetTextEntrySetText(textEntryPassword, UnicodeString::TheEmptyString);
 
 		// look for cached nicks to add
 		AsciiString lastName;
@@ -812,7 +812,7 @@ void WOLLoginMenuUpdate( WindowLayout * layout, void *userData)
 					room.m_groupID = resp.groupRoom.id;
 					room.m_maxWaiting = resp.groupRoom.maxWaiting;
 					room.m_name = resp.groupRoomName.c_str();
-					room.m_translatedName = UnicodeString(L"TEST");
+					room.m_translatedName = UnicodeString(u"TEST");
 					room.m_numGames = resp.groupRoom.numGames;
 					room.m_numPlaying = resp.groupRoom.numPlaying;
 					room.m_numWaiting = resp.groupRoom.numWaiting;
@@ -934,17 +934,17 @@ WindowMsgHandledType WOLLoginMenuInput( GameWindow *window, UnsignedInt msg,
 
 static Bool isNickOkay(UnicodeString nick)
 {
-	static const WideChar * legalIRCChars = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789[]`_^{|}-";
+	static const WideChar * legalIRCChars = u"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789[]`_^{|}-";
 
 	Int len = nick.getLength();
 	if (len == 0)
 		return TRUE;
 
-	if (len == 1 && nick.getCharAt(0) == L'-')
+	if (len == 1 && nick.getCharAt(0) == u'-')
 		return FALSE;
 
 	WideChar newChar = nick.getCharAt(len-1);
-	if (wcschr(legalIRCChars, newChar) == NULL)
+	if (u_strchr(legalIRCChars, newChar) == NULL)
 		return FALSE;
 
 	return TRUE;
@@ -967,6 +967,7 @@ static Bool isAgeOkay(AsciiString &month, AsciiString &day, AsciiString year)
 	// test the year first
 	#define DATE_BUFFER_SIZE 256
 	char dateBuffer[ DATE_BUFFER_SIZE ];
+#ifdef _WIN32
 	GetDateFormat( LOCALE_SYSTEM_DEFAULT,
 								 0, NULL,
 								 "yyyy",
@@ -997,6 +998,7 @@ static Bool isAgeOkay(AsciiString &month, AsciiString &day, AsciiString year)
 	userVal = atoi(day.str());
 	if(sysVal - userVal< 0)
 		return FALSE;
+#endif
 //	day.format("%02.2d",userVal);
 	return TRUE;
 }
@@ -1048,16 +1050,16 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 				trimmedEmail.trim();
 				if (!trimmedNick.isEmpty())
 				{
-					if (trimmedNick.getCharAt(trimmedNick.getLength()-1) == L'\\')
+					if (trimmedNick.getCharAt(trimmedNick.getLength()-1) == u'\\')
 						trimmedNick.removeLastChar();
-					if (trimmedNick.getCharAt(trimmedNick.getLength()-1) == L'/')
+					if (trimmedNick.getCharAt(trimmedNick.getLength()-1) == u'/')
 						trimmedNick.removeLastChar();
 				}
 				if (!trimmedEmail.isEmpty())
 				{
-					if (trimmedEmail.getCharAt(trimmedEmail.getLength()-1) == L'\\')
+					if (trimmedEmail.getCharAt(trimmedEmail.getLength()-1) == u'\\')
 						trimmedEmail.removeLastChar();
-					if (trimmedEmail.getCharAt(trimmedEmail.getLength()-1) == L'/')
+					if (trimmedEmail.getCharAt(trimmedEmail.getLength()-1) == u'/')
 						trimmedEmail.removeLastChar();
 				}
 				if (trimmedEmail.getLength() != uEmail.getLength())

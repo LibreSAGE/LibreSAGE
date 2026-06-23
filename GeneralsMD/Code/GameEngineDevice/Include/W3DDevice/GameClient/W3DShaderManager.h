@@ -36,13 +36,14 @@
 #ifndef __W3DSHADERMANAGER_H_
 #define __W3DSHADERMANAGER_H_
 
-#include "WW3D2/Texture.h"
-enum FilterTypes;
-enum CustomScenePassModes;
-enum StaticGameLODLevel;
-enum ChipsetType;
-enum CpuType;
-enum GraphicsVenderID;
+#include "WW3D2/texture.h"
+enum FilterTypes : int;
+enum FilterModes : int;
+enum CustomScenePassModes : int;
+enum StaticGameLODLevel : int;
+enum ChipsetType : int;
+enum CpuType : int;
+enum GraphicsVenderID : int;
 
 class TextureClass;	///forward reference
 /** System for managing complex rendering settings which are either not handled by
@@ -82,7 +83,7 @@ public:
 	static void shutdown(void);	///<release resources used by shaders
 	static ChipsetType getChipset(void);	///<return current device chipset.
 	static GraphicsVenderID getCurrentVendor(void) {return m_currentVendor;}	///<return current card vendor.
-	static getCurrentDriverVersion(void) {return m_driverVersion; }	///<return current driver version.
+	static Int64 getCurrentDriverVersion(void) {return m_driverVersion; }	///<return current driver version.
 	static Int getShaderPasses(ShaderTypes shader);	///<rendering passes required for shader
 	static Int setShader(ShaderTypes shader, Int pass);	///<enable specific shader pass.
 	static Int setShroudTex(Int stage);	///<Set shroud in a texture stage.
@@ -94,9 +95,9 @@ public:
 	///Return last activated shader.
 	static inline ShaderTypes getCurrentShader(void) {return m_currentShader;}
 	/// Loads a .vso file and creates a vertex shader for it
-	static HRESULT LoadAndCreateD3DShader(char* strFilePath, const DWORD* pDeclaration, DWORD Usage, Bool ShaderType, DWORD* pHandle);
+	static HRESULT LoadAndCreateD3DShader(const char* strFilePath, const DWORD* pDeclaration, DWORD Usage, Bool ShaderType, DWORD* pHandle);
 
-	static Bool testMinimumRequirements(ChipsetType *videoChipType, CpuType *cpuType, Int *cpuFreq, Int *numRAM, Real *intBenchIndex, Real *floatBenchIndex, Real *memBenchIndex);
+	static Bool testMinimumRequirements(ChipsetType *videoChipType, CpuType *cpuType, Int *cpuFreq, Int64 *numRAM, Real *intBenchIndex, Real *floatBenchIndex, Real *memBenchIndex);
 	static StaticGameLODLevel getGPUPerformanceIndex(void);
 	static Real GetCPUBenchTime(void);
 
@@ -118,7 +119,7 @@ protected:
 	static TextureClass *m_Textures[8];	///textures assigned to each of the possible stages
 	static ChipsetType m_currentChipset;	///<last video card chipset that was detected.
 	static GraphicsVenderID m_currentVendor;	///<last video card vendor
-	static __int64 m_driverVersion;			///<driver version of last chipset.
+	static Int64 m_driverVersion;			///<driver version of last chipset.
 	static ShaderTypes m_currentShader;	///<last shader that was set.
 	static Int m_currentShaderPass;		///<pass of last shader that was set.
 

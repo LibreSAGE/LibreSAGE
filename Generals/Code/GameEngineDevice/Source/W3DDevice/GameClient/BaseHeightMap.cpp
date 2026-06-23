@@ -907,8 +907,8 @@ Real BaseHeightMapRenderObjClass::getHeightMapHeight(Real x, Real y, Coord3D* no
 	float fy = ydiv - iyf; //get fraction
 
 	// since ixf & iyf are already floor'ed, we can use the fastest f->i conversion we have...
-	Int	ix = fast_float2long_round(ixf) + logicHeightMap->getBorderSizeInline();
-	Int	iy = fast_float2long_round(iyf) + logicHeightMap->getBorderSizeInline();
+	Int	ix = lroundf(ixf) + logicHeightMap->getBorderSizeInline();
+	Int	iy = lroundf(iyf) + logicHeightMap->getBorderSizeInline();
 	Int xExtent = logicHeightMap->getXExtent();
 
 	// Check for extent-3, not extent-1: we go into the next row/column of data for smoothed triangle points, so extent-1

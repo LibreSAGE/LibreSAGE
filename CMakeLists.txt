@@ -76,3 +76,4 @@ feature_summary(WHAT ALL)
 
 add_subdirectory(Common)
 add_subdirectory(Generals/Code)
+add_subdirectory(GeneralsMD/Code)

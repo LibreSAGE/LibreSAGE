@@ -43,7 +43,7 @@
 
 #include "GameClient/ShellHooks.h"
 
-#include "GameSpy/ghttp/ghttp.h"
+#include "gamespy/ghttp/ghttp.h"
 
 #include "GameNetwork/DownloadManager.h"
 #include "GameNetwork/GameSpy/BuddyThread.h"
@@ -52,7 +52,9 @@
 #include "GameNetwork/GameSpy/PeerThread.h"
 
 #include "WWDownload/Registry.h"
-#include "WWDownload/URLBuilder.h"
+#include "WWDownload/urlBuilder.h"
+
+#include <SDL3_net/SDL_net.h>
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -73,10 +75,8 @@ static char *MOTDBuffer = NULL;
 static char *configBuffer = NULL;
 GameWindow *onlineCancelWindow = NULL;
 
-static Bool s_asyncDNSThreadDone = TRUE;
-static Bool s_asyncDNSThreadSucceeded = FALSE;
 static Bool s_asyncDNSLookupInProgress = FALSE;
-static HANDLE s_asyncDNSThreadHandle = NULL;
+NET_Address* s_asyncDNSLookupAddress = NULL;
 enum {
 	LOOKUP_INPROGRESS,
 	LOOKUP_FAILED,
@@ -153,13 +153,13 @@ static Bool hasWriteAccess()
 
 	remove(filename);
 
-	int handle = _open( filename, _O_CREAT | _O_RDWR, _S_IREAD | _S_IWRITE);
+	int handle = open( filename, O_CREAT | O_RDWR, S_IREAD | S_IWRITE);
 	if (handle == -1)
 	{
 		return false;
 	}
 
-	_close(handle);
+	close(handle);
 	remove(filename);
 	
 	unsigned int val;
@@ -318,7 +318,7 @@ static void queuePatch(Bool mandatory, AsciiString downloadURL)
 static GHTTPBool motdCallback( GHTTPRequest request, GHTTPResult result,
 															char * buffer, int bufferLen, void * param )
 {
-	Int run = (Int)param;
+	Int run = (intptr_t)param;
 	if (run != timeThroughOnline)
 	{
 		DEBUG_CRASH(("Old callback being called!"));
@@ -358,7 +358,7 @@ static GHTTPBool motdCallback( GHTTPRequest request, GHTTPResult result,
 static GHTTPBool configCallback( GHTTPRequest request, GHTTPResult result,
 																char * buffer, int bufferLen, void * param )
 {
-	Int run = (Int)param;
+	Int run = (intptr_t)param;
 	if (run != timeThroughOnline)
 	{
 		DEBUG_CRASH(("Old callback being called!"));
@@ -423,7 +423,7 @@ static GHTTPBool configCallback( GHTTPRequest request, GHTTPResult result,
 static GHTTPBool configHeadCallback( GHTTPRequest request, GHTTPResult result,
 																		char * buffer, int bufferLen, void * param )
 {
-	Int run = (Int)param;
+	Int run = (intptr_t)param;
 	if (run != timeThroughOnline)
 	{
 		DEBUG_CRASH(("Old callback being called!"));
@@ -510,7 +510,7 @@ static GHTTPBool configHeadCallback( GHTTPRequest request, GHTTPResult result,
 
 static GHTTPBool gamePatchCheckCallback( GHTTPRequest request, GHTTPResult result, char * buffer, int bufferLen, void * param )
 {
-	Int run = (Int)param;
+	Int run = (intptr_t)param;
 	if (run != timeThroughOnline)
 	{
 		DEBUG_CRASH(("Old callback being called!"));
@@ -655,25 +655,6 @@ void CheckNumPlayersOnline( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-DWORD WINAPI asyncGethostbynameThreadFunc( void * szName )
-{
-	HOSTENT *he = gethostbyname( (const char *)szName );
-
-	if (he)
-	{
-		s_asyncDNSThreadSucceeded = TRUE;
-	}
-	else
-	{
-		s_asyncDNSThreadSucceeded = FALSE;
-	}
-
-	s_asyncDNSThreadDone = TRUE;
-	return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 int asyncGethostbyname(char * szName)
 {
 	static int            stat = 0;
@@ -682,24 +663,27 @@ int asyncGethostbyname(char * szName)
 	if( stat == 0 )
 	{
 		/* Kick off gethostname thread */
-		s_asyncDNSThreadDone = FALSE;
-		s_asyncDNSThreadHandle = CreateThread( NULL, 0, asyncGethostbynameThreadFunc, szName, 0, &threadid );
+		s_asyncDNSLookupInProgress = TRUE;
+		s_asyncDNSLookupAddress = NET_ResolveHostname(szName);
 
-		if( s_asyncDNSThreadHandle == NULL )
+		if( s_asyncDNSLookupAddress == NULL )
 		{
+			DEBUG_LOG(("asyncGethostbyname() - Failed to resolve hostname [%s]: %s\n", szName, SDL_GetError()));
 			return( LOOKUP_FAILED );
 		}
 		stat = 1;
 	}
 	if( stat == 1 )
 	{
-		if( s_asyncDNSThreadDone )
+		NET_Status status = NET_GetAddressStatus(s_asyncDNSLookupAddress);
+		if( status == NET_SUCCESS || status == NET_FAILURE )
 		{
 			/* Thread finished */
 			stat = 0;
 			s_asyncDNSLookupInProgress = FALSE;
-			s_asyncDNSThreadHandle = NULL;
-			return( (s_asyncDNSThreadSucceeded)?LOOKUP_SUCCEEDED:LOOKUP_FAILED );
+			NET_UnrefAddress( s_asyncDNSLookupAddress );
+			s_asyncDNSLookupAddress = NULL;
+			return (status == NET_SUCCESS) ? LOOKUP_SUCCEEDED : LOOKUP_FAILED;
 		}
 	}
 
@@ -749,15 +733,11 @@ void HTTPThinkWrapper( void )
 
 void StopAsyncDNSCheck( void )
 {
-	if (s_asyncDNSThreadHandle)
+	if (s_asyncDNSLookupAddress)
 	{
-#ifdef DEBUG_CRASHING
-		Int res =
-#endif
-			TerminateThread(s_asyncDNSThreadHandle,0);
-		DEBUG_ASSERTCRASH(res, ("Could not terminate the Async DNS Lookup thread!"));	// Thread still not killed!
+		NET_UnrefAddress(s_asyncDNSLookupAddress);
 	}
-	s_asyncDNSThreadHandle = NULL;
+	s_asyncDNSLookupAddress = NULL;
 	s_asyncDNSLookupInProgress = FALSE;
 }
 

@@ -41,8 +41,8 @@ class SpecialPowerModule;
 class ParticleSystem;
 class FXList;
 class AudioEventRTS;
-enum ParticleSystemID;
-enum ScienceType;
+enum ParticleSystemID : int;
+enum ScienceType : int;
 
 //#define MAX_OUTER_NODES 16
 

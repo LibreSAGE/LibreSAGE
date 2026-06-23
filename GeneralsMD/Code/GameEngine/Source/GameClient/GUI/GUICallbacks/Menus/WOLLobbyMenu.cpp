@@ -75,8 +75,8 @@
 //#pragma optimize("", off)
 //#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
 #endif
-void refreshGameList( Bool forceRefresh = FALSE );
-void refreshPlayerList( Bool forceRefresh = FALSE );
+static void refreshGameList( Bool forceRefresh = FALSE );
+static void refreshPlayerList( Bool forceRefresh = FALSE );
 
 #ifdef DEBUG_LOGGING
 #define PERF_TEST
@@ -164,7 +164,7 @@ Bool handleLobbySlashCommands(UnicodeString uText)
 	if (token == "host")
 	{
 		UnicodeString s;
-		s.format(L"Hosting qr2:%d thread:%d", getQR2HostingStatus(), isThreadHosting);
+		s.format(u"Hosting qr2:%d thread:%d", getQR2HostingStatus(), isThreadHosting);
 		TheGameSpyInfo->addText(s, GameSpyColor[GSCOLOR_DEFAULT], NULL);
 		return TRUE; // was a slash command
 	}
@@ -206,13 +206,13 @@ Bool handleLobbySlashCommands(UnicodeString uText)
 	else if (token == "fakecrc")
 	{
 		g_fakeCRC = !g_fakeCRC;
-		TheGameSpyInfo->addText(UnicodeString(L"Toggled CRC fakery"), GameSpyColor[GSCOLOR_DEFAULT], NULL);
+		TheGameSpyInfo->addText(UnicodeString(u"Toggled CRC fakery"), GameSpyColor[GSCOLOR_DEFAULT], NULL);
 		return TRUE; // was a slash command
 	}
 	else if (token == "slots")
 	{
 		g_debugSlots = !g_debugSlots;
-		TheGameSpyInfo->addText(UnicodeString(L"Toggled SlotList debug"), GameSpyColor[GSCOLOR_DEFAULT], NULL);
+		TheGameSpyInfo->addText(UnicodeString(u"Toggled SlotList debug"), GameSpyColor[GSCOLOR_DEFAULT], NULL);
 		return TRUE; // was a slash command
 	}
 #endif
@@ -328,7 +328,7 @@ static void playerTooltip(GameWindow *window,
 	AsciiString rankName;
 	rankName.format("GUI:GSRank%d", rank);
 	UnicodeString tmp;
-	tmp.format(L"\n%ls %ls", TheGameText->fetch(sideName).str(), TheGameText->fetch(rankName).str());
+	tmp.format(u"\n%ls %ls", TheGameText->fetch(sideName).str(), TheGameText->fetch(rankName).str());
 	tooltip.concat(tmp);
 
 	TheMouse->setCursorTooltip( tooltip, -1, NULL, 1.5f ); // the text and width are the only params used.  the others are the default values.
@@ -586,6 +586,7 @@ void PopulateLobbyPlayerListbox(void)
 		{
 			std::set<Int>::const_iterator indexIt;
 			Int *newIndices = NEW Int[indicesToSelect.size()];
+			Int i;
 			for (i=0, indexIt = indicesToSelect.begin(); indexIt != indicesToSelect.end(); ++i, ++indexIt)
 			{
 				newIndices[i] = *indexIt;
@@ -656,7 +657,7 @@ void WOLLobbyMenuInit( WindowLayout *layout, void *userData )
 	comboLobbyGroupRoomsID = TheNameKeyGenerator->nameToKey(AsciiString("WOLCustomLobby.wnd:ComboBoxGroupRooms"));
 	comboLobbyGroupRooms = TheWindowManager->winGetWindowFromId(parent, comboLobbyGroupRoomsID);
 
-	GadgetTextEntrySetText(textEntryChat, UnicodeString.TheEmptyString);
+	GadgetTextEntrySetText(textEntryChat, UnicodeString::TheEmptyString);
 
 	populateGroupRoomListbox(comboLobbyGroupRooms);
 
@@ -1150,7 +1151,7 @@ void WOLLobbyMenuUpdate( WindowLayout * layout, void *userData)
 					{
 					case PEER_CLEAR:
 						TheGameSpyInfo->clearStagingRoomList();
-						//TheGameSpyInfo->addText( UnicodeString(L"gameList: PEER_CLEAR"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
+						//TheGameSpyInfo->addText( UnicodeString(u"gameList: PEER_CLEAR"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
 						break;
 					case PEER_ADD:
 					case PEER_UPDATE:
@@ -1253,29 +1254,29 @@ void WOLLobbyMenuUpdate( WindowLayout * layout, void *userData)
 							if (resp.stagingRoom.action == PEER_ADD)
 							{
 								TheGameSpyInfo->addStagingRoom(room);
-								//TheGameSpyInfo->addText( UnicodeString(L"gameList: PEER_ADD"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
+								//TheGameSpyInfo->addText( UnicodeString(u"gameList: PEER_ADD"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
 							}
 							else
 							{
 								TheGameSpyInfo->updateStagingRoom(room);
-								//TheGameSpyInfo->addText( UnicodeString(L"gameList: PEER_UPDATE"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
+								//TheGameSpyInfo->addText( UnicodeString(u"gameList: PEER_UPDATE"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
 							}
 						}
 						else
 						{
 							room.setID(resp.stagingRoom.id);
 							TheGameSpyInfo->removeStagingRoom(room);
-							//TheGameSpyInfo->addText( UnicodeString(L"gameList: PEER_UPDATE FAILED"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
+							//TheGameSpyInfo->addText( UnicodeString(u"gameList: PEER_UPDATE FAILED"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
 						}
 						break;
 					}
 					case PEER_REMOVE:
 						room.setID(resp.stagingRoom.id);
 						TheGameSpyInfo->removeStagingRoom(room);
-						//TheGameSpyInfo->addText( UnicodeString(L"gameList: PEER_REMOVE"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
+						//TheGameSpyInfo->addText( UnicodeString(u"gameList: PEER_REMOVE"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
 						break;
 					default:
-						//TheGameSpyInfo->addText( UnicodeString(L"gameList: Unknown"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
+						//TheGameSpyInfo->addText( UnicodeString(u"gameList: Unknown"), GameSpyColor[GSCOLOR_DEFAULT], listboxLobbyChat );
 						break;
 					}
 				}
@@ -1480,7 +1481,7 @@ WindowMsgHandledType WOLLobbyMenuSystem( GameWindow *window, UnsignedInt msg,
 
 						PeerRequest req;
 						req.peerRequestType = PeerRequest::PEERREQUEST_GETEXTENDEDSTAGINGROOMINFO;
-						req.stagingRoom.id = (Int)GadgetListBoxGetItemData(control, rowSelected, 0);
+						req.stagingRoom.id = (intptr_t)GadgetListBoxGetItemData(control, rowSelected, 0);
 
 						if (lastID != req.stagingRoom.id || now > lastFrame + 60)
 						{
@@ -1558,7 +1559,7 @@ WindowMsgHandledType WOLLobbyMenuSystem( GameWindow *window, UnsignedInt msg,
 					GadgetListBoxGetSelected(GetGameListBox(), &selected);
 					if (selected >= 0)
 					{
-						Int selectedID = (Int)GadgetListBoxGetItemData(GetGameListBox(), selected);
+						Int selectedID = (intptr_t)GadgetListBoxGetItemData(GetGameListBox(), selected);
 						if (selectedID > 0)
 						{
 							StagingRoomMap *srm = TheGameSpyInfo->getStagingRoomList();
@@ -1669,7 +1670,7 @@ WindowMsgHandledType WOLLobbyMenuSystem( GameWindow *window, UnsignedInt msg,
 					if (rowSelected >= 0)
 					{
 						Int groupID;
-						groupID = (Int)GadgetComboBoxGetItemData(comboLobbyGroupRooms, rowSelected);
+						groupID = (intptr_t)GadgetComboBoxGetItemData(comboLobbyGroupRooms, rowSelected);
 						DEBUG_LOG(("ItemData was %d, current Group Room is %d\n", groupID, TheGameSpyInfo->getCurrentGroupRoom()));
 						if (groupID && groupID != TheGameSpyInfo->getCurrentGroupRoom())
 						{
@@ -1794,7 +1795,7 @@ WindowMsgHandledType WOLLobbyMenuSystem( GameWindow *window, UnsignedInt msg,
 						break;
 					}
 
-					Int selectedID = (Int)GadgetListBoxGetItemData(control, rc->pos);
+					Int selectedID = (intptr_t)GadgetListBoxGetItemData(control, rc->pos);
 					if (selectedID > 0)
 					{
 						StagingRoomMap *srm = TheGameSpyInfo->getStagingRoomList();

@@ -30,6 +30,7 @@
 
 #ifndef __PERFTIMER_H__
 #define __PERFTIMER_H__
+#include <SDL3/SDL.h>
 
 #if defined(_DEBUG) || defined(_INTERNAL)
 	/*
@@ -56,7 +57,7 @@ class DebugDisplayInterface;
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 
-#define NO_USE_QPF	// non-QPF is much faster.
+#define USE_QPF	// non-QPF is much faster.
 
 #if defined(PERF_TIMERS) || defined(DUMP_PERF_STATS)
 //-------------------------------------------------------------------------------------------------
@@ -69,7 +70,7 @@ void GetPrecisionTimerTicksPerSec(Int64* t);
 __forceinline void GetPrecisionTimer(Int64* t)
 {
 #ifdef USE_QPF
-	QueryPerformanceCounter((LARGE_INTEGER*)t);
+	*t = SDL_GetPerformanceCounter();
 #else
 	// CPUID is needed to force serialization of any previous instructions. 
 	__asm 

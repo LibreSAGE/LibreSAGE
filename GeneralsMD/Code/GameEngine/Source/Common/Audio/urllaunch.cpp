@@ -17,9 +17,9 @@
 */
 
 
-#include "Common/URLLaunch.h"
+#include "Common/urllaunch.h"
 
-#define FILE_PREFIX     L"file://"
+#define FILE_PREFIX     u"file://"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ HRESULT MakeEscapedURL( LPWSTR pszInURL, LPWSTR *ppszOutURL )
     //
     // Do we need to pre-pend file://?
     //
-    BOOL fNeedFilePrefix = ( 0 == wcsstr( pszInURL, L"://" ) );
+    BOOL fNeedFilePrefix = ( 0 == wcsstr( pszInURL, u"://" ) );
 
     //
     // Count how many characters need to be escaped
@@ -43,7 +43,7 @@ HRESULT MakeEscapedURL( LPWSTR pszInURL, LPWSTR *ppszOutURL )
 
     while( TRUE )
     {
-        LPWSTR pchToEscape = wcspbrk( pszTemp, L" #$%&\\+,;=@[]^{}" );
+        LPWSTR pchToEscape = wcspbrk( pszTemp, u" #$%&\\+,;=@[]^{}" );
 
         if( NULL == pchToEscape )
         {
@@ -87,7 +87,7 @@ HRESULT MakeEscapedURL( LPWSTR pszInURL, LPWSTR *ppszOutURL )
 
     while( TRUE )
     {
-        LPWSTR pchToEscape = wcspbrk( pszTemp, L" #$%&\\+,;=@[]^{}" );
+        LPWSTR pchToEscape = wcspbrk( pszTemp, u" #$%&\\+,;=@[]^{}" );
 
         if( NULL == pchToEscape )
         {
@@ -113,7 +113,7 @@ HRESULT MakeEscapedURL( LPWSTR pszInURL, LPWSTR *ppszOutURL )
         //
         // Expand this character into an escape code and move on
         //
-        pchNext += swprintf( pchNext, L"%%%02x", *pchToEscape );
+        pchNext += swprintf( pchNext, u"%%%02x", *pchToEscape );
 
         pszTemp = pchToEscape + 1;
     }

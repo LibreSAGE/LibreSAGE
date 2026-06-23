@@ -42,7 +42,7 @@
 #include "GameClient/ChallengeGenerals.h"
 #include "GameClient/Gadget.h"
 #include "GameClient/GadgetCheckBox.h"
-#include "GameClient/GadgetListbox.h"
+#include "GameClient/GadgetListBox.h"
 #include "GameClient/GadgetStaticText.h"
 #include "GameClient/GameText.h"
 #include "GameClient/GameWindowManager.h"

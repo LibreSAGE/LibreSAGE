@@ -216,15 +216,15 @@ void LANDisplayGameList( GameWindow *gameListbox, LANGameInfo *gameList )
 		while (gameList)
 		{
 			UnicodeString txtGName;
-			txtGName = L"";
+			txtGName = u"";
 			if( gameList->isGameInProgress() )
 			{
-				txtGName.concat(L"[");
+				txtGName.concat(u"[");
 			}
 			txtGName.concat(gameList->getPlayerName(0));
 			if( gameList->isGameInProgress() )
 			{
-				txtGName.concat(L"]");
+				txtGName.concat(u"]");
 			}
 			Int addedIndex = GadgetListBoxAddEntryText(gameListbox, txtGName, (gameList->isGameInProgress())?gameInProgressColor:gameColor, -1, -1);
 			GadgetListBoxSetItemData(gameListbox, (void *)gameList, addedIndex, 0 );
@@ -245,7 +245,7 @@ void LANDisplayGameList( GameWindow *gameListbox, LANGameInfo *gameList )
 AsciiString GenerateGameOptionsString( void )
 {
 	if(!TheLAN->GetMyGame() || !TheLAN->GetMyGame()->amIHost())
-		return AsciiString.TheEmptyString;
+		return AsciiString::TheEmptyString;
 
 	return GameInfoToAsciiString(TheLAN->GetMyGame());
 }

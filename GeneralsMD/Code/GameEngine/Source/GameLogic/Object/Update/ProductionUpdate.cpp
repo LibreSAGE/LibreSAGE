@@ -1081,13 +1081,13 @@ void ProductionUpdate::removeFromProductionQueue( ProductionEntry *production )
 	UnicodeString msg;
 	if( production->getProductionType() == ProductionEntry::PRODUCTION_UNIT )
 	{
-		msg.format( L"Removed unit '%S'(%d)", production->getProductionObject()->getName().str(),
+		msg.format( u"Removed unit '%S'(%d)", production->getProductionObject()->getName().str(),
 																					production->getProductionID() );
 		TheInGameUI->message( msg );
 	}
 	else
 	{
-		msg.format( L"Remove upgrade '%S'", production->getProductionUpgrade()->getName().str() );
+		msg.format( u"Remove upgrade '%S'", production->getProductionUpgrade()->getName().str() );
 		TheInGameUI->message( msg );
 	}
 */

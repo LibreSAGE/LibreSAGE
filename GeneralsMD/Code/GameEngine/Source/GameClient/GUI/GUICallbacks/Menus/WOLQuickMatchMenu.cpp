@@ -237,7 +237,7 @@ void UpdateStartButton(void)
 	Int index;
 	Int selected;
 	GadgetComboBoxGetSelectedPos( comboBoxLadder, &selected );
-	index = (Int)GadgetComboBoxGetItemData( comboBoxLadder, selected );
+	index = (intptr_t)GadgetComboBoxGetItemData( comboBoxLadder, selected );
 	const LadderInfo *li = TheLadderList->findLadderByIndex( index );
 	if (li)
 	{
@@ -486,7 +486,7 @@ static const LadderInfo * getLadderInfo( void )
 	Int index;
 	Int selected;
 	GadgetComboBoxGetSelectedPos( comboBoxLadder, &selected );
-	index = (Int)GadgetComboBoxGetItemData( comboBoxLadder, selected );
+	index = (intptr_t)GadgetComboBoxGetItemData( comboBoxLadder, selected );
 	const LadderInfo *li = TheLadderList->findLadderByIndex( index );
 	return li;
 }
@@ -565,7 +565,7 @@ static void populateQuickMatchMapSelectListbox( QuickMatchPreferences& pref )
 	Int index;
 	Int selected;
 	GadgetComboBoxGetSelectedPos( comboBoxLadder, &selected );
-	index = (Int)GadgetComboBoxGetItemData( comboBoxLadder, selected );
+	index = (intptr_t)GadgetComboBoxGetItemData( comboBoxLadder, selected );
 	const LadderInfo *li = TheLadderList->findLadderByIndex( index );
 	//listboxMapSelect->winEnable( li == NULL || li->randomMaps == FALSE );
 
@@ -624,7 +624,7 @@ static void saveQuickMatchOptions( void )
 	Int index;
 	Int selected;
 	GadgetComboBoxGetSelectedPos( comboBoxLadder, &selected );
-	index = (Int)GadgetComboBoxGetItemData( comboBoxLadder, selected );
+	index = (intptr_t)GadgetComboBoxGetItemData( comboBoxLadder, selected );
 	const LadderInfo *li = TheLadderList->findLadderByIndex( index );
 	Int numPlayers = 0;
 
@@ -680,7 +680,7 @@ static void saveQuickMatchOptions( void )
 
 	Int item;
 	GadgetComboBoxGetSelectedPos(comboBoxSide, &selected);
-	item = (Int)GadgetComboBoxGetItemData(comboBoxSide, selected);
+	item = (intptr_t)GadgetComboBoxGetItemData(comboBoxSide, selected);
 	pref.setSide(max(0, item));
 	GadgetComboBoxGetSelectedPos(comboBoxColor, &selected);
 	pref.setColor(max(0, selected));
@@ -839,13 +839,13 @@ void WOLQuickMatchMenuInit( WindowLayout *layout, void *userData )
 
 
 	UnicodeString s;
-//	s.format(L"%d", pref.getMaxDisconnects());
+//	s.format(u"%d", pref.getMaxDisconnects());
 //	GadgetTextEntrySetText(textEntryMaxDisconnects, s);
-//	s.format(L"%d", pref.getMaxPoints());
+//	s.format(u"%d", pref.getMaxPoints());
 //	GadgetTextEntrySetText(textEntryMaxPoints, s);
-//	s.format(L"%d", pref.getMinPoints());
+//	s.format(u"%d", pref.getMinPoints());
 //	GadgetTextEntrySetText(textEntryMinPoints, s);
-	//s.format(L"%d", pref.getWaitTime());
+	//s.format(u"%d", pref.getWaitTime());
 	//GadgetTextEntrySetText(textEntryWaitTime, s);
 	maxPoints= pref.getMaxPoints();
 	minPoints = pref.getMinPoints();
@@ -864,7 +864,7 @@ void WOLQuickMatchMenuInit( WindowLayout *layout, void *userData )
 	GadgetComboBoxAddEntry( comboBoxMaxDisconnects, TheGameText->fetch("GUI:Any"), c);
 	for( i = 1; i < MAX_DISCONNECTS_COUNT; ++i )
 	{
-		s.format(L"%d", MAX_DISCONNECTS[i]);
+		s.format(u"%d", MAX_DISCONNECTS[i]);
 		GadgetComboBoxAddEntry( comboBoxMaxDisconnects, s, c );
 	}
 	Int maxDisconIndex = max(0, pref.getMaxDisconnects());
@@ -1194,32 +1194,32 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 				/*
 				if (resp.joinGroupRoom.ok)
 				{
-					TheGameSpyInfo->addText(UnicodeString(L"Joined group room"), GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
+					TheGameSpyInfo->addText(UnicodeString(u"Joined group room"), GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
 				}
 				else
 				{
-					TheGameSpyInfo->addText(UnicodeString(L"Didn't join group room"), GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
+					TheGameSpyInfo->addText(UnicodeString(u"Didn't join group room"), GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
 				}
 				*/
 				break;
 			case PeerResponse::PEERRESPONSE_PLAYERJOIN:
 				{
 					//UnicodeString str;
-					//str.format(L"Player %hs joined the room", resp.nick.c_str());
+					//str.format(u"Player %hs joined the room", resp.nick.c_str());
 					//TheGameSpyInfo->addText(str, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
 				}
 				break;
 			case PeerResponse::PEERRESPONSE_PLAYERLEFT:
 				{
 					//UnicodeString str;
-					//str.format(L"Player %hs left the room", resp.nick.c_str());
+					//str.format(u"Player %hs left the room", resp.nick.c_str());
 					//TheGameSpyInfo->addText(str, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
 				}
 				break;
 			case PeerResponse::PEERRESPONSE_MESSAGE:
 				{
 					//UnicodeString m;
-					//m.format(L"[%hs]: %ls", resp.nick.c_str(), resp.text.c_str());
+					//m.format(u"[%hs]: %ls", resp.nick.c_str(), resp.text.c_str());
 					//TheGameSpyInfo->addText(m, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
 				}
 				break;
@@ -1250,13 +1250,13 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 					{
 						// Woohoo!  On to our next screen!
 						UnicodeString str;
-						str.format(L"Created staging room");
+						str.format(u"Created staging room");
 						TheGameSpyInfo->addText(str, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
 					}
 					else
 					{
 						UnicodeString s;
-						s.format(L"createStagingRoom result: %d", resp.createStagingRoom.result);
+						s.format(u"createStagingRoom result: %d", resp.createStagingRoom.result);
 						TheGameSpyInfo->addText( s, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow );
 					}
 				}
@@ -1267,13 +1267,13 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 					{
 						// Woohoo!  On to our next screen!
 						UnicodeString s;
-						s.format(L"joinStagingRoom result: %d", resp.joinStagingRoom.ok);
+						s.format(u"joinStagingRoom result: %d", resp.joinStagingRoom.ok);
 						TheGameSpyInfo->addText( s, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow );
 					}
 					else
 					{
 						UnicodeString s;
-						s.format(L"joinStagingRoom result: %d", resp.joinStagingRoom.ok);
+						s.format(u"joinStagingRoom result: %d", resp.joinStagingRoom.ok);
 						TheGameSpyInfo->addText( s, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow );
 					}
 				}
@@ -1281,7 +1281,7 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 			case PeerResponse::PEERRESPONSE_STAGINGROOM:
 				{
 					UnicodeString str;
-					str.format(L"Staging room list callback", resp.nick.c_str());
+					str.format(u"Staging room list callback", resp.nick.c_str());
 					TheGameSpyInfo->addText(str, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
 				}
 				break;
@@ -1291,7 +1291,7 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 					switch( resp.qmStatus.status )
 					{
 					case QM_IDLE:
-						//TheGameSpyInfo->addText(UnicodeString(L"Status: QM_IDLE"), GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
+						//TheGameSpyInfo->addText(UnicodeString(u"Status: QM_IDLE"), GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
 						break;
 					case QM_JOININGQMCHANNEL:
 						TheGameSpyInfo->addText(TheGameText->fetch("QM:JOININGQMCHANNEL"), GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
@@ -1452,7 +1452,7 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 		if (frameTime > 100 || responses.size() > 20)
 		{
 			UnicodeString munkee;
-			munkee.format(L"inQM:%d %d ms, %d messages", s_inQM, frameTime, responses.size());
+			munkee.format(u"inQM:%d %d ms, %d messages", s_inQM, frameTime, responses.size());
 			TheGameSpyInfo->addText(munkee, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow);
 			PERF_LOG(("%ls\n", munkee.str()));
 
@@ -1563,7 +1563,7 @@ WindowMsgHandledType WOLQuickMatchMenuSystem( GameWindow *window, UnsignedInt ms
 					if (pos >= 0)
 					{
 						QuickMatchPreferences pref;
-						Int ladderID = (Int)GadgetComboBoxGetItemData(control, pos);
+						Int ladderID = (intptr_t)GadgetComboBoxGetItemData(control, pos);
 						if (ladderID == 0)
 						{
 							// no ladder selected - enable buttons
@@ -1689,7 +1689,7 @@ WindowMsgHandledType WOLQuickMatchMenuSystem( GameWindow *window, UnsignedInt ms
 
 					Int ladderIndex, index, selected;
 					GadgetComboBoxGetSelectedPos( comboBoxLadder, &selected );
-					ladderIndex = (Int)GadgetComboBoxGetItemData( comboBoxLadder, selected );
+					ladderIndex = (intptr_t)GadgetComboBoxGetItemData( comboBoxLadder, selected );
 					const LadderInfo *ladderInfo = NULL;
 					if (ladderIndex < 0)
 					{
@@ -1710,7 +1710,7 @@ WindowMsgHandledType WOLQuickMatchMenuSystem( GameWindow *window, UnsignedInt ms
 					index = -1;
 					GadgetComboBoxGetSelectedPos( comboBoxSide, &selected );
 					if (selected >= 0)
-						index = (Int)GadgetComboBoxGetItemData( comboBoxSide, selected );
+						index = (intptr_t)GadgetComboBoxGetItemData( comboBoxSide, selected );
 					req.QM.side = index;
 					if (ladderInfo && ladderInfo->randomFactions)
 					{
@@ -1749,7 +1749,7 @@ WindowMsgHandledType WOLQuickMatchMenuSystem( GameWindow *window, UnsignedInt ms
 						{
 							Int numberComboBoxEntries = GadgetComboBoxGetLength(comboBoxSide);
 							Int randomPick = GameClientRandomValue(0, numberComboBoxEntries - 1);
-							index = (Int)GadgetComboBoxGetItemData( comboBoxSide, randomPick );
+							index = (intptr_t)GadgetComboBoxGetItemData( comboBoxSide, randomPick );
 							req.QM.side = index;
 
 							randomTries++;
@@ -1759,7 +1759,7 @@ WindowMsgHandledType WOLQuickMatchMenuSystem( GameWindow *window, UnsignedInt ms
 					index = -1;
 					GadgetComboBoxGetSelectedPos( comboBoxColor, &selected );
 					if (selected >= 0)
-						index = (Int)GadgetComboBoxGetItemData( comboBoxColor, selected );
+						index = (intptr_t)GadgetComboBoxGetItemData( comboBoxColor, selected );
 					req.QM.color = index;
 
 					OptionPreferences natPref;

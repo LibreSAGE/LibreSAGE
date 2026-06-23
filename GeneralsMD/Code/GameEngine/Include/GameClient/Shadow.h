@@ -38,8 +38,7 @@
 //
 
 // shadow bit flags, keep this in sync with TheShadowNames
-enum ShadowType
-{
+enum ShadowType : int {
 	SHADOW_NONE											=	0x00000000, 
 	SHADOW_DECAL										=	0x00000001,		//shadow decal applied via modulate blend
 	SHADOW_VOLUME										=	0x00000002, 

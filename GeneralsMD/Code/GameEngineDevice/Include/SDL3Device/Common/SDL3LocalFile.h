@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals Zero Hour(tm)
+**	Command & Conquer Generals(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -16,18 +16,18 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Trig.h
-// fast trig functions
-// Author: Sondra Iverson, March 1998
-// Converted to Generals by Matthew D. Campbell, February 2002
+#pragma once
 
-#ifndef _TRIG_H_
-#define _TRIG_H_
+#ifndef __SDL3LOCALFILE_H
+#define __SDL3LOCALFILE_H
 
-Real Sin(Real);
-Real Cos(Real);
-Real Tan(Real);
-Real ACos(Real);
-Real ASin(Real x);
+#include "Common/LocalFile.h"
 
-#endif // _TRIG_H_
+class SDL3LocalFile : public LocalFile
+{
+	MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(SDL3LocalFile, "SDL3LocalFile")
+public:
+	SDL3LocalFile();
+};
+
+#endif // __SDL3LOCALFILE_H

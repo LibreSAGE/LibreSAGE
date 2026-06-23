@@ -46,8 +46,7 @@
 	determined at runtime. (The generated code is basically identical, of course.)
 */
 //------------------------------------------------------------------------------------------------- 
-enum NameKeyType
-{
+enum NameKeyType : int {
 	NAMEKEY_INVALID					= 0,
 	NAMEKEY_MAX							= 1<<23,					// max ordinal value of a NameKey (some code relies on these fitting into 24 bits safely)
 	FORCE_NAMEKEYTYPE_LONG	= 0x7fffffff	// a trick to ensure the NameKeyType is a 32-bit int

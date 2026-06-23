@@ -58,9 +58,9 @@ void LanguageFilter::init() {
 		return;
 	}
 
-	wchar_t word[128];
-	while (readWord(file1, word)) {
-		Int wordLen = wcslen(word);
+	WideChar word[128];
+	while (readWord(file1, (UnsignedShort*)word)) {
+		Int wordLen = u_strlen(word);
 		if (wordLen == 0) {
 			continue;
 		}
@@ -84,18 +84,18 @@ void LanguageFilter::reset() {
 void LanguageFilter::update() {
 }
 
-wchar_t ignoredChars[] = L"-_*'\"";
+WideChar ignoredChars[] = u"-_*'\"";
 
 void LanguageFilter::filterLine(UnicodeString &line) 
 {
 	WideChar *buf = NEW WideChar[line.getLength()+1];
-	wcscpy(buf, line.str());
+	u_strcpy(buf, line.str());
 
 	UnicodeString newLine(line);
-	UnicodeString token(L"");
+	UnicodeString token(u"");
 
-	while (newLine.nextToken(&token, UnicodeString(L" ;,.!?:=\\/><`~()&^%#\n\t"))) {
-		wchar_t *pos = wcsstr(buf, token.str());
+	while (newLine.nextToken(&token, UnicodeString(u" ;,.!?:=\\/><`~()&^%#\n\t"))) {
+		WideChar *pos = u_strstr(buf, token.str());
 		if (pos == NULL) {
 			DEBUG_CRASH(("Couldn't find the token in its own string."));
 			continue;
@@ -108,7 +108,7 @@ void LanguageFilter::filterLine(UnicodeString &line)
 		if (iter != m_wordList.end()) {
 			DEBUG_LOG(("Found word %ls in bad word list. Token was %ls\n", (*iter).first.str(), token.str()));
 			for (Int i = 0; i < len; ++i) {
-				*pos = L'*';
+				*pos = u'*';
 				++pos;
 			}
 		}
@@ -120,38 +120,38 @@ void LanguageFilter::filterLine(UnicodeString &line)
 
 void LanguageFilter::unHaxor(UnicodeString &word) {
 	Int len = word.getLength();
-	UnicodeString newWord(L"");
+	UnicodeString newWord(u"");
 	for (Int i = 0; i < len; ++i) {
 		wchar_t c = word.getCharAt(i);
-		if ((c == L'p') || (c == L'P')) {
-			if (((i + 1) < len) && ((word.getCharAt(i+1) == L'h') || (word.getCharAt(i+1) == L'H'))) {
-				newWord.concat(L'f');
+		if ((c == u'p') || (c == u'P')) {
+			if (((i + 1) < len) && ((word.getCharAt(i+1) == u'h') || (word.getCharAt(i+1) == u'H'))) {
+				newWord.concat(u'f');
 				++i; // skip the h
 			} else {
 				// not a problem at all.
 				newWord.concat(c);
 			}
-		} else if (c == L'1') {
-			newWord.concat(L'l');
-		} else if (c == L'3') {
-			newWord.concat(L'e');
-		} else if (c == L'4') {
-			newWord.concat(L'a');
-		} else if (c == L'5') {
-			newWord.concat(L's');
-		} else if (c == L'6') {
-			newWord.concat(L'b');
-		} else if (c == L'7') {
-			newWord.concat(L't');
-		} else if (c == L'0') {
-			newWord.concat(L'o');
-		} else if (c == L'@') {
-			newWord.concat(L'a');
-		} else if (c == L'$') {
-			newWord.concat(L's');
-		} else if (c == L'+') {
-			newWord.concat(L't');
-		} else if (wcsrchr(ignoredChars, c) == NULL) {
+		} else if (c == u'1') {
+			newWord.concat(u'l');
+		} else if (c == u'3') {
+			newWord.concat(u'e');
+		} else if (c == u'4') {
+			newWord.concat(u'a');
+		} else if (c == u'5') {
+			newWord.concat(u's');
+		} else if (c == u'6') {
+			newWord.concat(u'b');
+		} else if (c == u'7') {
+			newWord.concat(u't');
+		} else if (c == u'0') {
+			newWord.concat(u'o');
+		} else if (c == u'@') {
+			newWord.concat(u'a');
+		} else if (c == u'$') {
+			newWord.concat(u's');
+		} else if (c == u'+') {
+			newWord.concat(u't');
+		} else if (u_strchr(ignoredChars, c) == NULL) {
 			newWord.concat(c);
 		}
 	}
@@ -173,14 +173,14 @@ Bool LanguageFilter::readWord(File *file1, UnsignedShort *buf) {
 	}
 	buf[index] = c;
 
-	while (buf[index] != L' ') {
+	while (buf[index] != u' ') {
 		++index;
 		val = file1->read(&c, sizeof(UnsignedShort));
 		if ((val == -1) || (val == 0)) {
 			c = WEOF;
 		}
 
-		if ((c == WEOF) || (c == L' ')) {
+		if ((c == WEOF) || (c == u' ')) {
 			buf[index] = 0;
 			if (c == WEOF) {
 				retval = FALSE;

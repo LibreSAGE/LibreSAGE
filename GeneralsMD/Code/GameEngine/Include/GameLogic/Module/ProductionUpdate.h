@@ -43,13 +43,11 @@ class ThingTemplate;
 class UpgradeTemplate;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-enum ProductionID
-{
+enum ProductionID : int {
 	PRODUCTIONID_INVALID = 0
 };
 
-enum ProductionType
-{
+enum ProductionType : int {
 	PRODUCTION_INVALID = 0,
 	PRODUCTION_UNIT,
 	PRODUCTION_UPGRADE
@@ -141,7 +139,7 @@ public:
 };
 
 //-------------------------------------------------------------------------------------------------
-enum CanMakeType;
+enum CanMakeType : int;
 
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------

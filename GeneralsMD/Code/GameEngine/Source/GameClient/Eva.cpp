@@ -37,8 +37,12 @@
 //#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
 #endif
 
+#ifndef ELEMENTS_OF
+#define ELEMENTS_OF(a) (sizeof(a)/sizeof((a)[0]))
+#endif
+
 //-------------------------------------------------------------------------------------------------
-const char *TheEvaMessageNames[] = 
+const char *TheEvaMessageNames[] =
 {
 	"LOWPOWER",
 	"INSUFFICIENTFUNDS",
