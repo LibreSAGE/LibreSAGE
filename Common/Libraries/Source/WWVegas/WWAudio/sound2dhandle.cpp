@@ -43,8 +43,11 @@
 //	Sound2DHandleClass
 //
 //////////////////////////////////////////////////////////////////////
-Sound2DHandleClass::Sound2DHandleClass (void)	:
+Sound2DHandleClass::Sound2DHandleClass (void)	
+#ifdef SAGE_USE_MILES
+	:
 	SampleHandle ((HSAMPLE)INVALID_MILES_HANDLE)
+#endif
 {
 	return ;
 }
@@ -70,7 +73,7 @@ void
 Sound2DHandleClass::Initialize (SoundBufferClass *buffer)
 {
 	SoundHandleClass::Initialize (buffer);
-
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 
 		//
@@ -86,7 +89,7 @@ Sound2DHandleClass::Initialize (SoundBufferClass *buffer)
 					Buffer->Get_Raw_Buffer (), Buffer->Get_Raw_Length (), 0);
 		}
 	}
-
+#endif
 	return ;
 }
 
@@ -99,10 +102,11 @@ Sound2DHandleClass::Initialize (SoundBufferClass *buffer)
 void
 Sound2DHandleClass::Start_Sample (void)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_start_sample (SampleHandle);
 	}
-
+#endif
 	return ;
 }
 
@@ -115,10 +119,11 @@ Sound2DHandleClass::Start_Sample (void)
 void
 Sound2DHandleClass::Stop_Sample (void)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_stop_sample (SampleHandle);
 	}
-
+#endif
 	return ;
 }
 
@@ -131,10 +136,11 @@ Sound2DHandleClass::Stop_Sample (void)
 void
 Sound2DHandleClass::Resume_Sample (void)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_resume_sample (SampleHandle);
 	}
-
+#endif
 	return ;
 }
 
@@ -147,10 +153,11 @@ Sound2DHandleClass::Resume_Sample (void)
 void
 Sound2DHandleClass::End_Sample (void)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_end_sample (SampleHandle);
 	}
-
+#endif
 	return ;
 }
 
@@ -161,12 +168,13 @@ Sound2DHandleClass::End_Sample (void)
 //
 //////////////////////////////////////////////////////////////////////
 void
-Sound2DHandleClass::Set_Sample_Pan (S32 pan)
+Sound2DHandleClass::Set_Sample_Pan (int32_t pan)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_set_sample_pan (SampleHandle, pan);
 	}
-
+#endif
 	return ;
 }
 
@@ -176,15 +184,15 @@ Sound2DHandleClass::Set_Sample_Pan (S32 pan)
 //	Get_Sample_Pan
 //
 //////////////////////////////////////////////////////////////////////
-S32
+int32_t
 Sound2DHandleClass::Get_Sample_Pan (void)
 {
-	S32 retval = 0;
-
+	int32_t retval = 0;
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		retval = ::AIL_sample_pan (SampleHandle);
 	}
-
+#endif
 	return retval;
 }
 
@@ -195,11 +203,13 @@ Sound2DHandleClass::Get_Sample_Pan (void)
 //
 //////////////////////////////////////////////////////////////////////
 void
-Sound2DHandleClass::Set_Sample_Volume (S32 volume)
+Sound2DHandleClass::Set_Sample_Volume (int32_t volume)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_set_sample_volume (SampleHandle, volume);
 	}
+#endif
 	return ;
 }
 
@@ -209,15 +219,15 @@ Sound2DHandleClass::Set_Sample_Volume (S32 volume)
 //	Get_Sample_Volume
 //
 //////////////////////////////////////////////////////////////////////
-S32
+int32_t
 Sound2DHandleClass::Get_Sample_Volume (void)
 {
-	S32 retval = 0;
-
+	int32_t retval = 0;
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		retval = ::AIL_sample_volume (SampleHandle);
 	}
-
+#endif
 	return retval;
 }
 
@@ -228,12 +238,13 @@ Sound2DHandleClass::Get_Sample_Volume (void)
 //
 //////////////////////////////////////////////////////////////////////
 void
-Sound2DHandleClass::Set_Sample_Loop_Count (U32 count)
+Sound2DHandleClass::Set_Sample_Loop_Count (uint32_t count)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_set_sample_loop_count (SampleHandle, count);
 	}
-
+#endif
 	return ;
 }
 
@@ -243,15 +254,15 @@ Sound2DHandleClass::Set_Sample_Loop_Count (U32 count)
 //	Get_Sample_Loop_Count
 //
 //////////////////////////////////////////////////////////////////////
-U32
+uint32_t
 Sound2DHandleClass::Get_Sample_Loop_Count (void)
 {
-	U32 retval = 0;
-
+	uint32_t retval = 0;
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		retval = ::AIL_sample_loop_count (SampleHandle);
 	}
-
+#endif
 	return retval;
 }
 
@@ -262,12 +273,13 @@ Sound2DHandleClass::Get_Sample_Loop_Count (void)
 //
 //////////////////////////////////////////////////////////////////////
 void
-Sound2DHandleClass::Set_Sample_MS_Position (U32 ms)
+Sound2DHandleClass::Set_Sample_MS_Position (uint32_t ms)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_set_sample_ms_position (SampleHandle, ms);
 	}
-
+#endif
 	return ;
 }
 
@@ -278,12 +290,13 @@ Sound2DHandleClass::Set_Sample_MS_Position (U32 ms)
 //
 //////////////////////////////////////////////////////////////////////
 void
-Sound2DHandleClass::Get_Sample_MS_Position (S32 *len, S32 *pos)
+Sound2DHandleClass::Get_Sample_MS_Position (int32_t *len, int32_t *pos)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_sample_ms_position (SampleHandle, len, pos);
 	}
-
+#endif
 	return ;
 }
 
@@ -294,12 +307,13 @@ Sound2DHandleClass::Get_Sample_MS_Position (S32 *len, S32 *pos)
 //
 //////////////////////////////////////////////////////////////////////
 void
-Sound2DHandleClass::Set_Sample_User_Data (S32 i, U32 val)
+Sound2DHandleClass::Set_Sample_User_Data (int32_t i, uintptr_t val)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_set_sample_user_data (SampleHandle, i, val);
 	}
-
+#endif
 	return ;
 }
 
@@ -309,15 +323,15 @@ Sound2DHandleClass::Set_Sample_User_Data (S32 i, U32 val)
 //	Get_Sample_User_Data
 //
 //////////////////////////////////////////////////////////////////////
-U32
-Sound2DHandleClass::Get_Sample_User_Data (S32 i)
+uintptr_t
+Sound2DHandleClass::Get_Sample_User_Data (int32_t i)
 {
-	U32 retval = 0;
-
+	uintptr_t retval = 0;
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		retval = ::AIL_sample_user_data (SampleHandle, i);
 	}
-
+#endif
 	return retval;
 }
 
@@ -327,15 +341,15 @@ Sound2DHandleClass::Get_Sample_User_Data (S32 i)
 //	Get_Sample_Playback_Rate
 //
 //////////////////////////////////////////////////////////////////////
-S32
+int32_t
 Sound2DHandleClass::Get_Sample_Playback_Rate (void)
 {	
-	S32 retval = 0;
-
+	int32_t retval = 0;
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		retval = ::AIL_sample_playback_rate (SampleHandle);
 	}
-
+#endif
 	return retval;
 }
 
@@ -346,12 +360,13 @@ Sound2DHandleClass::Get_Sample_Playback_Rate (void)
 //
 //////////////////////////////////////////////////////////////////////
 void
-Sound2DHandleClass::Set_Sample_Playback_Rate (S32 rate)
+Sound2DHandleClass::Set_Sample_Playback_Rate (int32_t rate)
 {
+#ifdef SAGE_USE_MILES
 	if (SampleHandle != (HSAMPLE)INVALID_MILES_HANDLE) {
 		::AIL_set_sample_playback_rate (SampleHandle, rate);
 	}
-
+#endif
 	return ;
 }
 
@@ -364,6 +379,8 @@ Sound2DHandleClass::Set_Sample_Playback_Rate (S32 rate)
 void
 Sound2DHandleClass::Set_Miles_Handle (uint32 handle)
 {
+#ifdef SAGE_USE_MILES
 	SampleHandle = (HSAMPLE)handle;
+#endif
 	return ;
 }

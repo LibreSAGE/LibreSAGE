@@ -68,8 +68,6 @@ inline NetworkInterface *SDL3GameEngine::createNetwork( void ) { return NetworkI
 inline Radar *SDL3GameEngine::createRadar( void ) { return NEW W3DRadar; }
 #if defined(SAGE_USE_MINIAUDIO)
 inline AudioManager *SDL3GameEngine::createAudioManager( void ) { return NEW MiniAudioManager; }
-#elif defined(SAGE_USE_OPENAL)
-inline AudioManager *SDL3GameEngine::createAudioManager( void ) { return NEW OpenALAudioManager; }
 #elif defined(SAGE_USE_MILES)
 inline AudioManager* SDL3GameEngine::createAudioManager(void) { return NEW MilesAudioManager; }
 #else

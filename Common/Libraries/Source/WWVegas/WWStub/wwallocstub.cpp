@@ -1,4 +1,5 @@
 /*
+**	Command & Conquer Generals(tm)
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 TheSuperHackers
 **  Copyright 2026 Stephan Vedder

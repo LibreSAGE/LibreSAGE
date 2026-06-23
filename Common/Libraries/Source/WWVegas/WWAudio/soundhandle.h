@@ -83,35 +83,41 @@ public:
 	//
 	//	Handle access
 	//
-	virtual H3DSAMPLE		Get_H3DSAMPLE (void)		{ return NULL; }
+#ifdef SAGE_USE_MILES
+	virtual H3DSAMPLE	Get_H3DSAMPLE (void)	{ return NULL; }
 	virtual HSAMPLE		Get_HSAMPLE (void)		{ return NULL; }
 	virtual HSTREAM		Get_HSTREAM (void)		{ return NULL; }
+#else
+	virtual void*			Get_H3DSAMPLE (void)	{ return NULL; }
+	virtual void*			Get_HSAMPLE (void)		{ return NULL; }
+	virtual void*			Get_HSTREAM (void)		{ return NULL; }
+#endif
 
 	//
 	//	Initialization
 	//	
-	virtual void	Set_Miles_Handle (uint32 handle) = 0;
+	virtual void	Set_Miles_Handle (uint32_t handle) = 0;
 	virtual void	Initialize (SoundBufferClass *buffer);
 
 	//
 	//	Sample control
 	//	
-	virtual void	Start_Sample (void) = 0;
-	virtual void	Stop_Sample (void) = 0;
-	virtual void	Resume_Sample (void) = 0;
-	virtual void	End_Sample (void) = 0;
-	virtual void	Set_Sample_Pan (S32 pan) = 0;
-	virtual S32		Get_Sample_Pan (void) = 0;
-	virtual void	Set_Sample_Volume (S32 volume) = 0;
-	virtual S32		Get_Sample_Volume (void) = 0;
-	virtual void	Set_Sample_Loop_Count (U32 count) = 0;
-	virtual U32		Get_Sample_Loop_Count (void) = 0;
-	virtual void	Set_Sample_MS_Position (U32 ms) = 0;
-	virtual void	Get_Sample_MS_Position (S32 *len, S32 *pos) = 0;
-	virtual void	Set_Sample_User_Data (S32 i, U32 val) = 0;
-	virtual U32		Get_Sample_User_Data (S32 i) = 0;
-	virtual S32		Get_Sample_Playback_Rate (void) = 0;
-	virtual void	Set_Sample_Playback_Rate (S32 rate) = 0;
+	virtual void		Start_Sample (void) = 0;
+	virtual void		Stop_Sample (void) = 0;
+	virtual void		Resume_Sample (void) = 0;
+	virtual void		End_Sample (void) = 0;
+	virtual void		Set_Sample_Pan (int32_t pan) = 0;
+	virtual int32_t		Get_Sample_Pan (void) = 0;
+	virtual void		Set_Sample_Volume (int32_t volume) = 0;
+	virtual int32_t		Get_Sample_Volume (void) = 0;
+	virtual void		Set_Sample_Loop_Count (uint32_t count) = 0;
+	virtual uint32_t	Get_Sample_Loop_Count (void) = 0;
+	virtual void		Set_Sample_MS_Position (uint32_t ms) = 0;
+	virtual void		Get_Sample_MS_Position (int32_t *len, int32_t *pos) = 0;
+	virtual void		Set_Sample_User_Data (int32_t i, uintptr_t val) = 0;
+	virtual uintptr_t	Get_Sample_User_Data (int32_t i) = 0;
+	virtual int32_t		Get_Sample_Playback_Rate (void) = 0;
+	virtual void		Set_Sample_Playback_Rate (int32_t rate) = 0;
 	
 protected:
 	

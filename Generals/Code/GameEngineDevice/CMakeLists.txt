@@ -165,7 +165,7 @@ if(SAGE_USE_MILES)
   target_sources(
     g_gameenginedevice PRIVATE Include/MilesAudioDevice/MilesAudioManager.h
                                Source/MilesAudioDevice/MilesAudioManager.cpp)
-  target_compile_definitions(g_gameenginedevice PRIVATE SAGE_USE_MILES)
+  target_compile_definitions(g_gameenginedevice PUBLIC SAGE_USE_MILES)
 endif()
 
 if(SAGE_USE_BINK)
@@ -225,27 +225,6 @@ if(SAGE_USE_MINIAUDIO)
                                Source/MiniAudioDevice/MiniAudioManager.cpp)
 
   target_compile_definitions(g_gameenginedevice PRIVATE SAGE_USE_MINIAUDIO)
-endif()
-
-if(SAGE_USE_OPENAL)
-  if(NOT SAGE_USE_FFMPEG)
-    message(FATAL_ERROR "OpenAL support requires FFmpeg support to be enabled.")
-  endif()
-
-  target_sources(
-    g_gameenginedevice PRIVATE Include/OpenALDevice/OpenALAudioManager.h
-                               Include/OpenALDevice/OpenALAudioStream.h
-                               Include/OpenALDevice/FFmpegOpenALAudioStream.h
-                               Source/OpenALDevice/OpenALAudioFileCache.h
-                               Source/OpenALDevice/OpenALAudioFileCache.cpp
-                               Source/OpenALDevice/OpenALAudioManager.cpp
-                               Source/OpenALDevice/OpenALAudioStream.cpp
-                               Source/OpenALDevice/FFmpegOpenALAudioStream.cpp)
-
-  find_package(OpenAL REQUIRED)
-  find_package(fmt REQUIRED)
-  target_link_libraries(g_gameenginedevice PRIVATE OpenAL::OpenAL fmt::fmt)
-  target_compile_definitions(g_gameenginedevice PRIVATE SAGE_USE_OPENAL)
 endif()
 
 if(WIN32)

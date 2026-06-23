@@ -15,11 +15,6 @@ unsigned long timeGetTime(void)
   return diff;
 }
 
-unsigned long GetTickCount(void)
-{
-  return timeGetTime();
-}
-
 void Sleep(unsigned long ms)
 {
   struct timespec ts;
