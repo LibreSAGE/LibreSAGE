@@ -22,7 +22,7 @@
 //																																						//
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"
+#include "Common/GlobalData.h"
 
 #include "GameLogic/Damage.h"
 #include "GameLogic/Module/ContainModule.h"

@@ -25,9 +25,6 @@
 // FILE: Encrypt.cpp //////////////////////////////////////////////////////
 // Ancient Westwood Online password encryption (obfuscation?) code
 // Author: Anonymous
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include <stdio.h>
 #include <string.h>
 #include "Common/Encrypt.h"

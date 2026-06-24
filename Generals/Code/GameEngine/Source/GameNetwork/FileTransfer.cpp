@@ -28,7 +28,7 @@
 // Description: File Transfer wrapper using TheNetwork
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/Thing.h"
 
 #include "GameClient/LoadScreen.h"
 #include "GameClient/Shell.h"

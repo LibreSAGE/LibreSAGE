@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -32,8 +32,7 @@
 #ifndef __SUBSYSTEMINTERFACE_H_
 #define __SUBSYSTEMINTERFACE_H_
 
-#include "Common/INI.h"
-#include "Common/STLTypedefs.h"	
+#include "Common/STLTypedefs.h"
 
 class Xfer;
 
@@ -117,6 +116,8 @@ public:
 	void DRAW(void);
 	Real getUpdateTime(void) {return m_curUpdateTime;}
 	Real getDrawTime(void) {return m_curDrawTime;}
+	Bool doDumpUpdate(void) {return m_dumpUpdate;}
+	Bool doDumpDraw(void) {return m_dumpDraw;}
 	static Real getTotalTime(void) {return s_msConsumed;}
 	static void clearTotalTime(void) {s_msConsumed = 0;}
 protected:
@@ -126,6 +127,8 @@ protected:
 
 	Real m_startDrawTimeConsumed;
 	Real m_curDrawTime;
+	Bool m_dumpUpdate;
+	Bool m_dumpDraw;
 #else 
 	inline void UPDATE(void) {update();}
 	inline void DRAW(void) {draw();}
@@ -153,7 +156,7 @@ public:
 	void resetAll();
 	void shutdownAll();
 #ifdef DUMP_PERF_STATS
-	AsciiString dumpTimesForAll();
+ 	AsciiString dumpTimesForAll();
 #endif
 
 private:

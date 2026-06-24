@@ -26,9 +26,6 @@
 // Author: Graham Smallwood, February 2002
 // Desc:   Keeps track of shots fired and people targeted for weapons that want a history of such a thing
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/AudioHandleSpecialValues.h"
 #include "Common/GameType.h"
 #include "Common/GameAudio.h"

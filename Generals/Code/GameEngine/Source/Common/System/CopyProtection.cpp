@@ -26,9 +26,6 @@
 // Author: Matthew D. Campbell
 // Taken From: Denzil Long's code in Tiberian Sun, by way of Yuri's Revenge
 //////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"
-
 #include "Common/CopyProtection.h"
 
 #ifndef DO_COPY_PROTECTION

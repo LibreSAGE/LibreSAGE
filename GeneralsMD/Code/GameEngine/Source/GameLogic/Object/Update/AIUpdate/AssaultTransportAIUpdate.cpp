@@ -27,9 +27,6 @@
 // Desc:   State machine that allows assault transports (troop crawler) to deploy
 //         troops, order them to attack, then return. Can do extra things like ordering
 //         injured troops to return to the transport for healing purposes.
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/Player.h"
 #include "Common/ThingFactory.h"
 #include "GameClient/Drawable.h"

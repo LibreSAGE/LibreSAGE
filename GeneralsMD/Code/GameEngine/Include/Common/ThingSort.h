@@ -55,7 +55,7 @@ enum EditorSortingType : int {
 
 };
 #ifdef DEFINE_EDITOR_SORTING_NAMES
-static char *EditorSortingNames[] = 
+static const char *EditorSortingNames[] = 
 {
 	"NONE",
 	"STRUCTURE",

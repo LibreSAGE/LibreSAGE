@@ -30,6 +30,7 @@
 
 #ifndef __PERFTIMER_H__
 #define __PERFTIMER_H__
+#include <SDL3/SDL.h>
 
 #if defined(_DEBUG) || defined(_INTERNAL)
 	/*
@@ -56,7 +57,7 @@ class DebugDisplayInterface;
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 
-#define NO_USE_QPF	// non-QPF is much faster.
+#define USE_QPF	// non-QPF is much faster.
 
 #if defined(PERF_TIMERS) || defined(DUMP_PERF_STATS)
 //-------------------------------------------------------------------------------------------------

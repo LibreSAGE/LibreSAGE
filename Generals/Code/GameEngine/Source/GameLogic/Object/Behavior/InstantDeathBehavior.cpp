@@ -29,7 +29,7 @@
 
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "GameLogic/LogicRandomValue.h"
 #define DEFINE_SLOWDEATHPHASE_NAMES
 
 #include "Common/Thing.h"

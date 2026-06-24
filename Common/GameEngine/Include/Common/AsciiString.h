@@ -57,7 +57,7 @@
 
 class UnicodeString;
 
-#include "windows.h"
+#include <atomic>		// for std::atomic_ref, used for thread-safe reference counting
 
 // -----------------------------------------------------
 /**
@@ -374,12 +374,8 @@ inline AsciiString::AsciiString(const char* s) : m_data(0)
 // -----------------------------------------------------
 inline AsciiString::AsciiString(const AsciiString& stringSrc) : m_data(stringSrc.m_data)
 {
-  // don't need this if we're using InterlockedIncrement
-  // FastCriticalSectionClass::LockClass lock(TheAsciiStringCriticalSection);
 	if (m_data)
-		// ++m_data->m_refCount;
-    // yes, I know it's not a DWord but we're incrementing so we're safe
-    InterlockedIncrement((long *)&m_data->m_refCount);
+		std::atomic_ref<unsigned short>(m_data->m_refCount).fetch_add(1, std::memory_order_relaxed);
 	validate();
 }
 
@@ -391,8 +387,7 @@ inline void AsciiString::releaseBuffer()
 	validate();
 	if (m_data)
 	{
-    InterlockedDecrement((long *)&m_data->m_refCount);
-		if (!m_data->m_refCount)
+		if (std::atomic_ref<unsigned short>(m_data->m_refCount).fetch_sub(1, std::memory_order_acq_rel) == 1)
 			freeBytes();
 		m_data = 0;
 	}
@@ -455,15 +450,14 @@ inline void AsciiString::set(const AsciiString& stringSrc)
     // do not call releaseBuffer(); here, it locks the CS twice
     // from the same thread which is illegal using fast CS's
 		if (m_data)
-    {
-      InterlockedDecrement((long *)&m_data->m_refCount);
-		  if (!m_data->m_refCount)
-			  freeBytes();
-    }
+		{
+			if (std::atomic_ref<unsigned short>(m_data->m_refCount).fetch_sub(1, std::memory_order_acq_rel) == 1)
+				freeBytes();
+		}
 
 		m_data = stringSrc.m_data;
 		if (m_data)
-      InterlockedIncrement((long *)&m_data->m_refCount);
+			std::atomic_ref<unsigned short>(m_data->m_refCount).fetch_add(1, std::memory_order_relaxed);
 	}
 	validate();
 }

@@ -25,9 +25,6 @@
 // FILE: DynamicAudioEventInfo.cpp /////////////////////////////////////////////////////////////////////////
 // Derivation of AudioEventInfo structure, for customized sounds
 // Author: Ian Barkley-Yeung, June 2003
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/DynamicAudioEventInfo.h"
 #include "Common/Xfer.h"
 

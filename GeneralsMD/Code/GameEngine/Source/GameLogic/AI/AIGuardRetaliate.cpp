@@ -36,7 +36,7 @@
 /* Desc:       // Define Guard Retaliation states for AI                     */
 /*---------------------------------------------------------------------------*/
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "GameLogic/LogicRandomValue.h"
 
 #include "Common/PerfTimer.h"
 #include "Common/Team.h"

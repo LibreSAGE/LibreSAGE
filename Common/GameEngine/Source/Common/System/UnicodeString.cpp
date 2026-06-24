@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -42,10 +42,19 @@
 //
 //-----------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
+#include "Common/AsciiString.h"
+#include "Common/UnicodeString.h"
+#include "Common/GameMemory.h"
 #include "Common/CriticalSection.h"
 
+// Lib/BaseType.h defines min/max as function-like macros, which break the
+// libstdc++ headers pulled in by ICU below. Clear them first.
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 #include <unicode/ustdio.h>
 
 #ifdef _INTERNAL

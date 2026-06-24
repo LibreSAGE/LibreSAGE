@@ -28,7 +28,7 @@
 // Desc:      Name key system to translate between names and unique key ids
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/NameKeyGenerator.h"
 
 // Public Data ////////////////////////////////////////////////////////////////////////////////////
 NameKeyGenerator *TheNameKeyGenerator = NULL;  ///< name key gen. singleton
@@ -218,16 +218,8 @@ NameKeyType NameKeyGenerator::nameToLowercaseKey(const char* nameString)
 
 }  // end nameToLowercaseKey
 
-//------------------------------------------------------------------------------------------------- 
-// Get a string out of the INI. Store it into a NameKeyType
-//------------------------------------------------------------------------------------------------- 
-void NameKeyGenerator::parseStringAsNameKeyType( INI *ini, void *instance, void *store, const void* userData )
-{
-  *(NameKeyType *)store = TheNameKeyGenerator->nameToKey( ini->getNextToken() );
-}
 
-
-//------------------------------------------------------------------------------------------------- 
+//-------------------------------------------------------------------------------------------------
 NameKeyType StaticNameKey::key() const
 {
 	if (m_key == NAMEKEY_INVALID)

@@ -37,7 +37,7 @@ static char THIS_FILE[] = __FILE__;
 char AppTitle[200];
 CBabylonDlg *MainDLG = NULL;
 
-static char *AppName = "Babylon:";
+static const char *AppName = "Babylon:";
 static int AlreadyRunning( void );
 static HWND FoundWindow = NULL;
 /////////////////////////////////////////////////////////////////////////////

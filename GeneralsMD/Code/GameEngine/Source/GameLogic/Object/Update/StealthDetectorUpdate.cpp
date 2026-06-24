@@ -27,7 +27,7 @@
 // Desc:	 An update that checks for a status bit to stealth the owning object
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "GameLogic/LogicRandomValue.h"
 
 #define DEFINE_STEALTHLEVEL_NAMES
 

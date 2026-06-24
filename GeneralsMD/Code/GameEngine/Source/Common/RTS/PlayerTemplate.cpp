@@ -41,9 +41,6 @@
 // Desc:      @todo
 //
 //-----------------------------------------------------------------------------
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #define DEFINE_VETERANCY_NAMES				// for TheVeterancyNames[]
 
 #include "Common/GameCommon.h"

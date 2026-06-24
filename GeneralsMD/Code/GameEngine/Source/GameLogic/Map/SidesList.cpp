@@ -42,9 +42,6 @@
 //						in a scenario, including build lists for non-player sides.
 //
 //-----------------------------------------------------------------------------
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/DataChunk.h"
 #include "Common/GameState.h"
 #include "Common/PlayerTemplate.h"

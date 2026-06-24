@@ -46,6 +46,7 @@
 
 // Includes                                                      
 #include "Lib/BaseType.h"
+#include "Common/INI.h"
 #include "Common/STLTypedefs.h"
 #include "Common/SubsystemInterface.h"
 

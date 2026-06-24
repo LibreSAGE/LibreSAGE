@@ -25,9 +25,6 @@
 // Kindof.cpp /////////////////////////////////////////////////////////////////////////////////////
 // Part of header detangling
 // John McDonald, Aug 2002
-
-#include "PreRTS.h"
-
 #include "Common/KindOf.h"
 #include "Common/BitFlagsIO.h"
 

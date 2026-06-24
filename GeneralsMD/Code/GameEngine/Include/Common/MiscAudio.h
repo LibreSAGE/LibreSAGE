@@ -31,6 +31,7 @@
 #define _MISCAUDIO_H_
 
 #include "Common/AudioEventRTS.h"
+#include "Common/INI.h"
 
 struct MiscAudio
 {

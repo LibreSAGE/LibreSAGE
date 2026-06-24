@@ -25,9 +25,6 @@
 // FILE: Display.cpp //////////////////////////////////////////////////////////
 // The implementation of the Display class
 // Author: Michael S. Booth, March 2001
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "GameClient/Display.h"
 #include "GameClient/Mouse.h"
 #include "GameClient/VideoPlayer.h"

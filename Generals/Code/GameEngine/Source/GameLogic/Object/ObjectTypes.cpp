@@ -27,7 +27,7 @@
 // September 2002
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"
+#include "Common/Thing.h"
 #include "GameLogic/ObjectTypes.h"
 
 #include "Common/GameState.h"

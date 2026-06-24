@@ -25,9 +25,6 @@
 /////////ArchiveFile.cpp ///////////////////////
 // Bryan Cleveland, August 2002
 ////////////////////////////////////////////////
-
-#include "PreRTS.h"
-
 #include "Common/ArchiveFile.h"
 #include "Common/ArchiveFileSystem.h"
 #include "Common/File.h"

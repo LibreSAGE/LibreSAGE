@@ -26,7 +26,7 @@
 // Generals version number class
 // Author: Matthew D. Campbell, November 2001
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/SubsystemInterface.h"
 
 #include "GameClient/GameText.h"
 #include "Common/Version.h"

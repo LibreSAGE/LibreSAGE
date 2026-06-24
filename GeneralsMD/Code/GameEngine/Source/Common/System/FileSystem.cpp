@@ -45,7 +45,7 @@
 //         Includes                                                      
 //----------------------------------------------------------------------------
 
-#include "PreRTS.h"
+#include "Common/KindOf.h"
 #include "Common/File.h"
 #include "Common/FileSystem.h"
 

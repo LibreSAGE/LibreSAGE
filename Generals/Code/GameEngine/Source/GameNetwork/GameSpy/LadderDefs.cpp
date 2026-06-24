@@ -26,7 +26,7 @@
 // Generals ladder code
 // Author: Matthew D. Campbell, August 2002
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/GlobalData.h"
 
 #include "GameNetwork/GameSpy/ThreadUtils.h"
 #include "GameNetwork/GameSpy/LadderDefs.h"

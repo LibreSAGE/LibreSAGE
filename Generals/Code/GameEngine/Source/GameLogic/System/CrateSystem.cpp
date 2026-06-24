@@ -27,7 +27,8 @@
 // Desc:   System responsible for Crates as code objects - ini, new/delete etc
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/SubsystemInterface.h"
+#include "Common/KindOf.h"
 
 #define DEFINE_VETERANCY_NAMES				// for TheVeterancyNames[]
 

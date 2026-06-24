@@ -25,9 +25,6 @@
 // SupplyTruckAIUpdate.cpp ////////////
 // Author: Graham Smallwood, February 2002
 // Desc:   State machine that controls when and with who a Truck docks
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/Player.h"
 #include "Common/ResourceGatheringManager.h"
 #include "Common/ThingTemplate.h"

@@ -29,7 +29,9 @@
 
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include <limits.h>
+#include "Common/GlobalData.h"
+#include "GameLogic/LogicRandomValue.h"
 #include "Common/Thing.h"
 #include "Common/ThingTemplate.h"
 #include "Common/INI.h"

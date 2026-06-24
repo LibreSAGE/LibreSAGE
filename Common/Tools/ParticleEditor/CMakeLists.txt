@@ -53,6 +53,7 @@ set_target_properties(c_particleeditor PROPERTIES OUTPUT_NAME "ParticleEditor")
 target_include_directories(
   c_particleeditor
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+          ${PROJECT_SOURCE_DIR}/Common/GameEngine/Include
           ${PROJECT_SOURCE_DIR}/Generals/Code/GameEngine/Include
           ${PROJECT_SOURCE_DIR}/Generals/Code/GameEngine/Include/Precompiled
           ${PROJECT_SOURCE_DIR}/Common/Libraries/Source/WWVegas

@@ -26,7 +26,102 @@
 // GameSpy game setup state info
 // Author: Matthew D. Campbell, December 2001
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+// --- inlined from former Precompiled/PreRTS.h ---
+// NOTE: this file is excluded from the Linux build (GameSpy SDK not ported),
+// so these includes are NOT compile-verified. Trim when GameSpy is ported.
+//-----------------------------------------------------------------------------
+// srj sez: this must come first, first, first.
+#define _STLP_USE_NEWALLOC					1
+//#define _STLP_USE_CUSTOM_NEWALLOC		STLSpecialAlloc
+class STLSpecialAlloc;
+
+
+// We actually don't use Windows for much other than timeGetTime, but it was included in 40 
+// different .cpp files, so I bit the bullet and included it here.
+// PLEASE DO NOT ABUSE WINDOWS OR IT WILL BE REMOVED ENTIRELY. :-)
+//--------------------------------------------------------------------------------- System Includes 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <atlbase.h>
+#include <windows.h>
+#endif
+#include <assert.h>
+#include <ctype.h>
+#include <float.h>
+#include <fstream>
+#include <limits.h>
+#include <math.h>
+#include <memory.h>
+#include <objbase.h>
+#include <ocidl.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/timeb.h>
+#include <sys/types.h>
+#include <tchar.h>
+#include <time.h>
+
+#ifdef _WIN32
+#include <mmsystem.h>
+#include <process.h>
+#include <shellapi.h>
+#include <shlobj.h>
+#include <shlguid.h>
+#include <snmp.h>
+#include <vfw.h>
+#include <winerror.h>
+#include <wininet.h>
+#include <winreg.h>
+
+#ifndef DIRECTINPUT_VERSION
+#	define DIRECTINPUT_VERSION	0x800
+#endif
+#include <dinput.h>
+#endif
+
+//------------------------------------------------------------------------------------ STL Includes
+// srj sez: no, include STLTypesdefs below, instead, thanks
+//#include <algorithm>
+//#include <bitset>
+//#include <hash_map>
+//#include <list>
+//#include <map>
+//#include <queue>
+//#include <set>
+//#include <stack>
+//#include <string>
+//#include <vector>
+
+//------------------------------------------------------------------------------------ RTS Includes
+// Icky. These have to be in this order.
+#include "Lib/BaseType.h"
+#include "Common/STLTypedefs.h"
+#include "Common/Errors.h"
+#include "Common/Debug.h"
+#include "Common/AsciiString.h"
+#include "Common/SubsystemInterface.h"
+
+#include "Common/GameCommon.h"
+#include "Common/GameMemory.h"
+#include "Common/GameType.h"
+#include "Common/GlobalData.h"
+
+// You might not want Kindof in here because it seems like it changes frequently, but the problem
+// is that Kindof is included EVERYWHERE, so it might as well be precompiled.
+#include "Common/INI.h"
+#include "Common/KindOf.h"
+#include "Common/DisabledTypes.h"
+#include "Common/NameKeyGenerator.h"
+#include "GameClient/ClientRandomValue.h"
+#include "GameLogic/LogicRandomValue.h"
+
+#include "Common/Thing.h"
+#include "Common/UnicodeString.h"
+// --- end inlined PreRTS.h ---
 
 #include "Common/GameEngine.h"
 #include "Common/Player.h"

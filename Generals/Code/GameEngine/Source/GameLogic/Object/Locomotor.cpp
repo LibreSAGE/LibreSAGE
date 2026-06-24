@@ -29,7 +29,9 @@
 
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include <limits.h>
+#include "Common/GlobalData.h"
+#include "GameLogic/LogicRandomValue.h"
 
 #define DEFINE_SURFACECATEGORY_NAMES
 #define DEFINE_LOCO_Z_NAMES

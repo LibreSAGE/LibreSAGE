@@ -26,7 +26,7 @@
 // game setup state info
 // Author: Matthew D. Campbell, December 2001
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/GlobalData.h"
 
 #include "Common/CRCDebug.h"
 #include "Common/File.h"
@@ -44,6 +44,7 @@
 #include "GameNetwork/LANAPI.h"						// for testing packet size
 #include "GameNetwork/LANAPICallbacks.h"	// for testing packet size
 #include "strtok_r.h"
+#include "osdep.h"
 
 #ifdef _INTERNAL
 // for occasional debugging...

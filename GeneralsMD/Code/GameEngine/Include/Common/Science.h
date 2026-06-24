@@ -37,6 +37,7 @@
 #include "Common/NameKeyGenerator.h"
 #include "Common/UnicodeString.h"
 
+class INI;
 class Player;
 
 //-------------------------------------------------------------------------------------------------

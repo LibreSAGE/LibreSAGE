@@ -29,7 +29,7 @@
 //						with to interact with the game windowing system.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/Thing.h"
 
 #include "Common/Debug.h"
 #include "Common/Language.h"

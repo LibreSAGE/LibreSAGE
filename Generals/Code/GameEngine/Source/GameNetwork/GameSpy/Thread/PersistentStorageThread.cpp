@@ -28,9 +28,6 @@
 // and talks through a message queue with the rest of
 // the game.
 // Author: Matthew D. Campbell, July 2002
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/UserPreferences.h"
 #include "Common/PlayerTemplate.h"
 #include "GameNetwork/GameSpy/PersistentStorageThread.h"

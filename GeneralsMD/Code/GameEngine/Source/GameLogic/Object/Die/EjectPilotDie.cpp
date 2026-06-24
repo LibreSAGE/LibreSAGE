@@ -26,9 +26,6 @@
 // Author: Steven Johnson, April 2002
 // Desc:   Create an object upon this object's death
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/GameAudio.h"
 #include "Common/Player.h"
 #include "Common/ThingFactory.h"

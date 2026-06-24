@@ -41,9 +41,6 @@
 //  Purpose:	Simply loads and fires a specific weapon controlled by a superweapon timer.
 //-----------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #define DEFINE_WEAPONSLOTTYPE_NAMES //For access to TheWeaponSlotTypeNames
 
 #include "Common/Player.h"

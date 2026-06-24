@@ -43,7 +43,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/GlobalData.h"
+#include "GameClient/ClientRandomValue.h"
 
 #include "Common/AcademyStats.h"
 #include "Common/Energy.h"

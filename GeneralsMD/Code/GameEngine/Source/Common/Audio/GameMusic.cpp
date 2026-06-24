@@ -42,9 +42,6 @@
 //----------------------------------------------------------------------------
 //         Includes                                                      
 //----------------------------------------------------------------------------
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/GameMusic.h"
 
 #include "Common/AudioEventRTS.h"

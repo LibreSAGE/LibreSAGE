@@ -27,9 +27,6 @@
 // Author: Matthew D. Campbell, October 2001
 // Description: LAN callback handlers
 ///////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/CRC.h"
 #include "Common/GameState.h"
 #include "Common/Registry.h"

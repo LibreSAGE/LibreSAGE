@@ -27,8 +27,6 @@
 // Desc:   The Snapshot object is the base class interface for data structures that will
 //				 be considered during game saves, loads, and CRC checks.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
 #include "Common/GameState.h"
 #include "Common/Snapshot.h"
 

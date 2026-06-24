@@ -109,9 +109,6 @@ public:
 	*/
 	AsciiString keyToName(NameKeyType key);
 
-  // Get a string out of the INI. Store it into a NameKeyType
-  static void parseStringAsNameKeyType( INI *ini, void *instance, void *store, const void* userData );
-
 private:
 
 	enum

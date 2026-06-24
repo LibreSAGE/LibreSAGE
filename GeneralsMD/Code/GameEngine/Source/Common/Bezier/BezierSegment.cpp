@@ -22,8 +22,6 @@
 //																																						//
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#include "PreRTS.h"
 #include "Common/BezierSegment.h"
 #include "Common/BezFwdIterator.h"
 

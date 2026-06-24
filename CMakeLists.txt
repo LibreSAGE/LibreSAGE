@@ -11,6 +11,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:char8_t-")
 endif()
+set(QT_NO_PRIVATE_MODULE_WARNINGS ON)
 
 # Options
 option(SAGE_BUILD_TOOLS "Build tools" ON)

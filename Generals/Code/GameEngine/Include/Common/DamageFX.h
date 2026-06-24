@@ -34,6 +34,7 @@
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "Common/GameCommon.h"
+#include "Common/INI.h"
 #include "Common/NameKeyGenerator.h"
 #include "Common/STLTypedefs.h"
 #include "GameLogic/Damage.h"

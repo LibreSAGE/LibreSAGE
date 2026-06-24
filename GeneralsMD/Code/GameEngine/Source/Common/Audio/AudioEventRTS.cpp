@@ -36,8 +36,6 @@
 /* Revision History:                                                         */
 /*		3/21/2002 : Initial creation                                           */
 /*---------------------------------------------------------------------------*/
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/AudioEventRTS.h"
 
 #include "Common/AudioEventInfo.h"

@@ -33,6 +33,7 @@
 #define _PARTICLE_SYS_H_
 
 #include <stdio.h>
+#include "Common/INI.h"
 #include "Common/AsciiString.h"
 #include "Common/GameMemory.h"
 #include "Common/GameType.h"

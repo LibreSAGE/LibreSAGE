@@ -26,9 +26,6 @@
 // Author: Michael S. Booth, November 2001
 // Desc:   Parsing Particle System INI entries
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/INI.h"
 #include "GameClient/ParticleSys.h"
 

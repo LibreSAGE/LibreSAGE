@@ -26,7 +26,7 @@
 // Author: Matt Campbell, February 2002
 // Description: Quoted-printable encode/decode
 ////////////////////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/STLTypedefs.h"
 
 #include "Common/QuotedPrintable.h"
 

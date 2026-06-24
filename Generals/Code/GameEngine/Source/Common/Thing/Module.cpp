@@ -28,8 +28,6 @@
 //				 instances that we can assign to objects, drawables, and things to contain
 //				 data and code for specific events, or just to hold data
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file in the GameEngine
-
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "Common/Module.h"
 #include "Common/Thing.h"

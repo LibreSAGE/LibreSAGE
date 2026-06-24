@@ -26,9 +26,6 @@
 // Author: Matthew D. Campbell, May 2002
 // Desc:   Die method responsible for telling TheScriptEngine that a special power has been completed
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/Player.h"
 #include "Common/SpecialPower.h"
 #include "Common/Xfer.h"

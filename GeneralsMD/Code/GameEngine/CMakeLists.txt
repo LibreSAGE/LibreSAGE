@@ -7,7 +7,6 @@ target_sources(
           Include/Common/ActionManager.h
           Include/Common/ArchiveFile.h
           Include/Common/ArchiveFileSystem.h
-          Include/Common/AsciiString.h
           Include/Common/AudioAffect.h
           Include/Common/AudioEventInfo.h
           Include/Common/AudioEventRTS.h
@@ -27,7 +26,6 @@ target_sources(
           Include/Common/ClientUpdateModule.h
           Include/Common/CommandLine.h
           Include/Common/CopyProtection.h
-          Include/Common/CriticalSection.h
           Include/Common/CustomMatchPreferences.h
           Include/Common/DamageFX.h
           Include/Common/DataChunk.h
@@ -38,14 +36,11 @@ target_sources(
           Include/Common/DiscreteCircle.h
           Include/Common/DrawModule.h
           Include/Common/Energy.h
-          Include/Common/Errors.h
           Include/Common/FileSystem.h
           Include/Common/FunctionLexicon.h
           Include/Common/GameAudio.h
-          Include/Common/GameCommon.h
           Include/Common/GameEngine.h
           Include/Common/GameLOD.h
-          Include/Common/GameMemory.h
           Include/Common/GameMusic.h
           Include/Common/GameSounds.h
           Include/Common/GameSpyMiscPreferences.h
@@ -76,7 +71,6 @@ target_sources(
           Include/Common/ModuleFactory.h
           Include/Common/Money.h
           Include/Common/MultiplayerSettings.h
-          Include/Common/NameKeyGenerator.h
           Include/Common/OSDisplay.h
           Include/Common/Overridable.h
           Include/Common/Override.h
@@ -96,7 +90,6 @@ target_sources(
           Include/Common/Recorder.h
           Include/Common/Registry.h
           Include/Common/ResourceGatheringManager.h
-          Include/Common/STLTypedefs.h
           Include/Common/Science.h
           Include/Common/ScopedMutex.h
           Include/Common/ScoreKeeper.h
@@ -111,7 +104,6 @@ target_sources(
           Include/Common/StateMachine.h
           Include/Common/StatsCollector.h
           Include/Common/StreamingArchiveFile.h
-          Include/Common/SubsystemInterface.h
           Include/Common/SystemInfo.h
           Include/Common/Team.h
           Include/Common/Terrain.h
@@ -121,7 +113,6 @@ target_sources(
           Include/Common/ThingSort.h
           Include/Common/ThingTemplate.h
           Include/Common/TunnelTracker.h
-          Include/Common/UnicodeString.h
           Include/Common/UnitTimings.h
           Include/Common/Upgrade.h
           Include/Common/UserPreferences.h
@@ -512,7 +503,6 @@ target_sources(
           Include/GameNetwork/WOLBrowser/WebBrowser.h
           Include/GameNetwork/NetworkUtil.h
           Include/GameNetwork/udp.h
-          Include/Precompiled/PreRTS.h
           Source/Common/Audio/AudioEventRTS.cpp
           Source/Common/Audio/AudioRequest.cpp
           Source/Common/Audio/GameAudio.cpp
@@ -562,7 +552,6 @@ target_sources(
           Source/Common/MessageStream.cpp
           Source/Common/MiniLog.cpp
           Source/Common/MultiplayerSettings.cpp
-          Source/Common/NameKeyGenerator.cpp
           Source/Common/PartitionSolver.cpp
           Source/Common/PerfTimer.cpp
           Source/Common/RTS/ActionManager.cpp
@@ -587,7 +576,6 @@ target_sources(
           Source/Common/StatsCollector.cpp
           Source/Common/System/ArchiveFile.cpp
           Source/Common/System/ArchiveFileSystem.cpp
-          Source/Common/System/AsciiString.cpp
           Source/Common/System/BuildAssistant.cpp
           Source/Common/System/CDManager.cpp
           Source/Common/System/Compression.cpp
@@ -621,7 +609,6 @@ target_sources(
           Source/Common/System/String.cpp
           Source/Common/System/SubsystemInterface.cpp
           Source/Common/System/Trig.cpp
-          Source/Common/System/UnicodeString.cpp
           Source/Common/System/Upgrade.cpp
           Source/Common/System/Xfer.cpp
           Source/Common/System/XferCRC.cpp
@@ -1052,7 +1039,6 @@ target_sources(
           Source/GameNetwork/User.cpp
           Source/GameNetwork/udp.cpp
           Source/GameNetwork/WOLBrowser/WebBrowser.cpp
-          Source/Precompiled/PreRTS.cpp
     # ----- Zero Hour additions (not present in Generals) -----
           Include/Common/AcademyStats.h
           Include/Common/DynamicAudioEventInfo.h
@@ -1142,7 +1128,7 @@ target_include_directories(
   z_gameengine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include
                       ${CMAKE_CURRENT_SOURCE_DIR}/Include/Precompiled)
 
-target_link_libraries(z_gameengine PUBLIC c_ww3d2 c_wwmath c_wwlib c_wwsaveload
+target_link_libraries(z_gameengine PUBLIC c_gameengine c_ww3d2 c_wwmath c_wwlib c_wwsaveload
                                           c_compression c_wwdownload)
 
 # GLM

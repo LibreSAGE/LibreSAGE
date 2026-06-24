@@ -23,9 +23,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // JetAIUpdate.cpp //////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #define DEFINE_LOCOMOTORSET_NAMES
 
 #include "Common/ActionManager.h"

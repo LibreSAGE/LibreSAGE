@@ -26,9 +26,6 @@
 // fast trig functions
 // Author: Michael S. Booth, March 1994
 // Converted to Generals by Matthew D. Campbell, February 2002
-
-#include "PreRTS.h"
-
 #include <math.h>
 #include <limits.h>
 

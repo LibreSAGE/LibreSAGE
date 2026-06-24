@@ -42,9 +42,6 @@
 //            This is used only by script to trigger the GLA end game.
 //-----------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/Player.h"
 #include "Common/ThingFactory.h"
 #include "Common/Xfer.h"

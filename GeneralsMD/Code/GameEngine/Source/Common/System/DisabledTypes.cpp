@@ -24,9 +24,6 @@
 
 // DisabledTypes.cpp /////////////////////////////////////////////////////////////////////////////////////
 // Kris Morness, September 2002
-
-#include "PreRTS.h"
-
 #include "Common/DisabledTypes.h"
 #include "Common/BitFlagsIO.h"
 

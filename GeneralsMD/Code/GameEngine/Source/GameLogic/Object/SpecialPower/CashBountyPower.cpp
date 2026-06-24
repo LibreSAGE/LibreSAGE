@@ -49,8 +49,6 @@
 //-----------------------------------------------------------------------------
 // USER INCLUDES //////////////////////////////////////////////////////////////
 //-----------------------------------------------------------------------------
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/Player.h"
 #include "Common/Xfer.h"
 #include "GameLogic/Module/CashBountyPower.h"

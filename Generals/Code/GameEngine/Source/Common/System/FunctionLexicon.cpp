@@ -27,9 +27,6 @@
 // Desc:       Collection of function pointers to help us in managing
 //						 and assign callbacks
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/FunctionLexicon.h"
 #include "GameClient/GameWindow.h"
 #include "GameClient/GameWindowManager.h"

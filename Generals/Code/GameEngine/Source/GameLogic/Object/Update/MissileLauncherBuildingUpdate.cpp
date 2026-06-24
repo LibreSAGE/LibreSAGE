@@ -26,9 +26,6 @@
 // Author: Matthew D. Campbell, April 2002
 // Desc:   Update will change model state conditions based on special power state
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/GameAudio.h"
 #include "Common/GlobalData.h"
 #include "Common/SpecialPower.h"

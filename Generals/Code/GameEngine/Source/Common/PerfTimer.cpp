@@ -25,9 +25,6 @@
 // FILE: PerfTimer.cpp ///////////////////////////////////////////////////////////////////////////
 // Author: 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/PerfTimer.h"
 
 #include "Common/GlobalData.h"
@@ -63,7 +60,7 @@ void GetPrecisionTimerTicksPerSec(Int64* t)
 void InitPrecisionTimer()
 {
 #ifdef USE_QPF
-	QueryPerformanceFrequency((LARGE_INTEGER*)&s_ticksPerSec);
+	s_ticksPerSec = SDL_GetPerformanceFrequency();
 #else
 	// Init the precision timers
 	Int64 totalTime = 0;

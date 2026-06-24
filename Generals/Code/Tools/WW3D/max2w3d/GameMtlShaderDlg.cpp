@@ -56,7 +56,7 @@
 
 #define NUM_SHADER_BLEND_PRESETS 8
 
-static char * _ShaderBlendSettingPresetNames[NUM_SHADER_BLEND_PRESETS + 1] = 
+static const char * _ShaderBlendSettingPresetNames[NUM_SHADER_BLEND_PRESETS + 1] = 
 {
 	"Opaque",
 	"Add",

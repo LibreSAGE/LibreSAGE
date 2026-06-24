@@ -25,7 +25,7 @@
 // AI.cpp
 // The Artificial Intelligence system
 // Author: Michael S. Booth, November 2000
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/GlobalData.h"
 
 #include "Common/CRCDebug.h"
 #include "Common/GameState.h"

@@ -55,13 +55,13 @@
 //-----------------------------------------------------------------------------
 #if ( MISSION_DISK )
 
-static char * _CD_Volume_Label[] = {
+static const char * _CD_Volume_Label[] = {
 	"Renegade Mission",		// Yuri's Revenge (mission disk)
 };
 
 #else
 
-static char * _CD_Volume_Label[] = {
+static const char * _CD_Volume_Label[] = {
 	"Renegade Game",		// Red Alert 2
 	"Renegade Data",		// Red Alert 2
 };

@@ -27,8 +27,6 @@
 // Author: Chris Huybregts, October 2001
 // Description: LAN API Callbacks
 ///////////////////////////////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "strtok_r.h"
 #include "Common/GameEngine.h"
 #include "Common/GlobalData.h"

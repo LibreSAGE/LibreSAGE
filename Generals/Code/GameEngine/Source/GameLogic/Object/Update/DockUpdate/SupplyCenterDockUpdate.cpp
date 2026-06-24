@@ -26,9 +26,6 @@
 // Author: Graham Smallwood Feb 2002
 // Desc:   The action of this dock update is taking boxes and turning them into money for my ownerplayer
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/Player.h"
 #include "Common/Xfer.h"
 #include "GameLogic/Module/SupplyCenterDockUpdate.h"

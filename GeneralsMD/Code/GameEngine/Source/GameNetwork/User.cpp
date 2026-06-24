@@ -24,9 +24,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // User class copy and comparisons
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "GameNetwork/User.h"
 
 /**

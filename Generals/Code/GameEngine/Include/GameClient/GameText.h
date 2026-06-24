@@ -44,7 +44,7 @@
 
 #ifndef __GAMECLIENT_GAMETEXT_H_
 #define __GAMECLIENT_GAMETEXT_H_
-
+#include "Common/SubsystemInterface.h"
 
 //----------------------------------------------------------------------------
 //           Includes                                                      

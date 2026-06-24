@@ -57,6 +57,7 @@
 	This is currently a Very Simple Class but is encapsulated
 	in anticipation of future expansion.
 */
+class INI;
 class Money : public Snapshot
 {
 

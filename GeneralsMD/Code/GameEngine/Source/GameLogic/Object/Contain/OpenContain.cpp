@@ -31,7 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "GameLogic/LogicRandomValue.h"
 
 #include "Common/BitFlagsIO.h"
 #include "Common/GameAudio.h"
@@ -1448,7 +1448,7 @@ void OpenContain::processDamageToContained(Real percentDamage)
 		ContainedItemsList::const_iterator it;
 		it = items->begin();
 
-		while( *it )
+		while( it != items->end() )
 		{
 			Object *object = *it;
 

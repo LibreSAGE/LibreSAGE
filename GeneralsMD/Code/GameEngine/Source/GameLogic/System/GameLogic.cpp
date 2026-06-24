@@ -27,7 +27,8 @@
 // Author: Michael S. Booth, October 2000
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/GlobalData.h"
+#include "GameLogic/LogicRandomValue.h"
 
 #include "Common/AudioAffect.h"
 #include "Common/AudioHandleSpecialValues.h"
@@ -3399,7 +3400,7 @@ static void unitTimings(void)
 #endif
 
 
-      static char *illegalTemplateNames[] = 
+      static const char *illegalTemplateNames[] = 
       {
 	      "EMPPulseBomb",
 	      "GLAAngryMobRockProjectileObject",

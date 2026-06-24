@@ -26,9 +26,6 @@
 // Created:   Steven Johnson, Sep 2002
 // Desc:      
 //-----------------------------------------------------------------------------
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/INI.h"
 #include "Common/Player.h"
 #include "GameLogic/RankInfo.h"

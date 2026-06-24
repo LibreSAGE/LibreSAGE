@@ -23,7 +23,7 @@
 // Ease in and out based on a parabolic function.
 // Author: Robert Minsk May 12, 2003
 // ============================================================================
-#include "PreRTS.h"	// This must go first in EVERY cpp file in the GameEngine
+#include "Common/STLTypedefs.h"
 #include "GameClient/ParabolicEase.h"
 // ============================================================================
 #ifdef _INTERNAL

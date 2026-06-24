@@ -50,7 +50,7 @@
 
 #define NUM_PS2_SHADER_BLEND_PRESETS 7
 
-static char * _PS2ShaderBlendSettingPresetNames[NUM_PS2_SHADER_BLEND_PRESETS + 1] = 
+static const char * _PS2ShaderBlendSettingPresetNames[NUM_PS2_SHADER_BLEND_PRESETS + 1] = 
 {
 	"Opaque",
 	"Additive",

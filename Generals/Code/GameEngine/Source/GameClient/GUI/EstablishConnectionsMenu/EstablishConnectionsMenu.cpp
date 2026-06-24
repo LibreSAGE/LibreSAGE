@@ -23,9 +23,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 //// EstablishConnectionsMenu.cpp /////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "GameClient/GUICallbacks.h"
 #include "GameClient/EstablishConnectionsMenu.h"
 #include "Common/NameKeyGenerator.h"

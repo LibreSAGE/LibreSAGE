@@ -25,9 +25,6 @@
 // FILE: MissileAIUpdate.cpp
 // Author: Michael S. Booth, December 2001
 // Desc:   Implementation of missile behavior
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/Thing.h"
 #include "Common/ThingTemplate.h"
 #include "Common/RandomValue.h"

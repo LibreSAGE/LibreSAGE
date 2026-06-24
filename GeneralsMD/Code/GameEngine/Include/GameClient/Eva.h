@@ -31,6 +31,7 @@
 #define __EVA_H__
 
 #include "Common/SubsystemInterface.h"
+#include "Common/INI.h"
 #include "Common/AudioEventRTS.h"
 
 class Player;

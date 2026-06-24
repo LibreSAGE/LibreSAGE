@@ -26,14 +26,15 @@
 // Pseudo-random number generators 
 // Author: Michael S. Booth, January 1998
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
+#include "Common/RandomValue.h"
 
 #include "Lib/BaseType.h"
-#include "Common/RandomValue.h"
 #include "Common/CRC.h"
 #include "Common/Debug.h"
+#include "Common/Thing.h"
+#include "GameClient/ClientRandomValue.h"
 #include "GameLogic/GameLogic.h"
+#include "GameLogic/LogicRandomValue.h"
 
 //#define DETERMINISTIC				// to allow repetition for debugging
 

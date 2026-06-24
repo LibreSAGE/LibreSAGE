@@ -27,7 +27,7 @@
 // Desc: The railroad track following railroad carriage/locomotive logic module
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"	
+#include "GameLogic/LogicRandomValue.h"
 
 #include "Common/Player.h"
 #include "Common/ThingFactory.h"

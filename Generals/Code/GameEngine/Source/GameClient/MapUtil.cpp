@@ -28,8 +28,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/CRC.h"
 #include "Common/FileSystem.h"
 #include "Common/LocalFileSystem.h"
@@ -69,7 +67,7 @@
 
 //-------------------------------------------------------------------------------
 // PRIVATE DATA ///////////////////////////////////////////////////////////////////////////////////
-static char *mapExtension = ".map";
+static const char *mapExtension = ".map";
 
 static Int m_width = 0;						///< Height map width.
 static Int m_height = 0;					///< Height map height (y size of array).

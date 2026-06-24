@@ -34,6 +34,7 @@
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "Common/Overridable.h"
+class INI;
 #include "Common/NameKeyGenerator.h"
 #include "Common/UnicodeString.h"
 

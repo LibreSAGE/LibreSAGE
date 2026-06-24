@@ -23,15 +23,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file in the GameEngine
-
 #include "Common/ArchiveFileSystem.h"
 #include "Common/CommandLine.h"
 #include "Common/CRCDebug.h"
+#include "Common/GlobalData.h"
 #include "Common/LocalFileSystem.h"
 #include "Common/Version.h"
 #include "GameClient/TerrainVisual.h" // for TERRAIN_LOD_MIN definition
 #include "GameClient/GameText.h"
+
+#include <SDL3/SDL_filesystem.h>
 
 Bool TheDebugIgnoreSyncErrors = FALSE;
 extern Int DX8Wrapper_PreserveFPU;
@@ -1031,17 +1032,17 @@ Int parseMod(char *args[], Int num)
 		}
 
 		// now check for dir-ness
-		struct stat statBuf;
-		if (stat(modPath.str(), &statBuf) != 0)
+		struct SDL_PathInfo pathInfo;
+		if (SDL_GetPathInfo(modPath.str(), &pathInfo) == false)
 		{
-			DEBUG_LOG(("Could not _stat() mod.\n"));
+			DEBUG_LOG(("Could not _stat() mod: %s.\n", SDL_GetError()));
 			return 2; // could not stat the file/dir.
 		}
 
-		if (statBuf.st_mode & S_IFDIR)
+		if (pathInfo.type == SDL_PATHTYPE_DIRECTORY)
 		{
 			if (!modPath.endsWith("\\") && !modPath.endsWith("/"))
-				modPath.concat('\\');
+				modPath.concat('/');
 			DEBUG_LOG(("Mod dir is '%s'.\n", modPath.str()));
 			TheWritableGlobalData->m_modDir = modPath;
 		}

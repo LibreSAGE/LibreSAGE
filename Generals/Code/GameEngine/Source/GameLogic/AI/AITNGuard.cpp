@@ -36,7 +36,8 @@
 /* Revision History:                                                         */
 /*		12/20/2002 : Initial creation - modified from AIGuard.cpp                                           */
 /*---------------------------------------------------------------------------*/
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/SubsystemInterface.h"
+#include "GameLogic/LogicRandomValue.h"
 
 #include "Common/PerfTimer.h"
 #include "Common/Team.h"

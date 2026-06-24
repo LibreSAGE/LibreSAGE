@@ -22,7 +22,8 @@
 //																																						//
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"
+#include "Common/GlobalData.h"
+#include "Common/KindOf.h"
 #include "GameClient/SelectionInfo.h"
 
 #include "Common/ActionManager.h"

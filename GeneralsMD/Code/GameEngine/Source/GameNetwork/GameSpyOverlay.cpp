@@ -25,8 +25,6 @@
 // FILE: wolscreens.cpp //////////////////////////////////////////////////////
 // Westwood Online screen setup/teardown
 // Author: Matthew D. Campbell, November 2001
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
 #include "Common/AudioEventRTS.h"
 
 #include "GameClient/GadgetListBox.h"

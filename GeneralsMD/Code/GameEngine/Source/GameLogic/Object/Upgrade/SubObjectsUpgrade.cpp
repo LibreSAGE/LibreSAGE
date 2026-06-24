@@ -43,9 +43,6 @@
 //
 //-----------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #define DEFINE_OBJECT_STATUS_NAMES
 #include "Common/Player.h"
 #include "Common/Xfer.h"

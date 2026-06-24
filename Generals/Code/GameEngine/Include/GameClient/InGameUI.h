@@ -34,6 +34,7 @@
 #define _IN_GAME_UI_H_
 
 #include "Common/GameCommon.h"
+#include "Common/INI.h"
 #include "Common/GameType.h"
 #include "Common/MessageStream.h"		// for GameMessageTranslator
 #include "Common/SpecialPowerType.h"

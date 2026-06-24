@@ -45,7 +45,7 @@
 //         Includes                                                      
 //----------------------------------------------------------------------------
 
-#include "PreRTS.h"
+#include "Common/STLTypedefs.h"
 
 #include "Common/List.h"
 

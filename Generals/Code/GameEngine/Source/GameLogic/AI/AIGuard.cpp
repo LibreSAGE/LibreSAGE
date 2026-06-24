@@ -37,7 +37,8 @@
 /* Revision History:                                                         */
 /*		3/29/2002 : Initial creation                                           */
 /*---------------------------------------------------------------------------*/
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/SubsystemInterface.h"
+#include "GameLogic/LogicRandomValue.h"
 
 #include "Common/PerfTimer.h"
 #include "Common/Team.h"

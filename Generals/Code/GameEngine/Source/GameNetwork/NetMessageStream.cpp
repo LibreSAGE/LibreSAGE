@@ -22,9 +22,6 @@
 //																																						//
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
-
 // NetMessageStream.cpp
 // Holds misc functions to encapsulate GameMessages into Command Packets to send
 // over the network.

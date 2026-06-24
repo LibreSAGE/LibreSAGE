@@ -27,7 +27,7 @@
 // Author: Mark Wilczynski, June 2003
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the Game
+#include "Common/Thing.h"
 #include "GameClient/Smudge.h"
 
 #ifdef _INTERNAL

@@ -45,7 +45,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES ////////////////////////////////////////////////////////////
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/Thing.h"
 
 // USER INCLUDES //////////////////////////////////////////////////////////////
 #include "Lib/BaseType.h"
@@ -92,7 +92,7 @@ enum
 struct LayoutScriptParse
 {
 
-	char *name;
+	const char *name;
 	Bool (*parse)( char *token, char *buffer, UnsignedInt version, WindowLayoutInfo *info );
 
 };
@@ -103,7 +103,7 @@ struct LayoutScriptParse
 struct GameWindowParse
 {
 
-	char *name;
+	const char *name;
 	Bool (*parse)( char *token, WinInstanceData *, char *, void * );
 
 };
@@ -588,8 +588,8 @@ static Bool parseFont( char *token, WinInstanceData *instData,
 											 char *buffer, void *data )
 {
 	char *c, *ptr;
-	char *seps = " ,\n\r\t";
-	char *stringSeps = ":,\n\r\t\"";
+	const char *seps = " ,\n\r\t";
+	const char *stringSeps = ":,\n\r\t\"";
 	char fontName[ 256 ];
 	Int fontSize;
 	Int fontBold;
@@ -636,7 +636,7 @@ static Bool parseName( char *token, WinInstanceData *instData,
 {
 	char *c, *ptr;
 //	char *seps = " ,\n\r\t";
-	char *stringSeps = "\"";
+	const char *stringSeps = "\"";
 
 	// scan to the first " mark
 	ptr = buffer;
@@ -691,7 +691,7 @@ static Bool parseSystemCallback( char *token, WinInstanceData *instData,
 {
 	char *c, *ptr;
 //	char *seps = " ,\n\r\t";
-	char *stringSeps = "\"";
+	const char *stringSeps = "\"";
 
 	// scan to the first " mark
 	ptr = buffer;
@@ -718,7 +718,7 @@ static Bool parseInputCallback( char *token, WinInstanceData *instData,
 {
 	char *c, *ptr;
 //	char *seps = " ,\n\r\t";
-	char *stringSeps = "\"";
+	const char *stringSeps = "\"";
 
 	// scan to the first " mark
 	ptr = buffer;
@@ -745,7 +745,7 @@ static Bool parseTooltipCallback( char *token, WinInstanceData *instData,
 {
 	char *c, *ptr;
 //	char *seps = " ,\n\r\t";
-	char *stringSeps = "\"";
+	const char *stringSeps = "\"";
 
 	// scan to the first " mark
 	ptr = buffer;
@@ -772,7 +772,7 @@ static Bool parseDrawCallback( char *token, WinInstanceData *instData,
 {
 	char *c, *ptr;
 //	char *seps = " ,\n\r\t";
-	char *stringSeps = "\"";
+	const char *stringSeps = "\"";
 
 	// scan to the first " mark
 	ptr = buffer;
@@ -799,7 +799,7 @@ static Bool parseHeaderTemplate( char *token, WinInstanceData *instData,
 {
 	char *c, *ptr;
 //	char *seps = " ,\n\r\t";
-	char *stringSeps = "\"";
+	const char *stringSeps = "\"";
 
 	// scan to the first " mark
 	ptr = buffer;
@@ -979,7 +979,7 @@ static Bool parseTooltipText( char *token, WinInstanceData *instData,
 {
 	char *ptr = buffer;
 	char *c;
-	char *stringSeps = "\n\r\t\""; 
+	const char *stringSeps = "\n\r\t\""; 
 
 	// scan to the first " mark
 	while( *ptr != '"' )
@@ -1031,7 +1031,7 @@ static Bool parseText( char *token, WinInstanceData *instData,
 {
 	char *ptr = buffer;
 	char *c;
-	char *stringSeps = "\n\r\t\""; 
+	const char *stringSeps = "\n\r\t\""; 
 
 	// scan to the first " mark
 	while( *ptr != '"' )

@@ -35,6 +35,8 @@
 
 #ifndef _GAME_LOD_H_
 #define _GAME_LOD_H_
+#include "Common/STLTypedefs.h"
+#include "Common/INI.h"
 
 enum ParticlePriorityType : int;
 

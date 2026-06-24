@@ -46,6 +46,7 @@
 #define __WEBBROWSER_H__
 
 #include "Common/SubsystemInterface.h"
+#include "Common/INI.h"
 #include <windows.h>
 #include <Common/GameMemory.h>
 #ifdef _WIN32

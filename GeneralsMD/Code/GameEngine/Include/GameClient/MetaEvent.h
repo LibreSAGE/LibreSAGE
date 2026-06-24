@@ -31,6 +31,7 @@
 #define _H_MetaEvent
 
 #include "Common/SubsystemInterface.h"
+#include "Common/INI.h"
 #include "GameClient/InGameUI.h"
 
 

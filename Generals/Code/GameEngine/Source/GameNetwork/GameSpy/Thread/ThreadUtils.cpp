@@ -26,7 +26,7 @@
 // GameSpy thread utils
 // Author: Matthew D. Campbell, July 2002
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/STLTypedefs.h"
 #include <unicode/ustring.h>
 
 //-------------------------------------------------------------------------

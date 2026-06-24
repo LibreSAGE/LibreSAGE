@@ -31,6 +31,7 @@
 
 #ifndef __DISCRETECIRCLE_H__
 #define __DISCRETECIRCLE_H__
+#include "Common/STLTypedefs.h"
 
 //-------------------------------------------------------------------------------------------------
 /**

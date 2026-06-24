@@ -27,9 +27,6 @@
 // Desc:		Hand off produced Units to me so I can Exit them into the world with my specific style
 //					This instance refuses to spit a second out until the first is clear
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/RandomValue.h"
 #include "Common/ThingTemplate.h"
 #include "Common/Xfer.h"

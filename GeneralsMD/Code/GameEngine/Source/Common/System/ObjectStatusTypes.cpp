@@ -26,9 +26,6 @@
 // Author: Kris, May 2003
 // Desc:   Object status types that are stackable using the BitSet system. Used to be ObjectStatusBits
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "PreRTS.h"
-
 #include "Common/ObjectStatusTypes.h"
 #include "Common/BitFlagsIO.h"
 

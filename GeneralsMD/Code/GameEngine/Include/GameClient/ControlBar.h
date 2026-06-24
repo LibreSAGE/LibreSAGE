@@ -34,6 +34,7 @@
 
 // USER INCLUDES //////////////////////////////////////////////////////////////////////////////////
 #include "Common/AudioEventRTS.h"
+#include "Common/INI.h"
 #include "Common/GameType.h"
 #include "Common/Overridable.h"
 #include "Common/Science.h"

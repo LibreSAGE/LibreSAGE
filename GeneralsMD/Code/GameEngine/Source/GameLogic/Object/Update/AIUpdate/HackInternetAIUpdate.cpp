@@ -26,7 +26,8 @@
 // Author: Kris Morness, June 2002
 // Desc:   State machine that handles internet hacking (free cash)
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "GameClient/ClientRandomValue.h"
+#include "GameLogic/LogicRandomValue.h"
 
 #include "Common/Player.h"
 #include "Common/ThingFactory.h"

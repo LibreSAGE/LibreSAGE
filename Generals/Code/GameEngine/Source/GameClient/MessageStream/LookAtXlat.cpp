@@ -25,9 +25,6 @@
 // LookAtXlat.cpp
 // Translate raw input events into camera movement commands
 // Author: Michael S. Booth, April 2001
-
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/GameType.h"
 #include "Common/MessageStream.h"
 #include "Common/Player.h"

@@ -34,6 +34,7 @@
 
 #include "Common/Terrain.h"
 #include "Common/Snapshot.h"
+#include "Common/SubsystemInterface.h"
 
 // FORWARD REFERENCES /////////////////////////////////////////////////////////////////////////////
 class TerrainType;

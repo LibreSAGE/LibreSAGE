@@ -47,7 +47,9 @@
 //-----------------------------------------------------------------------------
 //         Includes                                                      
 //-----------------------------------------------------------------------------
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include <limits.h>
+#include "Common/GlobalData.h"
+#include "GameLogic/LogicRandomValue.h"
 
 #include "Common/ActionManager.h"
 #include "Common/DiscreteCircle.h"

@@ -26,7 +26,8 @@
 // Implementation of Data Chunk save/load system
 // Author: Michael S. Booth, October 2000
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include "Common/GlobalData.h"
+#include "Common/Thing.h"
 
 #include "stdlib.h"
 #include "string.h"

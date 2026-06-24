@@ -24,8 +24,6 @@
 
 // FILE: SubsystemInterface.cpp 
 // ----------------------------------------------------------------------------
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
-
 #include "Common/SubsystemInterface.h"
 #include "Common/Xfer.h"
 

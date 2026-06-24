@@ -43,7 +43,8 @@
 //         Includes                                                      
 //----------------------------------------------------------------------------
 
-#include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
+#include <fstream>
+#include "Common/SubsystemInterface.h"
 
 #include "GameClient/GameText.h"
 #include "Common/Language.h"
