@@ -405,7 +405,21 @@ inline AsciiString::~AsciiString()
 inline int AsciiString::getLength() const
 {
 	validate();
-	return m_data ? strlen(peek()) : 0;
+	if (m_data==NULL)
+		return 0;
+
+	int idx = 0;
+	int len = 0;
+	while (true)
+	{
+		UChar32 c;
+		U8_NEXT(peek(), idx, -1, c);
+		if (c <= 0)
+			break;
+		len++;
+	}	
+	
+	return len;
 }
 
 // -----------------------------------------------------

@@ -89,7 +89,6 @@ target_sources(
     Include/Common/Radar.h
     Include/Common/RandomValue.h
     Include/Common/Recorder.h
-    Include/Common/Registry.h
     Include/Common/ResourceGatheringManager.h
     Include/Common/Science.h
     Include/Common/ScopedMutex.h
@@ -101,7 +100,6 @@ target_sources(
     Include/Common/SpecialPower.h
     Include/Common/SpecialPowerMaskType.h
     Include/Common/SpecialPowerType.h
-    Include/Common/StackDump.h
     Include/Common/StateMachine.h
     Include/Common/StatsCollector.h
     Include/Common/StreamingArchiveFile.h
@@ -590,7 +588,6 @@ target_sources(
     Source/Common/System/CDManager.cpp
     Source/Common/System/Compression.cpp
     Source/Common/System/CopyProtection.cpp
-    Source/Common/System/CriticalSection.cpp
     Source/Common/System/DataChunk.cpp
     Source/Common/System/Debug.cpp
     Source/Common/System/Directory.cpp
@@ -614,7 +611,6 @@ target_sources(
     Source/Common/System/SaveGame/GameState.cpp
     Source/Common/System/SaveGame/GameStateMap.cpp
     Source/Common/System/Snapshot.cpp
-    Source/Common/System/StackDump.cpp
     Source/Common/System/StreamingArchiveFile.cpp
     Source/Common/System/String.cpp
     Source/Common/System/SubsystemInterface.cpp
@@ -625,7 +621,6 @@ target_sources(
     Source/Common/System/XferLoad.cpp
     Source/Common/System/XferSave.cpp
     Source/Common/System/Encrypt.cpp
-    Source/Common/System/Registry.cpp
     Source/Common/TerrainTypes.cpp
     Source/Common/Thing/DrawModule.cpp
     Source/Common/Thing/Module.cpp

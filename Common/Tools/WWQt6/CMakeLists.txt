@@ -1,3 +1,5 @@
+# GuiPrivate was introduced starting with 6.10
+set(QT_NO_PRIVATE_MODULE_WARNING ON)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui OPTIONAL_COMPONENTS GuiPrivate)
 
 qt_add_library(c_wwqt6 STATIC

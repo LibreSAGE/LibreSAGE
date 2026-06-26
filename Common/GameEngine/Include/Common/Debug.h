@@ -104,6 +104,9 @@ class AsciiString;
 
 // FORWARD REFERENCES /////////////////////////////////////////////////////////
 
+extern bool DebugIgnoreAsserts; /// if true, all asserts will be ignored. (default is false)
+extern bool DebugIgnoreStackTrace; /// if true, stack traces will be ignored. (default is false)
+
 // TYPE DEFINES ///////////////////////////////////////////////////////////////
 
 // INLINING ///////////////////////////////////////////////////////////////////
@@ -201,10 +204,9 @@ class AsciiString;
 #endif
 
 DEBUG_EXTERN_C void ReleaseCrash(const char* reason);
-DEBUG_EXTERN_C void ReleaseCrashLocalized(const AsciiString& p, const AsciiString& m);
 
 #define RELEASE_CRASH(m)				do { ReleaseCrash(m); } while (0)
-#define RELEASE_CRASHLOCALIZED(p, m)		do { ReleaseCrashLocalized(p, m); } while (0)
+#define RELEASE_CRASHLOCALIZED(p, m)		do { ReleaseCrash(m); } while (0)
 
 
 #ifdef DEBUG_PROFILE

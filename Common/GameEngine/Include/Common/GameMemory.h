@@ -214,6 +214,8 @@ class MemoryPoolFactory;
 class DynamicMemoryAllocator;
 class BlockCheckpointInfo;
 
+extern bool TheGameMemoryCheckForLeaks;	///< if true, the memory manager will check for leaks on exit. (default is false)
+
 // TYPE DEFINES ///////////////////////////////////////////////////////////////
 
 // ----------------------------------------------------------------------------
