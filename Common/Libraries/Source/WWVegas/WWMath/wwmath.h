@@ -555,7 +555,7 @@ WWINLINE int WWMath::Float_To_Int_Chop(const float& f)
     int sign	= (a>>31);												// sign = 0xFFFFFFFF if original value is negative, 0 if positive
     int mantissa	= (a&((1<<23)-1))|(1<<23);						// extract mantissa and add the hidden bit
     int exponent	= ((a&0x7fffffff)>>23)-127;					// extract the exponent
-    int r	= ((unsigned int)(mantissa)<<8)>>(31-exponent);	// ((1<<exponent)*mantissa)>>24 -- (we know that mantissa > (1<<24))
+    int r	= ((unsigned int)(mantissa)<<8)>>((31-exponent)&31);	// ((1<<exponent)*mantissa)>>24 -- (we know that mantissa > (1<<24))
     return ((r ^ (sign)) - sign ) &~ (exponent>>31);			// add original sign. If exponent was negative, make return value 0.
 }
 
@@ -567,9 +567,13 @@ WWINLINE int WWMath::Float_To_Int_Floor (const float& f)
 
 	int exponent	= (a>>23)-127;										// extract the exponent
 	int expsign	= ~(exponent>>31);									// 0xFFFFFFFF if exponent is positive, 0 otherwise
-	int imask		= ( (1<<(31-(exponent))))-1;					// mask for true integer values
+	// For |f|<1 the exponent is negative, so 31-exponent exceeds the operand width;
+	// mask the shift counts to keep them well defined (UB otherwise) while matching
+	// the x86 shift-count masking these expressions assumed. expsign zeroes the
+	// out-of-range results below, so masking does not change the computed floor.
+	int imask		= ( (1<<((31-(exponent))&31)))-1;					// mask for true integer values
 	int mantissa	= (a&((1<<23)-1));								// extract mantissa (without the hidden bit)
-	int r			= ((unsigned int)(mantissa|(1<<23))<<8)>>(31-exponent);	// ((1<<exponent)*(mantissa|hidden bit))>>24 -- (we know that mantissa > (1<<24))
+	int r			= ((unsigned int)(mantissa|(1<<23))<<8)>>((31-exponent)&31);	// ((1<<exponent)*(mantissa|hidden bit))>>24 -- (we know that mantissa > (1<<24))
 
 	r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);	// if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
 	return r;

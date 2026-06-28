@@ -25,44 +25,24 @@
 
 #ifdef _OPERATOR_NEW_DEFINED_
 
-void *operator new(size_t size)
+void* operator new(size_t size, const char * /*fname*/, int)
 {
-	return malloc(size);
-}
-
-void *operator new[](size_t size)
-{
-	return malloc(size);
-}
-
-void operator delete(void *p) noexcept
-{
-	free(p);
-}
-
-void operator delete[](void *p) noexcept
-{
-	free(p);
-}
-
-void* operator new(size_t size, const char * fname, int)
-{
-	return malloc(size);
+	return ::operator new(size);
 }
 
 void operator delete(void * p, const char *, int) noexcept
 {
-	free(p);
+	::operator delete(p);
 }
 
-void* operator new[](size_t size, const char * fname, int)
+void* operator new[](size_t size, const char * /*fname*/, int)
 {
-	return malloc(size);
+	return ::operator new[](size);
 }
 
 void operator delete[](void * p, const char *, int) noexcept
 {
-	free(p);
+	::operator delete[](p);
 }
 
 #endif

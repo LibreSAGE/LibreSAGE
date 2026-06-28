@@ -2,8 +2,6 @@
 
 #include "Common/NameKeyGenerator.h"
 
-SubsystemInterfaceList* TheSubsystemList = NULL;
-
 TEST(NameKeyGenerator, GenerateKeys)
 {
     NameKeyGenerator generator;

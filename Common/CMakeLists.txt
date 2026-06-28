@@ -6,6 +6,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/Common)
 add_subdirectory(Compat)
 add_subdirectory(Libraries)
 add_subdirectory(GameEngine)
+add_subdirectory(GameEngineDevice)
 
 if(SAGE_BUILD_TOOLS)
   add_subdirectory(Tools)

@@ -172,7 +172,7 @@ class ArchiveFileSystem : public SubsystemInterface
 
 	// Unprotected this for copy-protection routines
 	AsciiString						getArchiveFilenameForFile(const AsciiString& filename) const;
-	void loadMods( void );
+	void loadMods( AsciiString modBIG, AsciiString modDir );
 
 protected:
 	virtual void					loadIntoDirectoryTree(const ArchiveFile *archiveFile, const AsciiString& archiveFilename, Bool overwrite = FALSE );	///< load the archive file's header information and apply it to the global archive directory tree.

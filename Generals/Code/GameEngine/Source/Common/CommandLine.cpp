@@ -1239,7 +1239,7 @@ void parseCommandLine(int argc, char *argv[])
 		}
 	}
 
-	TheArchiveFileSystem->loadMods();
+	TheArchiveFileSystem->loadMods(TheGlobalData->m_modBIG, TheGlobalData->m_modDir);
 }
 
 

@@ -38,7 +38,8 @@ TEST_P(W3DTextRenderTest, DrawText)
     ASSERT_EQ(err, U_ZERO_ERROR) << "Failed to convert sentence to UTF-16";
 
     Render2DSentenceClass textRenderer;
-    textRenderer.Set_Font(fontChars);
+    textRenderer.Set_Font(fontChars); // Takes a reference itself
+    fontChars->Release_Ref();
     textRenderer.Set_Word_Wrap_Centered(centered);
 
     // Measure a sentence and check that the extents are reasonable

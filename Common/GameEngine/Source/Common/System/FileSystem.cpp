@@ -45,16 +45,18 @@
 //         Includes                                                      
 //----------------------------------------------------------------------------
 
-#include "Common/KindOf.h"
 #include "Common/File.h"
 #include "Common/FileSystem.h"
 
 #include "Common/ArchiveFileSystem.h"
-#include "Common/CDManager.h"
-#include "Common/GameAudio.h"
 #include "Common/LocalFileSystem.h"
+#include "Common/NameKeyGenerator.h"
+#if 0
 #include "Common/PerfTimer.h"
-
+#else
+#define DECLARE_PERF_TIMER(NAME)
+#define USE_PERF_TIMER(NAME)
+#endif
 
 DECLARE_PERF_TIMER(FileSystem)
 
@@ -259,74 +261,4 @@ Bool FileSystem::createDirectory(AsciiString directory)
 		return TheLocalFileSystem->createDirectory(directory);
 	}
 	return FALSE;
-}
-
-//============================================================================
-// FileSystem::areMusicFilesOnCD
-//============================================================================
-Bool FileSystem::areMusicFilesOnCD()
-{
-	if (!TheCDManager) {
-		DEBUG_LOG(("FileSystem::areMusicFilesOnCD() - No CD Manager; returning false\n"));
-		return FALSE;
-	}
-
-	AsciiString cdRoot;
-	Int dc = TheCDManager->driveCount();
-	for (Int i = 0; i < dc; ++i) {
-		DEBUG_LOG(("FileSystem::areMusicFilesOnCD() - checking drive %d\n", i));
-		CDDriveInterface *cdi = TheCDManager->getDrive(i);
-		if (!cdi) {
-			continue;
-		}
-
-		cdRoot = cdi->getPath();
-		if (!cdRoot.endsWith("\\"))
-			cdRoot.concat("\\");
-		cdRoot.concat("genseczh.big");
-		DEBUG_LOG(("FileSystem::areMusicFilesOnCD() - checking for %s\n", cdRoot.str()));
-		File *musicBig = TheLocalFileSystem->openFile(cdRoot.str());
-		if (musicBig)
-		{
-			DEBUG_LOG(("FileSystem::areMusicFilesOnCD() - found it!\n"));
-			musicBig->close();
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-//============================================================================
-// FileSystem::loadMusicFilesFromCD
-//============================================================================
-void FileSystem::loadMusicFilesFromCD()
-{
-	if (!TheCDManager) {
-		return;
-	}
-
-	AsciiString cdRoot;
-	Int dc = TheCDManager->driveCount();
-	for (Int i = 0; i < dc; ++i) {
-		CDDriveInterface *cdi = TheCDManager->getDrive(i);
-		if (!cdi) {
-			continue;
-		}
-
-		cdRoot = cdi->getPath();
-		if (TheArchiveFileSystem->loadBigFilesFromDirectory(cdRoot, MUSIC_BIG)) {
-			break;
-		}
-	}
-}
-
-//============================================================================
-// FileSystem::unloadMusicFilesFromCD
-//============================================================================
-void FileSystem::unloadMusicFilesFromCD()
-{
-	if (!(TheAudio && TheAudio->isMusicPlayingFromCD())) {
-		return;
-	}
-
-	TheArchiveFileSystem->closeArchiveFile( MUSIC_BIG );
 }

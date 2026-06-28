@@ -306,9 +306,9 @@ int Random3Class::operator() (void)
 		int temp    = hihold ^  Mix1[i];
 		int itmpl   = temp   &  0xffff;
 		int itmph   = temp   >> 16;
-		temp    = itmpl * itmpl + ~(itmph * itmph);
-		temp    = (temp >> 16) | (temp << 16);
-		hiword  = loword ^ ((temp ^ Mix2[i]) + itmpl * itmph);
+		temp    = (int)((unsigned)itmpl * (unsigned)itmpl + ~((unsigned)itmph * (unsigned)itmph));
+		temp    = (temp >> 16) | (int)((unsigned)temp << 16);
+		hiword  = loword ^ (int)((unsigned)(temp ^ Mix2[i]) + (unsigned)itmpl * (unsigned)itmph);
 		loword  = hihold;
 	}
 	return(hiword);

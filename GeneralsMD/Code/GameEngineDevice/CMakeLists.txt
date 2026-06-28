@@ -190,20 +190,12 @@ if(SAGE_USE_SDL3)
   target_sources(
     z_gameenginedevice
     PRIVATE Include/SDL3Device/Common/SDL3CDManager.h
-            Include/SDL3Device/Common/SDL3BIGFile.h
-            Include/SDL3Device/Common/SDL3BIGFileSystem.h
             Include/SDL3Device/Common/SDL3GameEngine.h
-            Include/SDL3Device/Common/SDL3LocalFile.h
-            Include/SDL3Device/Common/SDL3LocalFileSystem.h
             Include/SDL3Device/GameClient/SDL3Keyboard.h
             Include/SDL3Device/GameClient/SDL3Mouse.h
-            Source/SDL3Device/Common/SDL3BIGFile.cpp
-            Source/SDL3Device/Common/SDL3BIGFileSystem.cpp
             Source/SDL3Device/Common/SDL3CDManager.cpp
             Source/SDL3Device/Common/SDL3GameEngine.cpp
             Source/SDL3Device/Common/SDL3IMEManager.cpp
-            Source/SDL3Device/Common/SDL3LocalFile.cpp
-            Source/SDL3Device/Common/SDL3LocalFileSystem.cpp
             Source/SDL3Device/Common/SDL3OSDisplay.cpp
             Source/SDL3Device/GameClient/SDL3Keyboard.cpp
             Source/SDL3Device/GameClient/SDL3Mouse.cpp)
@@ -268,4 +260,4 @@ set_target_properties(z_gameenginedevice PROPERTIES OUTPUT_NAME
 target_include_directories(z_gameenginedevice
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include)
 
-target_link_libraries(z_gameenginedevice PUBLIC z_gameengine)
+target_link_libraries(z_gameenginedevice PUBLIC c_gameenginedevice z_gameengine)

@@ -31,8 +31,8 @@ class W3DMeshLoadTest :  public ::testing::TestWithParam<const char*>
 TEST_P(W3DMeshLoadTest, LoadFromMemory)
 {
     const char* filepath = GetParam();
-    RawFileClass* file = new RawFileClass(filepath);
-    EXPECT_TRUE(WW3DAssetManager::Get_Instance()->Load_3D_Assets(*file));
+    RawFileClass file(filepath);
+    EXPECT_TRUE(WW3DAssetManager::Get_Instance()->Load_3D_Assets(file));
 }
 
 const char* w3d_files[] = {

@@ -45,11 +45,9 @@
 //         Includes                                                      
 //----------------------------------------------------------------------------
 
-#include "Common/GlobalData.h"
 #include "Common/ArchiveFile.h"
 #include "Common/ArchiveFileSystem.h"
 #include "Common/AsciiString.h"
-#include "Common/PerfTimer.h"
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -171,30 +169,30 @@ void ArchiveFileSystem::loadIntoDirectoryTree(const ArchiveFile *archiveFile, co
 	}
 }
 
-void ArchiveFileSystem::loadMods() {
-	if (TheGlobalData->m_modBIG.isNotEmpty())
+void ArchiveFileSystem::loadMods(AsciiString modBIG, AsciiString modDir) {
+	if (modBIG.isNotEmpty())
 	{
-		ArchiveFile *archiveFile = openArchiveFile(TheGlobalData->m_modBIG.str());
+		ArchiveFile *archiveFile = openArchiveFile(modBIG.str());
 
 		if (archiveFile != NULL) {
-			DEBUG_LOG(("ArchiveFileSystem::loadMods - loading %s into the directory tree.\n", TheGlobalData->m_modBIG.str()));
-			loadIntoDirectoryTree(archiveFile, TheGlobalData->m_modBIG, TRUE);
-			m_archiveFileMap[TheGlobalData->m_modBIG] = archiveFile;
-			DEBUG_LOG(("ArchiveFileSystem::loadMods - %s inserted into the archive file map.\n", TheGlobalData->m_modBIG.str()));
+			DEBUG_LOG(("ArchiveFileSystem::loadMods - loading %s into the directory tree.\n", modBIG.str()));
+			loadIntoDirectoryTree(archiveFile, modBIG, TRUE);
+			m_archiveFileMap[modBIG] = archiveFile;
+			DEBUG_LOG(("ArchiveFileSystem::loadMods - %s inserted into the archive file map.\n", modBIG.str()));
 		}
 		else
 		{
-			DEBUG_LOG(("ArchiveFileSystem::loadMods - could not openArchiveFile(%s)\n", TheGlobalData->m_modBIG.str()));
+			DEBUG_LOG(("ArchiveFileSystem::loadMods - could not openArchiveFile(%s)\n", modBIG.str()));
 		}
 	}
 
-	if (TheGlobalData->m_modDir.isNotEmpty())
+	if (modDir.isNotEmpty())
 	{
 #ifdef DEBUG_LOGGING
 		Bool ret =
 #endif
-		loadBigFilesFromDirectory(TheGlobalData->m_modDir, "*.big", TRUE);
-		DEBUG_ASSERTLOG(ret, ("loadBigFilesFromDirectory(%s) returned FALSE!\n", TheGlobalData->m_modDir.str()));
+		loadBigFilesFromDirectory(modDir, "*.big", TRUE);
+		DEBUG_ASSERTLOG(ret, ("loadBigFilesFromDirectory(%s) returned FALSE!\n", modDir.str()));
 	}
 }
 

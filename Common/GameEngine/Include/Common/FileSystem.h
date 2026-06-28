@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -116,9 +116,13 @@ struct FileInfo {
 	* created when FileSystem::Open() gets called.
 	*/
 //===============================
+#include <map>
 
 class FileSystem : public SubsystemInterface
 {
+  FileSystem(const FileSystem&);
+  FileSystem& operator=(const FileSystem&);
+  
 public:
 	FileSystem();
 	virtual	~FileSystem();
@@ -133,13 +137,8 @@ public:
 	Bool getFileInfo(const AsciiString& filename, FileInfo *fileInfo) const; ///< fills in the FileInfo struct for the file given. returns TRUE if successful.
 
 	Bool createDirectory(AsciiString directory); ///< create a directory of the given name.
-
-	Bool areMusicFilesOnCD();
-	void loadMusicFilesFromCD();
-	void unloadMusicFilesFromCD();
 protected:
-
-
+  mutable std::map<unsigned,bool> m_fileExist;
 };
 
 extern FileSystem*	TheFileSystem;

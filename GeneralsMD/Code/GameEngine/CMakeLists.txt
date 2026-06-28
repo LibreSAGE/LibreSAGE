@@ -5,8 +5,6 @@ target_sources(
   z_gameengine
   PRIVATE
           Include/Common/ActionManager.h
-          Include/Common/ArchiveFile.h
-          Include/Common/ArchiveFileSystem.h
           Include/Common/AudioAffect.h
           Include/Common/AudioEventInfo.h
           Include/Common/AudioEventRTS.h
@@ -36,7 +34,6 @@ target_sources(
           Include/Common/DiscreteCircle.h
           Include/Common/DrawModule.h
           Include/Common/Energy.h
-          Include/Common/FileSystem.h
           Include/Common/FunctionLexicon.h
           Include/Common/GameAudio.h
           Include/Common/GameEngine.h
@@ -58,8 +55,6 @@ target_sources(
           Include/Common/Language.h
           Include/Common/LatchRestore.h
           Include/Common/List.h
-          Include/Common/LocalFile.h
-          Include/Common/LocalFileSystem.h
           Include/Common/MapObject.h
           Include/Common/MapReaderWriterInfo.h
           Include/Common/MessageStream.h
@@ -84,7 +79,6 @@ target_sources(
           Include/Common/QuickTrig.h
           Include/Common/QuickmatchPreferences.h
           Include/Common/QuotedPrintable.h
-          Include/Common/RAMFile.h
           Include/Common/Radar.h
           Include/Common/RandomValue.h
           Include/Common/Recorder.h
@@ -101,7 +95,6 @@ target_sources(
           Include/Common/SpecialPowerType.h
           Include/Common/StateMachine.h
           Include/Common/StatsCollector.h
-          Include/Common/StreamingArchiveFile.h
           Include/Common/SystemInfo.h
           Include/Common/Team.h
           Include/Common/Terrain.h
@@ -122,7 +115,6 @@ target_sources(
           Include/Common/XferSave.h
           Include/Common/CRC.h
           Include/Common/Encrypt.h
-          Include/Common/File.h
           Include/Common/string.h
           Include/Common/Version.h
           Include/GameClient/Anim2D.h
@@ -572,8 +564,6 @@ target_sources(
           Source/Common/SkirmishBattleHonors.cpp
           Source/Common/StateMachine.cpp
           Source/Common/StatsCollector.cpp
-          Source/Common/System/ArchiveFile.cpp
-          Source/Common/System/ArchiveFileSystem.cpp
           Source/Common/System/BuildAssistant.cpp
           Source/Common/System/CDManager.cpp
           Source/Common/System/Compression.cpp
@@ -582,8 +572,6 @@ target_sources(
           Source/Common/System/Debug.cpp
           Source/Common/System/Directory.cpp
           Source/Common/System/DisabledTypes.cpp
-          Source/Common/System/File.cpp
-          Source/Common/System/FileSystem.cpp
           Source/Common/System/FunctionLexicon.cpp
           Source/Common/System/GameCommon.cpp
           Source/Common/System/GameMemory.cpp
@@ -591,17 +579,13 @@ target_sources(
           Source/Common/System/Geometry.cpp
           Source/Common/System/KindOf.cpp
           Source/Common/System/List.cpp
-          Source/Common/System/LocalFile.cpp
-          Source/Common/System/LocalFileSystem.cpp
           Source/Common/System/MemoryInit.cpp
           Source/Common/System/QuickTrig.cpp
           Source/Common/System/QuotedPrintable.cpp
-          Source/Common/System/RAMFile.cpp
           Source/Common/System/Radar.cpp
           Source/Common/System/SaveGame/GameState.cpp
           Source/Common/System/SaveGame/GameStateMap.cpp
           Source/Common/System/Snapshot.cpp
-          Source/Common/System/StreamingArchiveFile.cpp
           Source/Common/System/String.cpp
           Source/Common/System/Trig.cpp
           Source/Common/System/Upgrade.cpp

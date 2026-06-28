@@ -142,8 +142,9 @@ PipeTestData *GenerateFilePipeTestData()
 {
     // For simplicity, we will not implement this test case as it requires file I/O.
     static char buffer[256] = {0};
+    static RAMFileClass ramFile(buffer, sizeof(buffer));
     return new PipeTestData{
-        new FilePipe(new RAMFileClass(buffer, sizeof(buffer))),
+        new FilePipe(ramFile),
         TESTSTRING,
         TESTSTRING_SZ,
         false,

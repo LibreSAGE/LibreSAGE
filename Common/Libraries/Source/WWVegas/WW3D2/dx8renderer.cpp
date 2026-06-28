@@ -65,7 +65,6 @@
 /*
 ** Global Instance of the DX8MeshRender
 */
-DX8MeshRendererClass TheDX8MeshRenderer;
 bool DX8TextureCategoryClass::m_gForceMultiply = false; // Forces opaque materials to use the multiply blend - pseudo transparent effect.  jba.
 // ----------------------------------------------------------------------------
 
@@ -75,6 +74,8 @@ static DynamicVectorClass<Vector3>				_TempNormalBuffer;
 static MultiListClass<MeshModelClass>			_RegisteredMeshList;
 static TextureCategoryList							texture_category_delete_list;
 static FVFCategoryList								fvf_category_container_delete_list;
+// Must be after the above two lists since the destructor of the FVFCategoryContainer will remove all of its texture categories from the texture_category_delete_list
+DX8MeshRendererClass TheDX8MeshRenderer;
 
 // helper data structure
 class PolyRemover : public MultiListObjectClass

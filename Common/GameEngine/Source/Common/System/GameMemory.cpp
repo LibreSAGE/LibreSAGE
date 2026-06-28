@@ -62,7 +62,8 @@ DECLARE_PERF_TIMER(MemoryPoolInitFilling)
 #endif
 
 #include <SDL3/SDL_stdinc.h>
-bool TheGameMemoryCheckForLeaks = false;	///< if true, the memory manager will check for leaks on exit. (default is false)	
+#include <new>	// for std::nothrow_t
+bool TheGameMemoryCheckForLeaks = false;	///< if true, the memory manager will check for leaks on exit. (default is false)
 
 
 // ----------------------------------------------------------------------------
@@ -1099,12 +1100,17 @@ Bool MemoryPoolSingleBlock::debugCheckOverrun()
 	USE_PERF_TIMER(MemoryPoolDebugging)
 
 #ifdef MEMORYPOOL_BOUNDINGWALL
-	Int *p = (Int*)(((char*)getUserDataNoDbg()) + m_logicalSize);
-	for (Int i = 0; i < WALLCOUNT; i++, p++)
+	// The overrun wall starts at user data + m_logicalSize, which is the caller's
+	// requested (unaligned) size, so it is not necessarily Int-aligned. Read it via
+	// memcpy to avoid a misaligned Int access (UB; flagged by UBSAN). jba/feliwir
+	char *p = ((char*)getUserDataNoDbg()) + m_logicalSize;
+	for (Int i = 0; i < WALLCOUNT; i++, p += sizeof(Int))
 	{
-		if (*p != m_wallPattern-i)
+		Int wallValue;
+		memcpy(&wallValue, p, sizeof(Int));
+		if (wallValue != m_wallPattern-i)
 		{
-			DEBUG_CRASH(("memory overrun for block \"%s\" (expected %08x, got %08x)\n",m_debugLiteralTagString,m_wallPattern+i,*p));
+			DEBUG_CRASH(("memory overrun for block \"%s\" (expected %08x, got %08x)\n",m_debugLiteralTagString,m_wallPattern+i,wallValue));
 			return true;
 		}
 	}
@@ -1127,9 +1133,14 @@ void MemoryPoolSingleBlock::debugFillInWalls()
 	for (i = 0; i < WALLCOUNT; i++)
 		*p++ = m_wallPattern+i;
 
-	p = (Int*)(((char*)getUserDataNoDbg()) + m_logicalSize);
-	for (i = 0; i < WALLCOUNT; i++)
-		*p++ = m_wallPattern-i;
+	// The overrun wall sits at the unaligned offset user data + m_logicalSize, so
+	// write it via memcpy to avoid a misaligned Int store (UB; flagged by UBSAN).
+	char *pc = ((char*)getUserDataNoDbg()) + m_logicalSize;
+	for (i = 0; i < WALLCOUNT; i++, pc += sizeof(Int))
+	{
+		Int wallValue = m_wallPattern-i;
+		memcpy(pc, &wallValue, sizeof(Int));
+	}
 
 	#ifdef MEMORYPOOL_INTENSE_VERIFY
 	debugVerifyBlock();
@@ -3375,6 +3386,48 @@ void operator delete(void * p, size_t sz) noexcept
 	overload for global operator delete[]; send requests to TheDynamicMemoryAllocator.
 */
 void operator delete[](void * p, size_t sz) noexcept
+{
+	++theLinkTester;
+	preMainInitMemoryManager();
+	DEBUG_ASSERTCRASH(TheDynamicMemoryAllocator != NULL, ("must init memory manager before calling global operator delete"));
+	TheDynamicMemoryAllocator->freeBytes(p);
+}
+
+//-----------------------------------------------------------------------------
+/**
+	nothrow overloads. feliwir: These must route to TheDynamicMemoryAllocator too.
+	Normally the standard library's nothrow operator new delegates to the throwing
+	one (so our override above already handles it), but sanitizer runtimes (ASan)
+	replace the nothrow new with their own allocator. Without these overrides a
+	nothrow allocation (e.g. std::get_temporary_buffer, used by std::stable_sort)
+	would come from the system allocator while the matching delete still routes to
+	freeBytes(), corrupting the pool / tripping ASan with a heap-buffer-overflow.
+*/
+void* operator new(size_t size, const std::nothrow_t&) noexcept
+{
+	++theLinkTester;
+	preMainInitMemoryManager();
+	DEBUG_ASSERTCRASH(TheDynamicMemoryAllocator != NULL, ("must init memory manager before calling global operator new"));
+	return TheDynamicMemoryAllocator->allocateBytes(size, "global operator new (nothrow)");
+}
+
+void* operator new[](size_t size, const std::nothrow_t&) noexcept
+{
+	++theLinkTester;
+	preMainInitMemoryManager();
+	DEBUG_ASSERTCRASH(TheDynamicMemoryAllocator != NULL, ("must init memory manager before calling global operator new"));
+	return TheDynamicMemoryAllocator->allocateBytes(size, "global operator new[] (nothrow)");
+}
+
+void operator delete(void * p, const std::nothrow_t&) noexcept
+{
+	++theLinkTester;
+	preMainInitMemoryManager();
+	DEBUG_ASSERTCRASH(TheDynamicMemoryAllocator != NULL, ("must init memory manager before calling global operator delete"));
+	TheDynamicMemoryAllocator->freeBytes(p);
+}
+
+void operator delete[](void * p, const std::nothrow_t&) noexcept
 {
 	++theLinkTester;
 	preMainInitMemoryManager();

@@ -31,13 +31,13 @@
 //                                                                          
 //----------------------------------------------------------------------------
 //
-// Project:   RTS
+// Project:   WSYS Library
 //
 // Module:    IO
 //
-// File name: StreamingArchiveFile.cpp
+// File name: WSYS_RAMFile.cpp
 //
-// Created:   12/06/02
+// Created:   11/08/01
 //
 //----------------------------------------------------------------------------
 
@@ -46,16 +46,17 @@
 //----------------------------------------------------------------------------
 #include <stdio.h>
 #include <fcntl.h>
-#ifdef _WINDOWS
+#ifdef _WIN32
 #include <io.h>
+#else
+#include <unistd.h>
 #endif
 #include <string.h>
 #include <sys/stat.h>
 
 #include "Common/AsciiString.h"
 #include "Common/FileSystem.h"
-#include "Common/StreamingArchiveFile.h"
-#include "Common/PerfTimer.h"
+#include "Common/RAMFile.h"
 									
 
 //----------------------------------------------------------------------------
@@ -99,14 +100,16 @@
 //----------------------------------------------------------------------------
 
 //=================================================================
-// StreamingArchiveFile::StreamingArchiveFile
+// RAMFile::RAMFile
 //=================================================================
 
-StreamingArchiveFile::StreamingArchiveFile()
-: m_file(NULL), 
-	m_startingPos(0), 
-	m_size(0), 
-	m_curPos(0)
+RAMFile::RAMFile()
+: m_size(0),
+	m_data(NULL),
+//Added By Sadullah Nader
+//Initializtion(s) inserted
+	m_pos(0)
+//
 {
 
 }
@@ -118,16 +121,21 @@ StreamingArchiveFile::StreamingArchiveFile()
 
 
 //=================================================================
-// StreamingArchiveFile::~StreamingArchiveFile	
+// RAMFile::~RAMFile	
 //=================================================================
 
-StreamingArchiveFile::~StreamingArchiveFile()
+RAMFile::~RAMFile()
 {
+	if (m_data != NULL) {
+		delete [] m_data;
+	}
+
 	File::close();
+
 }
 
 //=================================================================
-// StreamingArchiveFile::open	
+// RAMFile::open	
 //=================================================================
 /**
   *	This function opens a file using the standard C open() call. Access flags
@@ -136,10 +144,10 @@ StreamingArchiveFile::~StreamingArchiveFile()
 	*/
 //=================================================================
 
-//DECLARE_PERF_TIMER(StreamingArchiveFile)
-Bool StreamingArchiveFile::open( const Char *filename, Int access )
+//DECLARE_PERF_TIMER(RAMFile)
+Bool RAMFile::open( const Char *filename, Int access )
 {
-	//USE_PERF_TIMER(StreamingArchiveFile)
+	//USE_PERF_TIMER(RAMFile)
 	File *file = TheFileSystem->openFile( filename, access );
 
 	if ( file == NULL )
@@ -147,106 +155,149 @@ Bool StreamingArchiveFile::open( const Char *filename, Int access )
 		return FALSE;
 	}	
 
-	return (open( file ) != NULL);
+	Bool result = open( file );
+
+	file->close();
+
+	return result;
 }
 
 //============================================================================
-// StreamingArchiveFile::open
+// RAMFile::open
 //============================================================================
 
-Bool StreamingArchiveFile::open( File *file )
+Bool RAMFile::open( File *file )
 {
+	//USE_PERF_TIMER(RAMFile)
+	if ( file == NULL )
+	{
+		return NULL;
+	}
+
+	Int access = file->getAccess();
+
+	if ( !File::open( file->getName(), access ))
+	{
+		return FALSE;
+	}
+
+	// read whole file in to memory
+	m_size = file->size();
+	m_data = MSGNEW("RAMFILE") char [ m_size ];	// pool[]ify
+
+	if ( m_data == NULL )
+	{
+		return FALSE;
+	}
+
+	m_size = file->read( m_data, m_size );
+
+	if ( m_size < 0 )
+	{
+		delete [] m_data;
+		m_data = NULL;
+		return FALSE;
+	}
+
+	m_pos = 0;
+
 	return TRUE;
 }
 
 //============================================================================
-// StreamingArchiveFile::openFromArchive
+// RAMFile::openFromArchive
 //============================================================================
-Bool StreamingArchiveFile::openFromArchive(File *archiveFile, const AsciiString& filename, Int offset, Int size) 
+Bool RAMFile::openFromArchive(File *archiveFile, const AsciiString& filename, Int offset, Int size) 
 {
-	//USE_PERF_TIMER(StreamingArchiveFile)
+	//USE_PERF_TIMER(RAMFile)
 	if (archiveFile == NULL) {
 		return FALSE;
 	}
 
-	if (File::open(filename.str(), File::READ | File::BINARY | File::STREAMING) == FALSE) {
+	if (File::open(filename.str(), File::READ | File::BINARY) == FALSE) {
 		return FALSE;
 	}
 
-	m_file = archiveFile;
-	m_startingPos = offset;
+	if (m_data != NULL) {
+		delete[] m_data;
+		m_data = NULL;
+	}
+	m_data = MSGNEW("RAMFILE") Char [size];	// pool[]ify
 	m_size = size;
-	m_curPos = 0;
 
-	if (m_file->seek(offset, File::START) != offset) {
+	if (archiveFile->seek(offset, File::START) != offset) {
 		return FALSE;
 	}
-	
-	if (m_file->seek(size) != m_startingPos + size) {
+	if (archiveFile->read(m_data, size) != size) {
 		return FALSE;
 	}
-
-	// We know this will succeed.
-	m_file->seek(offset, File::START);
-
 	m_nameStr = filename;
 
 	return TRUE;
 }
 
 //=================================================================
-// StreamingArchiveFile::close 	
+// RAMFile::close 	
 //=================================================================
 /**
 	* Closes the current file if it is open.
-  * Must call StreamingArchiveFile::close() for each successful StreamingArchiveFile::open() call.
+  * Must call RAMFile::close() for each successful RAMFile::open() call.
 	*/
 //=================================================================
 
-void StreamingArchiveFile::close( void )
+void RAMFile::close( void )
 {
+	if ( m_data )
+	{
+		delete [] m_data;
+		m_data = NULL;
+	}
+
 	File::close();
 }
 
 //=================================================================
-// StreamingArchiveFile::read 
+// RAMFile::read 
 //=================================================================
 // if buffer is null, just advance the current position by 'bytes'
-Int StreamingArchiveFile::read( void *buffer, Int bytes )
+Int RAMFile::read( void *buffer, Int bytes )
 {
-	if (!m_file) {
-		return 0;
+	if( m_data == NULL )
+	{
+		return -1;
 	}
 
-	// There shouldn't be a way that this can fail, because we've already verified that the file 
-	// contains at least this many bits.
-	m_file->seek(m_startingPos + m_curPos, File::START);
+	Int bytesLeft = m_size - m_pos ;
 
-	if (bytes + m_curPos > m_size) 
-		bytes = m_size - m_curPos;
+	if ( bytes > bytesLeft )
+	{
+		bytes = bytesLeft;
+	}
 
-	Int bytesRead = m_file->read(buffer, bytes);
+	if (( bytes > 0 ) && ( buffer != NULL ))
+	{
+		memcpy ( buffer, &m_data[m_pos], bytes );
+	}
 
-	m_curPos += bytesRead;
+	m_pos += bytes;
 
-	return bytesRead;
+	return bytes;
 }
 
 //=================================================================
-// StreamingArchiveFile::write 
+// RAMFile::write 
 //=================================================================
 
-Int StreamingArchiveFile::write( const void *buffer, Int bytes )
+Int RAMFile::write( const void *buffer, Int bytes )
 {
-	DEBUG_CRASH(("Cannot write to streaming files.\n"));
 	return -1;
 }
 
 //=================================================================
-// StreamingArchiveFile::seek 
+// RAMFile::seek 
 //=================================================================
 
-Int StreamingArchiveFile::seek( Int pos, seekMode mode)
+Int RAMFile::seek( Int pos, seekMode mode)
 {
 	Int newPos;
 
@@ -256,10 +307,10 @@ Int StreamingArchiveFile::seek( Int pos, seekMode mode)
 			newPos = pos;
 			break;
 		case CURRENT:
-			newPos = m_curPos + pos;
+			newPos = m_pos + pos;
 			break;
 		case END:
-			DEBUG_ASSERTCRASH(pos <= 0, ("StreamingArchiveFile::seek - position should be <= 0 for a seek starting from the end."));
+			DEBUG_ASSERTCRASH(pos <= 0, ("RAMFile::seek - position should be <= 0 for a seek starting from the end."));
 			newPos = m_size + pos;
 			break;
 		default:
@@ -276,9 +327,182 @@ Int StreamingArchiveFile::seek( Int pos, seekMode mode)
 		newPos = m_size;
 	}
 
-	m_curPos = newPos;
+	m_pos = newPos;
 
-	return m_curPos;
+	return m_pos;
 
 }
 
+//=================================================================
+// RAMFile::scanInt
+//=================================================================
+Bool RAMFile::scanInt(Int &newInt) 
+{
+	newInt = 0;
+	AsciiString tempstr;
+
+	while ((m_pos < m_size) && ((m_data[m_pos] < '0') || (m_data[m_pos] > '9')) && (m_data[m_pos] != '-')) {
+		++m_pos;
+	}
+
+	if (m_pos >= m_size) {
+		m_pos = m_size;
+		return FALSE;
+	}
+
+	do {
+		tempstr.concat(m_data[m_pos]);
+		++m_pos;
+	} while ((m_pos < m_size) && ((m_data[m_pos] >= '0') && (m_data[m_pos] <= '9')));
+
+//	if (m_pos < m_size) {
+//		--m_pos;
+//	}
+
+	newInt = atoi(tempstr.str());
+	return TRUE;
+}
+
+//=================================================================
+// RAMFile::scanInt
+//=================================================================
+Bool RAMFile::scanReal(Real &newReal) 
+{
+	newReal = 0.0;
+	AsciiString tempstr;
+	Bool sawDec = FALSE;
+
+	while ((m_pos < m_size) && ((m_data[m_pos] < '0') || (m_data[m_pos] > '9')) && (m_data[m_pos] != '-') && (m_data[m_pos] != '.')) {
+		++m_pos;
+	}
+
+	if (m_pos >= m_size) {
+		m_pos = m_size;
+		return FALSE;
+	}
+
+	do {
+		tempstr.concat(m_data[m_pos]);
+		if (m_data[m_pos] == '.') {
+			sawDec = TRUE;
+		}
+		++m_pos;
+	} while ((m_pos < m_size) && (((m_data[m_pos] >= '0') && (m_data[m_pos] <= '9')) || ((m_data[m_pos] == '.') && !sawDec)));
+
+//	if (m_pos < m_size) {
+//		--m_pos;
+//	}
+
+	newReal = atof(tempstr.str());
+	return TRUE;
+}
+
+//=================================================================
+// RAMFile::scanString
+//=================================================================
+Bool RAMFile::scanString(AsciiString &newString) 
+{
+	newString.clear();
+
+	while ((m_pos < m_size) && isspace(m_data[m_pos])) {
+		++m_pos;
+	}
+
+	if (m_pos >= m_size) {
+		m_pos = m_size;
+		return FALSE;
+	}
+
+	do {
+		newString.concat(m_data[m_pos]);
+		++m_pos;
+	} while ((m_pos < m_size) && (!isspace(m_data[m_pos])));
+
+	return TRUE;
+}
+
+//=================================================================
+// RAMFile::nextLine
+//=================================================================
+void RAMFile::nextLine(Char *buf, Int bufSize) 
+{
+	Int i = 0;
+	// seek to the next new-line character
+	while ((m_pos < m_size) && (m_data[m_pos] != '\n')) {
+		if ((buf != NULL) && (i < (bufSize-1))) {
+			buf[i] = m_data[m_pos];
+			++i;
+		}
+		++m_pos;
+	}
+
+	// we got to the new-line character, now go one past it.
+	if (m_pos < m_size) {
+		if ((buf != NULL) && (i < bufSize)) {
+			buf[i] = m_data[m_pos];
+			++i;
+		}
+		++m_pos;
+	}
+	if (buf != NULL) {
+		if (i < bufSize) {
+			buf[i] = 0;
+		} else {
+			buf[bufSize] = 0;
+		}
+	}
+	if (m_pos >= m_size) {
+		m_pos = m_size;
+	}
+}
+
+//=================================================================
+// RAMFile::nextLine
+//=================================================================
+Bool RAMFile::copyDataToFile(File *localFile) 
+{
+	if (localFile == NULL) {
+		return FALSE;
+	}
+
+	if (localFile->write(m_data, m_size) == m_size) {
+		return TRUE;
+	}
+
+
+	return FALSE;
+}
+
+//=================================================================
+//=================================================================
+File* RAMFile::convertToRAMFile()
+{
+	return this;
+}
+
+//=================================================================
+// RAMFile::readEntireAndClose
+//=================================================================
+/**
+	Allocate a buffer large enough to hold entire file, read 
+	the entire file into the buffer, then close the file.
+	the buffer is owned by the caller, who is responsible
+	for freeing is (via delete[]). This is a Good Thing to
+	use because it minimizes memory copies for BIG files.
+*/
+char* RAMFile::readEntireAndClose()
+{
+
+	if (m_data == NULL)
+	{
+		DEBUG_CRASH(("m_data is NULL in RAMFile::readEntireAndClose -- should not happen!\n"));
+		return NEW char[1];	// just to avoid crashing...
+	}
+
+	char* tmp = m_data;
+	m_data = NULL;	// will belong to our caller!
+
+	close();
+
+	return tmp;
+}

@@ -186,11 +186,11 @@ template<class T> class List;
 template<class T>
 class Node : public GenericNode {
 	public:
-		List<T> * Main_List(void) const {return((List<T> *)GenericNode::Main_List());}
-		T Next(void) const {return((T)GenericNode::Next());}
-		T Next_Valid(void) const {return((T)GenericNode::Next_Valid());}
-		T Prev(void) const {return((T)GenericNode::Prev());}
-		T Prev_Valid(void) const {return((T)GenericNode::Prev_Valid());}
+		List<T> * Main_List(void) const {return(reinterpret_cast<List<T> *>(GenericNode::Main_List()));}
+		T Next(void) const {return(reinterpret_cast<T>(GenericNode::Next()));}
+		T Next_Valid(void) const {return(reinterpret_cast<T>(GenericNode::Next_Valid()));}
+		T Prev(void) const {return(reinterpret_cast<T>(GenericNode::Prev()));}
+		T Prev_Valid(void) const {return(reinterpret_cast<T>(GenericNode::Prev_Valid()));}
 		bool Is_Valid(void) const {return(GenericNode::Is_Valid());}
 };
 
@@ -204,11 +204,15 @@ class List : public GenericList {
 	public:
 		List(void) {};
 
-		T First(void) const {return((T)GenericList::First());}
-		T First_Valid(void) const {return((T)GenericList::First_Valid());}
-		T Last(void) const {return((T)GenericList::Last());}
-		T Last_Valid(void) const {return((T)GenericList::Last_Valid());}
-		void Delete(void) {while (First()->Is_Valid()) delete First();}
+		// See the note in Node<T>: First()/Last() can return the sentinel, so use
+		// reinterpret_cast rather than a checked (UB) downcast of a non-T sentinel.
+		T First(void) const {return(reinterpret_cast<T>(GenericList::First()));}
+		T First_Valid(void) const {return(reinterpret_cast<T>(GenericList::First_Valid()));}
+		T Last(void) const {return(reinterpret_cast<T>(GenericList::Last()));}
+		T Last_Valid(void) const {return(reinterpret_cast<T>(GenericList::Last_Valid()));}
+		// Test emptiness on the base node (Is_Empty) instead of calling a member through
+		// a downcast sentinel pointer, which UBSAN flags as a member call on the wrong type.
+		void Delete(void) {while (!Is_Empty()) delete First();}
 
 	private:
 		List(List<T> const & rvalue);

@@ -468,7 +468,7 @@ static MessageBoxReturnType cancelStartBecauseOfNoCD( void *userData )
 Bool IsFirstCDPresent(void)
 {
 #if !defined(_INTERNAL) && !defined(_DEBUG)
-	return TheFileSystem->areMusicFilesOnCD();
+	return TRUE;//TheFileSystem->areMusicFilesOnCD();
 #else
 	return TRUE;
 #endif

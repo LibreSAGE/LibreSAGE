@@ -7,4 +7,5 @@ set_target_properties(c_ww3d2test PROPERTIES OUTPUT_NAME "WW3D2Test")
 target_compile_definitions(c_ww3d2test PRIVATE MESH_DATA_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data/")
 
 include(GoogleTest)
-gtest_discover_tests(c_ww3d2test DISCOVERY_TIMEOUT 20)
+gtest_discover_tests(c_ww3d2test DISCOVERY_TIMEOUT 20
+    PROPERTIES ENVIRONMENT "LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/Common/Tests/lsan.supp")

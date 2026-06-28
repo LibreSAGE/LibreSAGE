@@ -22,11 +22,10 @@
 #include <strings.h>
 
 #include "Common/ArchiveFile.h"
-#include "Common/AudioAffect.h"
 #include "Common/File.h"
-#include "Common/GameAudio.h"
 #include "Common/GameMemory.h"
 #include "Common/LocalFileSystem.h"
+#include "Common/Registry.h"
 #include "SDL3Device/Common/SDL3BIGFile.h"
 
 static const char *BIGFileIdentifier = "BIGF";
@@ -43,6 +42,16 @@ void SDL3BIGFileSystem::init()
 	}
 
 	loadBigFilesFromDirectory("", "*.big");
+
+	// load original Generals assets
+    AsciiString installPath;
+    GetStringFromGeneralsRegistry("", "InstallPath", installPath );
+    //@todo this will need to be ramped up to a crash for release
+    // had to make this non-internal only, otherwise we can't autobuild
+    // GeneralsZH...
+    DEBUG_ASSERTLOG(installPath != "", ("Be 1337! Go install Generals!"));
+    if (installPath!="")
+      loadBigFilesFromDirectory(installPath, "*.big");
 }
 
 void SDL3BIGFileSystem::reset() {}
@@ -146,9 +155,6 @@ void SDL3BIGFileSystem::closeArchiveFile(const Char *filename)
 		return;
 	}
 
-	if (strcasecmp(filename, MUSIC_BIG) == 0) {
-		TheAudio->stopAudio(AudioAffect_Music);
-	}
 	DEBUG_ASSERTCRASH(strcasecmp(filename, MUSIC_BIG) == 0,
 	                  ("Attempting to close Archive file '%s', need to add code to handle its shutdown correctly.", filename));
 

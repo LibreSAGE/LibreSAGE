@@ -1,0 +1,36 @@
+# LeakSanitizer suppressions for the test suite.
+#
+# These entries suppress leaks that originate entirely inside third-party code that
+# the rendering tests pull in (GPU drivers, the Vulkan loader/ICDs, DXVK and the
+# font libraries). Those libraries allocate caches/handles that are only released
+# when the process is torn down, which LeakSanitizer reports at exit. They are not
+# leaks in this repository and cannot be fixed here, so we ignore them by module.
+#
+# Matching is by substring against any frame's function name or module path. Keep
+# these patterns specific to third-party modules so real leaks in our own code are
+# still reported.
+
+# Font stack (fontconfig pattern/cache, freetype)
+leak:fontconfig
+leak:libfreetype
+
+# NVIDIA proprietary driver / CUDA
+leak:libcuda
+leak:libnvidia
+leak:libGLX_nvidia
+
+# Vulkan loader + ICDs (RADV / generic), validation layers
+leak:libvulkan
+leak:radeon
+leak:libVkLayer
+
+# Mesa / generic GL software stack
+leak:libGL
+leak:swrast
+leak:libdrm
+
+# DXVK (prebuilt D3D8->Vulkan translation layer) internal caches
+leak:dxvk
+
+# Leak some testdata
+leak:SetupPipeTestCases

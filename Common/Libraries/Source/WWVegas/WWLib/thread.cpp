@@ -53,7 +53,16 @@ void __cdecl ThreadClass::Internal_Thread_Function(void* params)
 	tc->running=true;
 	tc->ThreadID = _Get_Current_Thread_ID();
 	tc->Thread_Function();
+#ifdef _UNIX
+	// Free the pthread_t that Execute() heap-allocated. Zero the handle first so that
+	// a concurrent Stop() sees the thread as finished and does not also delete it
+	// (Stop() only frees the handle on its timeout/kill path).
+	pthread_t* h = (pthread_t*)tc->handle;
 	tc->handle=0;
+	delete h;
+#else
+	tc->handle=0;
+#endif
 	tc->ThreadID = 0;
 }
 
