@@ -22,6 +22,7 @@ target_sources(c_gameengine
     Source/Common/System/MemoryInit.cpp
     Source/Common/System/Registry.cpp
     Source/Common/System/StackDump.cpp
+    Source/Common/System/SubsystemInterface.cpp
     Source/Common/System/UnicodeString.cpp
     Source/Common/NameKeyGenerator.cpp
 )

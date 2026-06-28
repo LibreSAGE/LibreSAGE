@@ -613,7 +613,6 @@ target_sources(
     Source/Common/System/Snapshot.cpp
     Source/Common/System/StreamingArchiveFile.cpp
     Source/Common/System/String.cpp
-    Source/Common/System/SubsystemInterface.cpp
     Source/Common/System/Trig.cpp
     Source/Common/System/Upgrade.cpp
     Source/Common/System/Xfer.cpp

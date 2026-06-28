@@ -158,12 +158,32 @@ GameEngine *TheGameEngine = NULL;
 SubsystemInterfaceList* TheSubsystemList = NULL;
 
 //-------------------------------------------------------------------------------------------------
+// Standalone subsystem initializer. Lives game-side because it needs the full INI loader;
+// it registers the subsystem into the list via the public SubsystemInterfaceList API.
+void initSubsystem(SubsystemInterfaceList& list, SubsystemInterface* sys, const char* path1,
+									 const char* path2, const char* dirpath, Xfer *pXfer, AsciiString name = "")
+{
+	sys->setName(name);
+	sys->init();
+
+	INI ini;
+	if (path1)
+		ini.load(path1, INI_LOAD_OVERWRITE, pXfer );
+	if (path2)
+		ini.load(path2, INI_LOAD_OVERWRITE, pXfer );
+	if (dirpath)
+		ini.loadDirectory(dirpath, TRUE, INI_LOAD_OVERWRITE, pXfer );
+
+	list.addSubsystemToList(sys);
+}
+
+//-------------------------------------------------------------------------------------------------
 template<class SUBSYSTEM>
 void initSubsystem(SUBSYSTEM*& sysref, AsciiString name, SUBSYSTEM* sys, Xfer *pXfer,  const char* path1 = NULL, 
 									 const char* path2 = NULL, const char* dirpath = NULL)
 {
 	sysref = sys;
-	TheSubsystemList->initSubsystem(sys, path1, path2, dirpath, pXfer, name);
+	initSubsystem(*TheSubsystemList, sys, path1, path2, dirpath, pXfer, name);
 }
 
 //-------------------------------------------------------------------------------------------------

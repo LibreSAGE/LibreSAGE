@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -22,21 +22,11 @@
 //																																						//
 ////////////////////////////////////////////////////////////////////////////////
 
-// FILE: SubsystemInterface.cpp 
+// FILE: SubsystemInterface.cpp
 // ----------------------------------------------------------------------------
 #include "Common/SubsystemInterface.h"
-#include "Common/Xfer.h"
-
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
 
 #ifdef DUMP_PERF_STATS
-#include "GameLogic/GameLogic.h"
-#include "Common/PerfTimer.h"
-
 Real SubsystemInterface::s_msConsumed = 0;
 #endif
 
@@ -46,7 +36,9 @@ SubsystemInterface::SubsystemInterface()
 :m_curDrawTime(0),
 m_startDrawTimeConsumed(0),
 m_startTimeConsumed(0),
-m_curUpdateTime(0)
+m_curUpdateTime(0),
+m_dumpUpdate(false),
+m_dumpDraw(false)
 #endif
 {
 	if (TheSubsystemList) {
@@ -63,20 +55,24 @@ SubsystemInterface::~SubsystemInterface()
 }
 
 #ifdef DUMP_PERF_STATS
-void SubsystemInterface::UPDATE(void) 
+#include <SDL3/SDL_timer.h>
+
+static const Real MIN_TIME_THRESHOLD = 0.0002f; // .2 msec. [8/13/2003]
+void SubsystemInterface::UPDATE(void)
 {
-	Int64 startTime64;
-	Int64 endTime64,freq64;
-	GetPrecisionTimerTicksPerSec(&freq64);
-	GetPrecisionTimer(&startTime64);
+	UnsignedInt64 freq64 = SDL_GetPerformanceFrequency();
+	UnsignedInt64 startTime64 = SDL_GetPerformanceCounter();
 	m_startTimeConsumed = s_msConsumed;
 	update();
-	GetPrecisionTimer(&endTime64);
+	UnsignedInt64 endTime64 = SDL_GetPerformanceCounter();
 	m_curUpdateTime = ((double)(endTime64-startTime64))/((double)(freq64));
 	Real subTime = s_msConsumed - m_startTimeConsumed;
 	if (m_name.isEmpty()) return;
-	if (m_curUpdateTime > 0.00001) {
-		//DEBUG_LOG(("Subsys %s total time %.2f, subTime %.2f, net time %.2f\n", 
+	if (m_curUpdateTime>MIN_TIME_THRESHOLD) {
+		m_dumpUpdate = true;
+	}
+	if (m_curUpdateTime > MIN_TIME_THRESHOLD/10.0f) {
+		//DLOG(Debug::Format("Subsys %s total time %.2f, subTime %.2f, net time %.2f\n",
 		//	m_name.str(), m_curUpdateTime*1000, subTime*1000, (m_curUpdateTime-subTime)*1000	));
 
 		m_curUpdateTime -= subTime;
@@ -85,21 +81,22 @@ void SubsystemInterface::UPDATE(void)
 		m_curUpdateTime = 0;
 	}
 
-}																
-void SubsystemInterface::DRAW(void) 
+}
+void SubsystemInterface::DRAW(void)
 {
-	Int64 startTime64;
-	Int64 endTime64,freq64;
-	GetPrecisionTimerTicksPerSec(&freq64);
-	GetPrecisionTimer(&startTime64);
+	UnsignedInt64 freq64 = SDL_GetPerformanceFrequency();
+	UnsignedInt64 startTime64 = SDL_GetPerformanceCounter();
 	m_startDrawTimeConsumed = s_msConsumed;
 	draw();
-	GetPrecisionTimer(&endTime64);
+	UnsignedInt64 endTime64 = SDL_GetPerformanceCounter();
 	m_curDrawTime = ((double)(endTime64-startTime64))/((double)(freq64));
 	Real subTime = s_msConsumed - m_startDrawTimeConsumed;
 	if (m_name.isEmpty()) return;
-	if (m_curDrawTime > 0.00001) {
-		//DEBUG_LOG(("Subsys %s total time %.2f, subTime %.2f, net time %.2f\n", 
+	if (m_curDrawTime>MIN_TIME_THRESHOLD) {
+		m_dumpDraw = true;
+	}
+	if (m_curDrawTime > MIN_TIME_THRESHOLD/10.0f) {
+		//DLOG(Debug::Format("Subsys %s total time %.2f, subTime %.2f, net time %.2f\n",
 		//	m_name.str(), m_curUpdateTime*1000, subTime*1000, (m_curUpdateTime-subTime)*1000	));
 
 		m_curDrawTime -= subTime;
@@ -136,7 +133,7 @@ void SubsystemInterfaceList::removeSubsystem(SubsystemInterface* sys)
 {
 #ifdef DUMP_PERF_STATS
 	for (SubsystemList::iterator it = m_allSubsystems.begin(); it != m_subsystems.end(); ++it)
-	{	 
+	{
 		if ( (*it) == sys) {
 			m_allSubsystems.erase(it);
 			break;
@@ -145,19 +142,8 @@ void SubsystemInterfaceList::removeSubsystem(SubsystemInterface* sys)
 #endif
 }
 //-----------------------------------------------------------------------------
-void SubsystemInterfaceList::initSubsystem(SubsystemInterface* sys, const char* path1, const char* path2, const char* dirpath, Xfer *pXfer, AsciiString name)
+void SubsystemInterfaceList::addSubsystemToList(SubsystemInterface* sys)
 {
-	sys->setName(name);
-	sys->init();
-
-	INI ini;
-	if (path1)
-		ini.load(path1, INI_LOAD_OVERWRITE, pXfer );
-	if (path2)
-		ini.load(path2, INI_LOAD_OVERWRITE, pXfer );
-	if (dirpath)
-		ini.loadDirectory(dirpath, TRUE, INI_LOAD_OVERWRITE, pXfer );
-
 	m_subsystems.push_back(sys);
 }
 
@@ -199,7 +185,7 @@ AsciiString SubsystemInterfaceList::dumpTimesForAll()
 
 	AsciiString buffer;
 	buffer = "ALL SUBSYSTEMS:\n";
-	//buffer.format("\nSUBSYSTEMS: total time %.2f MS\n", 
+	//buffer.format("\nSUBSYSTEMS: total time %.2f MS\n",
 	//	SubsystemInterface::getTotalTime()*1000.0f);
 	Real misc = 0;
 	Real total = 0;
@@ -208,7 +194,7 @@ AsciiString SubsystemInterfaceList::dumpTimesForAll()
 	{
 		SubsystemInterface* sys = *it;
 		total += sys->getUpdateTime();
-		if (sys->getUpdateTime()>0.00001f) {
+		if (sys->doDumpUpdate()) {
 			AsciiString curLine;
 			curLine.format("  Time %02.2f MS update() %s \n", sys->getUpdateTime()*1000.0f, sys->getName().str());
 			buffer.concat(curLine);
@@ -216,7 +202,7 @@ AsciiString SubsystemInterfaceList::dumpTimesForAll()
 			misc += sys->getUpdateTime();
 		}
 		total += sys->getDrawTime();
-		if (sys->getDrawTime()>0.00001f) {
+		if (sys->doDumpDraw()) {
 			AsciiString curLine;
 			curLine.format("  Time %02.2f MS  draw () %s \n", sys->getDrawTime()*1000.0f, sys->getName().str());
 			buffer.concat(curLine);
