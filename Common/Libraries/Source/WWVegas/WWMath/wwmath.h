@@ -545,7 +545,7 @@ WWINLINE float WWMath::Sqrt(float val)
 #else
 WWINLINE float WWMath::Sqrt(float val)
 {
-	return (float)sqrt(val);
+	return sqrtf(val);
 }
 #endif
 
@@ -632,6 +632,6 @@ WWINLINE __declspec(naked) float __fastcall WWMath::Inv_Sqrt(float a)
 #else
 WWINLINE float WWMath::Inv_Sqrt(float val)
 {
-	return 1.0f / (float)sqrt(val);
+	return 1.0f / sqrtf(val);
 }
 #endif

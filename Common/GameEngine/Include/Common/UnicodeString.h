@@ -239,7 +239,7 @@ public:
 	/**
 		Create a new UTF-8 compliant AsciiString from this UnicodeString. 
 	 */
-	AsciiString toUTF8String() const;
+	AsciiString toUTF8() const;
 
 	/**
 		Analogous to sprintf() -- this formats a string according to the

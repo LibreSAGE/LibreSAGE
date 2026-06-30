@@ -156,7 +156,7 @@ AsciiString DescribeObject(const Object *obj)
 		ret.format("Object %d (%s) [%s, owned by player %d (%s)]",
 			obj->getID(), obj->getName().str(), obj->getTemplate()->getName().str(),
 			obj->getControllingPlayer()->getPlayerIndex(),
-			obj->getControllingPlayer()->getPlayerDisplayName().toUTF8String().str());
+			obj->getControllingPlayer()->getPlayerDisplayName().toUTF8().str());
 	}
 	else
 	{

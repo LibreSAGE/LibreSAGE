@@ -294,7 +294,7 @@ void UnicodeString::removeLastChar()
 }
 
 // -----------------------------------------------------
-AsciiString UnicodeString::toUTF8String() const
+AsciiString UnicodeString::toUTF8() const
 {
 	validate();
 	AsciiString ret;

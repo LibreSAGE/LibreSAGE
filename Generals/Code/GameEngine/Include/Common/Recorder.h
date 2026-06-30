@@ -94,8 +94,8 @@ public:
 		UnsignedInt versionNumber;
 		UnsignedInt exeCRC;
 		UnsignedInt iniCRC;
-		time_t startTime;
-		time_t endTime;
+		UnsignedInt startTime; // time_t on win-32 was 32-bit, so we need to use UnsignedInt here
+		UnsignedInt endTime;   // time_t on win-32 was 32-bit, so we need to use UnsignedInt here
 		UnsignedInt frameDuration;
 		Bool quitEarly;
 		Bool desyncGame;

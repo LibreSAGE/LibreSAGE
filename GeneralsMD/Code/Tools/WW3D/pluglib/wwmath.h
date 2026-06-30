@@ -89,11 +89,11 @@ class WWMath
 {
 public:
 
-static float		Fabs(float val) { return (float)fabs(val); }
-static float		Sqrt(float val) { return (float)sqrt(val); }
-static float		Inv_Sqrt(float val) { return 1.0f / (float)sqrt(val); }
+static float		Fabs(float val) { return fabsf(val); }
+static float		Sqrt(float val) { return sqrtf(val); }
+static float		Inv_Sqrt(float val) { return 1.0f / sqrtf(val); }
 static float		Sign(float val);
-static float		Floor(float val) { return (float)floor(val); }
+static float		Floor(float val) { return floorf(val); }
 static bool			Fast_Is_Float_Positive(const float & val);
 
 static float		Random_Float(void);

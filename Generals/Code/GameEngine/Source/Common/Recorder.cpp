@@ -835,8 +835,8 @@ Bool RecorderClass::readReplayHeader(ReplayHeader& header)
 	}
 
 	// read in some stats
-	fread(&header.startTime, sizeof(time_t), 1, m_file);
-	fread(&header.endTime, sizeof(time_t), 1, m_file);
+	fread(&header.startTime, sizeof(UnsignedInt), 1, m_file);
+	fread(&header.endTime, sizeof(UnsignedInt), 1, m_file);
 
 	fread(&header.frameDuration, sizeof(UnsignedInt), 1, m_file);
 
@@ -1068,7 +1068,7 @@ Bool RecorderClass::playbackFile(AsciiString filename)
 	{
 		return FALSE;
 	}
-#ifdef DEBUG_LOGGING
+#if 1//def DEBUG_LOGGING
 
 	Bool versionStringDiff = header.versionString != TheVersion->getUnicodeVersion();
 	Bool versionTimeStringDiff = header.versionTimeString != TheVersion->getUnicodeBuildTime();
@@ -1084,12 +1084,12 @@ Bool RecorderClass::playbackFile(AsciiString filename)
 		debugString = "EXE is different:\n";
 		if (versionStringDiff)
 		{
-			tempStr.format("   Version [%ls] vs [%ls]\n", TheVersion->getUnicodeVersion().str(), header.versionString.str());
+			tempStr.format("   Version [%s] vs [%s]\n", TheVersion->getUnicodeVersion().toUTF8().str(), header.versionString.toUTF8().str());
 			debugString.concat(tempStr);
 		}
 		if (versionTimeStringDiff)
 		{
-			tempStr.format("   Build Time [%ls] vs [%ls]\n", TheVersion->getUnicodeBuildTime().str(), header.versionTimeString.str());
+			tempStr.format("   Build Time [%s] vs [%s]\n", TheVersion->getUnicodeBuildTime().toUTF8().str(), header.versionTimeString.toUTF8().str());
 			debugString.concat(tempStr);
 		}
 		if (versionNumberDiff)
@@ -1163,28 +1163,24 @@ Bool RecorderClass::playbackFile(AsciiString filename)
  * Read a unicode string from the current file position. The string is assumed to be 0-terminated.
  */
 UnicodeString RecorderClass::readUnicodeString() {
-	UChar str[1024] = u"";
+	UChar str[1024];
 	Int index = 0;
 
-	Int c = fgetwc(m_file);
-	if (c == EOF) {
-		str[index] = 0;
-	}
-	str[index] = c;
-
-	while (index < 1024 && str[index] != 0) {
-		++index;
-		Int c = fgetwc(m_file);
-		if (c == EOF) {
-			str[index] = 0;
+	while (index < 1023) {
+		Int lo = fgetc(m_file);
+		Int hi = fgetc(m_file);
+		if (lo == EOF || hi == EOF) {
 			break;
 		}
-		str[index] = c;
+		UChar c = (UChar)(((hi & 0xFF) << 8) | (lo & 0xFF));
+		if (c == 0) {
+			break;
+		}
+		str[index++] = c;
 	}
-	str[1023] = L'\0';
+	str[index] = u'\0';
 
-	UnicodeString retval(str);
-	return retval;
+	return UnicodeString(str);
 }
 
 /**

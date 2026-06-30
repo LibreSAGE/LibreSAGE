@@ -429,8 +429,8 @@ void Matrix3D::Obj_Look_At(const Vector3 &p,const Vector3 &t,float roll)
 	dy = (t[1] - p[1]);
 	dz = (t[2] - p[2]);
 
-	len1 = (float)sqrt(dx*dx + dy*dy + dz*dz);
-	len2 = (float)sqrt(dx*dx + dy*dy);
+	len1 = sqrtf(dx*dx + dy*dy + dz*dz);
+	len2 = sqrtf(dx*dx + dy*dy);
 
 	if (len1 != 0.0f) {
 		sinp = dz/len1;

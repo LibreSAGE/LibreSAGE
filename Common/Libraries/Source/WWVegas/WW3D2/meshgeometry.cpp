@@ -1396,8 +1396,8 @@ void MeshGeometryClass::Compute_Bounds(Vector3 * verts)
 
 	// calculate the bounding sphere
 	BoundSphereCenter = (BoundBoxMin + BoundBoxMax)/2.0f;
-	BoundSphereRadius = (float)(BoundBoxMax-BoundSphereCenter).Length2();
-	BoundSphereRadius = ((float)sqrt(BoundSphereRadius))*1.00001f;
+	BoundSphereRadius = (BoundBoxMax-BoundSphereCenter).Length2();
+	BoundSphereRadius = sqrtf(BoundSphereRadius)*1.00001f;
 	Set_Flag(DIRTY_BOUNDS,false);
 }
 

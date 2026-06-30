@@ -190,7 +190,7 @@ void MoundTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorld
 			Int xd = abs( (2*(i-(ndx.x-sub)))+1 - brushWidth);
 			Int yd = abs( (2*(j-(ndx.y-sub)))+1 - brushWidth);
 			
-			float delta = (float)sqrt(xd*xd+yd*yd);
+			float delta = sqrtf(xd*xd+yd*yd);
 			//Int curHeight = m_htMapSaveCopy->getHeight(i,j);
 			Int curHeight = m_htMapEditCopy->getHeight(i,j);
 			Int newHeight = curHeight + htDelta;
