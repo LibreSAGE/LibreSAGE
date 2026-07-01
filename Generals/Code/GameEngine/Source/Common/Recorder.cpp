@@ -814,13 +814,21 @@ void RecorderClass::writeArgument(GameMessageArgumentDataType type, const GameMe
  */
 Bool RecorderClass::readReplayHeader(ReplayHeader& header)
 {
-	AsciiString filepath = getReplayDir();
-	filepath.concat(header.filename.str());
-	m_file = fopen(filepath.str(), "rb");
+	// First try to open the filename directly. This allows replays to be loaded
+	// via an absolute or relative path (e.g. from the command line), rather than
+	// only by a bare name inside the user's Replays directory.
+	m_file = fopen(header.filename.str(), "rb");
 	if (m_file == NULL)
 	{
-		DEBUG_LOG(("Can't open %s (%s)\n", filepath.str(), header.filename.str()));
-		return FALSE;
+		// Fall back to the standard Replays directory lookup.
+		AsciiString filepath = getReplayDir();
+		filepath.concat(header.filename.str());
+		m_file = fopen(filepath.str(), "rb");
+		if (m_file == NULL)
+		{
+			DEBUG_LOG(("Can't open %s (%s)\n", filepath.str(), header.filename.str()));
+			return FALSE;
+		}
 	}
 
 	// Read the GENREP header.
@@ -981,7 +989,7 @@ void RecorderClass::handleCRCMessage(UnsignedInt newCRC, Int playerIndex, Bool f
 {
 	if (fromPlayback)
 	{
-		//DEBUG_LOG(("RecorderClass::handleCRCMessage() - Adding CRC of %X from %d to m_crcInfo\n", newCRC, playerIndex));
+		DEBUG_LOG(("CRCDBG_ADD frame=%d player=%d crc=%8.8X\n", TheGameLogic->getFrame(), playerIndex, newCRC));
 		m_crcInfo->addCRC(newCRC);
 		return;
 	}
@@ -996,7 +1004,9 @@ void RecorderClass::handleCRCMessage(UnsignedInt newCRC, Int playerIndex, Bool f
 	if (samePlayer || (localPlayerIndex < 0))
 	{
 		UnsignedInt playbackCRC = m_crcInfo->readCRC();
-		//DEBUG_LOG(("RecorderClass::handleCRCMessage() - Comparing CRCs of %8.8X/%8.8X from %d\n", newCRC, playbackCRC, playerIndex));
+		DEBUG_LOG(("CRCDBG_CMP frame=%d player=%d recorded=%8.8X fromList=%8.8X %s\n",
+			TheGameLogic->getFrame(), playerIndex, newCRC, playbackCRC,
+			(newCRC == playbackCRC) ? "MATCH" : "MISMATCH"));
 		if (TheGameLogic->getFrame() > 0 && newCRC != playbackCRC && !m_crcInfo->sawCRCMismatch())
 		{
 			m_crcInfo->setSawCRCMismatch();

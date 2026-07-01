@@ -206,6 +206,30 @@ void setFPMode( void )
 	newVal = (newVal & ~_MCW_PC) | (_PC_24   & _MCW_PC);
 
 	_controlfp(newVal, _MCW_PC | _MCW_RC);
+#elif (defined(__i386__) || defined(__x86_64__)) && defined(__GNUC__)
+	// Match the Win32 setup as closely as the hardware allows so GameLogic
+	// produces reproducible Real values.
+	//
+	// (1) x87 control word: precision = single (24-bit), rounding = nearest.
+	//     This only affects x87 instructions, i.e. code compiled with
+	//     -mfpmath=387. On a default x86-64 (-mfpmath=sse) build the logic runs
+	//     on SSE and this is dormant - but it is required for any attempt to
+	//     reproduce the original x87 _PC_24 behaviour.
+	{
+		unsigned short cw;
+		__asm__ __volatile__("fnstcw %0" : "=m"(cw));
+		cw = (cw & ~0x0300u);          // PC field = 00b -> single precision (24-bit)
+		cw = (cw & ~0x0C00u);          // RC field = 00b -> round to nearest
+		__asm__ __volatile__("fldcw %0" : : "m"(cw));
+	}
+	// (2) SSE MXCSR: rounding = nearest. SSE has no precision control, so this
+	//     is all we can constrain for the default SSE math path.
+	{
+		unsigned int mxcsr;
+		__asm__ __volatile__("stmxcsr %0" : "=m"(mxcsr));
+		mxcsr &= ~0x6000u;             // RC field = 00b -> round to nearest
+		__asm__ __volatile__("ldmxcsr %0" : : "m"(mxcsr));
+	}
 #endif
 }
 
@@ -3141,6 +3165,7 @@ void GameLogic::update( void )
 	if (generateForSolo || generateForMP)
 	{
 		m_CRC = getCRC( CRC_RECALC );
+		DEBUG_LOG(("CRCDBG_GEN frame=%d crc=%8.8X mp=%d\n", m_frame, m_CRC, isMPGameOrReplay));
 		if (isMPGameOrReplay)
 		{
 			GameMessage *msg = TheMessageStream->appendMessage( GameMessage::MSG_LOGIC_CRC );

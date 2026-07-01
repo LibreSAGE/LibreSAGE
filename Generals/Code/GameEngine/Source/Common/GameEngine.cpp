@@ -468,7 +468,7 @@ void GameEngine::init( int argc, char *argv[] )
 		//TheShell->push( AsciiString("Menus/MainMenu.wnd") );
 		
 #if !defined(_PLAYTEST)
-		// This allows us to run a map/reply from the command line
+		// This allows us to run a map/replay from the command line
 		if (TheGlobalData->m_initialFile.isEmpty() == FALSE)
 		{
 			AsciiString fname = TheGlobalData->m_initialFile;
@@ -478,26 +478,12 @@ void GameEngine::init( int argc, char *argv[] )
 			{
 				TheWritableGlobalData->m_shellMapOn = FALSE;
 				TheWritableGlobalData->m_playIntro = FALSE;
-				TheWritableGlobalData->m_pendingFile = TheGlobalData->m_initialFile;
-
-				// shutdown the top, but do not pop it off the stack
-	//			TheShell->hideShell();
-
-				// send a message to the logic for a new game
-				GameMessage *msg = TheMessageStream->appendMessage( GameMessage::MSG_NEW_GAME );
-				msg->appendIntegerArgument(GAME_SINGLE_PLAYER);
-				msg->appendIntegerArgument(DIFFICULTY_NORMAL);
-				msg->appendIntegerArgument(0);
-				InitRandom(0);
-			}
-			else if (fname.endsWithNoCase(".rep"))
-			{
-				TheRecorder->playbackFile(fname);
+				TheWritableGlobalData->m_afterIntro = TRUE;
 			}
 		}
 #endif
 
-		// 
+		//
 		if (TheMapCache && TheGlobalData->m_shellMapOn)
 		{
 			AsciiString lowerName = TheGlobalData->m_shellMapName;
@@ -543,6 +529,35 @@ void GameEngine::init( int argc, char *argv[] )
 
 	TheSubsystemList->resetAll();
 	HideControlBar();
+
+#if !defined(_PLAYTEST)
+	// Now that all subsystems have been reset, start the map or replay that was
+	// requested on the command line. This must happen after resetAll() so that
+	// TheRecorder keeps its PLAYBACK mode (resetAll() resets TheRecorder).
+	if (TheGlobalData->m_initialFile.isEmpty() == FALSE)
+	{
+		AsciiString fname = TheGlobalData->m_initialFile;
+		fname.toLower();
+
+		if (fname.endsWithNoCase(".map"))
+		{
+			TheWritableGlobalData->m_pendingFile = TheGlobalData->m_initialFile;
+
+			// send a message to the logic for a new game
+			GameMessage *msg = TheMessageStream->appendMessage( GameMessage::MSG_NEW_GAME );
+			msg->appendIntegerArgument(GAME_SINGLE_PLAYER);
+			msg->appendIntegerArgument(DIFFICULTY_NORMAL);
+			msg->appendIntegerArgument(0);
+			InitRandom(0);
+		}
+		else if (fname.endsWithNoCase(".rep"))
+		{
+			// pass the original (non-lowercased) filename so case-sensitive
+			// absolute/relative paths survive on case-sensitive filesystems
+			TheRecorder->playbackFile(TheGlobalData->m_initialFile);
+		}
+	}
+#endif
 }  // end init
 
 /** -----------------------------------------------------------------------------------------------

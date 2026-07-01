@@ -13,6 +13,18 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 set(QT_NO_PRIVATE_MODULE_WARNINGS ON)
 
+# Experimental: route floating-point math through the x87 FPU instead of SSE.
+# The original Win32 game ran the simulation on x87 with 24-bit precision
+# (setFPMode / _controlfp _PC_24); SSE2 cannot reproduce that precision mode.
+# With this ON, setFPMode()'s x87 control-word setup takes effect and the logic
+# computes like the original (as closely as the compiler allows). Used to test
+# replay/CRC determinism against original-build replays.
+option(SAGE_FP_X87 "Use the x87 FPU (-mfpmath=387) for FP determinism (experimental)" OFF)
+if(SAGE_FP_X87 AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    message(STATUS "SAGE_FP_X87: using -mfpmath=387 (x87) for floating-point math")
+    add_compile_options(-mfpmath=387)
+endif()
+
 # Options
 option(SAGE_BUILD_TOOLS "Build tools" ON)
 option(SAGE_BUILD_TESTS "Build unit tests" OFF)

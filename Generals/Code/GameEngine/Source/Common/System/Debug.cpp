@@ -354,6 +354,9 @@ void DebugInit(int flags)
 	#ifdef DEBUG_LOGGING
 
 		char dirbuf[ _MAX_PATH ];
+		dirbuf[0] = '\0';	// ensure a defined value: on platforms where GetModuleFileName
+							// is a stub that leaves the buffer untouched, the log path then
+							// falls back to the current working directory instead of garbage.
 		::GetModuleFileName( NULL, dirbuf, sizeof( dirbuf ) );
 		char *pEnd = dirbuf + strlen( dirbuf );
 		while( pEnd != dirbuf ) 

@@ -6,3 +6,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/Generals)
 add_subdirectory(GameEngine)
 add_subdirectory(GameEngineDevice)
 add_subdirectory(Main)
+
+if(SAGE_BUILD_TOOLS)
+    add_subdirectory(Tools/Simulator)
+endif()

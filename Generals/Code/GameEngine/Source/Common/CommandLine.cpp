@@ -78,7 +78,7 @@ static void ConvertShortMapPathToLongMapPath(AsciiString &mapName)
 	while (!token.endsWithNoCase(".map") && (token.getLength() > 0))
 	{
 		actualpath.concat(token);
-		actualpath.concat('\\');
+		actualpath.concat('/');
 		path.nextToken(&token, "\\/");
 	}
 
@@ -93,7 +93,7 @@ static void ConvertShortMapPathToLongMapPath(AsciiString &mapName)
 	token.removeLastChar();
 
 	actualpath.concat(token);
-	actualpath.concat('\\');
+	actualpath.concat('/');
 	actualpath.concat(token);
 	actualpath.concat(".map");
 
@@ -637,7 +637,6 @@ Int parseFile(char *args[], int num)
 	if (TheWritableGlobalData && num > 1)
 	{
 		TheWritableGlobalData->m_initialFile = args[1];
-		ConvertShortMapPathToLongMapPath(TheWritableGlobalData->m_initialFile);
 	}
 	return 2;
 }

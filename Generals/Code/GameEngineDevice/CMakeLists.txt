@@ -216,7 +216,7 @@ if(SAGE_USE_MINIAUDIO)
     g_gameenginedevice PRIVATE Include/MiniAudioDevice/MiniAudioManager.h
                                Source/MiniAudioDevice/MiniAudioManager.cpp)
 
-  target_compile_definitions(g_gameenginedevice PRIVATE SAGE_USE_MINIAUDIO)
+  target_compile_definitions(g_gameenginedevice PUBLIC SAGE_USE_MINIAUDIO)
 endif()
 
 if(WIN32)
