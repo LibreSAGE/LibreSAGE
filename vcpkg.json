@@ -27,11 +27,12 @@
     "sdl3-image",
     "sdl3-net",
     "zlib",
-    "hwdata",
     {
-      "name": "dxvk-native",
+      "name": "dxvk",
       "default-features": false,
       "features": [
+        "d3d8",
+        "d3d9",
         "sdl3"
       ]
     },

@@ -7,11 +7,10 @@
   "registries": [
     {
       "kind": "git",
-      "baseline": "f51b4b125a6d08a6765e7d73a21fe6548cc23c25",
-      "repository": "https://github.com/feliwir/vcpkg-registry",
+      "baseline": "a8f3f6d914680f22b565ba66d0a495fd1b45f407",
+      "repository": "https://github.com/LibreSAGE/vcpkg-registry",
       "packages": [
-        "dxvk-native",
-        "hwdata"
+        "dxvk"      
       ]
     }
   ]
