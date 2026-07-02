@@ -27,7 +27,6 @@ target_sources(
           Include/Common/CustomMatchPreferences.h
           Include/Common/DamageFX.h
           Include/Common/DataChunk.h
-          Include/Common/Debug.h
           Include/Common/Directory.h
           Include/Common/DisabledTypes.h
           Include/Common/DiscreteCircle.h
@@ -566,7 +565,6 @@ target_sources(
           Source/Common/System/Compression.cpp
           Source/Common/System/CopyProtection.cpp
           Source/Common/System/DataChunk.cpp
-          Source/Common/System/Debug.cpp
           Source/Common/System/Directory.cpp
           Source/Common/System/DisabledTypes.cpp
           Source/Common/System/FunctionLexicon.cpp

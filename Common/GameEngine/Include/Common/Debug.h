@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals Zero Hour(tm)
+**	Command & Conquer Generals(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -56,20 +56,14 @@ class AsciiString;
 	#error "Only one at a time of these should ever be defined"
 #endif
 
-#define NO_RELEASE_DEBUG_LOGGING
-
-#ifdef RELEASE_DEBUG_LOGGING  ///< Creates a DebugLogFile.txt (No I or D) with all the debug log goodness.  Good for startup problems.
-	#define ALLOW_DEBUG_UTILS 1
-	#define DEBUG_LOGGING 1
-	#define DISABLE_DEBUG_CRASHING 1
-	#define DISABLE_DEBUG_STACKTRACE 1
-	#define DISABLE_DEBUG_PROFILE 1
-#endif
-
 // These are stolen from the WW3D Debug file. REALLY useful. :-)
 #define STRING_IT(a) #a																				  
 #define TOKEN_IT(a) STRING_IT(,##a)
 #define MESSAGE(a) message (__FILE__ "(" TOKEN_IT(__LINE__) ") : " a)
+
+// BGC, 3/26/03 - put this in so we can build internal worldbuilder for a patch that doesn't
+// have any debugging of any kind.
+//#define DISABLE_DEBUG_LOGGING
 
 // by default, turn on ALLOW_DEBUG_UTILS if _DEBUG is turned on.
 #if (defined(_DEBUG) || defined(_INTERNAL)) && !defined(ALLOW_DEBUG_UTILS) && !defined(DISABLE_ALLOW_DEBUG_UTILS)
@@ -84,7 +78,9 @@ class AsciiString;
 #if defined(ALLOW_DEBUG_UTILS) && !defined(DEBUG_CRASHING) && !defined(DISABLE_DEBUG_CRASHING)
 	#define DEBUG_CRASHING 1
 #endif
-#if defined(ALLOW_DEBUG_UTILS) && !defined(DEBUG_STACKTRACE) && !defined(DISABLE_DEBUG_STACKTRACE)
+
+// BGC - added the DEBUG_LOGGING term...doesn't make sense to do stack debugging without a debug log to print to.
+#if defined(ALLOW_DEBUG_UTILS) && !defined(DEBUG_STACKTRACE) && !defined(DISABLE_DEBUG_STACKTRACE) && defined(DEBUG_LOGGING)
 	#define DEBUG_STACKTRACE 1
 #endif
 #if defined(ALLOW_DEBUG_UTILS) && !defined(DEBUG_PROFILE) && !defined(DISABLE_DEBUG_PROFILE)
@@ -95,6 +91,13 @@ class AsciiString;
 	#define DEBUG_EXTERN_C extern "C"
 #else
 	#define DEBUG_EXTERN_C extern
+#endif
+
+// Let GCC/Clang validate printf-style format strings against their arguments.
+#if defined(__GNUC__) || defined(__clang__)
+	#define DEBUG_PRINTF_FORMAT(fmtArg, firstArg) __attribute__((format(printf, fmtArg, firstArg)))
+#else
+	#define DEBUG_PRINTF_FORMAT(fmtArg, firstArg)
 #endif
 
 
@@ -152,21 +155,34 @@ extern bool DebugIgnoreStackTrace; /// if true, stack traces will be ignored. (d
 
 #ifdef DEBUG_LOGGING
 
-	DEBUG_EXTERN_C void DebugLog(const char *format, ...);
+	DEBUG_EXTERN_C void DebugLog(const char *format, ...) DEBUG_PRINTF_FORMAT(1, 2);
+
+	// This defines a bitmask of log types that we care about, to allow some flexability
+	// in what gets logged.  This should be extended to asserts, too, but the assert box
+	// is waiting to be rewritten. -MDC 3/19/2003
+	extern unsigned int DebugLevelMask;
+	enum
+	{
+		DEBUG_LEVEL_NET = 0,           // in-game network
+		DEBUG_LEVEL_MAX
+	};
+	extern const char *TheDebugLevels[DEBUG_LEVEL_MAX];
 
 	#define DEBUG_LOG(m)						do { { DebugLog m ; } } while (0)
+	#define DEBUG_LOG_LEVEL(l, m)		do { if (l & DebugLevelMask) { DebugLog m ; } } while (0)
 	#define DEBUG_ASSERTLOG(c, m)		do { { if (!(c)) DebugLog m ; } } while (0)
 
 #else
 
 	#define DEBUG_LOG(m)						((void)0)
+	#define DEBUG_LOG_LEVEL(l, m)		((void)0)
 	#define DEBUG_ASSERTLOG(c, m)		((void)0)
 
 #endif
 
 #ifdef DEBUG_CRASHING
 
-	DEBUG_EXTERN_C void DebugCrash(const char *format, ...);
+	DEBUG_EXTERN_C void DebugCrash(const char *format, ...) DEBUG_PRINTF_FORMAT(1, 2);
 
 	/*
 		Yeah, it's a sleazy global, since we can't reasonably add
