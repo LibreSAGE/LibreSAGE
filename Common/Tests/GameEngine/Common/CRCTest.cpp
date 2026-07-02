@@ -10,7 +10,7 @@ TEST(CRC, ComputeCRC)
     const char* testString = "Hello, World!";
     crc.computeCRC(testString, strlen(testString));
     UnsignedInt result1 = crc.get();
-    EXPECT_EQ(result1, 0xAD519); // 709881 
+    EXPECT_EQ(result1, 0xAD4F9); // 709881 
 
     // Reset and compute again to ensure consistency
     crc.clear();

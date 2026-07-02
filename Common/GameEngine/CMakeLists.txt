@@ -9,6 +9,7 @@ target_sources(c_gameengine
     Include/Common/CRC.h
     Include/Common/CriticalSection.h
     Include/Common/Debug.h
+    Include/Common/Dict.h
     Include/Common/Errors.h
     Include/Common/FileSystem.h
     Include/Common/GameCommon.h
@@ -41,6 +42,7 @@ target_sources(c_gameengine
     Source/Common/System/SubsystemInterface.cpp
     Source/Common/System/UnicodeString.cpp
     Source/Common/CRC.cpp
+    Source/Common/Dict.cpp
     Source/Common/NameKeyGenerator.cpp
 )
 

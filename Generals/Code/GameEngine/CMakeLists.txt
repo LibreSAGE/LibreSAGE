@@ -28,7 +28,6 @@ target_sources(
     Include/Common/DamageFX.h
     Include/Common/DataChunk.h
     Include/Common/Debug.h
-    Include/Common/Dict.h
     Include/Common/Directory.h
     Include/Common/DisabledTypes.h
     Include/Common/DiscreteCircle.h
@@ -513,7 +512,6 @@ target_sources(
     Source/Common/CRCDebug.cpp
     Source/Common/CommandLine.cpp
     Source/Common/DamageFX.cpp
-    Source/Common/Dict.cpp
     Source/Common/DiscreteCircle.cpp
     Source/Common/GameEngine.cpp
     Source/Common/GameLOD.cpp

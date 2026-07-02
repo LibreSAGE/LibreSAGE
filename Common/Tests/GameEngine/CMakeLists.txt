@@ -4,6 +4,7 @@ find_package(SDL3 REQUIRED)
 add_executable(c_gameenginetest
     Common/AsciiStringTest.cpp
     Common/CRCTest.cpp
+    Common/DictTest.cpp
     Common/NameKeyGeneratorTest.cpp
     Common/UnicodeStringTest.cpp
     MainStub.cpp

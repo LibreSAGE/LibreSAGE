@@ -5,12 +5,14 @@
 TEST(NameKeyGenerator, GenerateKeys)
 {
     NameKeyGenerator generator;
+    generator.init();
 
     // Different strings should produce different keys
     NameKeyType key1 = generator.nameToKey("Test1");
     NameKeyType key2 = generator.nameToKey("Test2");
     NameKeyType key3 = generator.nameToKey("Test3");
 
+    EXPECT_NE(key1, NAMEKEY_INVALID);
     EXPECT_NE(key1, key2);
     EXPECT_NE(key1, key3);
     EXPECT_NE(key2, key3);
