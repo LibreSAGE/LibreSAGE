@@ -6,6 +6,7 @@ target_sources(c_gameengine
     Include/Common/ArchiveFile.h
     Include/Common/ArchiveFileSystem.h
     Include/Common/AsciiString.h
+    Include/Common/CRC.h
     Include/Common/CriticalSection.h
     Include/Common/Debug.h
     Include/Common/Errors.h
@@ -39,6 +40,7 @@ target_sources(c_gameengine
     Source/Common/System/StreamingArchiveFile.cpp
     Source/Common/System/SubsystemInterface.cpp
     Source/Common/System/UnicodeString.cpp
+    Source/Common/CRC.cpp
     Source/Common/NameKeyGenerator.cpp
 )
 

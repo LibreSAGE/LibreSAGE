@@ -114,7 +114,6 @@ target_sources(
     Include/Common/XferDeepCRC.h
     Include/Common/XferLoad.h
     Include/Common/XferSave.h
-    Include/Common/CRC.h
     Include/Common/Encrypt.h
     # Include/Common/simpleplayer.h
     Include/Common/string.h
@@ -611,7 +610,6 @@ target_sources(
     Source/Common/Thing/ThingFactory.cpp
     Source/Common/Thing/ThingTemplate.cpp
     Source/Common/UserPreferences.cpp
-    Source/Common/CRC.cpp
     Source/Common/Version.cpp
     Source/GameClient/Color.cpp
     Source/GameClient/Credits.cpp
