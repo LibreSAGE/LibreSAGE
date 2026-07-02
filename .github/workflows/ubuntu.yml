@@ -54,6 +54,7 @@ jobs:
           configurePreset: "${{ matrix.preset }}"
           buildPreset: "${{ matrix.preset }}"
           testPreset: "${{ matrix.preset }}"
+          packagePreset: "${{ matrix.preset }}"
       
       - name: Upload code coverage to Codecov
         if: matrix.preset == 'linux-x64-coverage'
@@ -63,4 +64,14 @@ jobs:
           flags: linux-x64
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
+
+      # run-cmake (above) already ran CPack via packagePreset; upload the archives.
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.preset }}
+          path: |
+            build/${{ matrix.preset }}/*.tar.gz
+            build/${{ matrix.preset }}/*.tar.gz.sha256
+          if-no-files-found: error
 

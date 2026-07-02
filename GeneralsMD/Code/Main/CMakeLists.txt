@@ -13,3 +13,5 @@ target_sources(
 set_target_properties(z_rts_sdl PROPERTIES OUTPUT_NAME "RTS")
 target_link_libraries(z_rts_sdl PRIVATE z_gameengine z_gameenginedevice)
 target_include_directories(z_rts_sdl PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+# Install/packaging rules for this target live in cmake/Packaging.cmake.

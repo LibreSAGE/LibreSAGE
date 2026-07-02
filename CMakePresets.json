@@ -181,5 +181,15 @@
             ],
             "configurePreset": "linux-x64-coverage"
         }
+    ],
+    "packagePresets": [
+        {
+            "name": "linux-x64-coverage",
+            "configurePreset": "linux-x64-coverage"
+        },
+        {
+            "name": "linux-x64-release",
+            "configurePreset": "linux-x64-release"
+        }
     ]
 }

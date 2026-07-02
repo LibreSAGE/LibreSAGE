@@ -57,8 +57,8 @@ const char *lastReplayFileName = "00000000";	// a name the user is unlikely to e
 
 static time_t startTime;
 static const UnsignedInt startTimeOffset = 6;
-static const UnsignedInt endTimeOffset = startTimeOffset + sizeof(time_t);
-static const UnsignedInt framesOffset = endTimeOffset + sizeof(time_t);
+static const UnsignedInt endTimeOffset = startTimeOffset + sizeof(UnsignedInt);
+static const UnsignedInt framesOffset = endTimeOffset + sizeof(UnsignedInt);
 static const UnsignedInt desyncOffset = framesOffset + sizeof(UnsignedInt);
 static const UnsignedInt quitEarlyOffset = desyncOffset + sizeof(Bool);
 static const UnsignedInt disconOffset = quitEarlyOffset + sizeof(Bool);
@@ -74,7 +74,7 @@ void RecorderClass::logGameStart(AsciiString options)
 	if (!fseek(m_file, startTimeOffset, SEEK_SET))
 	{
 		// save off start time
-		fwrite(&startTime, sizeof(time_t), 1, m_file);
+		fwrite(&startTime, sizeof(UnsignedInt), 1, m_file);
 	}
 	// move back to end of stream
 #ifdef DEBUG_CRASHING
@@ -83,7 +83,7 @@ void RecorderClass::logGameStart(AsciiString options)
 		fseek(m_file, fileSize, SEEK_SET);
 	DEBUG_ASSERTCRASH(res == 0, ("Could not seek to end of file!"));
 
-#if defined(_DEBUG) || defined(_INTERNAL)
+#if (defined(_DEBUG) || defined(_INTERNAL)) && defined(_WINDOWS)
 	if (TheNetwork && TheGlobalData->m_saveStats)
 	{
 		//if (TheLAN)
@@ -144,7 +144,7 @@ void RecorderClass::logPlayerDisconnect(UnicodeString player, Int slot)
 		fseek(m_file, fileSize, SEEK_SET);
 	DEBUG_ASSERTCRASH(res == 0, ("Could not seek to end of file!"));
 
-#if defined(_DEBUG) || defined(_INTERNAL)
+#if (defined(_DEBUG) || defined(_INTERNAL)) && defined(_WINDOWS)
 	if (TheGlobalData->m_saveStats)
 	{
 		unsigned long bufSize = MAX_COMPUTERNAME_LENGTH + 1;
@@ -189,7 +189,7 @@ void RecorderClass::logCRCMismatch( void )
 		fseek(m_file, fileSize, SEEK_SET);
 	DEBUG_ASSERTCRASH(res == 0, ("Could not seek to end of file!"));
 
-#if defined(_DEBUG) || defined(_INTERNAL)
+#if (defined(_DEBUG) || defined(_INTERNAL)) && defined(_WINDOWS)
 	if (TheGlobalData->m_saveStats)
 	{
 		m_wasDesync = TRUE;
@@ -228,7 +228,7 @@ void RecorderClass::logGameEnd( void )
 	if (!fseek(m_file, endTimeOffset, SEEK_SET))
 	{
 		// save off end time
-		fwrite(&t, sizeof(time_t), 1, m_file);
+		fwrite(&t, sizeof(UnsignedInt), 1, m_file);
 	}
 	// move to appropriate offset
 	if (!fseek(m_file, framesOffset, SEEK_SET))
@@ -243,7 +243,7 @@ void RecorderClass::logGameEnd( void )
 		fseek(m_file, fileSize, SEEK_SET);
 	DEBUG_ASSERTCRASH(res == 0, ("Could not seek to end of file!"));
 
-#if defined(_DEBUG) || defined(_INTERNAL)
+#if (defined(_DEBUG) || defined(_INTERNAL)) && defined(_WINDOWS)
 	if (TheNetwork && TheGlobalData->m_saveStats)
 	{
 		//if (TheLAN)
@@ -557,8 +557,8 @@ void RecorderClass::startRecording(GameDifficulty diff, Int originalGameMode, In
 	// **** if this changes, change the LAN code above ****
 	//
 	time_t t = 0;
-	fwrite(&t, sizeof(time_t), 1, m_file);	// reserve space for start time
-	fwrite(&t, sizeof(time_t), 1, m_file);	// reserve space for end time
+	fwrite(&t, sizeof(UnsignedInt), 1, m_file);	// reserve space for start time
+	fwrite(&t, sizeof(UnsignedInt), 1, m_file);	// reserve space for end time
 
 	UnsignedInt frames = 0;
 	fwrite(&frames, sizeof(UnsignedInt), 1, m_file);	// reserve space for duration in frames
@@ -660,10 +660,10 @@ void RecorderClass::startRecording(GameDifficulty diff, Int originalGameMode, In
 			continue;
 		}
 		UnicodeString name = player->getPlayerDisplayName();
-		fwprintf(m_file, u"%s", name.str());
+		u_snprintf_u(m_file, u"%s", name.str());
 		fputwc(0, m_file);
 		UnicodeString faction = player->getFaction()->getFactionDisplayName();
-		fwprintf(m_file, u"%s", faction.str());
+		u_snprintf_u(m_file, u"%s", faction.str());
 		fputwc(0, m_file);
 		Int color = player->getColor()->getAsInt();
 		fwrite(&color, sizeof(color), 1, m_file);
@@ -837,8 +837,8 @@ Bool RecorderClass::readReplayHeader(ReplayHeader& header)
 	}
 
 	// read in some stats
-	fread(&header.startTime, sizeof(time_t), 1, m_file);
-	fread(&header.endTime, sizeof(time_t), 1, m_file);
+	fread(&header.startTime, sizeof(UnsignedInt), 1, m_file);
+	fread(&header.endTime, sizeof(UnsignedInt), 1, m_file);
 
 	fread(&header.frameDuration, sizeof(UnsignedInt), 1, m_file);
 
@@ -1087,12 +1087,12 @@ Bool RecorderClass::playbackFile(AsciiString filename)
 		debugString = "EXE is different:\n";
 		if (versionStringDiff)
 		{
-			tempStr.format("   Version [%ls] vs [%ls]\n", TheVersion->getUnicodeVersion().str(), header.versionString.str());
+			tempStr.format("   Version [%s] vs [%s]\n", TheVersion->getUnicodeVersion().toUTF8().str(), header.versionString.toUTF8().str());
 			debugString.concat(tempStr);
 		}
 		if (versionTimeStringDiff)
 		{
-			tempStr.format("   Build Time [%ls] vs [%ls]\n", TheVersion->getUnicodeBuildTime().str(), header.versionTimeString.str());
+			tempStr.format("   Build Time [%s] vs [%s]\n", TheVersion->getUnicodeBuildTime().toUTF8().str(), header.versionTimeString.toUTF8().str());
 			debugString.concat(tempStr);
 		}
 		if (versionNumberDiff)
@@ -1166,28 +1166,24 @@ Bool RecorderClass::playbackFile(AsciiString filename)
  * Read a unicode string from the current file position. The string is assumed to be 0-terminated.
  */
 UnicodeString RecorderClass::readUnicodeString() {
-	UChar str[1024] = u"";
+	UChar str[1024];
 	Int index = 0;
 
-	Int c = fgetwc(m_file);
-	if (c == EOF) {
-		str[index] = 0;
-	}
-	str[index] = c;
-
-	while (index < 1024 && str[index] != 0) {
-		++index;
-		Int c = fgetwc(m_file);
-		if (c == EOF) {
-			str[index] = 0;
+	while (index < 1023) {
+		Int lo = fgetc(m_file);
+		Int hi = fgetc(m_file);
+		if (lo == EOF || hi == EOF) {
 			break;
 		}
-		str[index] = c;
+		UChar c = (UChar)(((hi & 0xFF) << 8) | (lo & 0xFF));
+		if (c == 0) {
+			break;
+		}
+		str[index++] = c;
 	}
-	str[1023] = u'\0';
+	str[index] = u'\0';
 
-	UnicodeString retval(str);
-	return retval;
+	return UnicodeString(str);
 }
 
 /**

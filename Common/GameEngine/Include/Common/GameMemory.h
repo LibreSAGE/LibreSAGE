@@ -60,6 +60,12 @@
 	#define MEMORYPOOL_DEBUG
 #endif
 
+#ifdef __GNUC__
+	#define NOOPTIMIZE __attribute__((optimize("O0")))
+#else
+	#define NOOPTIMIZE
+#endif
+
 // SYSTEM INCLUDES ////////////////////////////////////////////////////////////
 
 #include <new>
@@ -755,7 +761,7 @@ protected:
 	
 public: 
 
-	void deleteInstance() 
+	void deleteInstance() NOOPTIMIZE
 	{	
 		if (this)
 		{

@@ -3510,11 +3510,17 @@ void initMemoryManager()
 	
 	theLinkTester = 0; 
 
-	linktest = new char;
-	delete linktest;
+	// Call the global allocation functions directly rather than through new/delete
+	// expressions. The standard lets the compiler elide the allocation call of a
+	// new-expression (C++14 N3664), and optimized/LTO builds do exactly that here
+	// when the result is unused, leaving theLinkTester at 0 and always tripping the
+	// check below (exit(-1) at startup). Direct calls to the replaceable allocation
+	// functions cannot be elided, so they reliably exercise our overrides.
+	linktest = static_cast<char*>(::operator new(1));
+	::operator delete(linktest);
 
-	linktest = new char[8];
-	delete [] linktest;
+	linktest = static_cast<char*>(::operator new[](8));
+	::operator delete[](linktest);
 
 	// linktest = new char("",1);
 	// delete linktest;

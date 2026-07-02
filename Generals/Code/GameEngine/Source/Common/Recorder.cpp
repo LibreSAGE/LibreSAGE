@@ -57,8 +57,8 @@ const char *lastReplayFileName = "00000000";	// a name the user is unlikely to e
 
 static time_t startTime;
 static const UnsignedInt startTimeOffset = 6;
-static const UnsignedInt endTimeOffset = startTimeOffset + sizeof(time_t);
-static const UnsignedInt framesOffset = endTimeOffset + sizeof(time_t);
+static const UnsignedInt endTimeOffset = startTimeOffset + sizeof(UnsignedInt);
+static const UnsignedInt framesOffset = endTimeOffset + sizeof(UnsignedInt);
 static const UnsignedInt desyncOffset = framesOffset + sizeof(UnsignedInt);
 static const UnsignedInt quitEarlyOffset = desyncOffset + sizeof(Bool);
 static const UnsignedInt disconOffset = quitEarlyOffset + sizeof(Bool);
@@ -74,7 +74,7 @@ void RecorderClass::logGameStart(AsciiString options)
 	if (!fseek(m_file, startTimeOffset, SEEK_SET))
 	{
 		// save off start time
-		fwrite(&startTime, sizeof(time_t), 1, m_file);
+		fwrite(&startTime, sizeof(UnsignedInt), 1, m_file);
 	}
 	// move back to end of stream
 #ifdef DEBUG_CRASHING
@@ -228,7 +228,7 @@ void RecorderClass::logGameEnd( void )
 	if (!fseek(m_file, endTimeOffset, SEEK_SET))
 	{
 		// save off end time
-		fwrite(&t, sizeof(time_t), 1, m_file);
+		fwrite(&t, sizeof(UnsignedInt), 1, m_file);
 	}
 	// move to appropriate offset
 	if (!fseek(m_file, framesOffset, SEEK_SET))
@@ -555,8 +555,8 @@ void RecorderClass::startRecording(GameDifficulty diff, Int originalGameMode, In
 	// **** if this changes, change the LAN Playtest code above ****
 	//
 	time_t t = 0;
-	fwrite(&t, sizeof(time_t), 1, m_file);	// reserve space for start time
-	fwrite(&t, sizeof(time_t), 1, m_file);	// reserve space for end time
+	fwrite(&t, sizeof(UnsignedInt), 1, m_file);	// reserve space for start time
+	fwrite(&t, sizeof(UnsignedInt), 1, m_file);	// reserve space for end time
 
 	UnsignedInt frames = 0;
 	fwrite(&frames, sizeof(UnsignedInt), 1, m_file);	// reserve space for duration in frames
@@ -1068,7 +1068,7 @@ Bool RecorderClass::playbackFile(AsciiString filename)
 	{
 		return FALSE;
 	}
-#if 1//def DEBUG_LOGGING
+#ifdef DEBUG_LOGGING
 
 	Bool versionStringDiff = header.versionString != TheVersion->getUnicodeVersion();
 	Bool versionTimeStringDiff = header.versionTimeString != TheVersion->getUnicodeBuildTime();

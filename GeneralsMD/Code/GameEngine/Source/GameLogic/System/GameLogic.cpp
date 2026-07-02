@@ -812,7 +812,6 @@ static void populateRandomStartPosition( GameInfo *game )
 	if(!game)
 		return;
 
-	Int i;
 	Int numPlayers = MAX_SLOTS;
 	const MapMetaData *md = TheMapCache->findMap( game->getMap() );
   DEBUG_ASSERTCRASH( md , ("Could not find map %s in the mapcache", game->getMap().str()));
@@ -821,7 +820,7 @@ static void populateRandomStartPosition( GameInfo *game )
 
 	// generate a map of start spot distances
 	Real startSpotDistance[MAX_SLOTS][MAX_SLOTS];
-	for (i=0; i<MAX_SLOTS; ++i)
+	for (Int i=0; i<MAX_SLOTS; ++i)
 	{
 		for (Int j=0; j<MAX_SLOTS; ++j)
 		{
@@ -854,11 +853,11 @@ static void populateRandomStartPosition( GameInfo *game )
 	// see if a start spot has been chosen at all yet
 	Bool hasStartSpotBeenPicked = FALSE;
 	Bool taken[MAX_SLOTS];
-	for (i=0; i<MAX_SLOTS; ++i)
+	for (Int i=0; i<MAX_SLOTS; ++i)
 	{
 		taken[i] = (i<numPlayers)?FALSE:TRUE;
 	}
-	for (i=0; i<MAX_SLOTS; ++i)
+	for (Int i=0; i<MAX_SLOTS; ++i)
 	{
 		GameSlot *slot = game->getSlot(i);
 
@@ -944,11 +943,11 @@ static void populateRandomStartPosition( GameInfo *game )
 	}
 #else  //GS  The new way puts teammates next to each other.
 	Int teamPosIdx[MAX_SLOTS];
-	for (i=0; i<MAX_SLOTS; ++i)
+	for (Int i=0; i<MAX_SLOTS; ++i)
 		teamPosIdx[i] = -1;  //team has no starting position yet
 
 	// now pick non-observer spots
-	for (i=0; i<MAX_SLOTS; ++i)
+	for (Int i=0; i<MAX_SLOTS; ++i)
 	{
 		GameSlot *slot = game->getSlot(i);
 
@@ -1041,13 +1040,13 @@ static void populateRandomStartPosition( GameInfo *game )
 
 	// now go back & assign observer spots
 	Int numPlayersInGame = 0;
-	for (i=0; i<MAX_SLOTS; ++i)
+	for (Int i=0; i<MAX_SLOTS; ++i)
 	{
 		const GameSlot *slot = game->getConstSlot(i);
 		if (slot->isOccupied() && slot->getPlayerTemplate() != PLAYERTEMPLATE_OBSERVER)
 			++numPlayersInGame;
 	}
-	for (i=0; i<MAX_SLOTS; ++i)
+	for (Int i=0; i<MAX_SLOTS; ++i)
 	{
 		GameSlot *slot = game->getSlot(i);
 
