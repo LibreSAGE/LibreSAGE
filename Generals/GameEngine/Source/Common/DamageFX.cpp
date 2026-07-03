@@ -200,7 +200,7 @@ static void parseCommonStuff(
 	parseCommonStuff(ini, names, vetFirst, vetLast, damageFirst, damageLast);
 
 	ConstFXListPtr fx;
-	INI::parseFXList(ini, NULL, &fx, NULL);
+	FXListStore::parseFXList(ini, NULL, &fx, NULL);
 
 	for (Int dt = damageFirst; dt <= damageLast; ++dt)
 	{
@@ -222,7 +222,7 @@ static void parseCommonStuff(
 	parseCommonStuff(ini, names, vetFirst, vetLast, damageFirst, damageLast);
 
 	ConstFXListPtr fx;
-	INI::parseFXList(ini, NULL, &fx, NULL);
+	FXListStore::parseFXList(ini, NULL, &fx, NULL);
 
 	for (Int dt = damageFirst; dt <= damageLast; ++dt)
 	{
@@ -288,6 +288,7 @@ const DamageFX *DamageFXStore::findDamageFX(AsciiString name) const
 //-------------------------------------------------------------------------------------------------
 void DamageFXStore::init()
 {
+	INI::registerBlockParse("DamageFX", DamageFXStore::parseDamageFXDefinition);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -309,4 +310,27 @@ void DamageFXStore::update()
 	DamageFX& dfx = TheDamageFXStore->m_dfxmap[key];
 	dfx.clear();
 	ini->initFromINI(&dfx, dfx.getFieldParse());
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Parse a DamageFX name and assign the pointer at store (formerly DamageFXStore::parseDamageFX) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void DamageFXStore::parseDamageFX( INI* ini, void * /*instance*/, void *store, const void* /*userData*/ )
+{
+	const char *token = ini->getNextToken();
+
+	typedef const DamageFX *ConstDamageFXPtr;
+	ConstDamageFXPtr* theDamageFX = (ConstDamageFXPtr*)store;
+
+	if (stricmp(token, "None") == 0)
+	{
+		*theDamageFX = NULL;
+	}
+	else
+	{
+		const DamageFX *fxl = TheDamageFXStore->findDamageFX(token);	// could be null!
+		DEBUG_ASSERTCRASH(fxl, ("DamageFX %s not found!\n",token));
+		// assign it, even if null!
+		*theDamageFX = fxl;
+	}
 }

@@ -26,6 +26,7 @@
 // Created:   Steven Johnson, Sep 2002
 // Desc:      
 //-----------------------------------------------------------------------------
+#include "GameClient/GameText.h"
 #include "Common/INI.h"
 #include "Common/Player.h"
 #include "GameLogic/RankInfo.h"
@@ -63,6 +64,8 @@ RankInfoStore::~RankInfoStore()
 //-----------------------------------------------------------------------------
 void RankInfoStore::init()
 {
+	INI::registerBlockParse( "Rank", INI::parseRankDefinition );
+
 	DEBUG_ASSERTCRASH(m_rankInfos.empty(), ("Hmm"));
 	m_rankInfos.clear();
 }
@@ -122,9 +125,9 @@ void RankInfoStore::friend_parseRankDefinition( INI* ini )
 
 		static const FieldParse myFieldParse[] = 
 		{
-			{ "RankName", INI::parseAndTranslateLabel, NULL, offsetof( RankInfo, m_rankName ) },
+			{ "RankName", GameTextInterface::parseAndTranslateLabel, NULL, offsetof( RankInfo, m_rankName ) },
 			{ "SkillPointsNeeded", INI::parseInt, NULL, offsetof( RankInfo, m_skillPointsNeeded ) },
-			{ "SciencesGranted", INI::parseScienceVector, NULL, offsetof( RankInfo, m_sciencesGranted ) },
+			{ "SciencesGranted", ScienceStore::parseScienceVector, NULL, offsetof( RankInfo, m_sciencesGranted ) },
 			{ "SciencePurchasePointsGranted", INI::parseUnsignedInt, NULL, offsetof( RankInfo, m_sciencePurchasePointsGranted ) },
 			{ 0, 0, 0, 0 }
 		};

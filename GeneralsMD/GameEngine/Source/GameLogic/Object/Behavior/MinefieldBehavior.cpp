@@ -29,6 +29,7 @@
 
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "GameLogic/ObjectCreationList.h"
 #include <limits.h>
 #include "Common/GlobalData.h"
 #define DEFINE_RELATIONSHIP_NAMES
@@ -81,7 +82,7 @@ MinefieldBehaviorModuleData::MinefieldBehaviorModuleData()
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "DetonationWeapon", INI::parseWeaponTemplate,	NULL, offsetof( MinefieldBehaviorModuleData, m_detonationWeapon ) },
+		{ "DetonationWeapon", WeaponStore::parseWeaponTemplate,	NULL, offsetof( MinefieldBehaviorModuleData, m_detonationWeapon ) },
 		{ "DetonatedBy", INI::parseBitString32, TheRelationshipNames, offsetof( MinefieldBehaviorModuleData, m_detonatedBy ) },
 		{ "StopsRegenAfterCreatorDies", INI::parseBool, NULL, offsetof( MinefieldBehaviorModuleData, m_stopsRegenAfterCreatorDies ) },
 		{ "Regenerates", INI::parseBool, NULL, offsetof( MinefieldBehaviorModuleData, m_regenerates ) },
@@ -91,7 +92,7 @@ MinefieldBehaviorModuleData::MinefieldBehaviorModuleData()
 		{ "NumVirtualMines", INI::parseUnsignedInt, NULL, offsetof( MinefieldBehaviorModuleData, m_numVirtualMines ) },
 		{ "RepeatDetonateMoveThresh", INI::parseReal, NULL, offsetof( MinefieldBehaviorModuleData, m_repeatDetonateMoveThresh ) },
 		{ "DegenPercentPerSecondAfterCreatorDies", INI::parsePercentToReal,	NULL, offsetof( MinefieldBehaviorModuleData, m_healthPercentToDrainPerSecond ) },
-		{ "CreationList",	INI::parseObjectCreationList,	NULL,	offsetof( MinefieldBehaviorModuleData, m_ocl ) },
+		{ "CreationList",	ObjectCreationListStore::parseObjectCreationList,	NULL,	offsetof( MinefieldBehaviorModuleData, m_ocl ) },
 		{ 0, 0, 0, 0 }
 	};
 

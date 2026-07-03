@@ -80,53 +80,53 @@ const FieldParse ControlBarSchemeManager::m_controlBarSchemeFieldParseTable[] =
 	{ "AnimatingPart",				ControlBarSchemeManager::parseAnimatingPart,	NULL, NULL },
 	{ "ScreenCreationRes",		INI::parseICoord2D,						NULL, offsetof( ControlBarScheme, m_ScreenCreationRes ) },
 	{ "Side",									INI::parseAsciiString,				NULL, offsetof( ControlBarScheme, m_side ) },
-	{ "QueueButtonImage",			INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buttonQueueImage ) },
-	{ "RightHUDImage",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_rightHUDImage ) },
+	{ "QueueButtonImage",			ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buttonQueueImage ) },
+	{ "RightHUDImage",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_rightHUDImage ) },
 	{ "BuildUpClockColor",		INI::parseColorInt,						NULL, offsetof( ControlBarScheme, m_buildUpClockColor ) },
 	{ "ButtonBorderBuildColor",			INI::parseColorInt,						NULL, offsetof( ControlBarScheme, m_borderBuildColor ) },
 	{ "CommandBarBorderColor",			INI::parseColorInt,						NULL, offsetof( ControlBarScheme, m_commandBarBorderColor ) },
 	{ "ButtonBorderActionColor",		INI::parseColorInt,						NULL, offsetof( ControlBarScheme, m_borderActionColor ) },
 	{ "ButtonBorderUpgradeColor",		INI::parseColorInt,						NULL, offsetof( ControlBarScheme, m_borderUpgradeColor ) },
 	{ "ButtonBorderSystemColor",		INI::parseColorInt,						NULL, offsetof( ControlBarScheme, m_borderSystemColor ) },
-	{ "OptionsButtonEnable",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_optionsButtonEnable ) },
-	{ "OptionsButtonHightlited",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_optionsButtonHightlited ) },
-	{ "OptionsButtonPushed",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_optionsButtonPushed ) },
-	{ "OptionsButtonDisabled",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_optionsButtonDisabled ) },
-	{ "IdleWorkerButtonEnable",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_idleWorkerButtonEnable ) },
-	{ "IdleWorkerButtonHightlited",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_idleWorkerButtonHightlited ) },
-	{ "IdleWorkerButtonPushed",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_idleWorkerButtonPushed ) },
-	{ "IdleWorkerButtonDisabled",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_idleWorkerButtonDisabled ) },
-	{ "BuddyButtonEnable",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buddyButtonEnable ) },
-	{ "BuddyButtonHightlited",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buddyButtonHightlited ) },
-	{ "BuddyButtonPushed",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buddyButtonPushed ) },
-	{ "BuddyButtonDisabled",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buddyButtonDisabled) },
-	{ "BeaconButtonEnable",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_beaconButtonEnable ) },
-	{ "BeaconButtonHightlited",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_beaconButtonHightlited ) },
-	{ "BeaconButtonPushed",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_beaconButtonPushed ) },
-	{ "BeaconButtonDisabled",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_beaconButtonDisabled ) },
-	{ "GenBarButtonIn",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_genBarButtonIn ) },
-	{ "GenBarButtonOn",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_genBarButtonOn ) },
-	{ "ToggleButtonUpIn",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonUpIn ) },
-	{ "ToggleButtonUpOn",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonUpOn ) },
-	{ "ToggleButtonUpPushed",		INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonUpPushed ) },
-	{ "ToggleButtonDownIn",			INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonDownIn ) },
-	{ "ToggleButtonDownOn", 		INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonDownOn ) },
-	{ "ToggleButtonDownPushed",	INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonDownPushed ) },
+	{ "OptionsButtonEnable",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_optionsButtonEnable ) },
+	{ "OptionsButtonHightlited",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_optionsButtonHightlited ) },
+	{ "OptionsButtonPushed",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_optionsButtonPushed ) },
+	{ "OptionsButtonDisabled",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_optionsButtonDisabled ) },
+	{ "IdleWorkerButtonEnable",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_idleWorkerButtonEnable ) },
+	{ "IdleWorkerButtonHightlited",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_idleWorkerButtonHightlited ) },
+	{ "IdleWorkerButtonPushed",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_idleWorkerButtonPushed ) },
+	{ "IdleWorkerButtonDisabled",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_idleWorkerButtonDisabled ) },
+	{ "BuddyButtonEnable",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buddyButtonEnable ) },
+	{ "BuddyButtonHightlited",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buddyButtonHightlited ) },
+	{ "BuddyButtonPushed",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buddyButtonPushed ) },
+	{ "BuddyButtonDisabled",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_buddyButtonDisabled) },
+	{ "BeaconButtonEnable",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_beaconButtonEnable ) },
+	{ "BeaconButtonHightlited",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_beaconButtonHightlited ) },
+	{ "BeaconButtonPushed",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_beaconButtonPushed ) },
+	{ "BeaconButtonDisabled",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_beaconButtonDisabled ) },
+	{ "GenBarButtonIn",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_genBarButtonIn ) },
+	{ "GenBarButtonOn",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_genBarButtonOn ) },
+	{ "ToggleButtonUpIn",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonUpIn ) },
+	{ "ToggleButtonUpOn",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonUpOn ) },
+	{ "ToggleButtonUpPushed",		ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonUpPushed ) },
+	{ "ToggleButtonDownIn",			ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonDownIn ) },
+	{ "ToggleButtonDownOn", 		ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonDownOn ) },
+	{ "ToggleButtonDownPushed",	ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_toggleButtonDownPushed ) },
 
-	{ "GeneralButtonEnable",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_generalButtonEnable ) },
-	{ "GeneralButtonHightlited",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_generalButtonHightlited ) },
-	{ "GeneralButtonPushed",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_generalButtonPushed ) },
-	{ "GeneralButtonDisabled",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_generalButtonDisabled ) },
+	{ "GeneralButtonEnable",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_generalButtonEnable ) },
+	{ "GeneralButtonHightlited",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_generalButtonHightlited ) },
+	{ "GeneralButtonPushed",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_generalButtonPushed ) },
+	{ "GeneralButtonDisabled",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_generalButtonDisabled ) },
 
-	{ "UAttackButtonEnable",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_uAttackButtonEnable ) },
-	{ "UAttackButtonHightlited",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_uAttackButtonHightlited ) },
-	{ "UAttackButtonPushed",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_uAttackButtonPushed ) },
+	{ "UAttackButtonEnable",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_uAttackButtonEnable ) },
+	{ "UAttackButtonHightlited",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_uAttackButtonHightlited ) },
+	{ "UAttackButtonPushed",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_uAttackButtonPushed ) },
 
-	{ "GenArrow",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_genArrow) },
+	{ "GenArrow",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_genArrow) },
 
-	{ "MinMaxButtonEnable",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_minMaxButtonEnable ) },
-	{ "MinMaxButtonHightlited",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_minMaxButtonHightlited ) },
-	{ "MinMaxButtonPushed",				INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_minMaxButtonPushed ) },
+	{ "MinMaxButtonEnable",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_minMaxButtonEnable ) },
+	{ "MinMaxButtonHightlited",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_minMaxButtonHightlited ) },
+	{ "MinMaxButtonPushed",				ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_minMaxButtonPushed ) },
 
 	{ "MinMaxUL", 		INI::parseICoord2D,				NULL, offsetof( ControlBarScheme, m_minMaxUL ) },
 	{ "MinMaxLR", 		INI::parseICoord2D,				NULL, offsetof( ControlBarScheme, m_minMaxLR ) },
@@ -155,9 +155,9 @@ const FieldParse ControlBarSchemeManager::m_controlBarSchemeFieldParseTable[] =
 	{ "MoneyUL", 		INI::parseICoord2D,				NULL, offsetof( ControlBarScheme, m_moneyUL ) },
 	{ "MoneyLR", 		INI::parseICoord2D,				NULL, offsetof( ControlBarScheme, m_moneyLR ) },
 
-	{ "CommandMarkerImage",		INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_commandMarkerImage) },
-	{ "ExpBarForegroundImage",		INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_expBarForeground) },
-	{ "PowerPurchaseImage",			INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_powerPurchaseImage) },
+	{ "CommandMarkerImage",		ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_commandMarkerImage) },
+	{ "ExpBarForegroundImage",		ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_expBarForeground) },
+	{ "PowerPurchaseImage",			ImageCollection::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_powerPurchaseImage) },
 
 	{ NULL,										NULL,													NULL, 0 }  // keep this last
 
@@ -872,7 +872,7 @@ void ControlBarSchemeManager::parseImagePart(INI *ini, void *instance, void* /*s
 		{
 			{ "Position",				INI::parseICoord2D,				NULL, offsetof( ControlBarSchemeImage, m_position ) },
 			{ "Size",						INI::parseICoord2D,				NULL, offsetof( ControlBarSchemeImage, m_size ) },
-      { "ImageName",			INI::parseMappedImage,		NULL, offsetof( ControlBarSchemeImage, m_image ) },
+      { "ImageName",			ImageCollection::parseMappedImage,		NULL, offsetof( ControlBarSchemeImage, m_image ) },
 			{ "Layer",					INI::parseInt,						NULL, offsetof( ControlBarSchemeImage, m_layer ) },
 			{ NULL,							NULL,											NULL, 0 }  // keep this last
 		};
@@ -892,7 +892,7 @@ void ControlBarSchemeManager::parseAnimatingPartImage(INI *ini, void *instance, 
 		{
 			{ "Position",				INI::parseICoord2D,				NULL, offsetof( ControlBarSchemeImage, m_position ) },
 			{ "Size",						INI::parseICoord2D,				NULL, offsetof( ControlBarSchemeImage, m_size ) },
-      { "ImageName",			INI::parseMappedImage,		NULL, offsetof( ControlBarSchemeImage, m_image ) },
+      { "ImageName",			ImageCollection::parseMappedImage,		NULL, offsetof( ControlBarSchemeImage, m_image ) },
 			{ "Layer",					INI::parseInt,						NULL, offsetof( ControlBarSchemeImage, m_layer ) },
 			{ NULL,							NULL,											NULL, 0 }  // keep this last
 		};
@@ -1028,6 +1028,8 @@ void ControlBarSchemeManager::preloadAssets( TimeOfDay timeOfDay )
 //-----------------------------------------------------------------------------
 void ControlBarSchemeManager::init( void )
 {
+	INI::registerBlockParse( "ControlBarScheme", INI::parseControlBarSchemeDefinition );
+
 
 	INI ini;
 	// Read from INI all the ControlBarSchemes

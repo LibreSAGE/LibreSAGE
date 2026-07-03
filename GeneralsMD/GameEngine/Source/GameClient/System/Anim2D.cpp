@@ -30,6 +30,7 @@
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 
 #include "GameClient/ClientRandomValue.h"
+#include "Common/INI.h"
 #define DEFINE_ANIM_2D_MODE_NAMES
 #include "Common/RandomValue.h"
 #include "Common/Xfer.h"
@@ -148,7 +149,7 @@ void Anim2DTemplate::parseImage( INI *ini, void *instance, void *store, const vo
 
 	// parse the image name from the file and store as an image pointer
 	const Image *image;
-	ini->parseMappedImage( ini, instance, &image, userData );
+	ImageCollection::parseMappedImage( ini, instance, &image, userData );
 
 	// sanity
 	if( image == NULL )
@@ -758,6 +759,8 @@ Anim2DCollection::~Anim2DCollection( void )
 // ------------------------------------------------------------------------------------------------
 void Anim2DCollection::init( void )
 {
+	INI::registerBlockParse( "Animation", INI::parseAnim2DDefinition );
+
 	INI ini;
 
 	ini.load( "Data\\INI\\Animation2D.ini", INI_LOAD_OVERWRITE, NULL );
@@ -881,3 +884,21 @@ void Anim2DCollection::unRegisterAnimation( Anim2D *anim )
 
 }  // end unRegisterAnimation
 
+
+//-------------------------------------------------------------------------------------------------
+/** Parse an Anim2D template name and assign the pointer at store (relocated out of INI) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void Anim2DCollection::parseAnim2DTemplate( INI *ini, void *instance, void *store, const void *userData )
+{
+	const char *token = ini->getNextToken();
+	if( TheAnim2DCollection )
+	{
+		Anim2DTemplate **anim2DTemplate = (Anim2DTemplate **)store;
+		*anim2DTemplate = TheAnim2DCollection->findTemplate( AsciiString( token ) );
+	}
+	else
+	{
+		DEBUG_CRASH(( "parseAnim2DTemplate - TheAnim2DCollection is NULL\n" ));
+		throw INI_UNKNOWN_ERROR;
+	}
+}

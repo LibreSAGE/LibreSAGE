@@ -33,6 +33,7 @@
 #define __BONEFXUPDATE_H_
 
 // USER INCLUDES //////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "GameClient/ParticleSys.h"
 #include "GameLogic/Module/UpdateModule.h"
 
@@ -106,9 +107,9 @@ public:
 		static const FieldParse dataFieldParse[] = 
 		{
 
-			{ "DamageFXTypes",				INI::parseDamageTypeFlags, NULL, offsetof( BoneFXUpdateModuleData, m_damageFXTypes ) },
-			{ "DamageOCLTypes",				INI::parseDamageTypeFlags, NULL, offsetof( BoneFXUpdateModuleData, m_damageOCLTypes ) },
-			{ "DamageParticleTypes",	INI::parseDamageTypeFlags, NULL, offsetof( BoneFXUpdateModuleData, m_damageParticleTypes ) },
+			{ "DamageFXTypes",				INIParsers::parseDamageTypeFlags, NULL, offsetof( BoneFXUpdateModuleData, m_damageFXTypes ) },
+			{ "DamageOCLTypes",				INIParsers::parseDamageTypeFlags, NULL, offsetof( BoneFXUpdateModuleData, m_damageOCLTypes ) },
+			{ "DamageParticleTypes",	INIParsers::parseDamageTypeFlags, NULL, offsetof( BoneFXUpdateModuleData, m_damageParticleTypes ) },
 
 			{ "PristineFXList1",							BoneFXUpdateModuleData::parseFXList,							NULL,	offsetof( BoneFXUpdateModuleData, m_fxList[ BODY_PRISTINE ][ 0 ] ) },
 			{ "PristineFXList2",							BoneFXUpdateModuleData::parseFXList,							NULL,	offsetof( BoneFXUpdateModuleData, m_fxList[ BODY_PRISTINE ][ 1 ] ) },

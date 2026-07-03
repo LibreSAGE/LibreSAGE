@@ -28,6 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // USER INCLUDES //////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "GameLogic/LogicRandomValue.h"
 
 #include "Common/CRCDebug.h"
@@ -83,7 +84,7 @@ void ParachuteContainModuleData::buildFieldParse(MultiIniFieldParse& p)
 		{ "ParachuteOpenDist",	INI::parseReal,		NULL, offsetof( ParachuteContainModuleData, m_paraOpenDist ) },
 		{ "KillWhenLandingInWaterSlop",	INI::parseReal,		NULL, offsetof( ParachuteContainModuleData, m_killWhenLandingInWaterSlop ) },
 		{ "FreeFallDamagePercent",	INI::parsePercentToReal,		NULL, offsetof( ParachuteContainModuleData, m_freeFallDamagePercent ) },
-		{ "ParachuteOpenSound", INI::parseAudioEventRTS, NULL, offsetof( ParachuteContainModuleData, m_parachuteOpenSound ) },
+		{ "ParachuteOpenSound", INIParsers::parseAudioEventRTS, NULL, offsetof( ParachuteContainModuleData, m_parachuteOpenSound ) },
 		{ 0, 0, 0, 0 }
 	};
   p.add(dataFieldParse);

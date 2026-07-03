@@ -132,7 +132,9 @@ public:
 
 	void load( Int textureSize );												 ///< load images
 		
-	const Image *findImageByName( const AsciiString& name );					 ///< find image based on name
+	const Image *findImageByName( const AsciiString& name );
+	// INI field parser (relocated out of the commonized INI reader)
+	static void parseMappedImage( INI *ini, void *instance, void *store, const void *userData );					 ///< find image based on name
 	const Image *findImageByFilename( const AsciiString& name );  ///< find image based on filename
 	
 	Image *firstImage( void );						///< return first image in list

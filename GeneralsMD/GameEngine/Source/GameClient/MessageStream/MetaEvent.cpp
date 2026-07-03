@@ -359,8 +359,8 @@ static const FieldParse TheMetaMapFieldParseTable[] =
 	{ "Modifiers",					INI::parseLookupList,						ModifierNames, offsetof( MetaMapRec, m_modState ) },		
 	{ "UseableIn",					INI::parseBitString32,					TheCommandUsableInNames, offsetof( MetaMapRec, m_usableIn ) },		
 	{ "Category",						INI::parseLookupList,						CategoryListName, offsetof( MetaMapRec, m_category ) },		
-	{ "Description",				INI::parseAndTranslateLabel,		0, offsetof( MetaMapRec, m_description ) },		
-	{ "DisplayName",				INI::parseAndTranslateLabel,		0, offsetof( MetaMapRec, m_displayName ) },		
+	{ "Description",				GameTextInterface::parseAndTranslateLabel,		0, offsetof( MetaMapRec, m_description ) },		
+	{ "DisplayName",				GameTextInterface::parseAndTranslateLabel,		0, offsetof( MetaMapRec, m_displayName ) },		
 	
 	{ NULL,									NULL,														0, 0 }  // keep this last
 
@@ -719,6 +719,12 @@ MetaMapRec *MetaMap::getMetaMapRec(GameMessage::Type t)
 }
 
 //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+void MetaMap::init( void )
+{
+	INI::registerBlockParse( "CommandMap", INI::parseMetaMapDefinition );
+}
+
 /*static*/ void INI::parseMetaMapDefinition( INI* ini )
 {
 	MetaMap::parseMetaMap(ini);

@@ -29,6 +29,7 @@
 #include "Common/INI.h"
 #include "Common/Player.h"
 #include "Common/Science.h"
+#include "GameClient/GameText.h"
 
 ScienceStore* TheScienceStore = NULL;
 
@@ -41,6 +42,8 @@ ScienceStore* TheScienceStore = NULL;
 //-----------------------------------------------------------------------------
 void ScienceStore::init()
 {
+	INI::registerBlockParse("Science", ScienceStore::parseScienceDefinition);
+
 	DEBUG_ASSERTCRASH(m_sciences.empty(), ("Hmm"));
 	m_sciences.clear();
 }
@@ -156,7 +159,7 @@ const ScienceInfo* ScienceStore::findScienceInfo(ScienceType st) const
 }
 
 //-----------------------------------------------------------------------------
-/*static*/ void ScienceStore::friend_parseScienceDefinition( INI* ini )
+/*static*/ void ScienceStore::parseScienceDefinition( INI* ini )
 {
 	const char* c = ini->getNextToken();
 	NameKeyType nkt = NAMEKEY(c);
@@ -167,11 +170,11 @@ const ScienceInfo* ScienceStore::findScienceInfo(ScienceType st) const
 
 		static const FieldParse myFieldParse[] = 
 		{
-			{ "PrerequisiteSciences", INI::parseScienceVector, NULL, offsetof( ScienceInfo, m_prereqSciences ) },
+			{ "PrerequisiteSciences", ScienceStore::parseScienceVector, NULL, offsetof( ScienceInfo, m_prereqSciences ) },
 			{ "SciencePurchasePointCost", INI::parseInt, NULL, offsetof( ScienceInfo, m_sciencePurchasePointCost ) },
 			{ "IsGrantable", INI::parseBool, NULL, offsetof( ScienceInfo, m_grantable ) },
-			{ "DisplayName", INI::parseAndTranslateLabel, NULL, offsetof( ScienceInfo, m_name) },
-			{ "Description", INI::parseAndTranslateLabel, NULL, offsetof( ScienceInfo, m_description) },
+			{ "DisplayName", GameTextInterface::parseAndTranslateLabel, NULL, offsetof( ScienceInfo, m_name) },
+			{ "Description", GameTextInterface::parseAndTranslateLabel, NULL, offsetof( ScienceInfo, m_description) },
 			{ 0, 0, 0, 0 }
 		};
 
@@ -349,8 +352,51 @@ void ScienceStore::getPurchasableSciences(const Player* player, ScienceVec& purc
 	}
 }
 
+//-------------------------------------------------------------------------------------------------
+/** Parse a science string and store as science type */
+//-------------------------------------------------------------------------------------------------
+/* static */void ScienceStore::parseScience( INI *ini, void * /*instance*/, void *store, const void *userData )
+{
+	const char *token = ini->getNextToken();
+
+	if (!TheScienceStore)
+	{
+		DEBUG_CRASH(("TheScienceStore not inited yet"));
+		throw ERROR_BUG;
+	}
+
+	*((ScienceType *)store) = ScienceStore::scanScience(token);
+
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Parse a whitespace-separated list of science names into a ScienceVec */
+//-------------------------------------------------------------------------------------------------
+/* static */void ScienceStore::parseScienceVector( INI *ini, void * /*instance*/, void *store, const void *userData )
+{
+	ScienceVec* asv = (ScienceVec*)store;
+	asv->clear();
+	for (const char *token = ini->getNextTokenOrNull(); token != NULL; token = ini->getNextTokenOrNull())
+	{
+		if (stricmp(token, "None") == 0)
+		{
+			asv->clear();
+			return;
+		}
+		asv->push_back(ScienceStore::scanScience( token ));
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Look up a Science by name, throwing if it is not a known, valid science. */
+//-------------------------------------------------------------------------------------------------
+/* static */ScienceType ScienceStore::scanScience(const char* token)
+{
+	return TheScienceStore->friend_lookupScience( token );
+}
+
 //-----------------------------------------------------------------------------
-// this is intended ONLY for use by INI::scanScience.
+// this is intended ONLY for use by ScienceStore::scanScience.
 // Don't use it anywhere else. In particular, never, ever, ever
 // call this with a hardcoded science name. (srj)
 ScienceType ScienceStore::friend_lookupScience(const char* scienceName) const
@@ -370,11 +416,5 @@ Bool ScienceStore::isValidScience(ScienceType st) const
 {
 	const ScienceInfo* si = findScienceInfo(st);
 	return si != NULL;
-}
-
-//-----------------------------------------------------------------------------
-void INI::parseScienceDefinition( INI* ini )
-{
-	ScienceStore::friend_parseScienceDefinition(ini);
 }
 

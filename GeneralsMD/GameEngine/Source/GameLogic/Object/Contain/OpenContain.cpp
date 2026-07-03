@@ -31,6 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "GameLogic/LogicRandomValue.h"
 
 #include "Common/BitFlagsIO.h"
@@ -96,8 +97,8 @@ OpenContainModuleData::OpenContainModuleData( void )
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "ContainMax",								INI::parseInt, NULL, offsetof( OpenContainModuleData, m_containMax ) },
-		{ "EnterSound",								INI::parseAudioEventRTS,		NULL, offsetof( OpenContainModuleData, m_enterSound ) },
-		{ "ExitSound",								INI::parseAudioEventRTS,		NULL, offsetof( OpenContainModuleData, m_exitSound ) },
+		{ "EnterSound",								INIParsers::parseAudioEventRTS,		NULL, offsetof( OpenContainModuleData, m_enterSound ) },
+		{ "ExitSound",								INIParsers::parseAudioEventRTS,		NULL, offsetof( OpenContainModuleData, m_exitSound ) },
 		{ "DamagePercentToUnits",			INI::parsePercentToReal,		NULL, offsetof( OpenContainModuleData, m_damagePercentageToUnits ) },
 		{ "BurnedDeathToUnits",				INI::parseBool,							NULL, offsetof( OpenContainModuleData, m_isBurnedDeathToUnits ) },
 		{ "AllowInsideKindOf",				KindOfMaskType::parseFromINI, NULL, offsetof( OpenContainModuleData, m_allowInsideKindOf ) },

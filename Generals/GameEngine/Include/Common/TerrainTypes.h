@@ -183,7 +183,7 @@ public:
 	TerrainTypeCollection( void );
 	~TerrainTypeCollection( void );
 
-	void init() { }
+	void init();
 	void reset() { }
 	void update() { }
 

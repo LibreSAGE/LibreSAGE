@@ -34,6 +34,7 @@
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "Common/INI.h"
+#include "GameClient/FXList.h"
 #include "GameLogic/Module/DieModule.h"
 #include "GameLogic/Weapon.h"
 #include "GameLogic/Damage.h"
@@ -61,7 +62,7 @@ public:
 
 		static const FieldParse dataFieldParse[] = 
 		{
-			{ "DeathFX",							INI::parseFXList,		NULL, offsetof( FXListDieModuleData, m_defaultDeathFX ) },
+			{ "DeathFX",							FXListStore::parseFXList,		NULL, offsetof( FXListDieModuleData, m_defaultDeathFX ) },
 			{ "OrientToObject",				INI::parseBool,		NULL, offsetof( FXListDieModuleData, m_orientToObject ) },
 			{ 0, 0, 0, 0 }
 		};

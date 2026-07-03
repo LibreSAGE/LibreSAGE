@@ -628,6 +628,12 @@ LocomotorTemplate *LocomotorStore::newOverride( LocomotorTemplate *locoTemplate 
 }
 
 //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+void LocomotorStore::init( void )
+{
+	INI::registerBlockParse( "Locomotor", INI::parseLocomotorTemplateDefinition );
+}
+
 /*static*/ void INI::parseLocomotorTemplateDefinition( INI* ini )
 {
 	LocomotorStore::parseLocomotorTemplateDefinition(ini);

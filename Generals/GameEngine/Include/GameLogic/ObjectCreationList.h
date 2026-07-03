@@ -175,7 +175,7 @@ public:
 	ObjectCreationListStore();
 	~ObjectCreationListStore();
 
-	void init() { }
+	void init();
 	void reset() { }
 	void update() { }
 
@@ -184,6 +184,8 @@ public:
 		return NULL if no such ObjectCreationList exists.
 	*/
 	const ObjectCreationList *findObjectCreationList(const char* name) const;
+	// INI field parser (relocated out of the commonized INI reader)
+	static void parseObjectCreationList( INI *ini, void *instance, void *store, const void *userData );
 	
 	static void parseObjectCreationListDefinition(INI* ini);
 

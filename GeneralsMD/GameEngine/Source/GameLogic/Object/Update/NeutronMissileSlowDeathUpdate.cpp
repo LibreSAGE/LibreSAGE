@@ -82,7 +82,7 @@ NeutronMissileSlowDeathBehaviorModuleData::NeutronMissileSlowDeathBehaviorModule
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "ScorchMarkSize", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_scorchSize ) },	
-		{ "FXList",					INI::parseFXList, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_fxList ) },
+		{ "FXList",					FXListStore::parseFXList, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_fxList ) },
 
 		{ "Blast1Enabled", INI::parseBool, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_1 ].enabled ) },	
 		{ "Blast1Delay", INI::parseDurationReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_1 ].delay ) },	

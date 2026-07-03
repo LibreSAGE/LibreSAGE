@@ -26,6 +26,9 @@ target_sources(c_gameengine
     Include/Common/StreamingArchiveFile.h
     Include/Common/SubsystemInterface.h
     Include/Common/UnicodeString.h
+    Include/GameClient/Color.h
+    Include/GameLogic/FPUControl.h
+    Source/Common/INI/INI.cpp
     Source/Common/System/ArchiveFile.cpp
     Source/Common/System/ArchiveFileSystem.cpp
     Source/Common/System/AsciiString.cpp
@@ -47,6 +50,8 @@ target_sources(c_gameengine
     Source/Common/CRC.cpp
     Source/Common/Dict.cpp
     Source/Common/NameKeyGenerator.cpp
+    Source/GameClient/Color.cpp
+    Source/GameLogic/System/FPUControl.cpp
 )
 
 set_target_properties(c_gameengine PROPERTIES OUTPUT_NAME "GameEngine"

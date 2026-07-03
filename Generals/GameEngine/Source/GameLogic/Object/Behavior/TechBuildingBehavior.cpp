@@ -53,7 +53,7 @@ TechBuildingBehaviorModuleData::TechBuildingBehaviorModuleData( void )
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "PulseFX",								INI::parseFXList,								NULL,	offsetof( TechBuildingBehaviorModuleData, m_pulseFX ) },
+		{ "PulseFX",								FXListStore::parseFXList,								NULL,	offsetof( TechBuildingBehaviorModuleData, m_pulseFX ) },
 		{ "PulseFXRate",						INI::parseDurationUnsignedInt,	NULL,	offsetof( TechBuildingBehaviorModuleData, m_pulseFXRate ) },
 		{ 0, 0, 0, 0 }
 	};

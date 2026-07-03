@@ -100,14 +100,14 @@ void FlightDeckBehaviorModuleData::buildFieldParse(MultiIniFieldParse& p)
 		{ "Runway1Landing",					parseRunwayStrip,									NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 0 ].m_landingBoneNames ) },
 		{ "Runway1Taxi",						INI::parseAsciiStringVector,			NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 0 ].m_taxiBoneNames ) },
 		{ "Runway1Creation",				INI::parseAsciiStringVector,			NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 0 ].m_creationBoneNames ) },
-		{ "Runway1CatapultSystem",	INI::parseParticleSystemTemplate,	NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 0 ].m_catapultParticleSystem ) },
+		{ "Runway1CatapultSystem",	ParticleSystemManager::parseParticleSystemTemplate,	NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 0 ].m_catapultParticleSystem ) },
 		
 		{ "Runway2Spaces",					INI::parseAsciiStringVector,			NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 1 ].m_spacesBoneNames ) },
 		{ "Runway2Takeoff",					parseRunwayStrip,									NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 1 ].m_takeoffBoneNames ) },
 		{ "Runway2Landing",					parseRunwayStrip,									NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 1 ].m_landingBoneNames ) },
 		{ "Runway2Taxi",						INI::parseAsciiStringVector,			NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 1 ].m_taxiBoneNames ) },
 		{ "Runway2Creation",				INI::parseAsciiStringVector,			NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 1 ].m_creationBoneNames ) },
-		{ "Runway2CatapultSystem",	INI::parseParticleSystemTemplate,	NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 1 ].m_catapultParticleSystem ) },
+		{ "Runway2CatapultSystem",	ParticleSystemManager::parseParticleSystemTemplate,	NULL, offsetof( FlightDeckBehaviorModuleData, m_runwayInfo[ 1 ].m_catapultParticleSystem ) },
 
 		{ "ApproachHeight",					INI::parseReal,										NULL, offsetof( FlightDeckBehaviorModuleData, m_approachHeight ) },
 		{ "LandingDeckHeightOffset",INI::parseReal,										NULL, offsetof( FlightDeckBehaviorModuleData, m_landingDeckHeightOffset ) },

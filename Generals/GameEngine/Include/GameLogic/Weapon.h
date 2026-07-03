@@ -788,7 +788,7 @@ public:
 	WeaponStore();
 	~WeaponStore();
 
-	void init() { };
+	void init();
 	void postProcessLoad();
 	void reset();
 	void update();
@@ -797,6 +797,8 @@ public:
 		Find the WeaponTemplate with the given name. If no such WeaponTemplate exists, return null.
 	*/
 	const WeaponTemplate *findWeaponTemplate(AsciiString name) const;
+	// INI field parser (relocated out of the commonized INI reader)
+	static void parseWeaponTemplate( INI *ini, void *instance, void *store, const void *userData );
 	const WeaponTemplate *findWeaponTemplateByNameKey( NameKeyType key ) const { return findWeaponTemplatePrivate( key ); }
 
 	// this dynamically allocates a new Weapon, which is owned (and must be freed!) by the caller.

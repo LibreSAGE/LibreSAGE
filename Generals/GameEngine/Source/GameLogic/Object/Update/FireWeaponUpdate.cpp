@@ -28,6 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "GameLogic/Weapon.h"
 #include "Common/Xfer.h"
 #include "GameLogic/Object.h"
 #include "GameLogic/Module/FireWeaponUpdate.h"
@@ -52,7 +53,7 @@ FireWeaponUpdateModuleData::FireWeaponUpdateModuleData()
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "Weapon",	INI::parseWeaponTemplate,	NULL, offsetof( FireWeaponUpdateModuleData, m_weaponTemplate ) },
+		{ "Weapon",	WeaponStore::parseWeaponTemplate,	NULL, offsetof( FireWeaponUpdateModuleData, m_weaponTemplate ) },
 		{ 0, 0, 0, 0 }
 	};
   p.add(dataFieldParse);

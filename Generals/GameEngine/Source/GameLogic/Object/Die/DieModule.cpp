@@ -27,6 +27,7 @@
 // Desc:   
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #define DEFINE_OBJECT_STATUS_NAMES
+#include "Common/INIParsers.h"
 #include "Common/Xfer.h"
 #include "GameClient/Drawable.h"
 #include "GameLogic/ExperienceTracker.h"
@@ -57,8 +58,8 @@ const FieldParse* DieMuxData::getFieldParse()
 {
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "DeathTypes", INI::parseDeathTypeFlags, NULL, offsetof( DieMuxData, m_deathTypes ) },
-		{ "VeterancyLevels", INI::parseVeterancyLevelFlags, NULL, offsetof( DieMuxData, m_veterancyLevels ) },
+		{ "DeathTypes", INIParsers::parseDeathTypeFlags, NULL, offsetof( DieMuxData, m_deathTypes ) },
+		{ "VeterancyLevels", INIParsers::parseVeterancyLevelFlags, NULL, offsetof( DieMuxData, m_veterancyLevels ) },
 		{ "ExemptStatus",	INI::parseBitString32,	TheObjectStatusBitNames,	offsetof( DieMuxData, m_exemptStatus ) },
 		{ "RequiredStatus",	INI::parseBitString32,	TheObjectStatusBitNames,	offsetof( DieMuxData, m_requiredStatus ) },
 		{ 0, 0, 0, 0 }

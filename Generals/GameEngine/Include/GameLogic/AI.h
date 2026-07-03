@@ -56,6 +56,7 @@ enum HackerAttackMode : int;
 enum WeaponSetType : int;
 enum WeaponLockType : int;
 enum SpecialPowerType : int;
+enum ScienceType : int;
 
 typedef std::vector<ObjectID> VecObjectID;
 typedef VecObjectID::iterator VecObjectIDIt;

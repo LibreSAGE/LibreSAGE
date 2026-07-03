@@ -28,6 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "GameClient/FXList.h"
 #include <stdlib.h>
 
 #include "Common/Thing.h"
@@ -91,8 +92,8 @@ void W3DTreeDrawModuleData::buildFieldParse(MultiIniFieldParse& p)
 		{ "DarkeningFactor", INI::parseReal, NULL, offsetof(W3DTreeDrawModuleData, m_darkening) },
 
 // Topple parameters [7/7/2003]		
-		{ "ToppleFX",	INI::parseFXList, NULL, offsetof( W3DTreeDrawModuleData, m_toppleFX ) },
-		{ "BounceFX",	INI::parseFXList, NULL, offsetof( W3DTreeDrawModuleData, m_bounceFX ) },
+		{ "ToppleFX",	FXListStore::parseFXList, NULL, offsetof( W3DTreeDrawModuleData, m_toppleFX ) },
+		{ "BounceFX",	FXListStore::parseFXList, NULL, offsetof( W3DTreeDrawModuleData, m_bounceFX ) },
 		{ "StumpName",	INI::parseAsciiString, NULL, offsetof( W3DTreeDrawModuleData, m_stumpName ) },
 		{ "KillWhenFinishedToppling",	INI::parseBool, NULL, offsetof( W3DTreeDrawModuleData, m_killWhenToppled ) },
 		{ "DoTopple",	INI::parseBool, NULL, offsetof( W3DTreeDrawModuleData, m_doTopple ) },

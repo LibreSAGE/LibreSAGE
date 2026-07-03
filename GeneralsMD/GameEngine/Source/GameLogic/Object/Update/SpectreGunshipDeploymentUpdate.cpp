@@ -29,6 +29,7 @@
 #define DEFINE_DEATH_NAMES
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "Common/SpecialPower.h"
 #include "Common/ThingTemplate.h"
 #include "Common/ThingFactory.h"
 #include "Common/Player.h"
@@ -99,8 +100,8 @@ static Real zero = 0.0f;
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "GunshipTemplateName",	    INI::parseAsciiString,				    NULL, offsetof( SpectreGunshipDeploymentUpdateModuleData, m_gunshipTemplateName ) },
-		{ "RequiredScience",					INI::parseScience,								NULL, offsetof( SpectreGunshipDeploymentUpdateModuleData, m_extraRequiredScience ) },
-/******BOTH*******/   { "SpecialPowerTemplate",     INI::parseSpecialPowerTemplate,   NULL, offsetof( SpectreGunshipDeploymentUpdateModuleData, m_specialPowerTemplate ) },
+		{ "RequiredScience",					ScienceStore::parseScience,								NULL, offsetof( SpectreGunshipDeploymentUpdateModuleData, m_extraRequiredScience ) },
+/******BOTH*******/   { "SpecialPowerTemplate",     SpecialPowerStore::parseSpecialPowerTemplate,   NULL, offsetof( SpectreGunshipDeploymentUpdateModuleData, m_specialPowerTemplate ) },
 /*******BOTH******/		{ "AttackAreaRadius",	        INI::parseReal,				            NULL, offsetof( SpectreGunshipDeploymentUpdateModuleData, m_attackAreaRadius ) },
 		{ "CreateLocation", INI::parseIndexList, TheGunshipCreateLocTypeNames, offsetof( SpectreGunshipDeploymentUpdateModuleData, m_createLoc ) },
 

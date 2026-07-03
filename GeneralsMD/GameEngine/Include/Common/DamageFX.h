@@ -153,6 +153,9 @@ public:
 	*/
 	const DamageFX *findDamageFX( AsciiString name ) const;
 
+	// INI field parser: resolve a DamageFX name to a pointer (moved out of INI)
+	static void parseDamageFX( INI *ini, void *instance, void *store, const void *userData );
+
 	static void parseDamageFXDefinition(INI* ini);
 
 

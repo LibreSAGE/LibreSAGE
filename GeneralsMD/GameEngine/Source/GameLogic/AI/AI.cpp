@@ -269,7 +269,7 @@ void AI::parseScience(INI *ini, void *instance, void* /*store*/, const void* /*u
 		return;
 	}
 	skillset->m_skills[skillset->m_numSkills] = SCIENCE_INVALID;
-	INI::parseScience(ini, instance, skillset->m_skills+skillset->m_numSkills, NULL);
+	ScienceStore::parseScience(ini, instance, skillset->m_skills+skillset->m_numSkills, NULL);
 	ScienceType science = skillset->m_skills[skillset->m_numSkills];
 	if (science != SCIENCE_INVALID) {
 		if (TheScienceStore->getSciencePurchaseCost(science)==0) {
@@ -319,6 +319,8 @@ AI::AI( void )
  */
 void AI::init( void )
 {
+	INI::registerBlockParse( "AIData", INI::parseAIDataDefinition );
+
 	m_nextGroupID = 0;
 }
 

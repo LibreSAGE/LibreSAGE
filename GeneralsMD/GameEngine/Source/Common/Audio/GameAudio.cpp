@@ -213,6 +213,12 @@ AudioManager::~AudioManager()
 //-------------------------------------------------------------------------------------------------
 void AudioManager::init()
 {
+	INI::registerBlockParse( "AudioEvent", INI::parseAudioEventDefinition );
+	INI::registerBlockParse( "AudioSettings", INI::parseAudioSettingsDefinition );
+	INI::registerBlockParse( "DialogEvent", INI::parseDialogDefinition );
+	INI::registerBlockParse( "MusicTrack", INI::parseMusicTrackDefinition );
+	INI::registerBlockParse( "MiscAudio", INI::parseMiscAudio );
+
 	INI ini;
 	ini.load( AsciiString( "Data\\INI\\AudioSettings.ini" ), INI_LOAD_OVERWRITE, NULL);
 

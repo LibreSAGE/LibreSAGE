@@ -47,6 +47,7 @@
 #include "Common/SubsystemInterface.h"
 
 #include "GameClient/GameText.h"
+#include "Common/INI.h"
 #include "Common/Language.h"
 #include "Common/Registry.h"
 #include "GameClient/LanguageFilter.h"
@@ -1430,3 +1431,22 @@ static int __cdecl compareLUT ( const void *i1,  const void*i2)
 
 	return stricmp( lut1->label->str(), lut2->label->str());
 }
+
+//-------------------------------------------------------------------------------------------------
+/** Parse a string label, get the *translated* actual text from the label and store
+	* into a *UNICODE* string. (formerly GameTextInterface::parseAndTranslateLabel) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void GameTextInterface::parseAndTranslateLabel( INI* ini, void * /*instance*/, void *store, const void* /*userData*/ )
+{
+	const char *token = ini->getNextToken();
+
+	// translate
+	UnicodeString translated = TheGameText->fetch( token );
+	if( translated.isEmpty() )
+		throw INI_INVALID_DATA;
+
+	// save the translated text
+	UnicodeString *theString = (UnicodeString *)store;
+	theString->set( translated.str() );
+
+}  // end parseAndTranslateLabel

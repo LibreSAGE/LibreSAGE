@@ -33,6 +33,8 @@
 #ifndef __STICK_BOMB_UPDATE_H
 #define __STICK_BOMB_UPDATE_H
 
+#include "GameClient/FXList.h"
+#include "GameLogic/Weapon.h"
 #include "GameLogic/Module/UpdateModule.h"
 
 class WeaponTemplate;
@@ -61,8 +63,8 @@ public:
 		{
 			{ "AttachToTargetBone",				INI::parseAsciiString,		NULL, offsetof( StickyBombUpdateModuleData, m_attachToBone ) },
 			{ "OffsetZ",									INI::parseReal,						NULL, offsetof( StickyBombUpdateModuleData, m_offsetZ ) },
-			{ "GeometryBasedDamageWeapon",INI::parseWeaponTemplate, NULL, offsetof( StickyBombUpdateModuleData, m_geometryBasedDamageWeaponTemplate ) },
-			{ "GeometryBasedDamageFX",		INI::parseFXList,					NULL, offsetof( StickyBombUpdateModuleData, m_geometryBasedDamageFX ) },
+			{ "GeometryBasedDamageWeapon",WeaponStore::parseWeaponTemplate, NULL, offsetof( StickyBombUpdateModuleData, m_geometryBasedDamageWeaponTemplate ) },
+			{ "GeometryBasedDamageFX",		FXListStore::parseFXList,					NULL, offsetof( StickyBombUpdateModuleData, m_geometryBasedDamageFX ) },
 			{ 0, 0, 0, 0 }
 		};
     p.add(dataFieldParse);

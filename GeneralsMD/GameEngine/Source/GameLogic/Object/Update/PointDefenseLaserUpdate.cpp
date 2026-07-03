@@ -64,7 +64,7 @@ PointDefenseLaserUpdateModuleData::PointDefenseLaserUpdateModuleData()
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "WeaponTemplate",				INI::parseWeaponTemplate,				NULL, offsetof( PointDefenseLaserUpdateModuleData, m_weaponTemplate ) },
+		{ "WeaponTemplate",				WeaponStore::parseWeaponTemplate,				NULL, offsetof( PointDefenseLaserUpdateModuleData, m_weaponTemplate ) },
 		{ "PrimaryTargetTypes",		KindOfMaskType::parseFromINI,								NULL, offsetof( PointDefenseLaserUpdateModuleData, m_primaryTargetKindOf ) },
 		{ "SecondaryTargetTypes",	KindOfMaskType::parseFromINI,								NULL, offsetof( PointDefenseLaserUpdateModuleData, m_secondaryTargetKindOf ) },
 		{ "ScanRate",							INI::parseDurationUnsignedInt,	NULL, offsetof( PointDefenseLaserUpdateModuleData, m_scanFrames ) },

@@ -137,6 +137,8 @@ GlobalLanguage::~GlobalLanguage()
 
 void GlobalLanguage::init( void ) 
 {
+	INI::registerBlockParse( "Language", INI::parseLanguageDefinition );
+
 
 	INI ini;
 	AsciiString fname;

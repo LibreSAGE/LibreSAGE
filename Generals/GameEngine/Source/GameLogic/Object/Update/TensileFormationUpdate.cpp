@@ -28,6 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "GameLogic/LogicRandomValue.h"
 
 #include "Common/Xfer.h"
@@ -106,7 +107,7 @@ TensileFormationUpdateModuleData::TensileFormationUpdateModuleData( void )
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "Enabled",	    INI::parseBool,	NULL, offsetof( TensileFormationUpdateModuleData, m_enabled ) },
-		{ "CrackSound",	INI::parseAudioEventRTS,	NULL,	offsetof( TensileFormationUpdateModuleData, m_crackSound) },
+		{ "CrackSound",	INIParsers::parseAudioEventRTS,	NULL,	offsetof( TensileFormationUpdateModuleData, m_crackSound) },
 		{ 0, 0, 0, 0 }
 	};
 	p.add(dataFieldParse);

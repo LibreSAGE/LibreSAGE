@@ -472,7 +472,7 @@ public:
 	LocomotorStore();
 	~LocomotorStore();
 
-	void init() { };
+	void init();
 	void reset();
 	void update();
 

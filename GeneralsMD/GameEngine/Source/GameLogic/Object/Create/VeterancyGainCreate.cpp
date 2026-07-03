@@ -52,7 +52,7 @@ void VeterancyGainCreateModuleData::buildFieldParse(MultiIniFieldParse& p)
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "StartingLevel",		INI::parseIndexList,	TheVeterancyNames,	offsetof( VeterancyGainCreateModuleData, m_startingLevel ) },
-		{ "ScienceRequired",	INI::parseScience,		NULL,								offsetof( VeterancyGainCreateModuleData, m_scienceRequired ) },
+		{ "ScienceRequired",	ScienceStore::parseScience,		NULL,								offsetof( VeterancyGainCreateModuleData, m_scienceRequired ) },
 		{ 0, 0, 0, 0 }
 	};
 

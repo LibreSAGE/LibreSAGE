@@ -33,6 +33,7 @@
 #define __FireWeaponWhenDamagedBehavior_H_
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "GameLogic/Module/BehaviorModule.h"
 #include "GameLogic/Module/UpgradeModule.h"
 #include "GameLogic/Module/UpdateModule.h"
@@ -77,15 +78,15 @@ public:
 		static const FieldParse dataFieldParse[] = 
 		{
 			{ "StartsActive",	INI::parseBool, NULL, offsetof( FireWeaponWhenDamagedBehaviorModuleData, m_initiallyActive ) },
-			{ "ReactionWeaponPristine", INI::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,				m_reactionWeaponPristine) },
-			{ "ReactionWeaponDamaged", INI::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,				m_reactionWeaponDamaged) },
-			{ "ReactionWeaponReallyDamaged", INI::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,	m_reactionWeaponReallyDamaged) },
-			{ "ReactionWeaponRubble", INI::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,					m_reactionWeaponRubble) },
-			{ "ContinuousWeaponPristine", INI::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,			m_continuousWeaponPristine) },
-			{ "ContinuousWeaponDamaged", INI::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,			m_continuousWeaponDamaged) },
-			{ "ContinuousWeaponReallyDamaged", INI::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,m_continuousWeaponReallyDamaged) },
-			{ "ContinuousWeaponRubble", INI::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,				m_continuousWeaponRubble) },
-			{ "DamageTypes", INI::parseDamageTypeFlags, NULL, offsetof( FireWeaponWhenDamagedBehaviorModuleData, m_damageTypes ) },
+			{ "ReactionWeaponPristine", WeaponStore::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,				m_reactionWeaponPristine) },
+			{ "ReactionWeaponDamaged", WeaponStore::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,				m_reactionWeaponDamaged) },
+			{ "ReactionWeaponReallyDamaged", WeaponStore::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,	m_reactionWeaponReallyDamaged) },
+			{ "ReactionWeaponRubble", WeaponStore::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,					m_reactionWeaponRubble) },
+			{ "ContinuousWeaponPristine", WeaponStore::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,			m_continuousWeaponPristine) },
+			{ "ContinuousWeaponDamaged", WeaponStore::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,			m_continuousWeaponDamaged) },
+			{ "ContinuousWeaponReallyDamaged", WeaponStore::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,m_continuousWeaponReallyDamaged) },
+			{ "ContinuousWeaponRubble", WeaponStore::parseWeaponTemplate, NULL, offsetof(FireWeaponWhenDamagedBehaviorModuleData,				m_continuousWeaponRubble) },
+			{ "DamageTypes", INIParsers::parseDamageTypeFlags, NULL, offsetof( FireWeaponWhenDamagedBehaviorModuleData, m_damageTypes ) },
 			{ "DamageAmount", INI::parseReal, NULL, offsetof( FireWeaponWhenDamagedBehaviorModuleData, m_damageAmount ) },
 			{ 0, 0, 0, 0 }
 		};

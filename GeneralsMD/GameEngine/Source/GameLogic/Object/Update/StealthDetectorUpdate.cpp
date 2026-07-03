@@ -27,6 +27,7 @@
 // Desc:	 An update that checks for a status bit to stealth the owning object
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/INIParsers.h"
 #include "GameLogic/LogicRandomValue.h"
 
 #define DEFINE_STEALTHLEVEL_NAMES
@@ -67,12 +68,12 @@ void StealthDetectorUpdateModuleData::buildFieldParse(MultiIniFieldParse& p)
 		{ "DetectionRate",							INI::parseDurationUnsignedInt,			NULL, offsetof( StealthDetectorUpdateModuleData, m_updateRate ) },
 		{ "DetectionRange",							INI::parseReal,											NULL, offsetof( StealthDetectorUpdateModuleData, m_detectionRange ) },
 		{ "InitiallyDisabled",					INI::parseBool,											NULL, offsetof( StealthDetectorUpdateModuleData, m_initiallyDisabled ) },
-		{ "PingSound",									INI::parseAudioEventRTS,						NULL, offsetof( StealthDetectorUpdateModuleData, m_pingSound ) },
-		{ "LoudPingSound",							INI::parseAudioEventRTS,						NULL, offsetof( StealthDetectorUpdateModuleData, m_loudPingSound ) },
-		{ "IRBeaconParticleSysName",		INI::parseParticleSystemTemplate,		NULL, offsetof( StealthDetectorUpdateModuleData, m_IRBeaconParticleSysTmpl ) },
-		{ "IRParticleSysName",					INI::parseParticleSystemTemplate,		NULL, offsetof( StealthDetectorUpdateModuleData, m_IRParticleSysTmpl ) },
-		{ "IRBrightParticleSysName",		INI::parseParticleSystemTemplate,		NULL, offsetof( StealthDetectorUpdateModuleData, m_IRBrightParticleSysTmpl ) },
-		{ "IRGridParticleSysName",			INI::parseParticleSystemTemplate,		NULL, offsetof( StealthDetectorUpdateModuleData, m_IRGridParticleSysTmpl ) },
+		{ "PingSound",									INIParsers::parseAudioEventRTS,						NULL, offsetof( StealthDetectorUpdateModuleData, m_pingSound ) },
+		{ "LoudPingSound",							INIParsers::parseAudioEventRTS,						NULL, offsetof( StealthDetectorUpdateModuleData, m_loudPingSound ) },
+		{ "IRBeaconParticleSysName",		ParticleSystemManager::parseParticleSystemTemplate,		NULL, offsetof( StealthDetectorUpdateModuleData, m_IRBeaconParticleSysTmpl ) },
+		{ "IRParticleSysName",					ParticleSystemManager::parseParticleSystemTemplate,		NULL, offsetof( StealthDetectorUpdateModuleData, m_IRParticleSysTmpl ) },
+		{ "IRBrightParticleSysName",		ParticleSystemManager::parseParticleSystemTemplate,		NULL, offsetof( StealthDetectorUpdateModuleData, m_IRBrightParticleSysTmpl ) },
+		{ "IRGridParticleSysName",			ParticleSystemManager::parseParticleSystemTemplate,		NULL, offsetof( StealthDetectorUpdateModuleData, m_IRGridParticleSysTmpl ) },
 		{ "IRParticleSysBone",					INI::parseAsciiString,							NULL, offsetof( StealthDetectorUpdateModuleData, m_IRParticleSysBone ) },
 		{ "ExtraRequiredKindOf",				KindOfMaskType::parseFromINI,				NULL, offsetof( StealthDetectorUpdateModuleData, m_extraDetectKindof ) },
 		{ "ExtraForbiddenKindOf",				KindOfMaskType::parseFromINI,				NULL, offsetof( StealthDetectorUpdateModuleData, m_extraDetectKindofNot ) },

@@ -45,6 +45,7 @@
 #include "Common/GameAudio.h"
 #include "Common/GameState.h"
 #include "Common/INI.h"
+#include "Common/INIParsers.h"
 #include "Common/PerfTimer.h"
 #include "Common/Player.h"
 #include "Common/ThingFactory.h"
@@ -120,7 +121,7 @@ static void parsePerVetLevelFXList( INI* ini, void* /*instance*/, void * store, 
 	ConstFXListPtr* s = (ConstFXListPtr*)store;
 	VeterancyLevel v = (VeterancyLevel)INI::scanIndexList(ini->getNextToken(), TheVeterancyNames);
 	const FXList* fx = NULL;
-	INI::parseFXList(ini, NULL, &fx, NULL);
+	FXListStore::parseFXList(ini, NULL, &fx, NULL);
 	s[v] = fx;
 }
 
@@ -130,7 +131,7 @@ static void parseAllVetLevelsFXList( INI* ini, void* /*instance*/, void * store,
 	typedef const FXList* ConstFXListPtr;
 	ConstFXListPtr* s = (ConstFXListPtr*)store;
 	const FXList* fx = NULL;
-	INI::parseFXList(ini, NULL, &fx, NULL);
+	FXListStore::parseFXList(ini, NULL, &fx, NULL);
 	for (Int i = LEVEL_FIRST; i <= LEVEL_LAST; ++i)
 		s[i] = fx;
 }
@@ -142,7 +143,7 @@ static void parsePerVetLevelPSys( INI* ini, void* /*instance*/, void * store, co
 	ConstParticleSystemTemplatePtr* s = (ConstParticleSystemTemplatePtr*)store;
 	VeterancyLevel v = (VeterancyLevel)INI::scanIndexList(ini->getNextToken(), TheVeterancyNames);
 	ConstParticleSystemTemplatePtr pst = NULL;
-	INI::parseParticleSystemTemplate(ini, NULL, &pst, NULL);
+	ParticleSystemManager::parseParticleSystemTemplate(ini, NULL, &pst, NULL);
 	s[v] = pst;
 }
 
@@ -152,7 +153,7 @@ static void parseAllVetLevelsPSys( INI* ini, void* /*instance*/, void * store, c
 	typedef const ParticleSystemTemplate* ConstParticleSystemTemplatePtr;
 	ConstParticleSystemTemplatePtr* s = (ConstParticleSystemTemplatePtr*)store;
 	ConstParticleSystemTemplatePtr pst = NULL;
-	INI::parseParticleSystemTemplate(ini, NULL, &pst, NULL);
+	ParticleSystemManager::parseParticleSystemTemplate(ini, NULL, &pst, NULL);
 	for (Int i = LEVEL_FIRST; i <= LEVEL_LAST; ++i)
 		s[i] = pst;
 }
@@ -194,7 +195,7 @@ const FieldParse WeaponTemplate::TheWeaponTemplateFieldParseTable[] =
 	{ "MaxTargetPitch",						INI::parseAngleReal,										NULL,							offsetof(WeaponTemplate, m_maxTargetPitch) },		
 	{ "RadiusDamageAngle",				INI::parseAngleReal,										NULL,							offsetof(WeaponTemplate, m_radiusDamageAngle) },		
 	{ "ProjectileObject",					INI::parseAsciiString,									NULL,							offsetof(WeaponTemplate, m_projectileName) },		
-	{ "FireSound",								INI::parseAudioEventRTS,								NULL,							offsetof(WeaponTemplate, m_fireSound) },		
+	{ "FireSound",								INIParsers::parseAudioEventRTS,								NULL,							offsetof(WeaponTemplate, m_fireSound) },		
 	{ "FireSoundLoopTime",				INI::parseDurationUnsignedInt,					NULL,							offsetof(WeaponTemplate, m_fireSoundLoopTime) },		
 	{ "FireFX",											parseAllVetLevelsFXList,							NULL,							offsetof(WeaponTemplate, m_fireFXs) },		
 	{ "ProjectileDetonationFX",			parseAllVetLevelsFXList,							NULL,							offsetof(WeaponTemplate, m_projectileDetonateFXs) },		
@@ -233,7 +234,7 @@ const FieldParse WeaponTemplate::TheWeaponTemplateFieldParseTable[] =
 	{ "HistoricBonusTime",				INI::parseDurationUnsignedInt,					NULL,							offsetof(WeaponTemplate, m_historicBonusTime) },		
 	{ "HistoricBonusRadius",			INI::parseReal,													NULL,							offsetof(WeaponTemplate, m_historicBonusRadius) },		
 	{ "HistoricBonusCount",				INI::parseInt,													NULL,							offsetof(WeaponTemplate, m_historicBonusCount) },		
-	{ "HistoricBonusWeapon",			INI::parseWeaponTemplate,								NULL,							offsetof(WeaponTemplate, m_historicBonusWeapon) },		
+	{ "HistoricBonusWeapon",			WeaponStore::parseWeaponTemplate,								NULL,							offsetof(WeaponTemplate, m_historicBonusWeapon) },		
 	{ "LeechRangeWeapon",					INI::parseBool,													NULL,							offsetof(WeaponTemplate, m_leechRangeWeapon) },
 	{ "ScatterTarget",						WeaponTemplate::parseScatterTarget,			NULL,							0 },		
 	{ "CapableOfFollowingWaypoints", INI::parseBool,											NULL,							offsetof(WeaponTemplate, m_capableOfFollowingWaypoint) },
@@ -3531,3 +3532,16 @@ void WeaponBonusSet::appendBonuses(WeaponBonusConditionFlags flags, WeaponBonus&
 	}
 }
 
+
+//-------------------------------------------------------------------------------------------------
+/** Parse a WeaponTemplate name and assign the pointer at store (relocated out of INI) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void WeaponStore::parseWeaponTemplate( INI* ini, void * /*instance*/, void *store, const void* /*userData*/ )
+{
+	const char *token = ini->getNextToken();
+	typedef const WeaponTemplate *ConstWeaponTemplatePtr;
+	ConstWeaponTemplatePtr* theWeaponTemplate = (ConstWeaponTemplatePtr*)store;
+	const WeaponTemplate *tt = TheWeaponStore->findWeaponTemplate(token);	// could be null!
+	DEBUG_ASSERTCRASH(tt || stricmp(token, "None") == 0, ("WeaponTemplate %s not found!\n",token));
+	*theWeaponTemplate = tt;
+}

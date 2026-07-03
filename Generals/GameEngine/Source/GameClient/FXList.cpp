@@ -33,6 +33,7 @@
 #include "Common/DrawModule.h"
 #include "Common/GameAudio.h"
 #include "Common/INI.h"
+#include "Common/INIParsers.h"
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
 #include "Common/RandomValue.h"
@@ -568,9 +569,9 @@ public:
 			{ "Name",									INI::parseAsciiString,			NULL, offsetof( ParticleSystemFXNugget, m_name ) },
 			{ "Count",								INI::parseInt,							NULL, offsetof( ParticleSystemFXNugget, m_count ) },
 			{ "Offset",								INI::parseCoord3D,					NULL, offsetof( ParticleSystemFXNugget, m_offset ) },
-			{ "Radius",								INI::parseGameClientRandomVariable,		NULL, offsetof( ParticleSystemFXNugget, m_radius ) },
-			{ "Height",								INI::parseGameClientRandomVariable,		NULL, offsetof( ParticleSystemFXNugget, m_height ) },
-			{ "InitialDelay",					INI::parseGameClientRandomVariable,		NULL, offsetof( ParticleSystemFXNugget, m_delay ) },
+			{ "Radius",								INIParsers::parseGameClientRandomVariable,		NULL, offsetof( ParticleSystemFXNugget, m_radius ) },
+			{ "Height",								INIParsers::parseGameClientRandomVariable,		NULL, offsetof( ParticleSystemFXNugget, m_height ) },
+			{ "InitialDelay",					INIParsers::parseGameClientRandomVariable,		NULL, offsetof( ParticleSystemFXNugget, m_delay ) },
 			{ "RotateX",							INI::parseAngleReal,				NULL, offsetof( ParticleSystemFXNugget, m_rotateX ) },
 			{ "RotateY",							INI::parseAngleReal,				NULL, offsetof( ParticleSystemFXNugget, m_rotateY ) },
 			{ "RotateZ",							INI::parseAngleReal,				NULL, offsetof( ParticleSystemFXNugget, m_rotateZ ) },
@@ -717,7 +718,7 @@ public:
 	{
 		static const FieldParse myFieldParse[] = 
 		{
-			{ "FX",								  	INI::parseFXList,			    NULL, offsetof( FXListAtBonePosFXNugget, m_fx ) },
+			{ "FX",								  	FXListStore::parseFXList,			    NULL, offsetof( FXListAtBonePosFXNugget, m_fx ) },
 			{ "BoneName",							INI::parseAsciiString,		NULL, offsetof( FXListAtBonePosFXNugget, m_boneName ) },
 			{ "OrientToBone",					INI::parseBool,					  NULL, offsetof( FXListAtBonePosFXNugget, m_orientToBone ) },
 			{ 0, 0, 0, 0 }
@@ -869,7 +870,26 @@ const FXList *FXListStore::findFXList(const char* name) const
 }
 
 //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+void FXListStore::init( void )
+{
+	INI::registerBlockParse( "FXList", INI::parseFXListDefinition );
+}
+
 /*static*/ void INI::parseFXListDefinition(INI *ini)
 {
 	FXListStore::parseFXListDefinition(ini);
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Parse an FXList name and assign the pointer at store (relocated out of INI) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void FXListStore::parseFXList( INI* ini, void * /*instance*/, void *store, const void* /*userData*/ )
+{
+	const char *token = ini->getNextToken();
+	typedef const FXList *ConstFXListPtr;
+	ConstFXListPtr* theFXList = (ConstFXListPtr*)store;
+	const FXList *fxl = TheFXListStore->findFXList(token);	// could be null!
+	DEBUG_ASSERTCRASH(fxl != NULL || stricmp(token, "None") == 0, ("FXList %s not found!\n",token));
+	*theFXList = fxl;
 }

@@ -255,3 +255,18 @@ void ImageCollection::load( Int textureSize )
 
 
 }  // end load
+
+//-------------------------------------------------------------------------------------------------
+/** Parse a mapped-image name and assign the Image pointer at store (relocated out of INI) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void ImageCollection::parseMappedImage( INI *ini, void * /*instance*/, void *store, const void *userData )
+{
+	const char *token = ini->getNextToken();
+	if( TheMappedImageCollection )
+	{
+		typedef const Image* ConstImagePtr;
+		*(ConstImagePtr*)store = TheMappedImageCollection->findImageByName( AsciiString( token ) );
+	}
+	// If we are in the worldbuilder we parse commandbuttons for informational purposes but
+	// do not care about the images; in RTS/GUIEdit they always exist.
+}

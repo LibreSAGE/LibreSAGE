@@ -33,6 +33,7 @@
 #include "Common/Thing.h"
 #include "Common/ThingTemplate.h"
 #include "Common/INI.h"
+#include "Common/INIParsers.h"
 #include "Common/RandomValue.h"
 #include "Common/Xfer.h"
 #include "GameClient/FXList.h"
@@ -106,7 +107,7 @@ static void parseAngleFX(INI* ini, void *instance, void * /* store */, const voi
 	AngleFXInfo info;
 	INI::parseReal(ini, instance, &(info.angle), NULL);
 	info.angle = info.angle * PI / 180.0f; // convert from degrees to radians.
-	INI::parseFXList(ini, instance, &(info.fxList), NULL);
+	FXListStore::parseFXList(ini, instance, &(info.fxList), NULL);
 	self->angleFX.push_back(info);
 }
 
@@ -123,12 +124,12 @@ static void parseAngleFX(INI* ini, void *instance, void * /* store */, const voi
 		{ "MaxToppleBurstDelay",			INI::parseDurationUnsignedInt,		NULL, offsetof( StructureToppleUpdateModuleData, m_maxToppleBurstDelay ) },
 		{ "StructuralIntegrity",			INI::parseReal,										NULL, offsetof( StructureToppleUpdateModuleData, m_structuralIntegrity ) },
 		{ "StructuralDecay",					INI::parseReal,										NULL, offsetof( StructureToppleUpdateModuleData, m_structuralDecay ) },
-		{ "DamageFXTypes",						INI::parseDamageTypeFlags,				NULL, offsetof( StructureToppleUpdateModuleData, m_damageFXTypes ) },
-		{ "TopplingFX",								INI::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_toppleFXList ) },
-		{ "ToppleDelayFX",						INI::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_toppleDelayFXList ) },
-		{ "ToppleStartFX",						INI::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_toppleStartFXList ) },
-		{ "ToppleDoneFX",							INI::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_toppleDoneFXList ) },
-		{ "CrushingFX",								INI::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_crushingFXList ) },
+		{ "DamageFXTypes",						INIParsers::parseDamageTypeFlags,				NULL, offsetof( StructureToppleUpdateModuleData, m_damageFXTypes ) },
+		{ "TopplingFX",								FXListStore::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_toppleFXList ) },
+		{ "ToppleDelayFX",						FXListStore::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_toppleDelayFXList ) },
+		{ "ToppleStartFX",						FXListStore::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_toppleStartFXList ) },
+		{ "ToppleDoneFX",							FXListStore::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_toppleDoneFXList ) },
+		{ "CrushingFX",								FXListStore::parseFXList,									NULL, offsetof( StructureToppleUpdateModuleData, m_crushingFXList ) },
 		{ "CrushingWeaponName",				INI::parseAsciiString,						NULL, offsetof( StructureToppleUpdateModuleData, m_crushingWeaponName ) },
 		{ "OCL",											parseOCL,													NULL, 0 },
 		{ "AngleFX",									parseAngleFX,											NULL, 0 },

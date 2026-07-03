@@ -53,6 +53,7 @@
 #include "GameClient/CampaignManager.h"
 
 #include "Common/INI.h"
+#include "Common/INIParsers.h"
 #include "Common/Xfer.h"
 #include "GameClient/ChallengeGenerals.h"//For TheChallengeGenerals, so I can save it too.
 #include "GameClient/GameClient.h"
@@ -247,6 +248,8 @@ CampaignManager::~CampaignManager( void )
 //-----------------------------------------------------------------------------
 void CampaignManager::init( void )
 {
+	INI::registerBlockParse( "Campaign", INI::parseCampaignDefinition );
+
 	INI ini;
 	// Read from INI all the CampaignManager
 	ini.load( AsciiString( "Data\\INI\\Campaign.ini" ), INI_LOAD_OVERWRITE, NULL );
@@ -371,7 +374,7 @@ void CampaignManager::parseMissionPart( INI* ini, void *instance, void *store, c
 			{ "ObjectiveLine2",		INI::parseAsciiString,				NULL, offsetof( Mission, m_missionObjectivesLabel[2] ) },
 			{ "ObjectiveLine3",		INI::parseAsciiString,				NULL, offsetof( Mission, m_missionObjectivesLabel[3] ) },
 			{ "ObjectiveLine4",		INI::parseAsciiString,				NULL, offsetof( Mission, m_missionObjectivesLabel[4] ) },
-			{ "BriefingVoice",		INI::parseAudioEventRTS,			NULL, offsetof( Mission, m_briefingVoice ) },
+			{ "BriefingVoice",		INIParsers::parseAudioEventRTS,			NULL, offsetof( Mission, m_briefingVoice ) },
 			{ "UnitNames0",				INI::parseAsciiString,				NULL, offsetof( Mission, m_unitNames[0] ) },
 			{ "UnitNames1",				INI::parseAsciiString,				NULL, offsetof( Mission, m_unitNames[1] ) },
 			{ "UnitNames2",				INI::parseAsciiString,				NULL, offsetof( Mission, m_unitNames[2] ) },

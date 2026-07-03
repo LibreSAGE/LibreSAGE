@@ -51,7 +51,7 @@ static void parseCashHackUpgradePair( INI* ini, void * /*instance*/, void *store
 {
 	CashHackSpecialPowerModuleData::Upgrades up;
 
-	INI::parseScience(ini, NULL, &up.m_science, NULL);
+	ScienceStore::parseScience(ini, NULL, &up.m_science, NULL);
 	INI::parseInt(ini, NULL, &up.m_amountToSteal, NULL);
 
 	std::vector<CashHackSpecialPowerModuleData::Upgrades>* s = (std::vector<CashHackSpecialPowerModuleData::Upgrades>*)store;

@@ -33,6 +33,7 @@
 #define __WORKER_AI_UPDATE_H_
 
 // USER INCLUDES //////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "Common/StateMachine.h"
 #include "GameLogic/Module/AIUpdate.h"
 #include "GameLogic/Module/DozerAIUpdate.h"
@@ -102,7 +103,7 @@ public:
 			{ "SupplyCenterActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( WorkerAIUpdateModuleData, m_centerDelay ) },
 			{ "SupplyWarehouseActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( WorkerAIUpdateModuleData, m_warehouseDelay ) },
 			{ "SupplyWarehouseScanDistance", INI::parseReal, NULL, offsetof( WorkerAIUpdateModuleData, m_warehouseScanDistance ) },
- 			{ "SuppliesDepletedVoice", INI::parseAudioEventRTS, NULL, offsetof( WorkerAIUpdateModuleData, m_suppliesDepletedVoice) },
+ 			{ "SuppliesDepletedVoice", INIParsers::parseAudioEventRTS, NULL, offsetof( WorkerAIUpdateModuleData, m_suppliesDepletedVoice) },
 			{ 0, 0, 0, 0 }
 		};
     p.add(dataFieldParse);

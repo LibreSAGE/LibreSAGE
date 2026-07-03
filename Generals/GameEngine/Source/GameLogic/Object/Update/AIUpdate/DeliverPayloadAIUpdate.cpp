@@ -79,7 +79,7 @@ const FieldParse* DeliverPayloadData::getFieldParse()
 		{ "VisibleSubObjectBaseName",				INI::parseAsciiString,				NULL, offsetof( DeliverPayloadData, m_visibleSubObjectName ) },
 		{ "VisibleNumBones",								INI::parseInt,								NULL, offsetof( DeliverPayloadData, m_visibleNumBones ) },
 		{ "VisiblePayloadTemplateName",			INI::parseAsciiString,				NULL, offsetof( DeliverPayloadData, m_visiblePayloadTemplateName ) },
-		{ "VisiblePayloadWeaponTemplate",		INI::parseWeaponTemplate,			NULL, offsetof( DeliverPayloadData, m_visiblePayloadWeaponTemplate ) },
+		{ "VisiblePayloadWeaponTemplate",		WeaponStore::parseWeaponTemplate,			NULL, offsetof( DeliverPayloadData, m_visiblePayloadWeaponTemplate ) },
 		{ "SelfDestructObject",		          INI::parseBool,		           	NULL, offsetof( DeliverPayloadData, m_selfDestructObject ) },
 		
 		//Weapon based payload 
@@ -89,7 +89,7 @@ const FieldParse* DeliverPayloadData::getFieldParse()
 		{ "DiveStartDistance",							INI::parseReal,								NULL, offsetof( DeliverPayloadData, m_diveStartDistance ) },
 		{ "DiveEndDistance",								INI::parseReal,								NULL, offsetof( DeliverPayloadData, m_diveEndDistance ) },
 		{ "StrafingWeaponSlot",							INI::parseLookupList,					TheWeaponSlotTypeNamesLookupList, offsetof( DeliverPayloadData, m_strafingWeaponSlot ) },
-		{ "StrafeWeaponFX",									INI::parseFXList,							NULL, offsetof( DeliverPayloadData, m_strafeFX ) },
+		{ "StrafeWeaponFX",									FXListStore::parseFXList,							NULL, offsetof( DeliverPayloadData, m_strafeFX ) },
 		{ "StrafeLength",										INI::parseReal,								NULL, offsetof( DeliverPayloadData, m_strafeLength ) },
 
 		{ "DeliveryDecal",									RadiusDecalTemplate::parseRadiusDecalTemplate,	NULL, offsetof( DeliverPayloadData, m_deliveryDecalTemplate ) },

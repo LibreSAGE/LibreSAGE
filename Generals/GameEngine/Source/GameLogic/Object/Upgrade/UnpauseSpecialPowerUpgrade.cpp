@@ -51,7 +51,7 @@ UnpauseSpecialPowerUpgradeModuleData::UnpauseSpecialPowerUpgradeModuleData( void
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "SpecialPowerTemplate", INI::parseSpecialPowerTemplate, NULL, offsetof( UnpauseSpecialPowerUpgradeModuleData, m_specialPower ) },
+		{ "SpecialPowerTemplate", SpecialPowerStore::parseSpecialPowerTemplate, NULL, offsetof( UnpauseSpecialPowerUpgradeModuleData, m_specialPower ) },
 		{ 0, 0, 0, 0 } 
 	};
 	p.add(dataFieldParse);

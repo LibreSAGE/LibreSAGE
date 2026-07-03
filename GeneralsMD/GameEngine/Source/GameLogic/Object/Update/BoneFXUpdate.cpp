@@ -197,7 +197,7 @@ void BoneFXUpdateModuleData::parseFXList( INI *ini, void *instance,
 	}  // end if
 
 	// parse the fx list name
-	ini->parseFXList( ini, instance, &info->fx, NULL );
+	FXListStore::parseFXList( ini, instance, &info->fx, NULL );
 
 }  // end parseFXList
 
@@ -239,7 +239,7 @@ void BoneFXUpdateModuleData::parseObjectCreationList( INI *ini, void *instance,
 	}  // end if
 
 	// parse the ocl name
-	ini->parseObjectCreationList( ini, instance, &info->ocl, NULL );
+	ObjectCreationListStore::parseObjectCreationList( ini, instance, &info->ocl, NULL );
 
 }  // end parseObjectCreationList
 
@@ -281,7 +281,7 @@ void BoneFXUpdateModuleData::parseParticleSystem( INI *ini, void *instance,
 	}  // end if
 
 	// parse the particle system name
-	ini->parseParticleSystemTemplate( ini, instance, &info->particleSysTemplate, NULL );
+	ParticleSystemManager::parseParticleSystemTemplate( ini, instance, &info->particleSysTemplate, NULL );
 
 }  // end parseParticleSystem
 

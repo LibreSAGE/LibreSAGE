@@ -29,6 +29,7 @@
 #define DEFINE_MAXHEALTHCHANGETYPE_NAMES						// for TheMaxHealthChangeTypeNames[]
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "Common/SpecialPower.h"
 #include "Common/BitFlagsIO.h"
 #include "Common/Radar.h"
 #include "Common/PlayerList.h"
@@ -91,7 +92,7 @@ BattlePlanUpdateModuleData::BattlePlanUpdateModuleData()
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "SpecialPowerTemplate",									INI::parseSpecialPowerTemplate,	NULL, offsetof( BattlePlanUpdateModuleData, m_specialPowerTemplate ) },
+		{ "SpecialPowerTemplate",									SpecialPowerStore::parseSpecialPowerTemplate,	NULL, offsetof( BattlePlanUpdateModuleData, m_specialPowerTemplate ) },
 
     { "BombardmentPlanAnimationTime",					INI::parseDurationUnsignedInt,  NULL, offsetof( BattlePlanUpdateModuleData, m_bombardmentPlanAnimationFrames ) },
     { "HoldTheLinePlanAnimationTime",					INI::parseDurationUnsignedInt,  NULL, offsetof( BattlePlanUpdateModuleData, m_holdTheLinePlanAnimationFrames ) },

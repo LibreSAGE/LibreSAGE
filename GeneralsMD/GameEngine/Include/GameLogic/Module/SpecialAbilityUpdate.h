@@ -35,6 +35,8 @@
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "Common/AudioEventRTS.h"
 #include "Common/INI.h"
+#include "Common/SpecialPower.h"
+#include "Common/INIParsers.h"
 #include "GameLogic/Module/SpecialPowerUpdateModule.h"
 #include "GameClient/ParticleSys.h"	
 
@@ -125,7 +127,7 @@ public:
 		static const FieldParse dataFieldParse[] = 
 		{
 			//Primary data values
-			{ "SpecialPowerTemplate",				INI::parseSpecialPowerTemplate,		NULL, offsetof( SpecialAbilityUpdateModuleData, m_specialPowerTemplate ) },
+			{ "SpecialPowerTemplate",				SpecialPowerStore::parseSpecialPowerTemplate,		NULL, offsetof( SpecialAbilityUpdateModuleData, m_specialPowerTemplate ) },
 			{ "StartAbilityRange",					INI::parseReal,										NULL, offsetof( SpecialAbilityUpdateModuleData, m_startAbilityRange ) },
 			{ "AbilityAbortRange",					INI::parseReal,										NULL, offsetof( SpecialAbilityUpdateModuleData, m_abilityAbortRange ) },
 			{ "PreparationTime",						INI::parseDurationUnsignedInt,		NULL, offsetof( SpecialAbilityUpdateModuleData, m_preparationFrames ) },
@@ -149,12 +151,12 @@ public:
 			{ "FlipOwnerAfterPacking",			INI::parseBool,										NULL, offsetof( SpecialAbilityUpdateModuleData, m_flipObjectAfterPacking ) },
 			{ "FlipOwnerAfterUnpacking",		INI::parseBool,										NULL, offsetof( SpecialAbilityUpdateModuleData, m_flipObjectAfterUnpacking ) },
 			{ "FleeRangeAfterCompletion",		INI::parseReal,										NULL, offsetof( SpecialAbilityUpdateModuleData, m_fleeRangeAfterCompletion ) },
-			{ "DisableFXParticleSystem",		INI::parseParticleSystemTemplate, NULL, offsetof( SpecialAbilityUpdateModuleData, m_disableFXParticleSystem ) },
+			{ "DisableFXParticleSystem",		ParticleSystemManager::parseParticleSystemTemplate, NULL, offsetof( SpecialAbilityUpdateModuleData, m_disableFXParticleSystem ) },
 			{ "DoCaptureFX",								INI::parseBool,										NULL, offsetof( SpecialAbilityUpdateModuleData, m_doCaptureFX ) },
-			{ "PackSound",									INI::parseAudioEventRTS,					NULL, offsetof( SpecialAbilityUpdateModuleData, m_packSound ) },
-			{ "UnpackSound",								INI::parseAudioEventRTS,					NULL, offsetof( SpecialAbilityUpdateModuleData, m_unpackSound ) },
-			{ "PrepSoundLoop",							INI::parseAudioEventRTS,					NULL, offsetof( SpecialAbilityUpdateModuleData, m_prepSoundLoop ) },
-			{ "TriggerSound",								INI::parseAudioEventRTS,					NULL, offsetof( SpecialAbilityUpdateModuleData, m_triggerSound ) },
+			{ "PackSound",									INIParsers::parseAudioEventRTS,					NULL, offsetof( SpecialAbilityUpdateModuleData, m_packSound ) },
+			{ "UnpackSound",								INIParsers::parseAudioEventRTS,					NULL, offsetof( SpecialAbilityUpdateModuleData, m_unpackSound ) },
+			{ "PrepSoundLoop",							INIParsers::parseAudioEventRTS,					NULL, offsetof( SpecialAbilityUpdateModuleData, m_prepSoundLoop ) },
+			{ "TriggerSound",								INIParsers::parseAudioEventRTS,					NULL, offsetof( SpecialAbilityUpdateModuleData, m_triggerSound ) },
 			{ "LoseStealthOnTrigger",				INI::parseBool,										NULL, offsetof( SpecialAbilityUpdateModuleData, m_loseStealthOnTrigger ) },
 			{ "AwardXPForTriggering",				INI::parseInt,										NULL, offsetof( SpecialAbilityUpdateModuleData, m_awardXPForTriggering ) },
 			{ "SkillPointsForTriggering",		INI::parseInt,										NULL, offsetof( SpecialAbilityUpdateModuleData, m_skillPointsForTriggering ) },

@@ -34,6 +34,7 @@
 #define CONVERT_TO_CAR_BOMB_CRATE_COLLIDE_H_
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "GameClient/FXList.h"
 #include "Common/Module.h"
 #include "GameLogic/Module/CrateCollide.h"
 
@@ -60,7 +61,7 @@ public:
 
 		static const FieldParse dataFieldParse[] = 
 		{
-			{ "FXList",		INI::parseFXList,		NULL, offsetof( ConvertToCarBombCrateCollideModuleData, m_fxList ) },
+			{ "FXList",		FXListStore::parseFXList,		NULL, offsetof( ConvertToCarBombCrateCollideModuleData, m_fxList ) },
 			{ 0, 0, 0, 0 }
 		};
     p.add(dataFieldParse);

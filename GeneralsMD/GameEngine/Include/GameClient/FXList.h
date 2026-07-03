@@ -197,7 +197,7 @@ public:
 	FXListStore();
 	~FXListStore();
 
-	void init() { }
+	void init();
 	void reset() { }
 	void update() { }
 
@@ -206,6 +206,8 @@ public:
 		return NULL if no such FXList exists.
 	*/
 	const FXList *findFXList( const char* name ) const;
+	// INI field parser (relocated out of the commonized INI reader)
+	static void parseFXList( INI *ini, void *instance, void *store, const void *userData );
 	
 	static void parseFXListDefinition(INI* ini);
 

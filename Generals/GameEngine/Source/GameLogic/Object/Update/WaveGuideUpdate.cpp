@@ -28,6 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "GameLogic/LogicRandomValue.h"
 
 #include "Common/Radar.h"
@@ -96,11 +97,11 @@ WaveGuideUpdateModuleData::WaveGuideUpdateModuleData( void )
 		{ "DamageRadius", INI::parseReal, NULL, offsetof( WaveGuideUpdateModuleData, m_damageRadius ) },
 		{ "DamageAmount", INI::parseReal, NULL, offsetof( WaveGuideUpdateModuleData, m_damageAmount ) },
 		{ "ToppleForce", INI::parseReal, NULL, offsetof( WaveGuideUpdateModuleData, m_toppleForce ) },
-		{ "RandomSplashSound", INI::parseAudioEventRTS, NULL, offsetof( WaveGuideUpdateModuleData, m_randomSplashSound ) },
+		{ "RandomSplashSound", INIParsers::parseAudioEventRTS, NULL, offsetof( WaveGuideUpdateModuleData, m_randomSplashSound ) },
 		{ "RandomSplashSoundFrequency", INI::parseInt, NULL, offsetof( WaveGuideUpdateModuleData, m_randomSplashSoundFrequency ) },
-		{ "BridgeParticle",	INI::parseParticleSystemTemplate, NULL, offsetof( WaveGuideUpdateModuleData, m_bridgeParticle ) },
+		{ "BridgeParticle",	ParticleSystemManager::parseParticleSystemTemplate, NULL, offsetof( WaveGuideUpdateModuleData, m_bridgeParticle ) },
 		{ "BridgeParticleAngleFudge", INI::parseAngleReal, NULL, offsetof( WaveGuideUpdateModuleData, m_bridgeParticleAngleFudge ) },
-		{ "LoopingSound", INI::parseAudioEventRTS, NULL, offsetof( WaveGuideUpdateModuleData, m_loopingSound ) },
+		{ "LoopingSound", INIParsers::parseAudioEventRTS, NULL, offsetof( WaveGuideUpdateModuleData, m_loopingSound ) },
 		{ 0, 0, 0, 0 }
 	};
 

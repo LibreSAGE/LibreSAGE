@@ -39,6 +39,7 @@
 
 // FORWARD REFERENCES /////////////////////////////////////////////////////////////////////////////
 class ArmorStore;
+class INI;
 
 //-------------------------------------------------------------------------------------------------
 /** 
@@ -104,7 +105,7 @@ public:
 	ArmorStore();
 	~ArmorStore();
 
-	void init() { }
+	void init();
 	void reset() { }
 	void update() { }
 
@@ -112,6 +113,9 @@ public:
 		Find the Armor with the given name. If no such Armor exists, return null.
 	*/
 	const ArmorTemplate* findArmorTemplate(AsciiString name) const;
+
+	// INI field parser: resolve an ArmorTemplate name to a pointer (moved out of INI)
+	static void parseArmorTemplate( INI *ini, void *instance, void *store, const void *userData );
 
 	inline Armor makeArmor(const ArmorTemplate *tmpl) const
 	{

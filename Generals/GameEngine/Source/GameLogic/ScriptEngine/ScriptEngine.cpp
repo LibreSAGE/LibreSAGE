@@ -27,6 +27,7 @@
 // Author: John Ahlquist, Nov. 2001
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Common/GlobalData.h"
+#include "Common/INI.h"
 #include "GameLogic/LogicRandomValue.h"
 
 #include "Common/DataChunk.h"

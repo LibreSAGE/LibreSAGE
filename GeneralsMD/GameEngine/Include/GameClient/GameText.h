@@ -44,10 +44,10 @@
 
 #ifndef __GAMECLIENT_GAMETEXT_H_
 #define __GAMECLIENT_GAMETEXT_H_
-
+#include "Common/SubsystemInterface.h"
 
 //----------------------------------------------------------------------------
-//           Includes                                                      
+//           Includes
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
@@ -69,6 +69,8 @@ typedef std::vector<AsciiString> AsciiStringVec;
 	*/
 //===============================
 
+class INI;
+
 class GameTextInterface : public SubsystemInterface
 {
 
@@ -82,6 +84,9 @@ class GameTextInterface : public SubsystemInterface
 		virtual AsciiStringVec& getStringsWithLabelPrefix(AsciiString label) = 0;
 
 		virtual void					initMapStringFile( const AsciiString& filename ) = 0;
+
+		// INI field parser: translate a string label to its UNICODE text (formerly INI::parseAndTranslateLabel)
+		static void parseAndTranslateLabel( INI *ini, void *instance, void *store, const void *userData );
 };
 
 

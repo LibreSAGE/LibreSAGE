@@ -32,7 +32,10 @@
 #ifndef __SUBSYSTEMINTERFACE_H_
 #define __SUBSYSTEMINTERFACE_H_
 
-#include "Common/STLTypedefs.h"
+#include "Common/INI.h"
+#include "Common/STLTypedefs.h"	
+
+class Xfer;
 
 //-------------------------------------------------------------------------------------------------
 /** This is the abstract base class from which all game engine subsytems should derive from.
@@ -147,8 +150,8 @@ public:
 	SubsystemInterfaceList();
 	~SubsystemInterfaceList();
 
+	void initSubsystem(SubsystemInterface* sys, const char* path1, const char* path2, const char* dirpath, Xfer *pXfer, AsciiString name="");
 	void addSubsystem(SubsystemInterface* sys);
-	void addSubsystemToList(SubsystemInterface* sys);
 	void removeSubsystem(SubsystemInterface* sys);
 	void postProcessLoadAll();
 	void resetAll();

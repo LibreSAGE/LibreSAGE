@@ -28,6 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // USER INCLUDES //////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "GameLogic/LogicRandomValue.h"
 
 #include "Common/GameAudio.h"
@@ -119,21 +120,21 @@ HelicopterSlowDeathBehaviorModuleData::HelicopterSlowDeathBehaviorModuleData( vo
 		{ "FallHowFast", INI::parsePercentToReal, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_fallHowFast ) },
 		{ "MinBladeFlyOffDelay", INI::parseDurationReal, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_minBladeFlyOffDelay ) },
 		{ "MaxBladeFlyOffDelay", INI::parseDurationReal, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_maxBladeFlyOffDelay ) },
-		{ "AttachParticle", INI::parseParticleSystemTemplate, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_attachParticleSystem ) },
+		{ "AttachParticle", ParticleSystemManager::parseParticleSystemTemplate, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_attachParticleSystem ) },
 		{ "AttachParticleBone", INI::parseAsciiString, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_attachParticleBone ) },
 		{ "AttachParticleLoc", INI::parseCoord3D, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_attachParticleLoc ) },
 		{ "BladeObjectName", INI::parseAsciiString, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_bladeObjectName ) },
 		{ "BladeBoneName", INI::parseAsciiString, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_bladeBone ) },
-		{ "OCLEjectPilot", INI::parseObjectCreationList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_oclEjectPilot ) },
-		{ "FXBlade", INI::parseFXList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_fxBlade ) },
-		{ "OCLBlade", INI::parseObjectCreationList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_oclBlade ) },
-		{ "FXHitGround", INI::parseFXList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_fxHitGround ) },
-		{ "OCLHitGround", INI::parseObjectCreationList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_oclHitGround ) },
-		{ "FXFinalBlowUp", INI::parseFXList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_fxFinalBlowUp ) },
-		{ "OCLFinalBlowUp", INI::parseObjectCreationList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_oclFinalBlowUp ) },
+		{ "OCLEjectPilot", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_oclEjectPilot ) },
+		{ "FXBlade", FXListStore::parseFXList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_fxBlade ) },
+		{ "OCLBlade", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_oclBlade ) },
+		{ "FXHitGround", FXListStore::parseFXList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_fxHitGround ) },
+		{ "OCLHitGround", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_oclHitGround ) },
+		{ "FXFinalBlowUp", FXListStore::parseFXList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_fxFinalBlowUp ) },
+		{ "OCLFinalBlowUp", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_oclFinalBlowUp ) },
 		{ "DelayFromGroundToFinalDeath", INI::parseDurationReal, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_delayFromGroundToFinalDeath ) },
 		{ "FinalRubbleObject", INI::parseAsciiString, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_finalRubbleObject ) },
-		{ "SoundDeathLoop", INI::parseAudioEventRTS, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_deathSound) },
+		{ "SoundDeathLoop", INIParsers::parseAudioEventRTS, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_deathSound) },
 		{ "MaxBraking", INI::parseAccelerationReal, NULL, offsetof( HelicopterSlowDeathBehaviorModuleData, m_maxBraking) },
 
 		{ 0, 0, 0, 0 }

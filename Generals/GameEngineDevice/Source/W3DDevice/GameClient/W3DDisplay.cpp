@@ -150,6 +150,7 @@ protected:
 //=============================================================================
 StatDumpClass::StatDumpClass( const char *fname )
 {
+#ifdef _WIN32
 	char buffer[ _MAX_PATH ];
 	GetModuleFileName( NULL, buffer, sizeof( buffer ) );
 	char *pEnd = buffer + strlen( buffer );
@@ -165,6 +166,9 @@ StatDumpClass::StatDumpClass( const char *fname )
 	AsciiString fullPath;
 	fullPath.format( "%s\\%s", buffer, fname );
 	m_fp = fopen( fullPath.str(), "wt" );
+#else
+	m_fp = fopen( fname, "wt" );
+#endif
 }
 
 //=============================================================================

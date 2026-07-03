@@ -36,7 +36,9 @@
 #define _ObjectCreationList_H_
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "Common/STLTypedefs.h"
 #include "Common/GameMemory.h"
+#include "Common/SubsystemInterface.h"
 
 // FORWARD REFERENCES /////////////////////////////////////////////////////////////////////////////
 class ObjectCreationNugget;
@@ -192,7 +194,7 @@ public:
 	ObjectCreationListStore();
 	~ObjectCreationListStore();
 
-	void init() { }
+	void init();
 	void reset() { }
 	void update() { }
 
@@ -201,6 +203,8 @@ public:
 		return NULL if no such ObjectCreationList exists.
 	*/
 	const ObjectCreationList *findObjectCreationList(const char* name) const;
+	// INI field parser (relocated out of the commonized INI reader)
+	static void parseObjectCreationList( INI *ini, void *instance, void *store, const void *userData );
 	
 	static void parseObjectCreationListDefinition(INI* ini);
 
