@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     # The game expects that string literals are merged. So same content should have the same address
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fmerge-constants -fno-char8_t -Wno-invalid-offsetof")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmerge-constants -fno-char8_t -Wno-invalid-offsetof")
     # This legacy code type-puns heavily through incompatible pointer types (W3D/DirectX
     # vertex, matrix and color casts). Without -fno-strict-aliasing, GCC's -O2 aliasing
     # assumptions miscompile the rendering code, producing garbage/flashing 3D in release.
@@ -80,7 +80,7 @@ add_feature_info(Fontconfig SAGE_USE_FONTCONFIG "Use Fontconfig for font managem
 feature_summary(WHAT ALL)
 
 add_subdirectory(Common)
-add_subdirectory(Generals/Code)
-add_subdirectory(GeneralsMD/Code)
+add_subdirectory(Generals)
+add_subdirectory(GeneralsMD)
 
 include(cmake/Packaging.cmake)
