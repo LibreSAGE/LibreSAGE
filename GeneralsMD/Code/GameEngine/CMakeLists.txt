@@ -111,8 +111,6 @@ target_sources(
           Include/Common/XferDeepCRC.h
           Include/Common/XferLoad.h
           Include/Common/XferSave.h
-          Include/Common/Encrypt.h
-          Include/Common/string.h
           Include/Common/Version.h
           Include/GameClient/Anim2D.h
           Include/GameClient/AnimateWindowManager.h
@@ -580,14 +578,12 @@ target_sources(
           Source/Common/System/SaveGame/GameState.cpp
           Source/Common/System/SaveGame/GameStateMap.cpp
           Source/Common/System/Snapshot.cpp
-          Source/Common/System/String.cpp
           Source/Common/System/Trig.cpp
           Source/Common/System/Upgrade.cpp
           Source/Common/System/Xfer.cpp
           Source/Common/System/XferCRC.cpp
           Source/Common/System/XferLoad.cpp
           Source/Common/System/XferSave.cpp
-          Source/Common/System/Encrypt.cpp
           Source/Common/TerrainTypes.cpp
           Source/Common/Thing/DrawModule.cpp
           Source/Common/Thing/Module.cpp

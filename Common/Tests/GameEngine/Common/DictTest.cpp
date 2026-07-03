@@ -35,3 +35,33 @@ TEST(Dict, SetAndGetValues)
     dict.setUnicodeString(unicodeStringKey, unicodeValue);
     EXPECT_EQ(dict.getUnicodeString(unicodeStringKey), unicodeValue);
 }
+
+TEST(Dict, RemoveValue)
+{
+    NameKeyGenerator nkg;
+    nkg.init();
+    Dict dict;
+
+    // Test removing a value
+    NameKeyType key = nkg.nameToKey("keyToRemove");
+    dict.setInt(key, 100);
+    EXPECT_EQ(dict.getInt(key), 100);
+    dict.remove(key);
+    EXPECT_EQ(dict.getType(key), Dict::DICT_NONE);
+}
+
+TEST(Dict, ClearDict)
+{
+    NameKeyGenerator nkg;
+    nkg.init();
+    Dict dict;
+
+    // Test clearing the dictionary
+    NameKeyType key1 = nkg.nameToKey("key1");
+    NameKeyType key2 = nkg.nameToKey("key2");
+    dict.setInt(key1, 10);
+    dict.setBool(key2, false);
+    EXPECT_EQ(dict.getPairCount(), 2);
+    dict.clear();
+    EXPECT_EQ(dict.getPairCount(), 0);
+}

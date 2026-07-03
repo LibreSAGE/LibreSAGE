@@ -2,3 +2,4 @@ build/
 .vscode/
 *Log*.txt
 .DS_Store
+TODO.md

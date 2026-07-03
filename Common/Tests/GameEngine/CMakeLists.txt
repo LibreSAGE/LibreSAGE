@@ -5,6 +5,7 @@ add_executable(c_gameenginetest
     Common/AsciiStringTest.cpp
     Common/CRCTest.cpp
     Common/DictTest.cpp
+    Common/EncryptTest.cpp
     Common/NameKeyGeneratorTest.cpp
     Common/UnicodeStringTest.cpp
     MainStub.cpp

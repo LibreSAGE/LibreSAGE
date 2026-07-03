@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals Zero Hour(tm)
+**	Command & Conquer Generals(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,32 @@
 */
 
 ////////////////////////////////////////////////////////////////////////////////
-//																																						//
-//  (c) 2001-2003 Electronic Arts Inc.																				//
-//																																						//
+//                                                                            //
+//  (c) 2001-2003 Electronic Arts Inc.                                        //
+//                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
+// FILE: MiniLog.h /////////////////////////////////////////////////////////////
+// Alternative logging
+// Author: Matthew D. Campbell, January 2003
+////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+#include "Common/Debug.h"
+
+#ifdef DEBUG_LOGGING
+
+#include "Lib/BaseType.h"
+#include <cstdarg>
+class LogClass
+{
+public:
+	LogClass(const char *fname);
+	~LogClass();
+	void log(const char *fmt, ...);
+
+protected:
+	FILE *m_fp;
+};
+
+#endif // DEBUG_LOGGING

@@ -10,6 +10,7 @@ target_sources(c_gameengine
     Include/Common/CriticalSection.h
     Include/Common/Debug.h
     Include/Common/Dict.h
+    Include/Common/Encrypt.h
     Include/Common/Errors.h
     Include/Common/FileSystem.h
     Include/Common/GameCommon.h
@@ -29,6 +30,7 @@ target_sources(c_gameengine
     Source/Common/System/AsciiString.cpp
     Source/Common/System/CriticalSection.cpp
     Source/Common/System/Debug.cpp
+    Source/Common/System/Encrypt.cpp
     Source/Common/System/File.cpp
     Source/Common/System/FileSystem.cpp
     Source/Common/System/GameMemory.cpp
