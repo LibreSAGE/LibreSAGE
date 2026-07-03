@@ -15,6 +15,7 @@ target_sources(c_gameengine
     Include/Common/FileSystem.h
     Include/Common/GameCommon.h
     Include/Common/GameMemory.h
+    Include/Common/INIException.h
     Include/Common/LocalFile.h
     Include/Common/LocalFileSystem.h
     Include/Common/NameKeyGenerator.h
