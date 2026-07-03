@@ -2680,7 +2680,9 @@ MemoryPool *MemoryPoolFactory::findMemoryPool(const char *poolName)
 	{
 		if (!strcmp(poolName, pool->getPoolName())) 
 		{
-			DEBUG_ASSERTCRASH(poolName == pool->getPoolName(), ("hmm, ptrs should probably match here"));
+			// This assumption is not valid, when no constant merging is applied
+			// The same string can have different addresses, so we cannot assert that the pointers are equal
+			//DEBUG_ASSERTCRASH(poolName == pool->getPoolName(), ("hmm, ptrs should probably match here"));
 			return pool;
 		}
 	}
