@@ -27,6 +27,7 @@
 // Desc:   Update module to handle weapon firing of the SpectreGunship Generals special power.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/SpecialPower.h"
 #include "GameLogic/LogicRandomValue.h"
 
 #define DEFINE_DEATH_NAMES
@@ -107,7 +108,7 @@ static Real zero = 0.0f;
 
 	static const FieldParse dataFieldParse[] = 
 	{
-    { "SpecialPowerTemplate",           INI::parseSpecialPowerTemplate,   NULL, offsetof( SpectreGunshipUpdateModuleData, m_specialPowerTemplate ) },
+    { "SpecialPowerTemplate",           SpecialPowerStore::parseSpecialPowerTemplate,   NULL, offsetof( SpectreGunshipUpdateModuleData, m_specialPowerTemplate ) },
     { "GattlingTemplateName",           INI::parseAsciiString,				    NULL, offsetof( SpectreGunshipUpdateModuleData, m_gattlingTemplateName ) },
 		{ "HowitzerFiringRate",	            INI::parseDurationUnsignedInt,    NULL, offsetof( SpectreGunshipUpdateModuleData, m_howitzerFiringRate ) },
 		{ "OrbitTime",	                    INI::parseDurationUnsignedInt,		NULL, offsetof( SpectreGunshipUpdateModuleData, m_orbitFrames ) },
@@ -118,8 +119,8 @@ static Real zero = 0.0f;
 		{ "RandomOffsetForHowitzer",        INI::parseReal,	                  NULL, offsetof( SpectreGunshipUpdateModuleData, m_randomOffsetForHowitzer ) },
 		{ "TargetingReticleRadius",	        INI::parseReal,				            NULL, offsetof( SpectreGunshipUpdateModuleData, m_targetingReticleRadius ) },
 		{ "GunshipOrbitRadius",	            INI::parseReal,				            NULL, offsetof( SpectreGunshipUpdateModuleData, m_gunshipOrbitRadius ) },
-		{ "HowitzerWeaponTemplate",				  INI::parseWeaponTemplate,				  NULL, offsetof( SpectreGunshipUpdateModuleData, m_howitzerWeaponTemplate ) },
-		{ "GattlingStrafeFXParticleSystem",	INI::parseParticleSystemTemplate, NULL, offsetof( SpectreGunshipUpdateModuleData, m_gattlingStrafeFXParticleSystem ) },
+		{ "HowitzerWeaponTemplate",				  WeaponStore::parseWeaponTemplate,				  NULL, offsetof( SpectreGunshipUpdateModuleData, m_howitzerWeaponTemplate ) },
+		{ "GattlingStrafeFXParticleSystem",	ParticleSystemManager::parseParticleSystemTemplate, NULL, offsetof( SpectreGunshipUpdateModuleData, m_gattlingStrafeFXParticleSystem ) },
 		{ "AttackAreaDecal",		            RadiusDecalTemplate::parseRadiusDecalTemplate,	NULL, offsetof( SpectreGunshipUpdateModuleData, m_attackAreaDecalTemplate ) },
 		{ "TargetingReticleDecal",		      RadiusDecalTemplate::parseRadiusDecalTemplate,	NULL, offsetof( SpectreGunshipUpdateModuleData, m_targetingReticleDecalTemplate ) },
     

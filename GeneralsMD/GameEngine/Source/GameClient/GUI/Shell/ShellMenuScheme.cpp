@@ -53,6 +53,7 @@
 #include "Common/SubsystemInterface.h"
 
 #include "Common/INI.h"
+#include "GameClient/Image.h"
 #include "GameClient/ShellMenuScheme.h"
 #include "GameClient/Shell.h"
 #include "GameClient/Display.h"
@@ -227,7 +228,7 @@ void ShellMenuSchemeManager::parseImagePart(INI *ini, void *instance, void* /*st
 		{
 			{ "Position",				INI::parseICoord2D,				NULL, offsetof( ShellMenuSchemeImage, m_position ) },
 			{ "Size",						INI::parseICoord2D,				NULL, offsetof( ShellMenuSchemeImage, m_size ) },
-      { "ImageName",			INI::parseMappedImage,		NULL, offsetof( ShellMenuSchemeImage, m_image ) },
+      { "ImageName",			ImageCollection::parseMappedImage,		NULL, offsetof( ShellMenuSchemeImage, m_image ) },
 			{ NULL,							NULL,											NULL, 0 }  // keep this last
 		};
 

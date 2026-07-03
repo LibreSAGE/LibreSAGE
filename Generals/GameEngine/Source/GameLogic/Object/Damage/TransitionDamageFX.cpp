@@ -155,7 +155,7 @@ void TransitionDamageFXModuleData::parseFXList( INI *ini, void *instance,
 	}  // end if
 
 	// parse the fx list name
-	ini->parseFXList( ini, instance, &info->fx, NULL );
+	FXListStore::parseFXList( ini, instance, &info->fx, NULL );
 
 }  // end parseFXList
 
@@ -183,7 +183,7 @@ void TransitionDamageFXModuleData::parseObjectCreationList( INI *ini, void *inst
 	}  // end if
 
 	// parse the ocl name
-	ini->parseObjectCreationList( ini, instance, store, &info->ocl );
+	ObjectCreationListStore::parseObjectCreationList( ini, instance, store, &info->ocl );
 
 }  // end parseObjectCreationList
 
@@ -211,7 +211,7 @@ void TransitionDamageFXModuleData::parseParticleSystem( INI *ini, void *instance
 	}  // end if
 
 	// parse the particle system name
-	ini->parseParticleSystemTemplate( ini, instance, store, &info->particleSysTemplate );
+	ParticleSystemManager::parseParticleSystemTemplate( ini, instance, store, &info->particleSysTemplate );
 
 }  // end parseParticleSystem
 

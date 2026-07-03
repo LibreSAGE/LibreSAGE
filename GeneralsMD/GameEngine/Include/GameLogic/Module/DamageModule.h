@@ -32,6 +32,7 @@
 #ifndef __DamageModule_H_
 #define __DamageModule_H_
 
+#include "Common/INIParsers.h"
 #include "Common/Module.h"
 #include "GameLogic/Damage.h"
 #include "GameLogic/Module/BehaviorModule.h"
@@ -73,7 +74,7 @@ public:
 
 		static const FieldParse dataFieldParse[] = 
 		{
-//			{ "DamageTypes", INI::parseDamageTypeFlags, NULL, offsetof( DamageModuleData, m_damageTypes ) },
+//			{ "DamageTypes", INIParsers::parseDamageTypeFlags, NULL, offsetof( DamageModuleData, m_damageTypes ) },
 			{ 0, 0, 0, 0 }
 		};
 

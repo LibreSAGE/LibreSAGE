@@ -30,6 +30,7 @@
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #define DEFINE_OBJECT_STATUS_NAMES
+#include "GameLogic/Weapon.h"
 #include "Common/Xfer.h"
 #include "GameLogic/Object.h"
 #include "GameLogic/Module/FireWeaponCollide.h"
@@ -42,7 +43,7 @@ void FireWeaponCollideModuleData::buildFieldParse(MultiIniFieldParse& p)
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "CollideWeapon",		INI::parseWeaponTemplate,						NULL, offsetof( FireWeaponCollideModuleData, m_collideWeaponTemplate ) },
+		{ "CollideWeapon",		WeaponStore::parseWeaponTemplate,						NULL, offsetof( FireWeaponCollideModuleData, m_collideWeaponTemplate ) },
 		{ "FireOnce",					INI::parseBool,											NULL, offsetof( FireWeaponCollideModuleData, m_fireOnce ) },
 		{ "RequiredStatus",		ObjectStatusMaskType::parseFromINI,	NULL, offsetof( FireWeaponCollideModuleData, m_requiredStatus ) },
 		{ "ForbiddenStatus",	ObjectStatusMaskType::parseFromINI,	NULL, offsetof( FireWeaponCollideModuleData, m_forbiddenStatus ) },

@@ -35,6 +35,7 @@
 #define __HIVE_STRUCTURE_BODY_H
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "GameLogic/Module/StructureBody.h"
 #include "GameLogic/Damage.h"
 
@@ -54,8 +55,8 @@ public:
     StructureBodyModuleData::buildFieldParse(p);
 		static const FieldParse dataFieldParse[] = 
 		{
-			{ "PropagateDamageTypesToSlavesWhenExisting",   INI::parseDamageTypeFlags, NULL, offsetof( HiveStructureBodyModuleData, m_damageTypesToPropagateToSlaves ) },
-			{ "SwallowDamageTypesIfSlavesNotExisting",			INI::parseDamageTypeFlags, NULL, offsetof( HiveStructureBodyModuleData, m_damageTypesToSwallow ) },
+			{ "PropagateDamageTypesToSlavesWhenExisting",   INIParsers::parseDamageTypeFlags, NULL, offsetof( HiveStructureBodyModuleData, m_damageTypesToPropagateToSlaves ) },
+			{ "SwallowDamageTypesIfSlavesNotExisting",			INIParsers::parseDamageTypeFlags, NULL, offsetof( HiveStructureBodyModuleData, m_damageTypesToSwallow ) },
 			{ 0, 0, 0, 0 }
 		};
     p.add(dataFieldParse);

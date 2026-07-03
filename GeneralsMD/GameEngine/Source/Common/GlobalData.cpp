@@ -1164,6 +1164,8 @@ GlobalData *GlobalData::newOverride( void )
 //-------------------------------------------------------------------------------------------------
 void GlobalData::init( void )
 {
+	INI::registerBlockParse( "GameData", INI::parseGameDataDefinition );
+
 	// nothing
 }
 

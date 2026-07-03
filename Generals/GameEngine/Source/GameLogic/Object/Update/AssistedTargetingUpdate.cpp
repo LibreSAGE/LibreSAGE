@@ -48,8 +48,8 @@ void AssistedTargetingUpdateModuleData::buildFieldParse(MultiIniFieldParse& p)
 	{
 		{ "AssistingClipSize",		INI::parseInt,		NULL, offsetof( AssistedTargetingUpdateModuleData, m_clipSize ) },
 		{ "AssistingWeaponSlot",	INI::parseLookupList,	TheWeaponSlotTypeNamesLookupList, offsetof( AssistedTargetingUpdateModuleData, m_weaponSlot ) },
-		{ "LaserFromAssisted",		INI::parseThingTemplate,				NULL, offsetof( AssistedTargetingUpdateModuleData, m_laserFromAssisted ) },
-		{ "LaserToTarget",				INI::parseThingTemplate,				NULL, offsetof( AssistedTargetingUpdateModuleData, m_laserToTarget ) },
+		{ "LaserFromAssisted",		ThingFactory::parseThingTemplate,				NULL, offsetof( AssistedTargetingUpdateModuleData, m_laserFromAssisted ) },
+		{ "LaserToTarget",				ThingFactory::parseThingTemplate,				NULL, offsetof( AssistedTargetingUpdateModuleData, m_laserToTarget ) },
 		{ 0, 0, 0, 0 }
 	};
   p.add(dataFieldParse);

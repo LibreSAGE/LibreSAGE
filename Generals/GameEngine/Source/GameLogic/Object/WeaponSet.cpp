@@ -120,7 +120,7 @@ void WeaponTemplateSet::parseWeapon(INI* ini, void *instance, void * /*store*/, 
 {
 	WeaponTemplateSet* self = (WeaponTemplateSet*)instance;
 	WeaponSlotType wslot = (WeaponSlotType)INI::scanIndexList(ini->getNextToken(), TheWeaponSlotTypeNames);
-	INI::parseWeaponTemplate(ini, instance, &self->m_template[wslot], NULL);
+	WeaponStore::parseWeaponTemplate(ini, instance, &self->m_template[wslot], NULL);
 }
 
 //-------------------------------------------------------------------------------------------------

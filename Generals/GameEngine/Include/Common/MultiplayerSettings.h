@@ -79,7 +79,7 @@ public:
 
 	MultiplayerSettings( void );
 
-	void init() { }
+	void init();
 	void update() { }
 	void reset() { }
 

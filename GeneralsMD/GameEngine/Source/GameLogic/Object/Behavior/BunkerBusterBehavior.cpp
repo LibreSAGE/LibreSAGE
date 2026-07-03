@@ -28,6 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "GameClient/FXList.h"
 #include "Common/KindOf.h"
 #include "Common/Upgrade.h"
 #include "Common/Player.h"
@@ -79,13 +80,13 @@ BunkerBusterBehaviorModuleData::BunkerBusterBehaviorModuleData( void )
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "UpgradeRequired",	              INI::parseAsciiString,	        NULL, offsetof( BunkerBusterBehaviorModuleData, m_upgradeRequired ) },
-		{ "DetonationFX",			              INI::parseFXList,				        NULL, offsetof( BunkerBusterBehaviorModuleData, m_detonationFX ) },
-		{ "CrashThroughBunkerFX",			      INI::parseFXList,				        NULL, offsetof( BunkerBusterBehaviorModuleData, m_crashThroughBunkerFX ) },
+		{ "DetonationFX",			              FXListStore::parseFXList,				        NULL, offsetof( BunkerBusterBehaviorModuleData, m_detonationFX ) },
+		{ "CrashThroughBunkerFX",			      FXListStore::parseFXList,				        NULL, offsetof( BunkerBusterBehaviorModuleData, m_crashThroughBunkerFX ) },
 		{ "CrashThroughBunkerFXFrequency",	INI::parseDurationUnsignedInt,	NULL, offsetof( BunkerBusterBehaviorModuleData, m_crashThroughBunkerFXFrequency ) },
 		{ "SeismicEffectRadius",			      INI::parseReal,				          NULL, offsetof( BunkerBusterBehaviorModuleData, m_seismicEffectRadius ) },
 		{ "SeismicEffectMagnitude",	        INI::parseReal,	                NULL, offsetof( BunkerBusterBehaviorModuleData, m_seismicEffectMagnitude ) },
-    { "ShockwaveWeaponTemplate",        INI::parseWeaponTemplate,       NULL, offsetof( BunkerBusterBehaviorModuleData, m_shockwaveWeaponTemplate ) },
-    { "OccupantDamageWeaponTemplate",   INI::parseWeaponTemplate,       NULL, offsetof( BunkerBusterBehaviorModuleData, m_occupantDamageWeaponTemplate ) },
+    { "ShockwaveWeaponTemplate",        WeaponStore::parseWeaponTemplate,       NULL, offsetof( BunkerBusterBehaviorModuleData, m_shockwaveWeaponTemplate ) },
+    { "OccupantDamageWeaponTemplate",   WeaponStore::parseWeaponTemplate,       NULL, offsetof( BunkerBusterBehaviorModuleData, m_occupantDamageWeaponTemplate ) },
 
 		{ 0, 0, 0, 0 }
 	};

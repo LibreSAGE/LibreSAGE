@@ -52,7 +52,7 @@ void W3DScienceModelDrawModuleData::buildFieldParse(MultiIniFieldParse& p)
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "RequiredScience", INI::parseScience, NULL, offsetof(W3DScienceModelDrawModuleData, m_requiredScience) },
+		{ "RequiredScience", ScienceStore::parseScience, NULL, offsetof(W3DScienceModelDrawModuleData, m_requiredScience) },
 
 		{ 0, 0, 0, 0 }
 	};

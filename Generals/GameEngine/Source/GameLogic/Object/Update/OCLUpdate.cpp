@@ -55,7 +55,7 @@ OCLUpdateModuleData::OCLUpdateModuleData()
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "OCL",					INI::parseObjectCreationList,		NULL, offsetof( OCLUpdateModuleData, m_ocl ) },
+		{ "OCL",					ObjectCreationListStore::parseObjectCreationList,		NULL, offsetof( OCLUpdateModuleData, m_ocl ) },
 		{ "MinDelay",			INI::parseDurationUnsignedInt,	NULL, offsetof( OCLUpdateModuleData, m_minDelay ) },
 		{ "MaxDelay",			INI::parseDurationUnsignedInt,	NULL, offsetof( OCLUpdateModuleData, m_maxDelay ) },
 		{ "CreateAtEdge",	INI::parseBool,									NULL, offsetof( OCLUpdateModuleData, m_isCreateAtEdge ) },

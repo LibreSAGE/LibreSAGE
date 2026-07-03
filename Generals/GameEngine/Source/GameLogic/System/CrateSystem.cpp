@@ -33,6 +33,7 @@
 #define DEFINE_VETERANCY_NAMES				// for TheVeterancyNames[]
 
 #include "GameLogic/CrateSystem.h"
+#include "Common/Science.h"			// for ScienceStore::parseScience
 #include "Common/BitFlagsIO.h"
 
 CrateSystem *TheCrateSystem = NULL;
@@ -58,6 +59,8 @@ CrateSystem::~CrateSystem()
 
 void CrateSystem::init( void )
 {
+	INI::registerBlockParse( "CrateData", INI::parseCrateTemplateDefinition );
+
 	reset();
 }
 
@@ -187,7 +190,7 @@ const FieldParse CrateTemplate::TheCrateTemplateFieldParseTable[] =
 	{ "VeterancyLevel",		INI::parseIndexList,										TheVeterancyNames,		offsetof( CrateTemplate, m_veterancyLevel ) },
 	{ "KilledByType",			KindOfMaskType::parseFromINI,												NULL,									offsetof( CrateTemplate, m_killedByTypeKindof) },
 	{ "CrateObject",			CrateTemplate::parseCrateCreationEntry,	NULL,									NULL },
-	{ "KillerScience",		INI::parseScience,											NULL,									offsetof( CrateTemplate, m_killerScience) },
+	{ "KillerScience",		ScienceStore::parseScience,											NULL,									offsetof( CrateTemplate, m_killerScience) },
 	{ "OwnedByMaker",			INI::parseBool,													NULL,									offsetof( CrateTemplate, m_isOwnedByMaker) },
 	{ NULL,								NULL,																		NULL,									NULL },		// keep this last!
 };

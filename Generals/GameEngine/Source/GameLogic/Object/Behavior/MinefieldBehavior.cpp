@@ -80,7 +80,7 @@ MinefieldBehaviorModuleData::MinefieldBehaviorModuleData()
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "DetonationWeapon", INI::parseWeaponTemplate,	NULL, offsetof( MinefieldBehaviorModuleData, m_detonationWeapon ) },
+		{ "DetonationWeapon", WeaponStore::parseWeaponTemplate,	NULL, offsetof( MinefieldBehaviorModuleData, m_detonationWeapon ) },
 		{ "DetonatedBy", INI::parseBitString32, TheRelationshipNames, offsetof( MinefieldBehaviorModuleData, m_detonatedBy ) },
 		{ "StopsRegenAfterCreatorDies", INI::parseBool, NULL, offsetof( MinefieldBehaviorModuleData, m_stopsRegenAfterCreatorDies ) },
 		{ "Regenerates", INI::parseBool, NULL, offsetof( MinefieldBehaviorModuleData, m_regenerates ) },

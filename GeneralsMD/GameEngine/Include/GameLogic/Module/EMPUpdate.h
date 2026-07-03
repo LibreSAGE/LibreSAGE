@@ -33,6 +33,7 @@
 #define __EMPUPDATE_H_
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "GameClient/ParticleSys.h"
 #include "GameLogic/Module/UpdateModule.h"
 #include "GameLogic/Module/DieModule.h"
 #include "GameLogic/Weapon.h"
@@ -95,7 +96,7 @@ public:
 			{ "TargetScaleMin",	INI::parseReal,										NULL, offsetof( EMPUpdateModuleData, m_targetScaleMin ) },
 			{ "StartColor",	INI::parseRGBColor,			NULL, offsetof( EMPUpdateModuleData, m_startColor ) },
 			{ "EndColor",	INI::parseRGBColor,				NULL, offsetof( EMPUpdateModuleData, m_endColor ) },
-			{ "DisableFXParticleSystem",		INI::parseParticleSystemTemplate, NULL, offsetof( EMPUpdateModuleData, m_disableFXParticleSystem ) },
+			{ "DisableFXParticleSystem",		ParticleSystemManager::parseParticleSystemTemplate, NULL, offsetof( EMPUpdateModuleData, m_disableFXParticleSystem ) },
 			{ "SparksPerCubicFoot",		INI::parseReal, NULL, offsetof( EMPUpdateModuleData, m_sparksPerCubicFoot ) },
 			{ "EffectRadius",	INI::parseReal,										NULL, offsetof( EMPUpdateModuleData, m_effectRadius ) },
 			{ "DoesNotAffect", INI::parseBitString32,	TheWeaponAffectsMaskNames, offsetof(EMPUpdateModuleData, m_rejectMask) },
@@ -180,7 +181,7 @@ public:
 			{ "Delay",	        INI::parseDurationUnsignedInt,	NULL, offsetof( LeafletDropBehaviorModuleData, m_delayFrames ) },
 			{ "DisabledDuration",	INI::parseDurationUnsignedInt,	NULL, offsetof( LeafletDropBehaviorModuleData, m_disabledDuration ) },
       { "AffectRadius",     INI::parseReal,                 NULL, offsetof( LeafletDropBehaviorModuleData, m_radius ) },
-      { "LeafletFXParticleSystem", INI::parseParticleSystemTemplate,  NULL, offsetof( LeafletDropBehaviorModuleData, m_leafletFXParticleSystem ) },
+      { "LeafletFXParticleSystem", ParticleSystemManager::parseParticleSystemTemplate,  NULL, offsetof( LeafletDropBehaviorModuleData, m_leafletFXParticleSystem ) },
 
 
 

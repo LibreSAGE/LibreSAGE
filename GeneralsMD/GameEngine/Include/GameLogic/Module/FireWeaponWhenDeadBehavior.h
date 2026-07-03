@@ -34,6 +34,7 @@
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 
+#include "GameLogic/Weapon.h"
 #include "GameLogic/Module/BehaviorModule.h"
 #include "GameLogic/Module/DieModule.h"
 #include "GameLogic/Module/UpgradeModule.h"
@@ -59,7 +60,7 @@ public:
 		static const FieldParse dataFieldParse[] = 
 		{
 			{ "StartsActive",	INI::parseBool, NULL, offsetof( FireWeaponWhenDeadBehaviorModuleData, m_initiallyActive ) },
-			{ "DeathWeapon", INI::parseWeaponTemplate,	NULL, offsetof( FireWeaponWhenDeadBehaviorModuleData, m_deathWeapon ) },
+			{ "DeathWeapon", WeaponStore::parseWeaponTemplate,	NULL, offsetof( FireWeaponWhenDeadBehaviorModuleData, m_deathWeapon ) },
 			{ 0, 0, 0, 0 }
 		};
 

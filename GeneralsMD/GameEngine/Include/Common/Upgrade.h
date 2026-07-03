@@ -241,6 +241,9 @@ public:
 	const UpgradeTemplate *findUpgrade( const AsciiString& name ) const;				///< find and return upgrade by name
 	const UpgradeTemplate *findVeterancyUpgrade(VeterancyLevel level) const;				///< find and return upgrade by name
 
+	// INI field parser: resolve an UpgradeTemplate name to a pointer (moved out of INI)
+	static void parseUpgradeTemplate( INI *ini, void *instance, void *store, const void *userData );
+
 	UpgradeTemplate *newUpgrade( const AsciiString& name );				///< allocate, link, and return new upgrade
 
 	/// does this player have all the necessary things to make this upgrade

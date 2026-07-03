@@ -144,8 +144,37 @@ const ArmorTemplate* ArmorStore::findArmorTemplate(AsciiString name) const
 }
 
 //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+void ArmorStore::init( void )
+{
+	INI::registerBlockParse( "Armor", INI::parseArmorDefinition );
+}
+
 /*static*/ void INI::parseArmorDefinition(INI *ini)
 {
 	ArmorStore::parseArmorDefinition(ini);
 }
 
+
+//-------------------------------------------------------------------------------------------------
+/** Parse an ArmorTemplate name and assign the pointer at store (formerly ArmorStore::parseArmorTemplate) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void ArmorStore::parseArmorTemplate( INI* ini, void * /*instance*/, void *store, const void* /*userData*/ )
+{
+	const char *token = ini->getNextToken();
+
+	typedef const ArmorTemplate *ConstArmorTemplatePtr;
+	ConstArmorTemplatePtr* theArmorTemplate = (ConstArmorTemplatePtr*)store;
+
+	if (stricmp(token, "None") == 0)
+	{
+		*theArmorTemplate = NULL;
+	}
+	else
+	{
+		const ArmorTemplate *tt = TheArmorStore->findArmorTemplate(token);	// could be null!
+		DEBUG_ASSERTCRASH(tt, ("ArmorTemplate %s not found!\n",token));
+		// assign it, even if null!
+		*theArmorTemplate = tt;
+	}
+}

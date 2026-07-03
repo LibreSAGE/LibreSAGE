@@ -53,6 +53,15 @@ const FieldParse MultiplayerColorDefinition::m_colorFieldParseTable[] =
 
 };
 
+//-------------------------------------------------------------------------------------------------
+void MultiplayerSettings::init( void )
+{
+	INI::registerBlockParse( "MultiplayerColor", INI::parseMultiplayerColorDefinition );
+	INI::registerBlockParse( "MultiplayerSettings", INI::parseMultiplayerSettingsDefinition );
+	INI::registerBlockParse( "MultiplayerStartingMoneyChoice", INI::parseMultiplayerStartingMoneyChoiceDefinition );
+	INI::registerBlockParse( "OnlineChatColors", INI::parseOnlineChatColorDefinition );
+}
+
 const FieldParse MultiplayerSettings::m_multiplayerSettingsFieldParseTable[] = 
 {
 

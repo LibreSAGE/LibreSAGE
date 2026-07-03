@@ -27,6 +27,7 @@
 // Author: John Ahlquist, Nov. 2001
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Common/GlobalData.h"
+#include "Common/INI.h"
 #include "GameLogic/LogicRandomValue.h"
 
 #include "Common/DataChunk.h"
@@ -546,6 +547,9 @@ ScriptEngine::~ScriptEngine()
 //-------------------------------------------------------------------------------------------------
 void ScriptEngine::init( void )
 {
+	INI::registerBlockParse("ScriptAction", ScriptEngine::parseScriptAction);
+	INI::registerBlockParse("ScriptCondition", ScriptEngine::parseScriptCondition);
+
 	if (TheGlobalData->m_windowed)
 		if (TheGlobalData->m_scriptDebug) {
 			st_DebugDLL = SDL_LoadObject(DEBUG_WINDOW_LIB);

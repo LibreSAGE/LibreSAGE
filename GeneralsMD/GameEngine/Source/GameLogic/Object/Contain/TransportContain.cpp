@@ -238,7 +238,7 @@ void TransportContain::letRidersUpgradeWeaponSet( void )
 		ContainedItemsList::const_iterator it;
 		it = riderList->begin();
 
-		while( *it )
+		while( it != riderList->end() )
 		{
 			Object *rider = *it;
 

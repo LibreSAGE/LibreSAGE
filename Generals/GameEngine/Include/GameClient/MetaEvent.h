@@ -367,7 +367,7 @@ public:
 	MetaMap();
 	~MetaMap();
 
-	void init() { }
+	void init();
 	void reset() { }
 	void update() { }
 

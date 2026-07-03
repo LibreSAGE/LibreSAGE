@@ -64,7 +64,7 @@ void parseFactionObjectCreationList( INI *ini, void *instance, void *store, cons
 
 	token = ini->getNextTokenOrNull( ini->getSepsColon() );
 	if ( stricmp(token, "OCL") == 0 )
-		ini->parseObjectCreationList( ini, instance, &info.m_ocl, NULL );
+		ObjectCreationListStore::parseObjectCreationList( ini, instance, &info.m_ocl, NULL );
 	else
 		throw INI_INVALID_DATA;
 
@@ -92,7 +92,7 @@ OCLUpdateModuleData::OCLUpdateModuleData()
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "OCL",					INI::parseObjectCreationList,		NULL, offsetof( OCLUpdateModuleData, m_ocl ) },
+		{ "OCL",					ObjectCreationListStore::parseObjectCreationList,		NULL, offsetof( OCLUpdateModuleData, m_ocl ) },
 		{ "FactionOCL",		parseFactionObjectCreationList,	NULL, offsetof( OCLUpdateModuleData, m_factionOCL ) },
 		{ "MinDelay",			INI::parseDurationUnsignedInt,	NULL, offsetof( OCLUpdateModuleData, m_minDelay ) },
 		{ "MaxDelay",			INI::parseDurationUnsignedInt,	NULL, offsetof( OCLUpdateModuleData, m_maxDelay ) },

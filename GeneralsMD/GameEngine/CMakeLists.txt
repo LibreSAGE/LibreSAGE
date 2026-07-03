@@ -45,7 +45,7 @@ target_sources(
           Include/Common/Geometry.h
           Include/Common/GlobalData.h
           Include/Common/Handicap.h
-          Include/Common/INI.h
+          Include/Common/INIParsers.h
           Include/Common/IgnorePreferences.h
           Include/Common/KindOf.h
           Include/Common/LadderPreferences.h
@@ -116,7 +116,6 @@ target_sources(
           Include/GameClient/CDCheck.h
           Include/GameClient/CampaignManager.h
           Include/GameClient/ClientRandomValue.h
-          Include/GameClient/Color.h
           Include/GameClient/CommandXlat.h
           Include/GameClient/ControlBar.h
           Include/GameClient/ControlBarResizer.h
@@ -215,7 +214,6 @@ target_sources(
           Include/GameLogic/CrateSystem.h
           Include/GameLogic/Damage.h
           Include/GameLogic/ExperienceTracker.h
-          Include/GameLogic/FPUControl.h
           Include/GameLogic/FiringTracker.h
           Include/GameLogic/GameLogic.h
           Include/GameLogic/GhostObject.h
@@ -503,7 +501,6 @@ target_sources(
           Source/Common/GameLOD.cpp
           Source/Common/GameMain.cpp
           Source/Common/GlobalData.cpp
-          Source/Common/INI/INI.cpp
           Source/Common/INI/INIAiData.cpp
           Source/Common/INI/INIAnimation.cpp
           Source/Common/INI/INIAudioEventInfo.cpp
@@ -521,6 +518,7 @@ target_sources(
           Source/Common/INI/INIModel.cpp
           Source/Common/INI/INIMultiplayer.cpp
           Source/Common/INI/INIObject.cpp
+          Source/Common/INI/INIParsers.cpp
           Source/Common/INI/INIParticleSys.cpp
           Source/Common/INI/INISpecialPower.cpp
           Source/Common/INI/INITerrain.cpp
@@ -592,7 +590,6 @@ target_sources(
           Source/Common/Thing/ThingTemplate.cpp
           Source/Common/UserPreferences.cpp
           Source/Common/Version.cpp
-          Source/GameClient/Color.cpp
           Source/GameClient/Credits.cpp
           Source/GameClient/Display.cpp
           Source/GameClient/DisplayString.cpp

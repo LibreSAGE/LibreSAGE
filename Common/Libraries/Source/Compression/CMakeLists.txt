@@ -24,7 +24,7 @@ target_sources(
 
 set_target_properties(c_compression PROPERTIES OUTPUT_NAME "Compression")
 
-target_link_libraries(c_compression PRIVATE c_library_include)
+target_link_libraries(c_compression PUBLIC c_library_include)
 target_include_directories(c_compression PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ZLIB

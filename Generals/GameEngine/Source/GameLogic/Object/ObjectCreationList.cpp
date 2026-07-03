@@ -39,6 +39,7 @@
 #include "Common/DrawModule.h"
 #include "Common/GlobalData.h"
 #include "Common/INI.h"
+#include "Common/INIParsers.h"
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
 #include "Common/ThingTemplate.h"
@@ -146,7 +147,7 @@ public:
 	{
 		static const FieldParse myFieldParse[] = 
 		{
-			{ "Weapon", INI::parseWeaponTemplate,	NULL, offsetof( FireWeaponNugget, m_weapon ) },
+			{ "Weapon", WeaponStore::parseWeaponTemplate,	NULL, offsetof( FireWeaponNugget, m_weapon ) },
 			{ 0, 0, 0, 0 }
 		};
 
@@ -863,11 +864,11 @@ public:
 			{ "ModelNames",							parseDebrisObjectNames,							NULL,					0 },
 			{ "Mass",										INI::parsePositiveNonZeroReal,			NULL,					offsetof( GenericObjectCreationNugget, m_mass ) },
 			{ "AnimationSet",						parseAnimSet,												NULL,					offsetof( GenericObjectCreationNugget, m_animSets) },
-			{ "FXFinal",								INI::parseFXList,										NULL,					offsetof( GenericObjectCreationNugget, m_fxFinal) },
+			{ "FXFinal",								FXListStore::parseFXList,										NULL,					offsetof( GenericObjectCreationNugget, m_fxFinal) },
 			{ "OkToChangeModelColor",		INI::parseBool,											NULL,					offsetof(GenericObjectCreationNugget, m_okToChangeModelColor) },
 			{ "MinLODRequired",					INI::parseStaticGameLODLevel,				NULL,					offsetof(GenericObjectCreationNugget, m_minLODRequired) },
 			{ "Shadow",									INI::parseBitString32,							TheShadowNames,	offsetof( GenericObjectCreationNugget, m_shadowType ) },
-			{ "BounceSound",						INI::parseAudioEventRTS,						NULL,					offsetof( GenericObjectCreationNugget, m_bounceSound) },
+			{ "BounceSound",						INIParsers::parseAudioEventRTS,						NULL,					offsetof( GenericObjectCreationNugget, m_bounceSound) },
 			{ 0, 0, 0, 0 }
 		};
 
@@ -1488,7 +1489,26 @@ void ObjectCreationListStore::addObjectCreationNugget(ObjectCreationNugget* nugg
 }
 
 //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+void ObjectCreationListStore::init( void )
+{
+	INI::registerBlockParse( "ObjectCreationList", INI::parseObjectCreationListDefinition );
+}
+
 /*static*/ void INI::parseObjectCreationListDefinition(INI *ini)
 {
 	ObjectCreationListStore::parseObjectCreationListDefinition(ini);
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Parse an ObjectCreationList name and assign the pointer at store (relocated out of INI) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void ObjectCreationListStore::parseObjectCreationList( INI* ini, void * /*instance*/, void *store, const void* /*userData*/ )
+{
+	const char *token = ini->getNextToken();
+	typedef const ObjectCreationList *ConstObjectCreationListPtr;
+	ConstObjectCreationListPtr* theObjectCreationList = (ConstObjectCreationListPtr*)store;
+	const ObjectCreationList *ocl = TheObjectCreationListStore->findObjectCreationList(token);	// could be null!
+	DEBUG_ASSERTCRASH(ocl || stricmp(token, "None") == 0, ("ObjectCreationList %s not found!\n",token));
+	*theObjectCreationList = ocl;
 }

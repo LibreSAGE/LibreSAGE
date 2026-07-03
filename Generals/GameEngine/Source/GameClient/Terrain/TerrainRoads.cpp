@@ -39,6 +39,14 @@ TerrainRoadCollection *TheTerrainRoads = NULL;
 UnsignedInt TerrainRoadCollection::m_idCounter = 0;
 
 //-------------------------------------------------------------------------------------------------
+void TerrainRoadCollection::init( void )
+{
+	INI::registerBlockParse( "Road", INI::parseTerrainRoadDefinition );
+	INI::registerBlockParse( "Bridge", INI::parseTerrainBridgeDefinition );
+}
+
+
+//-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 const FieldParse TerrainRoadType::m_terrainRoadFieldParseTable[] = 
 {

@@ -730,6 +730,8 @@ public:
   virtual void setOnScreenParticleCount(int count);
 
 	ParticleSystemTemplate *findTemplate( const AsciiString &name ) const;
+	// INI field parser (relocated out of the commonized INI reader)
+	static void parseParticleSystemTemplate( INI *ini, void *instance, void *store, const void *userData );
 	ParticleSystemTemplate *findParentTemplate( const AsciiString &name, int parentNum ) const;
 	ParticleSystemTemplate *newTemplate( const AsciiString &name );
 

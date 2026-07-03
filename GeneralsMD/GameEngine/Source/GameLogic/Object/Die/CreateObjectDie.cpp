@@ -63,7 +63,7 @@ CreateObjectDieModuleData::CreateObjectDieModuleData()
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "CreationList",	INI::parseObjectCreationList,		NULL,											offsetof( CreateObjectDieModuleData, m_ocl ) },
+		{ "CreationList",	ObjectCreationListStore::parseObjectCreationList,		NULL,											offsetof( CreateObjectDieModuleData, m_ocl ) },
 		{ "TransferPreviousHealth", INI::parseBool, NULL	,offsetof( CreateObjectDieModuleData, m_transferPreviousHealth ) },
 		{ 0, 0, 0, 0 }
 	};

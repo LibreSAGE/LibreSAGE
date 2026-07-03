@@ -34,6 +34,12 @@
 //-------------------------------------------------------------------------------------------------
 /** Parse Terrain type entry */
 //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+void TerrainTypeCollection::init( void )
+{
+	INI::registerBlockParse( "Terrain", INI::parseTerrainDefinition );
+}
+
 void INI::parseTerrainDefinition( INI* ini )
 {
 	AsciiString name;

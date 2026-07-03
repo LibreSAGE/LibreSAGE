@@ -1324,7 +1324,7 @@ static void parseParticleSysBone(INI* ini, void *instance, void * store, const v
 	ParticleSysBoneInfo info;
 	info.boneName = ini->getNextAsciiString();
 	info.boneName.toLower();
-	ini->parseParticleSystemTemplate(ini, instance, &(info.particleSystemTemplate), NULL);
+	ParticleSystemManager::parseParticleSystemTemplate(ini, instance, &(info.particleSystemTemplate), NULL);
 	ModelConditionInfo *self = (ModelConditionInfo *)instance;
 	self->m_particleSysBones.push_back(info);
 }

@@ -33,6 +33,7 @@
 #define __EMPUPDATE_H_
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "GameClient/ParticleSys.h"
 #include "GameLogic/Module/UpdateModule.h"
 
 //-------------------------------------------------------------------------------------------------
@@ -81,7 +82,7 @@ public:
 			{ "TargetScaleMin",	INI::parseReal,										NULL, offsetof( EMPUpdateModuleData, m_targetScaleMin ) },
 			{ "StartColor",	INI::parseRGBColor,			NULL, offsetof( EMPUpdateModuleData, m_startColor ) },
 			{ "EndColor",	INI::parseRGBColor,				NULL, offsetof( EMPUpdateModuleData, m_endColor ) },
-			{ "DisableFXParticleSystem",		INI::parseParticleSystemTemplate, NULL, offsetof( EMPUpdateModuleData, m_disableFXParticleSystem ) },
+			{ "DisableFXParticleSystem",		ParticleSystemManager::parseParticleSystemTemplate, NULL, offsetof( EMPUpdateModuleData, m_disableFXParticleSystem ) },
 			{ "SparksPerCubicFoot",		INI::parseReal, NULL, offsetof( EMPUpdateModuleData, m_sparksPerCubicFoot ) },
 
 

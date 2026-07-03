@@ -33,6 +33,12 @@
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+void SpecialPowerStore::init( void )
+{
+	INI::registerBlockParse( "SpecialPower", INI::parseSpecialPowerDefinition );
+}
+
 void INI::parseSpecialPowerDefinition( INI *ini )
 {
 	SpecialPowerStore::parseSpecialPowerDefinition(ini);

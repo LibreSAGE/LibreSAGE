@@ -78,8 +78,8 @@ static void parseOCLUpgradePair( INI* ini, void * /*instance*/, void *store, con
 {
 	OCLSpecialPowerModuleData::Upgrades up;
 
-	INI::parseScience(ini, NULL, &up.m_science, NULL);
-	INI::parseObjectCreationList(ini, NULL, &up.m_ocl, NULL);
+	ScienceStore::parseScience(ini, NULL, &up.m_science, NULL);
+	ObjectCreationListStore::parseObjectCreationList(ini, NULL, &up.m_ocl, NULL);
 
 	std::vector<OCLSpecialPowerModuleData::Upgrades>* s = (std::vector<OCLSpecialPowerModuleData::Upgrades>*)store;
 	s->push_back(up);
@@ -94,7 +94,7 @@ static void parseOCLUpgradePair( INI* ini, void * /*instance*/, void *store, con
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "UpgradeOCL", parseOCLUpgradePair, NULL, offsetof( OCLSpecialPowerModuleData, m_upgradeOCL ) },
-		{ "OCL", INI::parseObjectCreationList, NULL, offsetof( OCLSpecialPowerModuleData, m_defaultOCL ) },
+		{ "OCL", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( OCLSpecialPowerModuleData, m_defaultOCL ) },
 		{ "CreateLocation", INI::parseIndexList, TheOCLCreateLocTypeNames, offsetof( OCLSpecialPowerModuleData, m_createLoc ) },
 		{ 0, 0, 0, 0 }
 	};

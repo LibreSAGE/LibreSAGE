@@ -45,6 +45,7 @@
 // FORWARD REFERENCES /////////////////////////////////////////////////////////////////////////////
 class ObjectCreationList;
 class Object;
+class INI;
 enum ScienceType : int;
 struct FieldParse;
 enum AcademyClassificationType : int;
@@ -162,11 +163,13 @@ public:
 	SpecialPowerStore( void );
 	~SpecialPowerStore( void );
 
-	virtual void init( void ) { };
+	virtual void init( void );
 	virtual void update( void ) { };
 	virtual void reset( void );
 
 	const SpecialPowerTemplate *findSpecialPowerTemplate( AsciiString name ) { return findSpecialPowerTemplatePrivate(name); }
+	// INI field parser (relocated out of the commonized INI reader)
+	static void parseSpecialPowerTemplate( INI *ini, void *instance, void *store, const void *userData );
 	const SpecialPowerTemplate *findSpecialPowerTemplateByID( UnsignedInt id );
 	const SpecialPowerTemplate *getSpecialPowerTemplateByIndex( UnsignedInt index ); // for WorldBuilder
 

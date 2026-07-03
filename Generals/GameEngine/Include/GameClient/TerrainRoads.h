@@ -203,7 +203,7 @@ public:
 	TerrainRoadCollection( void );
 	~TerrainRoadCollection( void );
 
-	void init() { }
+	void init();
 	void reset() { }
 	void update() { }
 

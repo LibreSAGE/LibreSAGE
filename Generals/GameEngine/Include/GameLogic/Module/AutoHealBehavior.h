@@ -87,8 +87,8 @@ public:
 			{ "HealingDelay",			INI::parseDurationUnsignedInt,				NULL, offsetof( AutoHealBehaviorModuleData, m_healingDelay ) },
 			{ "Radius",						INI::parseReal,												NULL, offsetof( AutoHealBehaviorModuleData, m_radius ) },
 			{ "KindOf",						KindOfMaskType::parseFromINI,											NULL, offsetof( AutoHealBehaviorModuleData, m_kindOf ) },		
-			{ "RadiusParticleSystemName",					INI::parseParticleSystemTemplate,	NULL, offsetof( AutoHealBehaviorModuleData, m_radiusParticleSystemTmpl ) },
-			{ "UnitHealPulseParticleSystemName",	INI::parseParticleSystemTemplate,	NULL, offsetof( AutoHealBehaviorModuleData, m_unitHealPulseParticleSystemTmpl ) },
+			{ "RadiusParticleSystemName",					ParticleSystemManager::parseParticleSystemTemplate,	NULL, offsetof( AutoHealBehaviorModuleData, m_radiusParticleSystemTmpl ) },
+			{ "UnitHealPulseParticleSystemName",	ParticleSystemManager::parseParticleSystemTemplate,	NULL, offsetof( AutoHealBehaviorModuleData, m_unitHealPulseParticleSystemTmpl ) },
 			{ "StartHealingDelay",			INI::parseDurationUnsignedInt,				NULL, offsetof( AutoHealBehaviorModuleData, m_startHealingDelay ) },
 			{ "AffectsWholePlayer",			INI::parseBool,												NULL, offsetof( AutoHealBehaviorModuleData, m_affectsWholePlayer ) },
 			{ 0, 0, 0, 0 }

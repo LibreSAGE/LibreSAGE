@@ -48,6 +48,7 @@
 #include "Common/Player.h"
 #include "Common/INI.h"
 #include "Common/Science.h"
+#include "GameClient/GameText.h"
 #include "GameClient/Image.h"
 
 #ifdef _INTERNAL
@@ -71,7 +72,7 @@
 	{
 		{ "Side",											INI::parseAsciiString,													NULL, offsetof( PlayerTemplate, m_side ) },
 		{ "PlayableSide",							INI::parseBool,																	NULL, offsetof( PlayerTemplate, m_playableSide ) },
-		{ "DisplayName",							INI::parseAndTranslateLabel,										NULL, offsetof( PlayerTemplate, m_displayName) },
+		{ "DisplayName",							GameTextInterface::parseAndTranslateLabel,										NULL, offsetof( PlayerTemplate, m_displayName) },
 		{ "StartMoney",								PlayerTemplate::parseStartMoney,								NULL, offsetof( PlayerTemplate, m_money ) },
 		{ "PreferredColor",						INI::parseRGBColor,															NULL, offsetof( PlayerTemplate, m_preferredColor ) },
 		{ "StartingBuilding",					INI::parseAsciiString,													NULL, offsetof( PlayerTemplate, m_startingBuilding ) },
@@ -88,7 +89,7 @@
 		{ "ProductionCostChange",			PlayerTemplate::parseProductionCostChange,			NULL, 0 },
 		{ "ProductionTimeChange",			PlayerTemplate::parseProductionTimeChange,			NULL, 0 },
 		{ "ProductionVeterancyLevel",	PlayerTemplate::parseProductionVeterancyLevel,	NULL, 0 },
-		{ "IntrinsicSciences",				INI::parseScienceVector,												NULL, offsetof( PlayerTemplate, m_intrinsicSciences ) },
+		{ "IntrinsicSciences",				ScienceStore::parseScienceVector,												NULL, offsetof( PlayerTemplate, m_intrinsicSciences ) },
 		{ "PurchaseScienceCommandSetRank1",INI::parseAsciiString,													NULL, offsetof( PlayerTemplate, m_purchaseScienceCommandSetRank1 ) },
 		{ "PurchaseScienceCommandSetRank3",INI::parseAsciiString,													NULL, offsetof( PlayerTemplate, m_purchaseScienceCommandSetRank3 ) },
 		{ "PurchaseScienceCommandSetRank8",INI::parseAsciiString,													NULL, offsetof( PlayerTemplate, m_purchaseScienceCommandSetRank8 ) },
@@ -255,6 +256,8 @@ PlayerTemplateStore::~PlayerTemplateStore()
 //-----------------------------------------------------------------------------
 void PlayerTemplateStore::init()
 {
+	INI::registerBlockParse("PlayerTemplate", PlayerTemplateStore::parsePlayerTemplateDefinition);
+
 	m_playerTemplates.clear();
 }
 
@@ -377,10 +380,3 @@ void PlayerTemplateStore::getAllSideStrings(AsciiStringList *outStringList)
 	}
 
 }
-
-//-------------------------------------------------------------------------------------------------
-void INI::parsePlayerTemplateDefinition( INI* ini )
-{
-	PlayerTemplateStore::parsePlayerTemplateDefinition(ini);
-}
-

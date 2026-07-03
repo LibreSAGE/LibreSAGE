@@ -83,7 +83,7 @@ public:
 
 	MultiplayerSettings( void );
 
-	virtual void init() { }
+	virtual void init();
 	virtual void update() { }
 	virtual void reset() { }
 

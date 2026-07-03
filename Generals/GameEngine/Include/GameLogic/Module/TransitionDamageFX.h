@@ -33,6 +33,7 @@
 #define __TRANSITIONDAMAGEFX_H_
 
 // USER INCLUDES //////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "GameClient/ParticleSys.h"
 #include "GameLogic/Module/DamageModule.h" 
 #include "GameLogic/Module/BodyModule.h"
@@ -105,9 +106,9 @@ public:
 		static const FieldParse dataFieldParse[] = 
 		{
 
-			{ "DamageFXTypes",				INI::parseDamageTypeFlags, NULL, offsetof( TransitionDamageFXModuleData, m_damageFXTypes ) },
-			{ "DamageOCLTypes",				INI::parseDamageTypeFlags, NULL, offsetof( TransitionDamageFXModuleData, m_damageOCLTypes ) },
-			{ "DamageParticleTypes",	INI::parseDamageTypeFlags, NULL, offsetof( TransitionDamageFXModuleData, m_damageParticleTypes ) },
+			{ "DamageFXTypes",				INIParsers::parseDamageTypeFlags, NULL, offsetof( TransitionDamageFXModuleData, m_damageFXTypes ) },
+			{ "DamageOCLTypes",				INIParsers::parseDamageTypeFlags, NULL, offsetof( TransitionDamageFXModuleData, m_damageOCLTypes ) },
+			{ "DamageParticleTypes",	INIParsers::parseDamageTypeFlags, NULL, offsetof( TransitionDamageFXModuleData, m_damageParticleTypes ) },
 
 			{ "DamagedFXList1",								TransitionDamageFXModuleData::parseFXList,							NULL,	offsetof( TransitionDamageFXModuleData, m_fxList[ BODY_DAMAGED ][ 0 ] ) },
 			{ "DamagedFXList2",								TransitionDamageFXModuleData::parseFXList,							NULL,	offsetof( TransitionDamageFXModuleData, m_fxList[ BODY_DAMAGED ][ 1 ] ) },

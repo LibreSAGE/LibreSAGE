@@ -84,7 +84,7 @@ static void parseBountyUpgradePair( INI* ini, void * /*instance*/, void *store, 
 {
 	CashBountyPowerModuleData::Upgrades up;
 
-	INI::parseScience(ini, NULL, &up.m_science, NULL);
+	ScienceStore::parseScience(ini, NULL, &up.m_science, NULL);
 	INI::parsePercentToReal(ini, NULL, &up.m_bounty, NULL);
 
 	std::vector<CashBountyPowerModuleData::Upgrades>* s = (std::vector<CashBountyPowerModuleData::Upgrades>*)store;

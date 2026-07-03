@@ -200,7 +200,8 @@ ThingTemplate* ThingFactory::newOverride( ThingTemplate *thingTemplate )
 //-------------------------------------------------------------------------------------------------
 void ThingFactory::init( void )
 {
-
+	INI::registerBlockParse( "Object", INI::parseObjectDefinition );
+	INI::registerBlockParse( "ObjectReskin", INI::parseObjectReskinDefinition );
 }  // end init
 
 //-------------------------------------------------------------------------------------------------
@@ -540,3 +541,32 @@ void ThingFactory::postProcessLoad()
 	exit(0);
 #endif
 }  // end postProcess
+
+//-------------------------------------------------------------------------------------------------
+/** Parse a ThingTemplate name and assign the pointer at store (formerly ThingFactory::parseThingTemplate) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void ThingFactory::parseThingTemplate( INI* ini, void * /*instance*/, void *store, const void* /*userData*/ )
+{
+	const char *token = ini->getNextToken();
+
+	if (!TheThingFactory)
+	{
+		DEBUG_CRASH(("TheThingFactory not inited yet"));
+		throw ERROR_BUG;
+	}
+
+	typedef const ThingTemplate *ConstThingTemplatePtr;
+	ConstThingTemplatePtr* theThingTemplate = (ConstThingTemplatePtr*)store;
+
+	if (stricmp(token, "None") == 0)
+	{
+		*theThingTemplate = NULL;
+	}
+	else
+	{
+		const ThingTemplate *tt = TheThingFactory->findTemplate(token);	// could be null!
+		DEBUG_ASSERTCRASH(tt, ("ThingTemplate %s not found!\n",token));
+		// assign it, even if null!
+		*theThingTemplate = tt;
+	}
+}

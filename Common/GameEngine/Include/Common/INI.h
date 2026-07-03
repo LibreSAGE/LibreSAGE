@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -42,7 +42,6 @@
 class INI;
 class Xfer;
 class File;
-enum ScienceType : int;
 
 //-------------------------------------------------------------------------------------------------
 /** These control the behavior of loading the INI data into items */
@@ -167,6 +166,8 @@ typedef void (*BuildMultiIniFieldProc)(MultiIniFieldParse& p);
 //-------------------------------------------------------------------------------------------------
 class INI
 {
+  INI(const INI&);
+  INI& operator=(const INI&);
 
 public:
 
@@ -176,6 +177,7 @@ public:
 	void loadDirectory( AsciiString dirName, Bool subdirs, INILoadType loadType, Xfer *pXfer );  ///< load directory of INI files
 	void load( AsciiString filename, INILoadType loadType, Xfer *pXfer );		///< load INI file
 
+	static Bool registerBlockParse( const char* token, INIBlockParse parse );
 	static Bool isDeclarationOfType( AsciiString blockType, AsciiString blockName, char *bufferToCheck );
 	static Bool isEndOfBlock( char *bufferToCheck );
 
@@ -183,12 +185,10 @@ public:
 	static void parseObjectDefinition( INI *ini );
 	static void parseObjectReskinDefinition( INI *ini );
 	static void parseWeaponTemplateDefinition( INI *ini );
-	static void parseScienceDefinition( INI *ini );
 	static void parseRankDefinition( INI *ini );
 	static void parseCrateTemplateDefinition( INI *ini );
 	static void parseLocomotorTemplateDefinition( INI *ini );
 	static void parseLanguageDefinition( INI *ini );
-	static void parsePlayerTemplateDefinition( INI *ini );
 	static void parseGameDataDefinition( INI *ini );
 	static void parseMapDataDefinition( INI *ini );
 	static void parseAnim2DDefinition( INI *ini );
@@ -213,6 +213,7 @@ public:
 	static void parseObjectCreationListDefinition( INI* ini );
 	static void parseMultiplayerSettingsDefinition( INI* ini );
 	static void parseMultiplayerColorDefinition( INI* ini );
+  static void parseMultiplayerStartingMoneyChoiceDefinition( INI* ini );
 	static void parseOnlineChatColorDefinition( INI* ini );
 	static void parseMapCacheDefinition( INI* ini );
 	static void parseVideoDefinition( INI* ini );
@@ -239,7 +240,7 @@ public:
 	static void parseEvaEvent( INI* ini );
 	static void parseCredits( INI* ini );
 	static void parseWindowTransitions( INI* ini );
-
+	static void parseChallengeModeDefinition( INI* ini );
 
 	inline AsciiString getFilename( void ) const { return m_filename; }
 	inline INILoadType getLoadType( void ) const { return m_loadType; }
@@ -267,9 +268,6 @@ public:
 	static void parseQuotedAsciiString( INI *ini, void *instance, void *store, const void* userData );
 	static void parseAsciiStringVector( INI *ini, void *instance, void *store, const void* userData );
 	static void parseAsciiStringVectorAppend( INI *ini, void *instance, void *store, const void* userData );
-	static void parseAndTranslateLabel( INI *ini, void *instance, void *store, const void* userData );
-	static void parseMappedImage( INI *ini, void *instance, void *store, const void *userData );
-	static void parseAnim2DTemplate( INI *ini, void *instance, void *store, const void *userData );
 	static void parsePercentToReal( INI *ini, void *instance, void *store, const void* userData );
 	static void parseRGBColor( INI *ini, void *instance, void *store, const void* userData );
 	static void parseRGBAColorInt( INI *ini, void *instance, void *store, const void* userData );
@@ -277,25 +275,11 @@ public:
 	static void parseCoord3D( INI *ini, void *instance, void *store, const void* userData );
 	static void parseCoord2D( INI *ini, void *instance, void *store, const void *userData );
 	static void parseICoord2D( INI *ini, void *instance, void *store, const void *userData );
-	static void parseDynamicAudioEventRTS( INI *ini, void *instance, void *store, const void* userData );
-	static void parseAudioEventRTS( INI *ini, void *instance, void *store, const void* userData );
-	static void parseFXList( INI *ini, void *instance, void *store, const void* userData );
-	static void parseParticleSystemTemplate( INI *ini, void *instance, void *store, const void *userData );
-	static void parseObjectCreationList( INI *ini, void *instance, void *store, const void* userData );
-	static void parseSpecialPowerTemplate( INI *ini, void *instance, void *store, const void *userData );
-	static void parseUpgradeTemplate( INI *ini, void *instance, void *store, const void *userData );
-	static void parseScience( INI *ini, void *instance, void *store, const void *userData );
-	static void parseScienceVector( INI *ini, void *instance, void *store, const void *userData );
-	static void parseGameClientRandomVariable( INI* ini, void *instance, void *store, const void* userData );
 	static void parseBitString8( INI *ini, void *instance, void *store, const void* userData );
 	static void parseBitString32( INI *ini, void *instance, void *store, const void* userData );
 	static void parseByteSizedIndexList( INI *ini, void *instance, void *store, const void* userData );
 	static void parseIndexList( INI *ini, void *instance, void *store, const void* userData );
 	static void parseLookupList( INI *ini, void *instance, void *store, const void* userData );
-	static void parseThingTemplate( INI *ini, void *instance, void *store, const void* userData );
-	static void parseArmorTemplate( INI *ini, void *instance, void *store, const void* userData );
-	static void parseDamageFX( INI *ini, void *instance, void *store, const void* userData );
-	static void parseWeaponTemplate( INI *ini, void *instance, void *store, const void* userData );
 	// parse a duration in msec and convert to duration in frames
 	static void parseDurationReal( INI *ini, void *instance, void *store, const void* userData );
 	// parse a duration in msec and convert to duration in integral number of frames, (unsignedint) rounding UP
@@ -309,9 +293,6 @@ public:
 	static void parseAngleReal( INI *ini, void *instance, void *store, const void *userData );
 	// note that this parses in degrees/sec, and converts to rads/frame!
 	static void parseAngularVelocityReal( INI *ini, void *instance, void *store, const void *userData );
-	static void parseDamageTypeFlags(INI* ini, void* instance, void* store, const void* userData);
-	static void parseDeathTypeFlags(INI* ini, void* instance, void* store, const void* userData);
-	static void parseVeterancyLevelFlags(INI* ini, void* instance, void* store, const void* userData);
 	static void parseSoundsList( INI* ini, void *instance, void *store, const void* /*userData*/ );
 	
 	
@@ -350,12 +331,6 @@ public:
 	AsciiString getNextQuotedAsciiString();	//fixed version of above.  We can't fix the regular one for fear of breaking existing code. :-(
 
 	/**
-		utility routine that does a sscanf() on the string to get the Science, and throws
-		an exception if not of the right form.
-	*/
-	static ScienceType scanScience(const char* token);
-
-	/**
 		utility routine that does a sscanf() on the string to get the int, and throws
 		an exception if not of the right form.
 	*/
@@ -388,12 +363,20 @@ protected:
 
 	void readLine( void );
 
-//	FILE *m_file;															///< file pointer of file currently loading
 	File *m_file;															///< file pointer of file currently loading
+
+  enum
+  {
+    INI_READ_BUFFER = 8192                  ///< size of internal read buffer
+  };
+  char m_readBuffer[INI_READ_BUFFER];       ///< internal read buffer
+  unsigned m_readBufferNext;                ///< next char in read buffer
+  unsigned m_readBufferUsed;                ///< number of bytes in read buffer
+
 	AsciiString m_filename;										///< filename of file currently loading
 	INILoadType m_loadType;										///< load time for current file
 	UnsignedInt m_lineNum;										///< current line number that's been read
-	char m_buffer[ INI_MAX_CHARS_PER_LINE ];	///< buffer to read file contents into
+	char m_buffer[ INI_MAX_CHARS_PER_LINE+1 ];///< buffer to read file contents into
 	const char *m_seps;												///< for strtok parsing
 	const char *m_sepsPercent;								///< m_seps with percent delimiter as well
 	const char *m_sepsColon;									///< m_seps with colon delimiter as well

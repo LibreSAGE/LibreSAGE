@@ -27,6 +27,7 @@
 // Desc:   This is a manager for data pertaining to the Generals' Challenge personas and related GUI.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "GameClient/Image.h"
 #include "Common/KindOf.h"
 
 #include "GameClient/ChallengeGenerals.h"
@@ -76,14 +77,14 @@ void ChallengeGenerals::parseGeneralPersona(INI *ini, void *instance, void *stor
 		{ "BioRankString",			INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strBioRank ) },
 		{ "BioBranchString",		INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strBioBranch ) },
 		{ "BioClassNumberString",	INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strBioClassNumber ) },
-		{ "BioPortraitSmall",		INI::parseMappedImage, NULL, offsetof( GeneralPersona, m_imageBioPortraitSmall ) },
-		{ "BioPortraitLarge",		INI::parseMappedImage, NULL, offsetof( GeneralPersona, m_imageBioPortraitLarge ) },
+		{ "BioPortraitSmall",		ImageCollection::parseMappedImage, NULL, offsetof( GeneralPersona, m_imageBioPortraitSmall ) },
+		{ "BioPortraitLarge",		ImageCollection::parseMappedImage, NULL, offsetof( GeneralPersona, m_imageBioPortraitLarge ) },
 		{ "Campaign",				INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strCampaign ) },
 		{ "PlayerTemplate",			INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strPlayerTemplateName ) },
 		{ "PortraitMovieLeftName",		INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strPortraitMovieLeftName ) },
 		{ "PortraitMovieRightName",		INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strPortraitMovieRightName ) },
-		{ "DefeatedImage",			INI::parseMappedImage, NULL, offsetof( GeneralPersona, m_imageDefeated ) },
-		{ "VictoriousImage",		INI::parseMappedImage, NULL, offsetof( GeneralPersona, m_imageVictorious ) },
+		{ "DefeatedImage",			ImageCollection::parseMappedImage, NULL, offsetof( GeneralPersona, m_imageDefeated ) },
+		{ "VictoriousImage",		ImageCollection::parseMappedImage, NULL, offsetof( GeneralPersona, m_imageVictorious ) },
 		{ "DefeatedString",			INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strDefeated ) },
 		{ "VictoriousString",		INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strVictorious ) },
 		{ "SelectionSound",			INI::parseAsciiString, NULL, offsetof( GeneralPersona, m_strSelectionSound ) },

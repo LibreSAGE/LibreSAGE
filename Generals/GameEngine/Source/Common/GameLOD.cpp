@@ -264,6 +264,12 @@ LODPresetInfo *GameLODManager::newLODPreset(StaticGameLODLevel index)
 
 void GameLODManager::init(void)
 {
+	INI::registerBlockParse( "StaticGameLOD", INI::parseStaticGameLODDefinition );
+	INI::registerBlockParse( "DynamicGameLOD", INI::parseDynamicGameLODDefinition );
+	INI::registerBlockParse( "LODPreset", INI::parseLODPreset );
+	INI::registerBlockParse( "BenchProfile", INI::parseBenchProfile );
+	INI::registerBlockParse( "ReallyLowMHz", parseReallyLowMHz );
+
 	INI ini;
 	//Get Presets for each LOD level.
 	ini.load( AsciiString( "Data\\INI\\GameLOD.ini" ), INI_LOAD_OVERWRITE, NULL );

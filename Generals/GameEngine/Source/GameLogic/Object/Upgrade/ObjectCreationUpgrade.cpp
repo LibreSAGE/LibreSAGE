@@ -53,7 +53,7 @@ ObjectCreationUpgradeModuleData::ObjectCreationUpgradeModuleData( void )
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "UpgradeObject", INI::parseObjectCreationList, NULL, offsetof( ObjectCreationUpgradeModuleData, m_ocl ) },
+		{ "UpgradeObject", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( ObjectCreationUpgradeModuleData, m_ocl ) },
 		{ 0, 0, 0, 0 } 
 	};
 	p.add(dataFieldParse);

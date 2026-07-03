@@ -113,11 +113,17 @@ public:
 		but currently lacks prereqs or points for. (either might be an empty list) */
 	void getPurchasableSciences(const Player* player, ScienceVec& purchasable, ScienceVec& potentiallyPurchasable) const;
 
-	// this is intended ONLY for use by INI::scanScience.
+	// INI parsing entry points (registered/referenced during startup; formerly INI:: members)
+	static void parseScience( INI *ini, void *instance, void *store, const void *userData );
+	static void parseScienceVector( INI *ini, void *instance, void *store, const void *userData );
+	// utility routine that looks up a Science by name, and throws if not of the right form.
+	static ScienceType scanScience(const char* token);
+
+	// this is intended ONLY for use by ScienceStore::scanScience.
 	// Don't use it anywhere else. In particular, never, ever, ever
 	// call this with a hardcoded science name. (srj)
 	ScienceType friend_lookupScience(const char* scienceName) const;
-	static void friend_parseScienceDefinition(INI* ini);
+	static void parseScienceDefinition(INI* ini);
 
 	// return a vector of all the currently-known science names
 	// NOTE: this is really only for use by WorldBuilder! Please

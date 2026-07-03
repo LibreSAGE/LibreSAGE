@@ -78,8 +78,8 @@ void ToppleUpdateModuleData::buildFieldParse(MultiIniFieldParse& p)
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "ToppleFX",	INI::parseFXList, NULL, offsetof( ToppleUpdateModuleData, m_toppleFX ) },
-		{ "BounceFX",	INI::parseFXList, NULL, offsetof( ToppleUpdateModuleData, m_bounceFX ) },
+		{ "ToppleFX",	FXListStore::parseFXList, NULL, offsetof( ToppleUpdateModuleData, m_toppleFX ) },
+		{ "BounceFX",	FXListStore::parseFXList, NULL, offsetof( ToppleUpdateModuleData, m_bounceFX ) },
 		{ "StumpName",	INI::parseAsciiString, NULL, offsetof( ToppleUpdateModuleData, m_stumpName ) },
 		{ "KillWhenStartToppling",	INI::parseBool, NULL, offsetof( ToppleUpdateModuleData, m_killWhenStartToppled ) },
 		{ "KillWhenFinishedToppling",	INI::parseBool, NULL, offsetof( ToppleUpdateModuleData, m_killWhenToppled ) },

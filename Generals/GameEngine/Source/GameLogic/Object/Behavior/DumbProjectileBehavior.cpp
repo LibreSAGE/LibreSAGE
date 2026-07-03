@@ -94,7 +94,7 @@ void DumbProjectileBehaviorModuleData::buildFieldParse(MultiIniFieldParse& p)
 		{ "GarrisonHitKillRequiredKindOf", KindOfMaskType::parseFromINI, NULL, offsetof( DumbProjectileBehaviorModuleData, m_garrisonHitKillKindof ) },
 		{ "GarrisonHitKillForbiddenKindOf", KindOfMaskType::parseFromINI, NULL, offsetof( DumbProjectileBehaviorModuleData, m_garrisonHitKillKindofNot ) },
 		{ "GarrisonHitKillCount", INI::parseUnsignedInt, NULL, offsetof( DumbProjectileBehaviorModuleData, m_garrisonHitKillCount ) },
-		{ "GarrisonHitKillFX", INI::parseFXList, NULL, offsetof( DumbProjectileBehaviorModuleData, m_garrisonHitKillFX ) },
+		{ "GarrisonHitKillFX", FXListStore::parseFXList, NULL, offsetof( DumbProjectileBehaviorModuleData, m_garrisonHitKillFX ) },
 
 		{ "FlightPathAdjustDistPerSecond", INI::parseVelocityReal, NULL, offsetof( DumbProjectileBehaviorModuleData, m_flightPathAdjustDistPerFrame ) },
 

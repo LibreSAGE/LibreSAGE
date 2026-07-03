@@ -94,9 +94,9 @@ PropagandaTowerBehaviorModuleData::PropagandaTowerBehaviorModuleData( void )
 		{ "DelayBetweenUpdates",		INI::parseDurationUnsignedInt,	NULL,	offsetof( PropagandaTowerBehaviorModuleData, m_scanDelayInFrames ) },
 		{ "HealPercentEachSecond",	INI::parsePercentToReal,				NULL,	offsetof( PropagandaTowerBehaviorModuleData, m_autoHealPercentPerSecond ) },
 		{ "UpgradedHealPercentEachSecond",	INI::parsePercentToReal,NULL,	offsetof( PropagandaTowerBehaviorModuleData, m_upgradedAutoHealPercentPerSecond ) },
-		{ "PulseFX",								INI::parseFXList,								NULL,	offsetof( PropagandaTowerBehaviorModuleData, m_pulseFX ) },
+		{ "PulseFX",								FXListStore::parseFXList,								NULL,	offsetof( PropagandaTowerBehaviorModuleData, m_pulseFX ) },
 		{ "UpgradeRequired",				INI::parseAsciiString,					NULL, offsetof( PropagandaTowerBehaviorModuleData, m_upgradeRequired ) },
-		{ "UpgradedPulseFX",				INI::parseFXList,								NULL, offsetof( PropagandaTowerBehaviorModuleData, m_upgradedPulseFX ) },
+		{ "UpgradedPulseFX",				FXListStore::parseFXList,								NULL, offsetof( PropagandaTowerBehaviorModuleData, m_upgradedPulseFX ) },
 		{ 0, 0, 0, 0 }
 	};
 

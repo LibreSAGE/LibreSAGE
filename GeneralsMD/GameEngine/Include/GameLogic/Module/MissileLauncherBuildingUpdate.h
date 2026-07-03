@@ -35,6 +35,9 @@
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "Common/AudioEventRTS.h"
 #include "Common/INI.h"
+#include "Common/SpecialPower.h"
+#include "GameClient/FXList.h"
+#include "Common/INIParsers.h"
 #include "GameLogic/Module/SpecialPowerUpdateModule.h"
 class DamageInfo;
 class SpecialPowerTemplate;
@@ -73,16 +76,16 @@ public:
 
 		static const FieldParse dataFieldParse[] = 
 		{
-			{ "SpecialPowerTemplate",	INI::parseSpecialPowerTemplate,					NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_specialPowerTemplate ) },
+			{ "SpecialPowerTemplate",	SpecialPowerStore::parseSpecialPowerTemplate,					NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_specialPowerTemplate ) },
 			{ "DoorOpenTime",					INI::parseDurationUnsignedInt,	NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_doorOpenTime ) },
 			{ "DoorWaitOpenTime",			INI::parseDurationUnsignedInt,	NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_doorWaitOpenTime ) },
 			{ "DoorCloseTime",				INI::parseDurationUnsignedInt,	NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_doorClosingTime ) },
-			{ "DoorOpeningFX",				INI::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_openingFX ) },
-			{ "DoorOpenFX",						INI::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_openFX ) },
-			{ "DoorWaitingToCloseFX",	INI::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_waitingToCloseFX ) },
-			{ "DoorClosingFX",				INI::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_closingFX ) },
-			{ "DoorClosedFX",					INI::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_closedFX ) },
-			{ "DoorOpenIdleAudio",		INI::parseAudioEventRTS,				NULL,	offsetof( MissileLauncherBuildingUpdateModuleData, m_openIdleAudio ) },
+			{ "DoorOpeningFX",				FXListStore::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_openingFX ) },
+			{ "DoorOpenFX",						FXListStore::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_openFX ) },
+			{ "DoorWaitingToCloseFX",	FXListStore::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_waitingToCloseFX ) },
+			{ "DoorClosingFX",				FXListStore::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_closingFX ) },
+			{ "DoorClosedFX",					FXListStore::parseFXList,								NULL, offsetof( MissileLauncherBuildingUpdateModuleData, m_closedFX ) },
+			{ "DoorOpenIdleAudio",		INIParsers::parseAudioEventRTS,				NULL,	offsetof( MissileLauncherBuildingUpdateModuleData, m_openIdleAudio ) },
 			{ 0, 0, 0, 0 }
 		};
     p.add(dataFieldParse);

@@ -31,6 +31,7 @@
 #include "Common/GameAudio.h"
 #include "Common/GlobalData.h"
 #include "Common/INI.h"
+#include "Common/INIParsers.h"
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
 #include "Common/Science.h"
@@ -76,10 +77,10 @@ SpecialPowerModuleData::SpecialPowerModuleData()
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "SpecialPowerTemplate", INI::parseSpecialPowerTemplate, NULL, offsetof( SpecialPowerModuleData, m_specialPowerTemplate ) },
+		{ "SpecialPowerTemplate", SpecialPowerStore::parseSpecialPowerTemplate, NULL, offsetof( SpecialPowerModuleData, m_specialPowerTemplate ) },
 		{ "UpdateModuleStartsAttack", INI::parseBool, NULL, offsetof( SpecialPowerModuleData, m_updateModuleStartsAttack ) },
 		{ "StartsPaused", INI::parseBool, NULL, offsetof( SpecialPowerModuleData, m_startsPaused ) },
-		{ "InitiateSound",							INI::parseAudioEventRTS,					NULL, offsetof( SpecialPowerModuleData, m_initiateSound ) },
+		{ "InitiateSound",							INIParsers::parseAudioEventRTS,					NULL, offsetof( SpecialPowerModuleData, m_initiateSound ) },
 		{ 0, 0, 0, 0 }
 	};
 	p.add(dataFieldParse);

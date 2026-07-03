@@ -83,7 +83,7 @@ GenerateMinefieldBehaviorModuleData::GenerateMinefieldBehaviorModuleData()
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "MineName", INI::parseAsciiString,	NULL, offsetof( GenerateMinefieldBehaviorModuleData, m_mineName ) },
-		{ "GenerationFX", INI::parseFXList,	NULL, offsetof( GenerateMinefieldBehaviorModuleData, m_genFX ) },
+		{ "GenerationFX", FXListStore::parseFXList,	NULL, offsetof( GenerateMinefieldBehaviorModuleData, m_genFX ) },
 		{ "DistanceAroundObject", INI::parseReal, NULL, offsetof( GenerateMinefieldBehaviorModuleData, m_distanceAroundObject ) },
 		{ "MinesPerSquareFoot", INI::parseReal, NULL, offsetof( GenerateMinefieldBehaviorModuleData, m_minesPerSquareFoot ) },
 		{ "GenerateOnlyOnDeath", INI::parseBool, NULL, offsetof(GenerateMinefieldBehaviorModuleData, m_onDeath) },

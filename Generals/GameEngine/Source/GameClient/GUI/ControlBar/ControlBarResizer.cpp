@@ -101,6 +101,8 @@ ControlBarResizer::~ControlBarResizer( void )
 	
 void ControlBarResizer::init( void )
 {
+	INI::registerBlockParse( "ControlBarResizer", INI::parseControlBarResizerDefinition );
+
 	INI ini;
 	// Read from INI all the ControlBarSchemes
 	ini.load( AsciiString( "Data\\INI\\ControlBarResizer.ini" ), INI_LOAD_OVERWRITE, NULL );

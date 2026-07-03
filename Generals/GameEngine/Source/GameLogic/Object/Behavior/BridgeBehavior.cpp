@@ -166,7 +166,7 @@ static void parseTimeAndLocationInfo( INI *ini, void *instance,
 
 	// fx list name and store as pointer
 	FXList *fx;
-	ini->parseFXList( ini, instance, &fx, NULL );
+	FXListStore::parseFXList( ini, instance, &fx, NULL );
 
 	// store fx list to item
 	item.fx = fx;
@@ -207,7 +207,7 @@ static void parseTimeAndLocationInfo( INI *ini, void *instance,
 
 	// fx list name and store as pointer
 	ObjectCreationList *ocl;
-	ini->parseObjectCreationList( ini, instance, &ocl, NULL );
+	ObjectCreationListStore::parseObjectCreationList( ini, instance, &ocl, NULL );
 
 	// store ocl list to item
 	item.ocl = ocl;

@@ -29,6 +29,8 @@
 
 // USER INCLUDES //////////////////////////////////////////////////////////////////////////////////
 #include "Common/KindOf.h"
+#include "Common/INI.h"
+#include "Common/INIParsers.h"
 
 #define DEFINE_VETERANCY_NAMES
 #include "Common/Upgrade.h"
@@ -119,8 +121,8 @@ const FieldParse UpgradeTemplate::m_upgradeFieldParseTable[] =
 	{ "BuildTime",					INI::parseReal,						NULL, offsetof( UpgradeTemplate, m_buildTime ) },
 	{ "BuildCost",					INI::parseInt,						NULL, offsetof( UpgradeTemplate, m_cost ) },
 	{ "ButtonImage",				INI::parseAsciiString,		NULL, offsetof( UpgradeTemplate, m_buttonImageName ) },
-	{ "ResearchSound",			INI::parseAudioEventRTS,	NULL, offsetof( UpgradeTemplate, m_researchSound ) }, 
-	{ "UnitSpecificSound",	INI::parseAudioEventRTS,	NULL, offsetof( UpgradeTemplate, m_unitSpecificSound ) }, 
+	{ "ResearchSound",			INIParsers::parseAudioEventRTS,	NULL, offsetof( UpgradeTemplate, m_researchSound ) }, 
+	{ "UnitSpecificSound",	INIParsers::parseAudioEventRTS,	NULL, offsetof( UpgradeTemplate, m_unitSpecificSound ) }, 
 	{ "AcademyClassify",		INI::parseIndexList,			TheAcademyClassificationTypeNames, offsetof( UpgradeTemplate, m_academyClassificationType ) },
 	{ NULL,						NULL,												 NULL, 0 }  // keep this last
 
@@ -259,6 +261,8 @@ UpgradeCenter::~UpgradeCenter( void )
 //-------------------------------------------------------------------------------------------------
 void UpgradeCenter::init( void )
 {
+	INI::registerBlockParse("Upgrade", UpgradeCenter::parseUpgradeDefinition);
+
 	UpgradeTemplate* up;
 	
 	// name will be overridden by friend_makeVeterancyUpgrade
@@ -496,3 +500,24 @@ void UpgradeCenter::parseUpgradeDefinition( INI *ini )
 
 }
 
+
+//-------------------------------------------------------------------------------------------------
+/** Parse an UpgradeTemplate name and assign the pointer at store (formerly UpgradeCenter::parseUpgradeTemplate) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void UpgradeCenter::parseUpgradeTemplate( INI* ini, void * /*instance*/, void *store, const void* /*userData*/ )
+{
+	const char *token = ini->getNextToken();
+
+	if (!TheUpgradeCenter)
+	{
+		DEBUG_CRASH(("TheUpgradeCenter not inited yet"));
+		throw ERROR_BUG;
+	}
+
+	const UpgradeTemplate *uu = TheUpgradeCenter->findUpgrade( AsciiString( token ) );
+	DEBUG_ASSERTCRASH( uu || stricmp( token, "None" ) == 0, ("Upgrade %s not found!\n",token) );
+
+	typedef const UpgradeTemplate* ConstUpgradeTemplatePtr;
+	ConstUpgradeTemplatePtr* theUpgradeTemplate = (ConstUpgradeTemplatePtr *)store;
+	*theUpgradeTemplate = uu;
+}

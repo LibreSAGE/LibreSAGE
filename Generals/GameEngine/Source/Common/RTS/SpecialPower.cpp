@@ -29,6 +29,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // USER INCLUDES //////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
+#include "Common/INI.h"
 #include "Common/Player.h"
 #include "Common/Science.h"
 #include "Common/SpecialPower.h"
@@ -165,9 +167,9 @@ void SpecialPowerStore::parseSpecialPowerDefinition( INI *ini )
 {
 	
 	{ "ReloadTime",								INI::parseDurationUnsignedInt,		NULL,	offsetof( SpecialPowerTemplate, m_reloadTime ) },
-	{ "RequiredScience",					INI::parseScience,								NULL, offsetof( SpecialPowerTemplate, m_requiredScience ) },
-	{ "InitiateSound",						INI::parseAudioEventRTS,					NULL,	offsetof( SpecialPowerTemplate, m_initiateSound ) },
-	{ "InitiateAtLocationSound",	INI::parseAudioEventRTS,					NULL,	offsetof( SpecialPowerTemplate, m_initiateAtLocationSound ) },
+	{ "RequiredScience",					ScienceStore::parseScience,								NULL, offsetof( SpecialPowerTemplate, m_requiredScience ) },
+	{ "InitiateSound",						INIParsers::parseAudioEventRTS,					NULL,	offsetof( SpecialPowerTemplate, m_initiateSound ) },
+	{ "InitiateAtLocationSound",	INIParsers::parseAudioEventRTS,					NULL,	offsetof( SpecialPowerTemplate, m_initiateAtLocationSound ) },
 	{ "PublicTimer",							INI::parseBool,										NULL, offsetof( SpecialPowerTemplate, m_publicTimer ) },
 	{ "Enum",											INI::parseIndexList,							SpecialPowerMaskType::getBitNames(), offsetof( SpecialPowerTemplate, m_type ) },
 	{ "DetectionTime",						INI::parseDurationUnsignedInt,		NULL,	offsetof( SpecialPowerTemplate, m_detectionTime ) },
@@ -346,3 +348,24 @@ void SpecialPowerStore::reset( void )
 		}
 	}
 }  // end reset
+
+//-------------------------------------------------------------------------------------------------
+/** Parse a SpecialPowerTemplate name and assign the pointer at store (relocated out of INI) */
+//-------------------------------------------------------------------------------------------------
+/*static*/ void SpecialPowerStore::parseSpecialPowerTemplate( INI* ini, void * /*instance*/, void *store, const void* /*userData*/ )
+{
+	const char *token = ini->getNextToken();
+	if (!TheSpecialPowerStore)
+	{
+		DEBUG_CRASH(("TheSpecialPowerStore not inited yet"));
+		throw ERROR_BUG;
+	}
+	const SpecialPowerTemplate *sPowerT = TheSpecialPowerStore->findSpecialPowerTemplate( AsciiString( token ) );
+	if( !sPowerT && stricmp( token, "None" ) != 0 )
+	{
+		DEBUG_CRASH( ("[LINE: %d in '%s'] Specialpower %s not found!\n", ini->getLineNum(), ini->getFilename().str(), token) );
+	}
+	typedef const SpecialPowerTemplate* ConstSpecialPowerTemplatePtr;
+	ConstSpecialPowerTemplatePtr* theSpecialPowerTemplate = (ConstSpecialPowerTemplatePtr *)store;
+	*theSpecialPowerTemplate = sPowerT;
+}

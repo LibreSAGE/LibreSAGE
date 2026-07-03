@@ -28,6 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
+#include "Common/INIParsers.h"
 #include "Common/Thing.h"
 
 #include "Common/GlobalData.h"
@@ -91,24 +92,24 @@ JetSlowDeathBehaviorModuleData::JetSlowDeathBehaviorModuleData( void )
 	static const FieldParse dataFieldParse[] = 
 	{
 
-		{ "FXOnGroundDeath",	INI::parseFXList,	NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxOnGroundDeath ) },
-		{ "OCLOnGroundDeath", INI::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclOnGroundDeath ) },
+		{ "FXOnGroundDeath",	FXListStore::parseFXList,	NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxOnGroundDeath ) },
+		{ "OCLOnGroundDeath", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclOnGroundDeath ) },
 
-		{ "FXInitialDeath",	INI::parseFXList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxInitialDeath ) },
-		{ "OCLInitialDeath", INI::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclInitialDeath ) },
+		{ "FXInitialDeath",	FXListStore::parseFXList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxInitialDeath ) },
+		{ "OCLInitialDeath", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclInitialDeath ) },
 
 		{ "DelaySecondaryFromInitialDeath",	INI::parseDurationUnsignedInt, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_delaySecondaryFromInitialDeath ) },
-		{ "FXSecondary",	INI::parseFXList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxSecondary ) },
-		{ "OCLSecondary", INI::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclSecondary ) },
+		{ "FXSecondary",	FXListStore::parseFXList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxSecondary ) },
+		{ "OCLSecondary", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclSecondary ) },
 
-		{ "FXHitGround", INI::parseFXList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxHitGround ) },
-		{ "OCLHitGround", INI::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclHitGround ) },
+		{ "FXHitGround", FXListStore::parseFXList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxHitGround ) },
+		{ "OCLHitGround", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclHitGround ) },
 
 		{ "DelayFinalBlowUpFromHitGround", INI::parseDurationUnsignedInt, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_delayFinalBlowUpFromHitGround ) },
-		{ "FXFinalBlowUp", INI::parseFXList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxFinalBlowUp ) },
-		{ "OCLFinalBlowUp", INI::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclFinalBlowUp ) },
+		{ "FXFinalBlowUp", FXListStore::parseFXList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_fxFinalBlowUp ) },
+		{ "OCLFinalBlowUp", ObjectCreationListStore::parseObjectCreationList, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_oclFinalBlowUp ) },
 
-		{ "DeathLoopSound", INI::parseAudioEventRTS, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_deathLoopSound ) },
+		{ "DeathLoopSound", INIParsers::parseAudioEventRTS, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_deathLoopSound ) },
 
 // @todo srj -- RollRate and RollRateDelta and PitchRate should use parseAngularVelocityReal
 		{ "RollRate",	INI::parseReal, NULL, offsetof( JetSlowDeathBehaviorModuleData, m_rollRate ) },

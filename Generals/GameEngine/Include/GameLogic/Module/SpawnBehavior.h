@@ -37,6 +37,7 @@ const Int SPAWN_UPDATE_RATE = LOGICFRAMES_PER_SECOND/2; ///< This is a low prior
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "Common/INI.h"
+#include "Common/INIParsers.h"
 #include "GameLogic/Module/BehaviorModule.h"
 #include "GameLogic/Module/UpdateModule.h"
 #include "GameLogic/Module/DieModule.h"
@@ -93,7 +94,7 @@ public:
 			{ "ExitByBudding",    				INI::parseBool,										NULL, offsetof( SpawnBehaviorModuleData, m_exitByBudding ) },		
 			{ "SpawnTemplateName",				INI::parseAsciiStringVectorAppend,NULL, offsetof( SpawnBehaviorModuleData, m_spawnTemplateNameData ) },
 			{ "SpawnedRequireSpawner",		INI::parseBool,										NULL,	offsetof( SpawnBehaviorModuleData, m_spawnedRequireSpawner ) },
-			{ "PropagateDamageTypesToSlavesWhenExisting",   INI::parseDamageTypeFlags, NULL, offsetof( SpawnBehaviorModuleData, m_damageTypesToPropagateToSlaves ) },
+			{ "PropagateDamageTypesToSlavesWhenExisting",   INIParsers::parseDamageTypeFlags, NULL, offsetof( SpawnBehaviorModuleData, m_damageTypesToPropagateToSlaves ) },
 			{ "InitialBurst",				      INI::parseInt,						        NULL, offsetof( SpawnBehaviorModuleData, m_initialBurst ) },			{ 0, 0, 0, 0 }
 		};
     p.add(dataFieldParse);

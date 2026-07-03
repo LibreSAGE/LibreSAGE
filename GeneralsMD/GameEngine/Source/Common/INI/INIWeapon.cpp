@@ -38,6 +38,12 @@
 //-------------------------------------------------------------------------------------------------
 /** Parse Weapon entry */
 //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+void WeaponStore::init( void )
+{
+	INI::registerBlockParse( "Weapon", INI::parseWeaponTemplateDefinition );
+}
+
 void INI::parseWeaponTemplateDefinition( INI* ini )
 {
 	WeaponStore::parseWeaponTemplateDefinition(ini);

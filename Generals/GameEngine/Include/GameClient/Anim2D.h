@@ -131,6 +131,7 @@ enum Anim2DStatus
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 class Anim2DCollection;
+class INI;
 class Anim2D : public MemoryPoolObject,
 							 public Snapshot
 {
@@ -204,7 +205,9 @@ public:
 	virtual void reset( void ) { };				///< reset system
 	virtual void update( void );					///< update system
 
-	Anim2DTemplate *findTemplate( const AsciiString& name );				///< find animation template
+	Anim2DTemplate *findTemplate( const AsciiString& name );
+	// INI field parser (relocated out of the commonized INI reader)
+	static void parseAnim2DTemplate( INI *ini, void *instance, void *store, const void *userData );				///< find animation template
 	Anim2DTemplate *newTemplate( const AsciiString& name );				///< allocate a new template to be loaded
 
 	void registerAnimation( Anim2D *anim );									///< register animation with system

@@ -13,4 +13,4 @@ target_sources(
 
 set_target_properties(c_crcdiff PROPERTIES OUTPUT_NAME "CRCDiff")
 
-target_link_libraries(c_crcdiff PRIVATE c_compat)
+target_link_libraries(c_crcdiff PRIVATE c_library_include)

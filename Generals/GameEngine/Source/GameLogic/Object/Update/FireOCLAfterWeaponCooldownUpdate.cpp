@@ -66,7 +66,7 @@ void FireOCLAfterWeaponCooldownUpdateModuleData::buildFieldParse(MultiIniFieldPa
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "WeaponSlot",						INI::parseLookupList,						TheWeaponSlotTypeNamesLookupList, offsetof( FireOCLAfterWeaponCooldownUpdateModuleData, m_weaponSlot ) },
-		{ "OCL",									INI::parseObjectCreationList,		NULL, offsetof( FireOCLAfterWeaponCooldownUpdateModuleData, m_ocl ) },
+		{ "OCL",									ObjectCreationListStore::parseObjectCreationList,		NULL, offsetof( FireOCLAfterWeaponCooldownUpdateModuleData, m_ocl ) },
 		{ "MinShotsToCreateOCL",  INI::parseUnsignedInt,					NULL, offsetof( FireOCLAfterWeaponCooldownUpdateModuleData, m_minShotsRequired ) },
 		{ "OCLLifetimePerSecond",	INI::parseUnsignedInt,					NULL, offsetof( FireOCLAfterWeaponCooldownUpdateModuleData, m_oclLifetimePerSecond ) },
 		{ "OCLLifetimeMaxCap",		INI::parseDurationUnsignedInt,	NULL, offsetof( FireOCLAfterWeaponCooldownUpdateModuleData, m_oclMaxFrames ) },

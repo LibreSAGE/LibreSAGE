@@ -78,6 +78,9 @@ public:
 	*/
 	const ThingTemplate *findTemplate( const AsciiString& name ) { return findTemplateInternal(name); }
 
+	// INI field parser: resolve a ThingTemplate name to a pointer (moved out of INI)
+	static void parseThingTemplate( INI *ini, void *instance, void *store, const void *userData );
+
 	/** 
 		get a template given ID. return null if not found.
 		note, this is not particularly fast (does a linear search).

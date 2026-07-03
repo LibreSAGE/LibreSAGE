@@ -31,6 +31,7 @@
 #ifndef _SUPPLY_TRUCK_AI_UPDATE_H_
 #define _SUPPLY_TRUCK_AI_UPDATE_H_
 
+#include "Common/INIParsers.h"
 #include "Common/StateMachine.h"
 #include "GameLogic/Module/AIUpdate.h"
 
@@ -147,7 +148,7 @@ public:
 			{ "SupplyCenterActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_centerDelay ) },
 			{ "SupplyWarehouseActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseDelay ) },
 			{ "SupplyWarehouseScanDistance", INI::parseReal, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseScanDistance ) },
- 			{ "SuppliesDepletedVoice", INI::parseAudioEventRTS, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_suppliesDepletedVoice) },
+ 			{ "SuppliesDepletedVoice", INIParsers::parseAudioEventRTS, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_suppliesDepletedVoice) },
 			{ 0, 0, 0, 0 }
 		};
     p.add(dataFieldParse);

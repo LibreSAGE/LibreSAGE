@@ -90,14 +90,14 @@ void MissileAIUpdateModuleData::buildFieldParse(MultiIniFieldParse& p)
 		{ "DistanceToTravelBeforeTurning",	INI::parseReal,		NULL, offsetof( MissileAIUpdateModuleData, m_initialDist ) },
 		{ "DistanceToTargetBeforeDiving",		INI::parseReal,		NULL, offsetof( MissileAIUpdateModuleData, m_diveDistance ) },
 		{ "DistanceToTargetForLock",INI::parseReal,		NULL, offsetof( MissileAIUpdateModuleData, m_lockDistance ) },
-		{ "IgnitionFX",							INI::parseFXList,		NULL, offsetof( MissileAIUpdateModuleData, m_ignitionFX ) },
+		{ "IgnitionFX",							FXListStore::parseFXList,		NULL, offsetof( MissileAIUpdateModuleData, m_ignitionFX ) },
 		{ "UseWeaponSpeed",				  INI::parseBool,			NULL, offsetof( MissileAIUpdateModuleData, m_useWeaponSpeed ) },
 		{ "DetonateOnNoFuel",			  INI::parseBool,			NULL, offsetof( MissileAIUpdateModuleData, m_detonateOnNoFuel ) },
 
 		{ "GarrisonHitKillRequiredKindOf", KindOfMaskType::parseFromINI, NULL, offsetof( MissileAIUpdateModuleData, m_garrisonHitKillKindof ) },
 		{ "GarrisonHitKillForbiddenKindOf", KindOfMaskType::parseFromINI, NULL, offsetof( MissileAIUpdateModuleData, m_garrisonHitKillKindofNot ) },
 		{ "GarrisonHitKillCount", INI::parseUnsignedInt, NULL, offsetof( MissileAIUpdateModuleData, m_garrisonHitKillCount ) },
-		{ "GarrisonHitKillFX", INI::parseFXList, NULL, offsetof( MissileAIUpdateModuleData, m_garrisonHitKillFX ) },
+		{ "GarrisonHitKillFX", FXListStore::parseFXList, NULL, offsetof( MissileAIUpdateModuleData, m_garrisonHitKillFX ) },
 		{ 0, 0, 0, 0 }
 	};
 

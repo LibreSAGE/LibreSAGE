@@ -29,6 +29,7 @@
 
 // USER INCLUDES //////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/INIParsers.h"
 #include "Common/GlobalData.h"
 #define DEFINE_GUI_COMMMAND_NAMES
 #define DEFINE_COMMAND_OPTION_NAMES
@@ -107,12 +108,12 @@ const FieldParse CommandButton::s_commandButtonFieldParseTable[] =
 
 	{ "Command",							CommandButton::parseCommand, NULL, offsetof( CommandButton, m_command ) },
 	{ "Options",							INI::parseBitString32,		   TheCommandOptionNames, offsetof( CommandButton, m_options ) },
-	{ "Object",								INI::parseThingTemplate,		 NULL, offsetof( CommandButton, m_thingTemplate ) },
-	{ "Upgrade",							INI::parseUpgradeTemplate,	 NULL, offsetof( CommandButton, m_upgradeTemplate ) },
+	{ "Object",								ThingFactory::parseThingTemplate,		 NULL, offsetof( CommandButton, m_thingTemplate ) },
+	{ "Upgrade",							UpgradeCenter::parseUpgradeTemplate,	 NULL, offsetof( CommandButton, m_upgradeTemplate ) },
 	{ "WeaponSlot",						INI::parseLookupList,				 TheWeaponSlotTypeNamesLookupList, offsetof( CommandButton, m_weaponSlot ) },
 	{ "MaxShotsToFire",				INI::parseInt,							 NULL, offsetof( CommandButton, m_maxShotsToFire ) },
-	{ "Science",							INI::parseScienceVector,					 NULL, offsetof( CommandButton, m_science ) },
-	{ "SpecialPower",					INI::parseSpecialPowerTemplate,			 NULL, offsetof( CommandButton, m_specialPower ) },
+	{ "Science",							ScienceStore::parseScienceVector,					 NULL, offsetof( CommandButton, m_science ) },
+	{ "SpecialPower",					SpecialPowerStore::parseSpecialPowerTemplate,			 NULL, offsetof( CommandButton, m_specialPower ) },
 	{ "TextLabel",						INI::parseAsciiString,			 NULL, offsetof( CommandButton, m_textLabel ) },
 	{ "DescriptLabel",				INI::parseAsciiString,			 NULL, offsetof( CommandButton, m_descriptionLabel ) },
 	{ "PurchasedLabel",				INI::parseAsciiString,			 NULL, offsetof( CommandButton, m_purchasedLabel ) },
@@ -122,7 +123,7 @@ const FieldParse CommandButton::s_commandButtonFieldParseTable[] =
 	{ "InvalidCursorName",		INI::parseAsciiString,       NULL, offsetof( CommandButton, m_invalidCursorName ) },
 	{ "ButtonBorderType",			INI::parseLookupList,				 CommandButtonMappedBorderTypeNames, offsetof( CommandButton, m_commandButtonBorder ) },
 	{ "RadiusCursorType",			INI::parseIndexList,				 TheRadiusCursorNames, offsetof( CommandButton, m_radiusCursor ) },
-	{ "UnitSpecificSound",		INI::parseAudioEventRTS,		 NULL, offsetof( CommandButton, m_unitSpecificSound ) }, 
+	{ "UnitSpecificSound",		INIParsers::parseAudioEventRTS,		 NULL, offsetof( CommandButton, m_unitSpecificSound ) }, 
 
 	{ NULL,						NULL,												 NULL, 0 }  // keep this last
 
@@ -1049,6 +1050,9 @@ void ControlBarPopupDescriptionUpdateFunc( WindowLayout *layout, void *param );
 //-------------------------------------------------------------------------------------------------
 void ControlBar::init( void )
 {
+	INI::registerBlockParse( "CommandButton", INI::parseCommandButtonDefinition );
+	INI::registerBlockParse( "CommandSet", INI::parseCommandSetDefinition );
+
 	INI ini;
 	m_sideSelectAnimateDown = FALSE;
 	// load the command buttons

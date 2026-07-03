@@ -34,6 +34,7 @@
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "Common/INI.h"
+#include "Common/SpecialPower.h"
 #include "GameLogic/Module/DieModule.h"
 
 class SpecialPowerTemplate;
@@ -55,7 +56,7 @@ public:
 
 		static const FieldParse dataFieldParse[] = 
 		{
-			{ "SpecialPowerTemplate", INI::parseSpecialPowerTemplate,	NULL, offsetof( SpecialPowerCompletionDieModuleData, m_specialPowerTemplate ) },
+			{ "SpecialPowerTemplate", SpecialPowerStore::parseSpecialPowerTemplate,	NULL, offsetof( SpecialPowerCompletionDieModuleData, m_specialPowerTemplate ) },
 			{ 0, 0, 0, 0 }
 		};
     p.add(dataFieldParse);

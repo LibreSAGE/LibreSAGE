@@ -72,7 +72,7 @@ DemoTrapUpdateModuleData::DemoTrapUpdateModuleData()
     { "IgnoreTargetTypes",         KindOfMaskType::parseFromINI,							NULL, offsetof( DemoTrapUpdateModuleData, m_ignoreKindOf ) },
 		{ "ScanRate",									 INI::parseDurationUnsignedInt,	NULL, offsetof( DemoTrapUpdateModuleData, m_scanFrames ) },
 		{ "AutoDetonationWithFriendsInvolved", INI::parseBool,				NULL, offsetof( DemoTrapUpdateModuleData, m_friendlyDetonation ) },
-		{ "DetonationWeapon",					 INI::parseWeaponTemplate,			NULL, offsetof( DemoTrapUpdateModuleData, m_detonationWeaponTemplate ) },
+		{ "DetonationWeapon",					 WeaponStore::parseWeaponTemplate,			NULL, offsetof( DemoTrapUpdateModuleData, m_detonationWeaponTemplate ) },
 		{ "DetonateWhenKilled",				 INI::parseBool,								NULL, offsetof( DemoTrapUpdateModuleData, m_detonateWhenKilled ) },
 		{ 0, 0, 0, 0 }
 	};
