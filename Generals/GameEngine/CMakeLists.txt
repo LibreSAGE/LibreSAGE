@@ -23,11 +23,9 @@ target_sources(
     Include/Common/CRCDebug.h
     Include/Common/ClientUpdateModule.h
     Include/Common/CommandLine.h
-    Include/Common/CopyProtection.h
     Include/Common/CustomMatchPreferences.h
     Include/Common/DamageFX.h
     Include/Common/DataChunk.h
-    Include/Common/Directory.h
     Include/Common/DisabledTypes.h
     Include/Common/DiscreteCircle.h
     Include/Common/DrawModule.h
@@ -49,9 +47,7 @@ target_sources(
     Include/Common/IgnorePreferences.h
     Include/Common/KindOf.h
     Include/Common/LadderPreferences.h
-    Include/Common/Language.h
     Include/Common/LatchRestore.h
-    Include/Common/List.h
     Include/Common/MapObject.h
     Include/Common/MapReaderWriterInfo.h
     Include/Common/MessageStream.h
@@ -64,7 +60,6 @@ target_sources(
     Include/Common/Money.h
     Include/Common/MultiplayerSettings.h
     Include/Common/OSDisplay.h
-    Include/Common/PartitionSolver.h
     Include/Common/PerfMetrics.h
     Include/Common/PerfTimer.h
     Include/Common/Player.h
@@ -73,7 +68,6 @@ target_sources(
     Include/Common/ProductionPrerequisite.h
     Include/Common/QuickTrig.h
     Include/Common/QuickmatchPreferences.h
-    Include/Common/QuotedPrintable.h
     Include/Common/Radar.h
     Include/Common/RandomValue.h
     Include/Common/Recorder.h
@@ -169,7 +163,6 @@ target_sources(
     Include/GameClient/KeyDefs.h
     Include/GameClient/Keyboard.h
     Include/GameClient/LanguageFilter.h
-    Include/GameClient/Line2D.h
     Include/GameClient/LoadScreen.h
     Include/GameClient/LookAtXlat.h
     Include/GameClient/MapUtil.h
@@ -190,10 +183,8 @@ target_sources(
     Include/GameClient/Shell.h
     Include/GameClient/ShellHooks.h
     Include/GameClient/ShellMenuScheme.h
-    Include/GameClient/Statistics.h
     Include/GameClient/TerrainRoads.h
     Include/GameClient/TerrainVisual.h
-    Include/GameClient/VideoPlayer.h
     Include/GameClient/View.h
     Include/GameClient/WinInstanceData.h
     Include/GameClient/WindowLayout.h
@@ -462,7 +453,6 @@ target_sources(
     Include/GameNetwork/GameSpy/PersistentStorageThread.h
     Include/GameNetwork/GameSpy/PingThread.h
     Include/GameNetwork/GameSpy/StagingRoomGameInfo.h
-    Include/GameNetwork/GameSpy/ThreadUtils.h
     Include/GameNetwork/GameSpyChat.h
     Include/GameNetwork/GameSpyGP.h
     Include/GameNetwork/GameSpyGameInfo.h
@@ -534,11 +524,9 @@ target_sources(
     Source/Common/INI/INIVideo.cpp
     Source/Common/INI/INIWeapon.cpp
     Source/Common/INI/INIWebpageURL.cpp
-    Source/Common/Language.cpp
     Source/Common/MessageStream.cpp
     Source/Common/MiniLog.cpp
     Source/Common/MultiplayerSettings.cpp
-    Source/Common/PartitionSolver.cpp
     Source/Common/PerfTimer.cpp
     Source/Common/RTS/ActionManager.cpp
     Source/Common/RTS/Energy.cpp
@@ -563,18 +551,14 @@ target_sources(
     Source/Common/System/BuildAssistant.cpp
     Source/Common/System/CDManager.cpp
     Source/Common/System/Compression.cpp
-    Source/Common/System/CopyProtection.cpp
     Source/Common/System/DataChunk.cpp
-    Source/Common/System/Directory.cpp
     Source/Common/System/DisabledTypes.cpp
     Source/Common/System/FunctionLexicon.cpp
     Source/Common/System/GameCommon.cpp
     Source/Common/System/Geometry.cpp
     Source/Common/System/KindOf.cpp
-    Source/Common/System/List.cpp
     Source/Common/System/MemoryInit.cpp
     Source/Common/System/QuickTrig.cpp
-    Source/Common/System/QuotedPrintable.cpp
     Source/Common/System/Radar.cpp
     Source/Common/System/SaveGame/GameState.cpp
     Source/Common/System/SaveGame/GameStateMap.cpp
@@ -708,7 +692,6 @@ target_sources(
     Source/GameClient/Input/Keyboard.cpp
     Source/GameClient/Input/Mouse.cpp
     Source/GameClient/LanguageFilter.cpp
-    Source/GameClient/Line2D.cpp
     Source/GameClient/MapUtil.cpp
     Source/GameClient/MessageStream/CommandXlat.cpp
     Source/GameClient/MessageStream/GUICommandTranslator.cpp
@@ -722,7 +705,6 @@ target_sources(
     Source/GameClient/RadiusDecal.cpp
     Source/GameClient/SelectionInfo.cpp
     Source/GameClient/Snow.cpp
-    Source/GameClient/Statistics.cpp
     Source/GameClient/System/Anim2D.cpp
     Source/GameClient/System/CampaignManager.cpp
     Source/GameClient/System/DebugDisplay.cpp
@@ -732,7 +714,6 @@ target_sources(
     Source/GameClient/System/Smudge.cpp
     Source/GameClient/Terrain/TerrainRoads.cpp
     Source/GameClient/Terrain/TerrainVisual.cpp
-    Source/GameClient/VideoPlayer.cpp
     Source/GameClient/VideoStream.cpp
     Source/GameClient/View.cpp
     Source/GameLogic/AI/AI.cpp
@@ -987,7 +968,6 @@ target_sources(
     Source/GameNetwork/GameSpy/Thread/PeerThread.cpp
     Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp
     Source/GameNetwork/GameSpy/Thread/PingThread.cpp
-    Source/GameNetwork/GameSpy/Thread/ThreadUtils.cpp
     # Source/GameNetwork/GameSpyChat.cpp Source/GameNetwork/GameSpyGP.cpp
     # Source/GameNetwork/GameSpyGameInfo.cpp
     Source/GameNetwork/GameSpyOverlay.cpp

@@ -1,6 +1,13 @@
 # Target setup
 add_library(c_gameenginedevice)
 
+target_sources(
+  c_gameenginedevice
+  PRIVATE Include/W3DDevice/Common/W3DConvert.h
+          Include/W3DDevice/GameClient/W3DDynamicLight.h
+          Source/W3DDevice/Common/W3DConvert.cpp
+          Source/W3DDevice/GameClient/W3DDynamicLight.cpp)
+
 if(SAGE_USE_SDL3)
   target_sources(
     c_gameenginedevice
@@ -18,6 +25,18 @@ if(SAGE_USE_SDL3)
   target_link_libraries(c_gameenginedevice PUBLIC SDL3::SDL3
                                                   SDL3_image::SDL3_image)
   target_compile_definitions(c_gameenginedevice PUBLIC SAGE_USE_SDL3)
+endif()
+
+if(SAGE_USE_FFMPEG)
+  target_sources(
+    c_gameenginedevice
+    PRIVATE Include/VideoDevice/FFmpeg/FFmpegFile.h
+            Source/VideoDevice/FFmpeg/FFmpegFile.cpp)
+
+  find_package(FFMPEG REQUIRED)
+  target_include_directories(c_gameenginedevice PRIVATE ${FFMPEG_INCLUDE_DIRS})
+  target_link_libraries(c_gameenginedevice PRIVATE ${FFMPEG_LIBRARIES})
+  target_compile_definitions(c_gameenginedevice PRIVATE SAGE_USE_FFMPEG)
 endif()
 
 if(WIN32)
