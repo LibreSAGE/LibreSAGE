@@ -21,8 +21,16 @@ struct PipeTestData
     bool supports_chaining;
     const char *expected_data;
     int expected_length;
-    void (*verify_func)(Pipe *pipe);
+    void (*verify_func)(Pipe *pipe) = nullptr;
+
+    ~PipeTestData() { delete pipe; }
 };
+
+// A test case is parameterized by a factory rather than a pre-built PipeTestData.
+// This keeps the ValuesIn() list to trivial function pointers (nothing allocated
+// at test-registration time), so the Pipe and any file/RNG dependencies it uses
+// are created and destroyed entirely within a single test run - see SetUp/TearDown.
+using PipeTestFactory = PipeTestData *(*)();
 
 const char *TESTSTRING = "Lorem ipsum";
 const int TESTSTRING_SZ = 11;
@@ -288,27 +296,44 @@ PipeTestData *GenerateSHAPipeTestData()
 };
 
 // DER formatted exponent and modulus for testing PKPipe.
-std::vector<PipeTestData *> SetupPipeTestCases()
+std::vector<PipeTestFactory> SetupPipeTestCases()
 {
-    std::vector<PipeTestData *> test_cases;
-    test_cases.emplace_back(GeneratePKEncryptPipeTestData());
-    test_cases.emplace_back(GeneratePKDecryptPipeTestData());
-    test_cases.emplace_back(GenerateBase64EncryptPipeTestData());
-    test_cases.emplace_back(GenerateBase64DecryptPipeTestData());
-    test_cases.emplace_back(GenerateLCWCompressPipeTestData());
-    test_cases.emplace_back(GenerateLCWDecompressPipeTestData());
-    test_cases.emplace_back(GenerateLZOCompressPipeTestData());
-    test_cases.emplace_back(GenerateLZODecompressPipeTestData());
-    test_cases.emplace_back(GenerateBufferPipeTestData());
-    test_cases.emplace_back(GenerateFilePipeTestData());
-    test_cases.emplace_back(GenerateCRCPipeTestData());
-    test_cases.emplace_back(GenerateSHAPipeTestData());
-    return test_cases;
+    return {
+        GeneratePKEncryptPipeTestData,
+        GeneratePKDecryptPipeTestData,
+        GenerateBase64EncryptPipeTestData,
+        GenerateBase64DecryptPipeTestData,
+        GenerateLCWCompressPipeTestData,
+        GenerateLCWDecompressPipeTestData,
+        GenerateLZOCompressPipeTestData,
+        GenerateLZODecompressPipeTestData,
+        GenerateBufferPipeTestData,
+        GenerateFilePipeTestData,
+        GenerateCRCPipeTestData,
+        GenerateSHAPipeTestData,
+    };
 }
 
-class PipeTestClass : public ::testing::TestWithParam<PipeTestData *>
+class PipeTestClass : public ::testing::TestWithParam<PipeTestFactory>
 {
 protected:
+    PipeTestData *m_testcase = nullptr;
+
+    void SetUp() override { m_testcase = GetParam()(); }
+
+    void TearDown() override
+    {
+        // The test body chains the pipe to a stack-local BufferPipe; drop that
+        // link before destroying the pipe so ~Pipe doesn't touch the now-gone
+        // buffer. Destroying the case here (rather than leaking it) is safe
+        // because every dependency it references is still alive at this point.
+        if (m_testcase != nullptr)
+        {
+            m_testcase->pipe->ChainTo = nullptr;
+            delete m_testcase;
+            m_testcase = nullptr;
+        }
+    }
 };
 
 /*
@@ -320,7 +345,7 @@ TEST_P(PipeTestClass, Put)
     int size = 0;
     BufferPipe bp(buffer, sizeof(buffer));
 
-    const PipeTestData *testcase = GetParam();
+    const PipeTestData *testcase = m_testcase;
     Pipe *pipe = testcase->pipe;
     pipe->ChainTo = &bp;
     size += pipe->Put(testcase->input_data, testcase->in_length);

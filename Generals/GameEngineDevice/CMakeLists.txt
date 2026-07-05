@@ -3,7 +3,7 @@ add_library(g_gameenginedevice)
 
 target_sources(
   g_gameenginedevice
-  PRIVATE Include/W3DDevice/Common/W3DConvert.h
+  PRIVATE
           Include/W3DDevice/Common/W3DFunctionLexicon.h
           Include/W3DDevice/Common/W3DModuleFactory.h
           Include/W3DDevice/Common/W3DRadar.h
@@ -23,6 +23,7 @@ target_sources(
           Include/W3DDevice/GameClient/Module/W3DTankDraw.h
           Include/W3DDevice/GameClient/Module/W3DTankTruckDraw.h
           Include/W3DDevice/GameClient/Module/W3DTracerDraw.h
+          Include/W3DDevice/GameClient/Module/W3DTreeDraw.h
           Include/W3DDevice/GameClient/Module/W3DTruckDraw.h
           Include/W3DDevice/GameClient/TerrainTex.h
           Include/W3DDevice/GameClient/TileData.h
@@ -38,7 +39,6 @@ target_sources(
           Include/W3DDevice/GameClient/W3DDisplay.h
           Include/W3DDevice/GameClient/W3DDisplayString.h
           Include/W3DDevice/GameClient/W3DDisplayStringManager.h
-          Include/W3DDevice/GameClient/W3DDynamicLight.h
           Include/W3DDevice/GameClient/W3DFileSystem.h
           Include/W3DDevice/GameClient/W3DGadget.h
           Include/W3DDevice/GameClient/W3DGameClient.h
@@ -78,7 +78,6 @@ target_sources(
           Source/W3DDevice/Common/System/W3DRadar.cpp
           Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp
           Source/W3DDevice/Common/Thing/W3DThingFactory.cpp
-          Source/W3DDevice/Common/W3DConvert.cpp
           Source/W3DDevice/GameClient/Drawable/Draw/W3DDebrisDraw.cpp
           Source/W3DDevice/GameClient/Drawable/Draw/W3DDefaultDraw.cpp
           Source/W3DDevice/GameClient/Drawable/Draw/W3DDependencyModelDraw.cpp
@@ -93,6 +92,7 @@ target_sources(
           Source/W3DDevice/GameClient/Drawable/Draw/W3DTankDraw.cpp
           Source/W3DDevice/GameClient/Drawable/Draw/W3DTankTruckDraw.cpp
           Source/W3DDevice/GameClient/Drawable/Draw/W3DTracerDraw.cpp
+          Source/W3DDevice/GameClient/Drawable/Draw/W3DTreeDraw.cpp
           Source/W3DDevice/GameClient/Drawable/Draw/W3DTruckDraw.cpp
           Source/W3DDevice/GameClient/GUI/Gadget/W3DCheckBox.cpp
           Source/W3DDevice/GameClient/GUI/Gadget/W3DComboBox.cpp
@@ -130,7 +130,6 @@ target_sources(
           Source/W3DDevice/GameClient/W3DDisplay.cpp
           Source/W3DDevice/GameClient/W3DDisplayString.cpp
           Source/W3DDevice/GameClient/W3DDisplayStringManager.cpp
-          Source/W3DDevice/GameClient/W3DDynamicLight.cpp
           Source/W3DDevice/GameClient/W3DFileSystem.cpp
           Source/W3DDevice/GameClient/W3DGameClient.cpp
           Source/W3DDevice/GameClient/W3DGranny.cpp
@@ -201,9 +200,7 @@ target_link_libraries(g_gameenginedevice PRIVATE glm::glm)
 
 if(SAGE_USE_FFMPEG)
   target_sources(
-    g_gameenginedevice PRIVATE Include/VideoDevice/FFmpeg/FFmpegFile.h
-                               Include/VideoDevice/FFmpeg/FFmpegVideoPlayer.h
-                               Source/VideoDevice/FFmpeg/FFmpegFile.cpp
+    g_gameenginedevice PRIVATE Include/VideoDevice/FFmpeg/FFmpegVideoPlayer.h
                                Source/VideoDevice/FFmpeg/FFmpegVideoPlayer.cpp)
   find_package(FFMPEG REQUIRED)
   target_include_directories(g_gameenginedevice PRIVATE ${FFMPEG_INCLUDE_DIRS})

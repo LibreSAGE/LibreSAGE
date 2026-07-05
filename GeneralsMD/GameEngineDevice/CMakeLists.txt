@@ -4,7 +4,6 @@ add_library(z_gameenginedevice)
 target_sources(
   z_gameenginedevice
   PRIVATE
-          Include/W3DDevice/Common/W3DConvert.h
           Include/W3DDevice/Common/W3DFunctionLexicon.h
           Include/W3DDevice/Common/W3DModuleFactory.h
           Include/W3DDevice/Common/W3DRadar.h
@@ -39,7 +38,6 @@ target_sources(
           Include/W3DDevice/GameClient/W3DDisplay.h
           Include/W3DDevice/GameClient/W3DDisplayString.h
           Include/W3DDevice/GameClient/W3DDisplayStringManager.h
-          Include/W3DDevice/GameClient/W3DDynamicLight.h
           Include/W3DDevice/GameClient/W3DFileSystem.h
           Include/W3DDevice/GameClient/W3DGadget.h
           Include/W3DDevice/GameClient/W3DGameClient.h
@@ -79,7 +77,6 @@ target_sources(
           Source/W3DDevice/Common/System/W3DRadar.cpp
           Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp
           Source/W3DDevice/Common/Thing/W3DThingFactory.cpp
-          Source/W3DDevice/Common/W3DConvert.cpp
           Source/W3DDevice/GameClient/Drawable/Draw/W3DDebrisDraw.cpp
           Source/W3DDevice/GameClient/Drawable/Draw/W3DDefaultDraw.cpp
           Source/W3DDevice/GameClient/Drawable/Draw/W3DDependencyModelDraw.cpp
@@ -131,7 +128,6 @@ target_sources(
           Source/W3DDevice/GameClient/W3DDisplay.cpp
           Source/W3DDevice/GameClient/W3DDisplayString.cpp
           Source/W3DDevice/GameClient/W3DDisplayStringManager.cpp
-          Source/W3DDevice/GameClient/W3DDynamicLight.cpp
           Source/W3DDevice/GameClient/W3DFileSystem.cpp
           Source/W3DDevice/GameClient/W3DGameClient.cpp
           Source/W3DDevice/GameClient/W3DGranny.cpp
@@ -212,9 +208,7 @@ target_link_libraries(z_gameenginedevice PRIVATE glm::glm)
 
 if(SAGE_USE_FFMPEG)
   target_sources(
-    z_gameenginedevice PRIVATE Include/VideoDevice/FFmpeg/FFmpegFile.h
-                               Include/VideoDevice/FFmpeg/FFmpegVideoPlayer.h
-                               Source/VideoDevice/FFmpeg/FFmpegFile.cpp
+    z_gameenginedevice PRIVATE Include/VideoDevice/FFmpeg/FFmpegVideoPlayer.h
                                Source/VideoDevice/FFmpeg/FFmpegVideoPlayer.cpp)
   find_package(FFMPEG REQUIRED)
   target_include_directories(z_gameenginedevice PRIVATE ${FFMPEG_INCLUDE_DIRS})
