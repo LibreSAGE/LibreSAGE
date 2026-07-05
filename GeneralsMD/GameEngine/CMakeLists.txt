@@ -41,7 +41,6 @@ target_sources(
           Include/Common/GameSpyMiscPreferences.h
           Include/Common/GameState.h
           Include/Common/GameStateMap.h
-          Include/Common/GameType.h
           Include/Common/Geometry.h
           Include/Common/GlobalData.h
           Include/Common/Handicap.h
@@ -64,8 +63,6 @@ target_sources(
           Include/Common/Money.h
           Include/Common/MultiplayerSettings.h
           Include/Common/OSDisplay.h
-          Include/Common/Overridable.h
-          Include/Common/Override.h
           Include/Common/PartitionSolver.h
           Include/Common/PerfMetrics.h
           Include/Common/PerfTimer.h
@@ -195,7 +192,6 @@ target_sources(
           Include/GameClient/TerrainVisual.h
           Include/GameClient/VideoPlayer.h
           Include/GameClient/View.h
-          Include/GameClient/Water.h
           Include/GameClient/WinInstanceData.h
           Include/GameClient/WindowLayout.h
           Include/GameClient/WindowVideoManager.h
@@ -526,7 +522,6 @@ target_sources(
           Source/Common/INI/INITerrainRoad.cpp
           Source/Common/INI/INIUpgrade.cpp
           Source/Common/INI/INIVideo.cpp
-          Source/Common/INI/INIWater.cpp
           Source/Common/INI/INIWeapon.cpp
           Source/Common/INI/INIWebpageURL.cpp
           Source/Common/Language.cpp
@@ -564,7 +559,6 @@ target_sources(
           Source/Common/System/DisabledTypes.cpp
           Source/Common/System/FunctionLexicon.cpp
           Source/Common/System/GameCommon.cpp
-          Source/Common/System/GameType.cpp
           Source/Common/System/Geometry.cpp
           Source/Common/System/KindOf.cpp
           Source/Common/System/List.cpp
@@ -732,7 +726,6 @@ target_sources(
           Source/GameClient/VideoPlayer.cpp
           Source/GameClient/VideoStream.cpp
           Source/GameClient/View.cpp
-          Source/GameClient/Water.cpp
           Source/GameLogic/AI/AI.cpp
           Source/GameLogic/AI/AIDock.cpp
           Source/GameLogic/AI/AIGroup.cpp

@@ -6,12 +6,18 @@ add_executable(c_gameenginetest
     Common/CRCTest.cpp
     Common/DictTest.cpp
     Common/EncryptTest.cpp
+    Common/INITest.cpp
     Common/NameKeyGeneratorTest.cpp
     Common/UnicodeStringTest.cpp
     MainStub.cpp
 )
 
-target_link_libraries(c_gameenginetest c_gameengine GTest::gtest GTest::gtest_main SDL3::SDL3)
+target_link_libraries(c_gameenginetest c_gameengine c_gameenginedevice GTest::gtest GTest::gtest_main SDL3::SDL3)
+target_compile_definitions(c_gameenginetest PRIVATE 
+    SAGE_MOD_SUPPORT_DIR="${SAGE_MOD_SUPPORT_DIR}"
+    SAGE_TEST_DATA_DIR="${SAGE_TEST_DATA_DIR}"
+)
+
 set_target_properties(c_gameenginetest PROPERTIES OUTPUT_NAME "GameEngineTest")
 
 include(GoogleTest)
