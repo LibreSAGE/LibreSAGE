@@ -1071,7 +1071,7 @@ static void AuthenticateCDKeyCallback
 	void * param
 )
 {
-	DEBUG_LOG(("CD Key Result: %s (%d) %X\n", message, result, param));
+	DEBUG_LOG(("CD Key Result: %s (%d) %p\n", message, result, (void*)(param)));
 #ifdef SERVER_DEBUGGING
 	CheckServers(peer);
 #endif // SERVER_DEBUGGING
@@ -1395,7 +1395,7 @@ void PeerThreadClass::Thread_Function()
 				}
 				m_isHosting = false;
 				m_localRoomID = m_groupRoomID;
-				DEBUG_LOG(("Requesting to join room %d in thread %X\n", m_localRoomID, this));
+				DEBUG_LOG(("Requesting to join room %d in thread %p\n", m_localRoomID, (void*)(this)));
 				peerJoinGroupRoom( peer, incomingRequest.groupRoom.id, joinRoomCallback, (void *)this, PEERTrue );
 				break;
 
@@ -1414,7 +1414,7 @@ void PeerThreadClass::Thread_Function()
 					peerLeaveRoom( peer, StagingRoom, NULL ); m_isHosting = false;
 					SBServer server = findServerByID(incomingRequest.stagingRoom.id);
 					m_localStagingServerName = incomingRequest.text;
-					DEBUG_LOG(("Setting m_localStagingServerName to [%ls]\n", m_localStagingServerName.c_str()));
+					DEBUG_LOG(("Setting m_localStagingServerName to [%s]\n", UnicodeString(m_localStagingServerName.c_str()).toUTF8().str()));
 					m_localRoomID = incomingRequest.stagingRoom.id;
 					DEBUG_LOG(("Requesting to join room %d\n", m_localRoomID));
 					if (server)
@@ -1597,8 +1597,8 @@ void PeerThreadClass::Thread_Function()
 					m_playerNames[0] = m_loginName;
 					peerCreateStagingRoomWithSocket(peer, compositeGame.c_str(), MAX_SLOTS, incomingRequest.password.c_str(), qr2Sock, preferredQRPort, createRoomCallback, (void *)&res, PEERTrue);
 					//peerCreateStagingRoomWithSocket(peer, WideCharStringToMultiByte(incomingRequest.text.c_str()).c_str(), MAX_SLOTS, incomingRequest.password.c_str(), qr2Sock, preferredQRPort, createRoomCallback, (void *)&res, PEERTrue);
-					DEBUG_LOG(("PEERREQUEST_CREATESTAGINGROOM - creating staging room, name is %ls, passwd is %s, result = %d\n",
-						incomingRequest.text.c_str(), incomingRequest.password.c_str(), res));
+					DEBUG_LOG(("PEERREQUEST_CREATESTAGINGROOM - creating staging room, name is %s, passwd is %s, result = %d\n",
+						UnicodeString(incomingRequest.text.c_str()).toUTF8().str(), incomingRequest.password.c_str(), res));
 
 					PeerResponse resp;
 					resp.peerResponseType = PeerResponse::PEERRESPONSE_CREATESTAGINGROOM;
@@ -1659,7 +1659,7 @@ void PeerThreadClass::Thread_Function()
 						pushStatsToRoom(peer);
 #endif // USE_BROADCAST_KEYS
 
-						DEBUG_LOG(("Setting m_localStagingServerName to [%ls]\n", m_localStagingServerName.c_str()));
+						DEBUG_LOG(("Setting m_localStagingServerName to [%s]\n", UnicodeString(m_localStagingServerName.c_str()).toUTF8().str()));
 						updateBuddyStatus( BUDDY_STAGING, 0, WideCharStringToMultiByte(m_localStagingServerName.c_str()) );
 					}
 				}
@@ -1940,7 +1940,7 @@ void PeerThreadClass::doQuickMatch( PEER peer )
 						peerLeaveRoom( peer, StagingRoom, NULL ); m_isHosting = false;
 						m_localRoomID = m_groupRoomID;
 						m_roomJoined = false;
-						DEBUG_LOG(("Requesting to join room %d in thread %X\n", m_localRoomID, this));
+						DEBUG_LOG(("Requesting to join room %d in thread %p\n", m_localRoomID, (void*)(this)));
 						peerJoinGroupRoom( peer, m_localRoomID, joinRoomCallback, (void *)this, PEERTrue );
 						if (m_roomJoined)
 						{
@@ -2121,8 +2121,8 @@ static void joinRoomCallback(PEER peer, PEERBool success, PEERJoinResult result,
 	PeerThreadClass *t = (PeerThreadClass *)param;
 	if (!t)
 		return;
-	DEBUG_LOG(("Room id was %d from thread %X\n", t->getLocalRoomID(), t));
-	DEBUG_LOG(("Current staging server name is [%ls]\n", t->getLocalStagingServerName().c_str()));
+	DEBUG_LOG(("Room id was %d from thread %p\n", t->getLocalRoomID(), (void*)(t)));
+	DEBUG_LOG(("Current staging server name is [%s]\n", UnicodeString(t->getLocalStagingServerName().c_str()).toUTF8().str()));
 	DEBUG_LOG(("Room type is %d (GroupRoom=%d, StagingRoom=%d, TitleRoom=%d)\n", roomType, GroupRoom, StagingRoom, TitleRoom));
 
 #ifdef USE_BROADCAST_KEYS
@@ -2166,7 +2166,7 @@ static void joinRoomCallback(PEER peer, PEERBool success, PEERJoinResult result,
 				resp.joinStagingRoom.result = result;
 				if (success)
 				{
-					DEBUG_LOG(("joinRoomCallback() - game name is now '%ls'\n", t->getLocalStagingServerName().c_str()));
+					DEBUG_LOG(("joinRoomCallback() - game name is now '%s'\n", UnicodeString(t->getLocalStagingServerName().c_str()).toUTF8().str()));
 					updateBuddyStatus( BUDDY_STAGING, 0, WideCharStringToMultiByte(t->getLocalStagingServerName().c_str()) );
 				}
 
@@ -2191,7 +2191,7 @@ static void listGroupRoomsCallback(PEER peer, PEERBool success,
 														int maxWaiting, int numGames,
 														int numPlaying, void * param)
 {
-	DEBUG_LOG(("listGroupRoomsCallback, success=%d, server=%X, groupID=%d\n", success, server, groupID));
+	DEBUG_LOG(("listGroupRoomsCallback, success=%d, server=%p, groupID=%d\n", success, (void*)(server), groupID));
 #ifdef SERVER_DEBUGGING
 	CheckServers(peer);
 #endif // SERVER_DEBUGGING
@@ -2204,7 +2204,7 @@ static void listGroupRoomsCallback(PEER peer, PEERBool success,
 
 	if (success)
 	{
-		DEBUG_LOG(("Saw group room of %d (%s) at address %X %X\n", groupID, name, server, (server)?server->keyvals:0));
+		DEBUG_LOG(("Saw group room of %d (%s) at address %p %p\n", groupID, name, (void*)(server), (void*)((server)?server->keyvals:0)));
 		PeerResponse resp;
 		resp.peerResponseType = PeerResponse::PEERRESPONSE_GROUPROOM;
 		resp.groupRoom.id = groupID;
@@ -2363,7 +2363,7 @@ void roomMessageCallback(PEER peer, RoomType roomType, const char * nick, const 
 	resp.message.isPrivate = FALSE;
 	resp.message.isAction = (messageType == ActionMessage);
 	TheGameSpyPeerMessageQueue->addResponse(resp);
-	DEBUG_LOG(("Saw text [%hs] (%ls) %d chars Orig was %s (%d chars)\n", nick, resp.text.c_str(), resp.text.length(), message, strlen(message)));
+	DEBUG_LOG(("Saw text [%s] (%s) %d chars Orig was %s (%d chars)\n", nick, UnicodeString(resp.text.c_str()).toUTF8().str(), (int)(resp.text.length()), message, (int)(strlen(message))));
 
 	UnsignedInt IP;
 	peerGetPlayerInfoNoWait(peer, nick, &IP, &resp.message.profileID);
@@ -2566,7 +2566,7 @@ static void roomKeyChangedCallback(PEER peer, RoomType roomType, const char *nic
 #ifdef USE_BROADCAST_KEYS
 	PeerThreadClass *t = (PeerThreadClass *)param;
 	DEBUG_ASSERTCRASH(t, ("No Peer thread!"));
-	DEBUG_ASSERTCRASH(nick && key && val, ("Bad values %X %X %X\n", nick, key, val));
+	DEBUG_ASSERTCRASH(nick && key && val, ("Bad values %p %p %p\n", (void*)(nick), (void*)(key), (void*)(val)));
 	if (!t || !nick || !key || !val)
 	{
 		DEBUG_ASSERTLOG(!nick, ("nick = %s\n", nick));
@@ -2602,7 +2602,7 @@ void getRoomKeysCallback(PEER peer, PEERBool success, RoomType roomType, const c
 {
 	PeerThreadClass *t = (PeerThreadClass *)param;
 	DEBUG_ASSERTCRASH(t, ("No Peer thread!"));
-	DEBUG_ASSERTCRASH(keys && values, ("bad key/value %X/%X", keys, values));
+	DEBUG_ASSERTCRASH(keys && values, ("bad key/value %p/%p", (void*)(keys), (void*)(values)));
 	if (!t || !nick || !num || !success || !keys || !values)
 		return;
 
@@ -2797,7 +2797,7 @@ static void listingGamesCallback(PEER peer, PEERBool success, const char * name,
 			cmdStr = "PEER_COMPLETE";
 			break;
 	}
-	DEBUG_LOG(("listingGamesCallback() - doing command %s on server %X\n", cmdStr.str(), server));
+	DEBUG_LOG(("listingGamesCallback() - doing command %s on server %p\n", cmdStr.str(), (void*)(server)));
 #endif // DEBUG_LOGGING
 
 	PeerThreadClass *t = (PeerThreadClass *)param;

@@ -430,7 +430,7 @@ void GameTextManager::deinit( void )
 	DEBUG_LOG(("\n*** Missing strings ***\n"));
 	while ( noString )
 	{
-		DEBUG_LOG(("*** %ls ***\n", noString->text.str()));
+		DEBUG_LOG(("*** %s ***\n", noString->text.toUTF8().str()));
 		NoString *next = noString->next;
 		delete noString;
 		noString = next;

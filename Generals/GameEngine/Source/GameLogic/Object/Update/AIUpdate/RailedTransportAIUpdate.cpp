@@ -221,7 +221,7 @@ UpdateSleepTime RailedTransportAIUpdate::update( void )
 	
 		// sanity
 		DEBUG_ASSERTCRASH( m_currentPath != INVALID_PATH,
-											 ("RailedTransportAIUpdate: Invalid current path '%s'\n", m_currentPath) );
+											 ("RailedTransportAIUpdate: Invalid current path '%d'\n", m_currentPath) );
 
 		// get our target waypoint
 		Waypoint *waypoint = TheTerrainLogic->getWaypointByID( m_path[ m_currentPath ].endWaypointID );

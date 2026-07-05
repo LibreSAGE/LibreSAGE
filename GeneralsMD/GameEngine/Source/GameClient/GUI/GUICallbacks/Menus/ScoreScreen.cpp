@@ -1399,7 +1399,7 @@ void populatePlayerInfo( Player *player, Int pos)
 	ScoreKeeper *scoreKpr = player->getScoreKeeper();
 	if(!scoreKpr)
 	{
-		DEBUG_ASSERTCRASH(FALSE,("Player %s does not have a scoreKeeper", player->getPlayerDisplayName().str()));
+		DEBUG_ASSERTCRASH(FALSE,("Player %s does not have a scoreKeeper", player->getPlayerDisplayName().toUTF8().str()));
 		return;
 	}
 	AsciiString winName;
@@ -1794,11 +1794,11 @@ winName.format("ScoreScreen.wnd:StaticTextScore%d", pos);
 
 					Int ptIdx;
 					const PlayerTemplate *myTemplate = player->getPlayerTemplate();
-					DEBUG_LOG(("myTemplate = %X(%s)\n", myTemplate, myTemplate->getName().str()));
+					DEBUG_LOG(("myTemplate = %p(%s)\n", (void*)(myTemplate), myTemplate->getName().str()));
 					for (ptIdx = 0; ptIdx < ThePlayerTemplateStore->getPlayerTemplateCount(); ++ptIdx)
 					{
 						const PlayerTemplate *nthTemplate = ThePlayerTemplateStore->getNthPlayerTemplate(ptIdx);
-						DEBUG_LOG(("nthTemplate = %X(%s)\n", nthTemplate, nthTemplate->getName().str()));
+						DEBUG_LOG(("nthTemplate = %p(%s)\n", (void*)(nthTemplate), nthTemplate->getName().str()));
 						if (nthTemplate == myTemplate)
 						{
 							break;

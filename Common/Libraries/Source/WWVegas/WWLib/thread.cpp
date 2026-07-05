@@ -86,7 +86,7 @@ void ThreadClass::Execute()
 		SetThreadPriority((HANDLE)handle,THREAD_PRIORITY_NORMAL+thread_priority);
 		SetThreadDescription((HANDLE)handle, ThreadName);
 	#endif
-	WWDEBUG_SAY(("ThreadClass::Execute: Started thread %s, thread ID is %X\n", ThreadName, handle));
+	WWDEBUG_SAY(("ThreadClass::Execute: Started thread %s, thread ID is %p\n", ThreadName, (void*)handle));
 }
 
 void ThreadClass::Set_Priority(int priority)

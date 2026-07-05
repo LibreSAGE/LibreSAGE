@@ -217,7 +217,7 @@ void DisconnectManager::updateDisconnectStatus(ConnectionManager *conMgr) {
 						m_haveNotifiedOtherPlayersOfCurrentFrame = TRUE;
 					}
 
-					DEBUG_LOG(("DisconnectManager::updateDisconnectStatus - curTime = %d, m_timeOfDisconnectScreenOn = %d, curTime - m_timeOfDisconnectScreenOn = %d\n", curTime, m_timeOfDisconnectScreenOn, curTime - m_timeOfDisconnectScreenOn));
+					DEBUG_LOG(("DisconnectManager::updateDisconnectStatus - curTime = %d, m_timeOfDisconnectScreenOn = %d, curTime - m_timeOfDisconnectScreenOn = %d\n", (int)(curTime), (int)(m_timeOfDisconnectScreenOn), (int)(curTime - m_timeOfDisconnectScreenOn)));
 
 					if (m_timeOfDisconnectScreenOn != 0) {
 						if ((curTime - m_timeOfDisconnectScreenOn) > TheGlobalData->m_networkDisconnectScreenNotifyTime) {
@@ -540,7 +540,7 @@ void DisconnectManager::turnOnScreen(ConnectionManager *conMgr) {
 	m_haveNotifiedOtherPlayersOfCurrentFrame = FALSE;
 
 	m_timeOfDisconnectScreenOn = timeGetTime();
-	DEBUG_LOG(("DisconnectManager::turnOnScreen - turned on screen at time %d\n", m_timeOfDisconnectScreenOn));
+	DEBUG_LOG(("DisconnectManager::turnOnScreen - turned on screen at time %d\n", (int)(m_timeOfDisconnectScreenOn)));
 }
 
 void DisconnectManager::disconnectPlayer(Int slot, ConnectionManager *conMgr) {

@@ -452,7 +452,7 @@ void TeamFactory::xfer( Xfer *xfer )
 	{
 
 		DEBUG_CRASH(( "TeamFactory::xfer - Prototype count mismatch '%d should be '%d'\n",
-									prototypeCount, m_prototypes.size() ));
+									prototypeCount, (int)(m_prototypes.size()) ));
 		throw SC_INVALID_DATA;
 
 	}  // end if

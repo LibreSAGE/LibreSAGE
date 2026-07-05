@@ -2426,8 +2426,8 @@ void GadgetListBoxAddMultiSelect( GameWindow *listbox )
 	DEBUG_ASSERTCRASH(listboxData && listboxData->selections == NULL, ("selections is not NULL"));
 	listboxData->selections = NEW Int [listboxData->listLength];
 	DEBUG_LOG(( "Enable list box multi select: listLength (select) = %d * %d = %d bytes;\n",
-					 listboxData->listLength, sizeof(Int), 
-					 listboxData->listLength *sizeof(Int) ));
+					 listboxData->listLength, (int)(sizeof(Int)), 
+					 (int)(listboxData->listLength *sizeof(Int)) ));
 
 	if( listboxData->selections == NULL )
 	{

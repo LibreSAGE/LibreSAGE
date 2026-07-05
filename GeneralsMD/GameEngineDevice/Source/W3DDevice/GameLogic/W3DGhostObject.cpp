@@ -676,7 +676,7 @@ void W3DGhostObject::xfer( Xfer *xfer )
 		if( snapshotCount == 0 && m_parentSnapshots[ i ] != NULL )
 		{
 
-			DEBUG_CRASH(( "W3DGhostObject::xfer - m_parentShapshots[ %d ] has data present but the count from the xfer stream is empty\n" ));
+			DEBUG_CRASH(( "W3DGhostObject::xfer - m_parentShapshots[] has data present but the count from the xfer stream is empty\n" ));
 			throw INI_INVALID_DATA;
 
 		}  // end if

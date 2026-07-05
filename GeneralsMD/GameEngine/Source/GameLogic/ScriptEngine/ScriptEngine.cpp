@@ -7126,7 +7126,7 @@ void ScriptEngine::addObjectToCache(Object* pNewObject)
 				AsciiString newNameForDead;
 				newNameForDead.format("Reassigning dead object's name '%s' to object (%d) of type '%s'\n", objName.str(), pNewObject->getID(), pNewObject->getTemplate()->getName().str());
 				TheScriptEngine->AppendDebugMessage(newNameForDead, FALSE);
-				DEBUG_LOG((newNameForDead.str()));
+				DEBUG_LOG(("%s", newNameForDead.str()));
 				it->second = pNewObject;
 				return;
 			} else {

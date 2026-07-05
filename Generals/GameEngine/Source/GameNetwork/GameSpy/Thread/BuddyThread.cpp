@@ -525,7 +525,7 @@ void BuddyThreadClass::messageCallback( GPConnection *con, GPRecvBuddyMessageArg
 	u_strncpy(messageResponse.arg.message.text, s.c_str(), MAX_BUDDY_CHAT_LEN);
 	messageResponse.arg.message.text[MAX_BUDDY_CHAT_LEN-1] = 0;
 	messageResponse.arg.message.date = arg->date;
-	DEBUG_LOG(("Got a buddy message from %d [%ls]\n", arg->profile, s.c_str()));
+	DEBUG_LOG(("Got a buddy message from %d [%s]\n", arg->profile, UnicodeString(s.c_str()).toUTF8().str()));
 	TheGameSpyBuddyMessageQueue->addResponse( messageResponse );
 }
 

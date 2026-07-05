@@ -260,7 +260,7 @@ void PopBackToLobby( void )
 		//TheGameSpyInfo->joinBestGroupRoom();
 	}
 
-	DEBUG_LOG(("PopBackToLobby() - parentWOLGameSetup is %X\n", parentWOLGameSetup));
+	DEBUG_LOG(("PopBackToLobby() - parentWOLGameSetup is %p\n", (void*)(parentWOLGameSetup)));
 	if (parentWOLGameSetup)
 	{
 		nextScreen = "Menus/WOLCustomLobby.wnd";
@@ -2379,7 +2379,7 @@ void WOLGameSetupMenuUpdate( WindowLayout * layout, void *userData)
 								{
 									if (uVal != slot->getIP())
 									{
-										DEBUG_LOG(("setting IP of player %ls from 0x%08x to be 0x%08x", slot->getName().str(), slot->getIP(), uVal));
+										DEBUG_LOG(("setting IP of player %s from 0x%08x to be 0x%08x", slot->getName().toUTF8().str(), slot->getIP(), uVal));
 										slot->setIP(uVal);
 										change = true;
 										shouldUnaccept = true;

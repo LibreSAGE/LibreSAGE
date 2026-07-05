@@ -744,7 +744,7 @@ Bool MapCache::addMap( AsciiString dirName, AsciiString fname, FileInfo *fileInf
 			extension.format(u" (%d)", md.m_numPlayers);
 			md.m_displayName.concat(extension);
 		}
-		DEBUG_LOG(("Map name is now '%ls'\n", md.m_displayName.str()));
+		DEBUG_LOG(("Map name is now '%s'\n", md.m_displayName.toUTF8().str()));
 		TheGameText->reset();
 	}
 
@@ -753,9 +753,9 @@ Bool MapCache::addMap( AsciiString dirName, AsciiString fname, FileInfo *fileInf
 	(*this)[lowerFname] = md;
 
 	DEBUG_LOG(("  filesize = %d bytes\n", md.m_filesize));
-	DEBUG_LOG(("  displayName = %ls\n", md.m_displayName.str()));
+	DEBUG_LOG(("  displayName = %s\n", md.m_displayName.toUTF8().str()));
 	DEBUG_LOG(("  CRC = %X\n", md.m_CRC));
-	DEBUG_LOG(("  timestamp = %d\n", md.m_timestamp));
+	DEBUG_LOG(("  timestamp = %u/%u\n", md.m_timestamp.m_lowTimeStamp, md.m_timestamp.m_highTimeStamp));
 	DEBUG_LOG(("  isOfficial = %s\n", (md.m_isOfficial)?"yes":"no"));
 
 	DEBUG_LOG(("  isMultiplayer = %s\n", (md.m_isMultiplayer)?"yes":"no"));
@@ -893,7 +893,7 @@ typedef MapDisplayToFileNameList::iterator MapDisplayToFileNameListIter;
 				continue;
 			}
 
-			DEBUG_ASSERTCRASH(it != TheMapCache->end(), ("Map %s not found in map cache.", *tempit));
+			DEBUG_ASSERTCRASH(it != TheMapCache->end(), ("Map %s not found in map cache.", (*tempit).toUTF8().str()));
 			if (it->first.startsWithNoCase(mapDir.str()) && isMultiplayer == it->second.m_isMultiplayer && !it->second.m_displayName.isEmpty())
 			{
 				/// @todo: mapDisplayName = TheGameText->fetch(it->second.m_displayName.str());

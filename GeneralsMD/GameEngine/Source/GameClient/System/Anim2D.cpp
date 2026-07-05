@@ -374,7 +374,7 @@ void Anim2D::setCurrentFrame( UnsignedShort frame )
 
 	// sanity
 	DEBUG_ASSERTCRASH( frame >= 0 && frame < m_template->getNumFrames(),
-										 ("Anim2D::setCurrentFrame - Illegal frame number '%d' in animation\n", 
+										 ("Anim2D::setCurrentFrame - Illegal frame number '%d' in animation '%s'\n", 
 										 frame, m_template->getName().str()) );
 
 	// set the frame

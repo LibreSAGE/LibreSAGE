@@ -2139,7 +2139,7 @@ Parameter *Parameter::ReadParameter(DataChunkInput &file)
 					//????
 					pParm->setInt(i);
 					found = true;
-					DEBUG_CRASH(( "Kindof CRUSHER no longer exists -- in order to get your map to load, it has been switched to OBSTACLE, please call Kris (x36844).", pParm->m_string.str()));
+					DEBUG_CRASH(( "Kindof CRUSHER no longer exists -- in order to get your map to load, it has been switched to OBSTACLE, please call Kris (x36844)."));
 					break;
 				}
 				else if( !pParm->m_string.compareNoCase( "CRUSHABLE" ) )
@@ -2147,7 +2147,7 @@ Parameter *Parameter::ReadParameter(DataChunkInput &file)
 					//????
 					pParm->setInt(i);
 					found = true;
-					DEBUG_CRASH(( "Kindof CRUSHABLE no longer exists -- in order to get your map to load, it has been switched to OBSTACLE, please call Kris (x36844).", pParm->m_string.str()));
+					DEBUG_CRASH(( "Kindof CRUSHABLE no longer exists -- in order to get your map to load, it has been switched to OBSTACLE, please call Kris (x36844)."));
 					break;
 				}
 				else if( !pParm->m_string.compareNoCase( "OVERLAPPABLE" ) )
@@ -2155,7 +2155,7 @@ Parameter *Parameter::ReadParameter(DataChunkInput &file)
 					//????
 					pParm->setInt(i);
 					found = true;
-					DEBUG_CRASH(( "Kindof OVERLAPPABLE no longer exists -- in order to get your map to load, it has been switched to OBSTACLE, please call Kris (x36844).", pParm->m_string.str()));
+					DEBUG_CRASH(( "Kindof OVERLAPPABLE no longer exists -- in order to get your map to load, it has been switched to OBSTACLE, please call Kris (x36844)."));
 					break;
 				}
 				else if( !pParm->m_string.compareNoCase( "MISSILE" ) )
@@ -2171,7 +2171,7 @@ Parameter *Parameter::ReadParameter(DataChunkInput &file)
 							break;
 						}
 					}
-					DEBUG_CRASH(("Unable to find Kindof SMALL_MISSILE', please call KrisM (x36844).", pParm->m_string.str()));
+					DEBUG_CRASH(("Unable to find Kindof SMALL_MISSILE', please call KrisM (x36844)."));
 				}
 				
 			}

@@ -1717,7 +1717,7 @@ WindowMsgHandledType WOLQuickMatchMenuSystem( GameWindow *window, UnsignedInt ms
 					if (ladderInfo && ladderInfo->randomFactions)
 					{
 						Int sideNum = GameClientRandomValue(0, ladderInfo->validFactions.size()-1);
-						DEBUG_LOG(("Looking for %d out of %d random sides\n", sideNum, ladderInfo->validFactions.size()));
+						DEBUG_LOG(("Looking for %d out of %d random sides\n", sideNum, (int)(ladderInfo->validFactions.size())));
 						AsciiStringListConstIterator cit = ladderInfo->validFactions.begin();
 						while (sideNum)
 						{
