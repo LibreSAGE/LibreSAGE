@@ -38,13 +38,15 @@
 #define DEFAULT_WORLD_HEIGHT	64
 
 /// A unique, generic "identifier" used to access Objects.
-enum ObjectID : int {
+enum ObjectID : int
+{
 	INVALID_ID = 0,
 	FORCE_OBJECTID_TO_LONG_SIZE = 0x7ffffff
 };
 
 /// A unique, generic "identifier" used to access Drawables.
-enum DrawableID : int {
+enum DrawableID : int
+{
 	INVALID_DRAWABLE_ID = 0,
 	FORCE_DRAWABLEID_TO_LONG_SIZE = 0x7ffffff
 };
@@ -74,7 +76,7 @@ enum TimeOfDay : int {
 	TIME_OF_DAY_COUNT					// keep this last
 };
 
-extern char *TimeOfDayNames[];
+extern const char *TimeOfDayNames[];
 // defined in Common/GameType.cpp
 
 //-------------------------------------------------------------------------------------------------
@@ -86,7 +88,7 @@ enum Weather
 	WEATHER_COUNT					// keep this last
 };
 
-extern char *WeatherNames[];
+extern const char *WeatherNames[];
 
 enum Scorches
 {

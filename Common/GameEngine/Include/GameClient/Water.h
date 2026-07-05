@@ -38,6 +38,7 @@
 #include "Common/Override.h"
 
 //-------------------------------------------------------------------------------------------------
+class INI;
 struct FieldParse;
 
 //-------------------------------------------------------------------------------------------------
@@ -68,6 +69,7 @@ public:
 	Real m_uScrollPerMs;		
 	Real m_vScrollPerMs;
 
+	static void parse( INI *ini );
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -117,6 +119,8 @@ class WaterTransparencySetting : public Overridable
 
 		/// Get the INI parsing table for loading
 		const FieldParse *getFieldParse( void ) const { return m_waterTransparencySettingFieldParseTable; }
+		
+		static void parse( INI *ini );
 };
 
 EMPTY_DTOR(WaterTransparencySetting)

@@ -28,6 +28,7 @@
 #include "Common/GameAudio.h"
 #include "GameClient/ClientRandomValue.h"
 #include "GameLogic/Damage.h"
+#include "GameClient/Water.h"
 
 //-------------------------------------------------------------------------------------------------
 /** Parse a dynamic audio event and assign to the 'DynamicAudioEventRTS*' at store */
@@ -225,8 +226,8 @@ void registerINIBlockParsers( void )
 	INI::registerBlockParse( "MouseCursor",						INI::parseMouseCursorDefinition );
 	INI::registerBlockParse( "ShellMenuScheme",					INI::parseShellMenuSchemeDefinition );
 	INI::registerBlockParse( "Video",							INI::parseVideoDefinition );
-	INI::registerBlockParse( "WaterSet",						INI::parseWaterSettingDefinition );
-	INI::registerBlockParse( "WaterTransparency",				INI::parseWaterTransparencyDefinition );
+	INI::registerBlockParse( "WaterSet",						WaterSetting::parse );
+	INI::registerBlockParse( "WaterTransparency",				WaterTransparencySetting::parse );
 	INI::registerBlockParse( "Weather",							INI::parseWeatherDefinition );
 	INI::registerBlockParse( "WebpageURL",						INI::parseWebpageURLDefinition );
 	INI::registerBlockParse( "HeaderTemplate",					INI::parseHeaderTemplateDefinition );

@@ -15,10 +15,13 @@ target_sources(c_gameengine
     Include/Common/FileSystem.h
     Include/Common/GameCommon.h
     Include/Common/GameMemory.h
+    Include/Common/GameType.h
     Include/Common/INIException.h
     Include/Common/LocalFile.h
     Include/Common/LocalFileSystem.h
     Include/Common/NameKeyGenerator.h
+    Include/Common/Overridable.h
+    Include/Common/Override.h
     Include/Common/RAMFile.h
     Include/Common/Registry.h
     Include/Common/StackDump.h
@@ -27,6 +30,7 @@ target_sources(c_gameengine
     Include/Common/SubsystemInterface.h
     Include/Common/UnicodeString.h
     Include/GameClient/Color.h
+    Include/GameClient/Water.h
     Include/GameLogic/FPUControl.h
     Source/Common/INI/INI.cpp
     Source/Common/System/ArchiveFile.cpp
@@ -38,6 +42,7 @@ target_sources(c_gameengine
     Source/Common/System/File.cpp
     Source/Common/System/FileSystem.cpp
     Source/Common/System/GameMemory.cpp
+    Source/Common/System/GameType.cpp
     Source/Common/System/LocalFile.cpp
     Source/Common/System/LocalFileSystem.cpp
     Source/Common/System/MemoryInit.cpp
@@ -51,6 +56,7 @@ target_sources(c_gameengine
     Source/Common/Dict.cpp
     Source/Common/NameKeyGenerator.cpp
     Source/GameClient/Color.cpp
+    Source/GameClient/Water.cpp
     Source/GameLogic/System/FPUControl.cpp
 )
 
