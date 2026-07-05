@@ -3875,7 +3875,7 @@ void InGameUI::militarySubtitle( const AsciiString& label, Int duration )
 	// make sure we actually will be displaying something
 	if( title.isEmpty() || duration <= 0)
 	{
-		DEBUG_CRASH(("Trying to create a military subtitle but either title is empty (%ls) or duration is <= 0 (%d)",title.str(), duration));
+		DEBUG_CRASH(("Trying to create a military subtitle but either title is empty (%s) or duration is <= 0 (%d)",title.toUTF8().str(), duration));
 		return;
 	}
 
@@ -4055,7 +4055,7 @@ CanAttackResult InGameUI::getCanSelectedObjectsAttack( ActionType action, const 
 			case ACTIONTYPE_MAKE_DEFECTOR:
 			case ACTIONTYPE_SET_RALLY_POINT:
 			default:
-				DEBUG_CRASH( ("Called InGameUI::getCanSelectedObjectsAttack() with actiontype %d. Only accepts attack types! Should you be calling InGameUI::canSelectedObjectsDoAction() instead?") );
+				DEBUG_CRASH( ("Called InGameUI::getCanSelectedObjectsAttack() with this actiontype. Only accepts attack types! Should you be calling InGameUI::canSelectedObjectsDoAction() instead?") );
 				return ATTACKRESULT_INVALID_SHOT;
 
 		}
@@ -5294,7 +5294,7 @@ void InGameUI::selectNextIdleWorker( void )
 	Int index = ThePlayerList->getLocalPlayer()->getPlayerIndex();
 	if(m_idleWorkers[index].empty())
 	{
-		DEBUG_ASSERTCRASH(FALSE, ("InGameUI::selectNextIdleWorker We're trying to select a worker when our list is empty for player %ls", ThePlayerList->getLocalPlayer()->getPlayerDisplayName().str()));
+		DEBUG_ASSERTCRASH(FALSE, ("InGameUI::selectNextIdleWorker We're trying to select a worker when our list is empty for player %s", ThePlayerList->getLocalPlayer()->getPlayerDisplayName().toUTF8().str()));
 		return;
 	}
 	Object *selectThisObject = NULL;

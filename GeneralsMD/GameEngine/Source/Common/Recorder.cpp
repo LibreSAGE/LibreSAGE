@@ -1112,7 +1112,7 @@ Bool RecorderClass::playbackFile(AsciiString filename)
 		tempStr.format("   CRC %8.8X vs %8.8X\n", TheGlobalData->m_iniCRC, header.iniCRC);
 		debugString.concat(tempStr);
 	}
-	DEBUG_ASSERTCRASH(!exeDifferent && !iniDifferent, (debugString.str()));
+	DEBUG_ASSERTCRASH(!exeDifferent && !iniDifferent, ("%s", debugString.str()));
 #endif
 
 	TheWritableGlobalData->m_pendingFile = m_gameInfo.getMap();
@@ -1120,8 +1120,8 @@ Bool RecorderClass::playbackFile(AsciiString filename)
 #ifdef DEBUG_LOGGING
 	if (header.localPlayerIndex >= 0)
 	{
-		DEBUG_LOG(("Local player is %ls (slot %d, IP %8.8X)\n",
-			m_gameInfo.getSlot(header.localPlayerIndex)->getName().str(), header.localPlayerIndex, m_gameInfo.getSlot(header.localPlayerIndex)->getIP()));
+		DEBUG_LOG(("Local player is %s (slot %d, IP %8.8X)\n",
+			m_gameInfo.getSlot(header.localPlayerIndex)->getName().toUTF8().str(), header.localPlayerIndex, m_gameInfo.getSlot(header.localPlayerIndex)->getIP()));
 	}
 #endif
 

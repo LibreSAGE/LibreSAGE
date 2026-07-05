@@ -3840,7 +3840,7 @@ Pathfinder::~Pathfinder( void )
 void Pathfinder::reset( void )
 {
 	frameToShowObstacles = 0;
-	DEBUG_LOG(("Pathfind cell is %d bytes, PathfindCellInfo is %d bytes\n", sizeof(PathfindCell), sizeof(PathfindCellInfo)));
+	DEBUG_LOG(("Pathfind cell is %d bytes, PathfindCellInfo is %d bytes\n", (int)(sizeof(PathfindCell)), (int)(sizeof(PathfindCellInfo))));
 
 	if (m_blockOfMapCells) {
 		delete []m_blockOfMapCells;

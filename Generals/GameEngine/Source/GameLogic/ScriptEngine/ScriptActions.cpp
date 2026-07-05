@@ -201,7 +201,7 @@ void ScriptActions::doQuickVictory( void )
 //-------------------------------------------------------------------------------------------------
 void ScriptActions::doSetInfantryLightingOverride(Real setting)
 {
-	DEBUG_ASSERTCRASH( (setting == -1.0f) || (setting > 0.0f), ("Invalid setting (%d) in Infantry Lighting Override script.", setting) );
+	DEBUG_ASSERTCRASH( (setting == -1.0f) || (setting > 0.0f), ("Invalid setting (%d) in Infantry Lighting Override script.", (int)(setting)) );
 	TheWritableGlobalData->m_scriptOverrideInfantryLightScale = setting;
 }
 
@@ -2967,7 +2967,7 @@ void ScriptActions::doRevealMapEntire(const AsciiString& playerName)
 	Player* player = TheScriptEngine->getPlayerFromAsciiString(playerName);
 	if (player && playerName.isNotEmpty())
 	{
-		DEBUG_LOG(("ScriptActions::doRevealMapEntire() for player named '%ls' in position %d\n", player->getPlayerDisplayName().str(), player->getPlayerIndex()));
+		DEBUG_LOG(("ScriptActions::doRevealMapEntire() for player named '%s' in position %d\n", player->getPlayerDisplayName().toUTF8().str(), player->getPlayerIndex()));
 		ThePartitionManager->revealMapForPlayer( player->getPlayerIndex() );
 	}
 	else

@@ -483,7 +483,7 @@ void NAT::establishConnectionPaths() {
 	for (Int i = 0; i < MAX_SLOTS; ++i) {
 		if (m_slotList[i] != NULL) {
 			if (m_slotList[i]->isHuman()) {
-				DEBUG_LOG(("NAT::establishConnectionPaths - slot %d is %ls\n", i, m_slotList[i]->getName().str()));
+				DEBUG_LOG(("NAT::establishConnectionPaths - slot %d is %s\n", i, m_slotList[i]->getName().toUTF8().str()));
 				++m_numNodes;
 			}
 		}
@@ -533,7 +533,7 @@ void NAT::establishConnectionPaths() {
 					m_connectionNodes[nodeindex].m_behavior = m_slotList[i]->getNATBehavior();
 					connectionAssigned[i] = TRUE;
 					otherNetgearNum = nodeindex;
-					DEBUG_LOG(("NAT::establishConnectionPaths - first netgear in pair. assigning node %d to slot %d (%ls)\n", nodeindex, i, m_slotList[i]->getName().str()));
+					DEBUG_LOG(("NAT::establishConnectionPaths - first netgear in pair. assigning node %d to slot %d (%s)\n", nodeindex, i, m_slotList[i]->getName().toUTF8().str()));
 				} else {
 					// this is the second in the pair of netgears, pair this up with the other one
 					// for the first round.
@@ -545,7 +545,7 @@ void NAT::establishConnectionPaths() {
 					m_connectionNodes[nodeindex].m_behavior = m_slotList[i]->getNATBehavior();
 					connectionAssigned[i] = TRUE;
 					otherNetgearNum = -1;
-					DEBUG_LOG(("NAT::establishConnectionPaths - second netgear in pair. assigning node %d to slot %d (%ls)\n", nodeindex, i, m_slotList[i]->getName().str()));
+					DEBUG_LOG(("NAT::establishConnectionPaths - second netgear in pair. assigning node %d to slot %d (%s)\n", nodeindex, i, m_slotList[i]->getName().toUTF8().str()));
 				}
 			}
 		}
@@ -568,7 +568,7 @@ void NAT::establishConnectionPaths() {
 		while (m_connectionNodes[nodeindex].m_slotIndex != -1) {
 			++nodeindex;
 		}
-		DEBUG_LOG(("NAT::establishConnectionPaths - assigning node %d to slot %d (%ls)\n", nodeindex, i, m_slotList[i]->getName().str()));
+		DEBUG_LOG(("NAT::establishConnectionPaths - assigning node %d to slot %d (%s)\n", nodeindex, i, m_slotList[i]->getName().toUTF8().str()));
 		m_connectionNodes[nodeindex].m_slotIndex = i;
 		m_connectionNodes[nodeindex].m_behavior = m_slotList[i]->getNATBehavior();
 		connectionAssigned[i] = TRUE;
@@ -679,7 +679,7 @@ void NAT::doThisConnectionRound() {
 
 				DEBUG_ASSERTCRASH(localSlot != NULL, ("local slot is NULL"));
 				DEBUG_ASSERTCRASH(targetSlot != NULL, ("trying to negotiate with a NULL target slot, slot is %d", m_connectionPairs[m_connectionPairIndex][m_connectionRound][i]));
-				DEBUG_LOG(("NAT::doThisConnectionRound - Target slot index = %d (%ls)\n", targetSlotIndex, m_slotList[targetSlotIndex]->getName().str()));
+				DEBUG_LOG(("NAT::doThisConnectionRound - Target slot index = %d (%s)\n", targetSlotIndex, m_slotList[targetSlotIndex]->getName().toUTF8().str()));
 				DEBUG_LOG(("NAT::doThisConnectionRound - Target slot has NAT behavior 0x%8X, local slot has NAT behavior 0x%8X\n", targetSlot->getNATBehavior(), localSlot->getNATBehavior()));
 				
 #if defined(DEBUG_LOGGING)
@@ -762,7 +762,7 @@ void NAT::sendMangledSourcePort() {
 		UnsignedInt targetip = targetSlot->getIP();
 #endif
 		DEBUG_LOG(("NAT::sendMangledSourcePort - target and I are behind the same NAT, no mangling\n"));
-		DEBUG_LOG(("NAT::sendMangledSourcePort - I am %ls, target is %ls, my IP is %d.%d.%d.%d, target IP is %d.%d.%d.%d\n", localSlot->getName().str(), targetSlot->getName().str(),
+		DEBUG_LOG(("NAT::sendMangledSourcePort - I am %s, target is %s, my IP is %d.%d.%d.%d, target IP is %d.%d.%d.%d\n", localSlot->getName().toUTF8().str(), targetSlot->getName().toUTF8().str(),
 								localip >> 24, (localip >> 16) & 0xff, (localip >> 8) & 0xff, localip & 0xff,
 								targetip >> 24, (targetip >> 16) & 0xff, (targetip >> 8) & 0xff, targetip & 0xff));
 
@@ -991,7 +991,7 @@ void NAT::probed(Int nodeNumber) {
 				setConnectionState(m_localNodeNumber, NATCONNECTIONSTATE_WAITINGFORMANGLEDPORT);
 				DEBUG_LOG(("NAT::probed - still waiting for mangled port\n"));
 			} else {
-				DEBUG_LOG(("NAT::probed - sending a probe to %ls\n", targetSlot->getName().str()));
+				DEBUG_LOG(("NAT::probed - sending a probe to %s\n", targetSlot->getName().toUTF8().str()));
 				sendAProbe(targetSlot->getIP(), targetSlot->getPort(), m_localNodeNumber);
 				notifyTargetOfProbe(targetSlot);
 				setConnectionState(m_localNodeNumber, NATCONNECTIONSTATE_WAITINGFORRESPONSE);
@@ -1031,7 +1031,7 @@ void NAT::gotMangledPort(Int nodeNumber, UnsignedShort mangledPort) {
 	}
 
 	targetSlot->setPort(mangledPort);
-	DEBUG_LOG(("NAT::gotMangledPort - got mangled port number %d from our target node (%ls)\n", mangledPort, targetSlot->getName().str()));
+	DEBUG_LOG(("NAT::gotMangledPort - got mangled port number %d from our target node (%s)\n", mangledPort, targetSlot->getName().toUTF8().str()));
 	if (((localSlot->getNATBehavior() & FirewallHelperClass::FIREWALL_TYPE_NETGEAR_BUG) == 0) || (m_beenProbed == TRUE) ||
 			(((localSlot->getNATBehavior() & FirewallHelperClass::FIREWALL_TYPE_NETGEAR_BUG) != 0) && ((targetSlot->getNATBehavior() & FirewallHelperClass::FIREWALL_TYPE_NETGEAR_BUG) != 0))) {
 #ifdef DEBUG_LOGGING
@@ -1086,7 +1086,7 @@ void NAT::notifyTargetOfProbe(GameSlot *targetSlot) {
 	req.nick = hostName.str();
 	req.options = options.str();
 	TheGameSpyPeerMessageQueue->addRequest(req);
-	DEBUG_LOG(("NAT::notifyTargetOfProbe - notifying %ls that we have probed them.\n", targetSlot->getName().str()));
+	DEBUG_LOG(("NAT::notifyTargetOfProbe - notifying %s that we have probed them.\n", targetSlot->getName().toUTF8().str()));
 }
 
 void NAT::notifyUsersOfConnectionDone(Int nodeIndex) {

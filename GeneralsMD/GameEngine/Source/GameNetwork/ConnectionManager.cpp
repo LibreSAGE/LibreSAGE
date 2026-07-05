@@ -842,7 +842,7 @@ void ConnectionManager::processAckStage1(NetCommandMsg *msg) {
 			ref = m_connections[playerID]->processAck(msg);
 		}
 	} else {
-		DEBUG_ASSERTCRASH((playerID >= 0) && (playerID < NUM_CONNECTIONS), ("ConnectionManager::processAck - %d is an invalid player number"));
+		DEBUG_ASSERTCRASH((playerID >= 0) && (playerID < NUM_CONNECTIONS), ("ConnectionManager::processAck - %d is an invalid player number", playerID));
 	}
 
 	if (ref != NULL) {
@@ -2082,7 +2082,7 @@ void ConnectionManager::sendChat(UnicodeString text, Int playerMask, UnsignedInt
 	{
 		msg->setID(GenerateNextCommandID());
 	}
-	DEBUG_LOG(("Chat message has ID of %d, mask of %8.8X, text of %ls\n", msg->getID(), msg->getPlayerMask(), msg->getText().str()));
+	DEBUG_LOG(("Chat message has ID of %d, mask of %8.8X, text of %s\n", msg->getID(), msg->getPlayerMask(), msg->getText().toUTF8().str()));
 
 	sendLocalCommand(msg, 0xff ^ (1 << m_localSlot));
 	processChat(msg);
@@ -2109,7 +2109,7 @@ UnsignedShort ConnectionManager::sendFileAnnounce(AsciiString path, UnsignedByte
 	{
 		UnicodeString log;
 		log.format(u"Not sending file '%hs' to %X\n", path.str(), playerMask);
-		DEBUG_LOG(("%ls\n", log.str()));
+		DEBUG_LOG(("%s\n", log.toUTF8().str()));
 		if (TheLAN)
 			TheLAN->OnChat(UnicodeString(u"sendFile"), 0, log, LANAPI::LANCHAT_SYSTEM);
 		return 0;
@@ -2147,7 +2147,7 @@ void ConnectionManager::sendFile(AsciiString path, UnsignedByte playerMask, Unsi
 	{
 		UnicodeString log;
 		log.format(u"Not sending file '%hs' to %X\n", path.str(), playerMask);
-		DEBUG_LOG(("%ls\n", log.str()));
+		DEBUG_LOG(("%s\n", log.toUTF8().str()));
 		if (TheLAN)
 			TheLAN->OnChat(UnicodeString(u"sendFile"), 0, log, LANAPI::LANCHAT_SYSTEM);
 		return;

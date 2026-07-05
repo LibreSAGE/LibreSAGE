@@ -523,7 +523,7 @@ void	MixFileCreator::Add_File( const char * source_filename, const char * saved_
 			FileInfo[ FileInfo.Count()-1 ].Filename = saved_filename;
 
 			WWDEBUG_SAY(( "Saving File %s CRC %08X Offset %d (0x%08X) Size %d (0x%08X)\n",
-					saved_filename, info.CRC, info.Offset, info.Offset, info.Size, info.Size ));
+					saved_filename, info.CRC, (int)info.Offset, (unsigned)info.Offset, (int)info.Size, (unsigned)info.Size ));
 
 			int size = file->Size();
 			while ( size ) {
@@ -568,7 +568,7 @@ void	MixFileCreator::Add_File( const char * filename, FileClass *file )
 		FileInfo[ FileInfo.Count()-1 ].Filename = filename;
 
 		WWDEBUG_SAY(( "Saving File %s CRC %08X Offset %d (0x%08X) Size %d (0x%08X)\n",
-				filename, info.CRC, info.Offset, info.Offset, info.Size, info.Size ));
+				filename, info.CRC, (int)info.Offset, (unsigned)info.Offset, (int)info.Size, (unsigned)info.Size ));
 
 		int size = file->Size();
 		while ( size ) {

@@ -356,7 +356,7 @@ static void updateOverallStats(void)
 	usa = calcPercent(s_statsUSA, STATS_LASTWEEK, TheGameText->fetch("SIDE:America"));
 	china = calcPercent(s_statsChina, STATS_LASTWEEK, TheGameText->fetch("SIDE:China"));
 	gla = calcPercent(s_statsGLA, STATS_LASTWEEK, TheGameText->fetch("SIDE:GLA"));
-	DEBUG_LOG(("Last Week: %ls %ls %ls\n", usa.str(), china.str(), gla.str()));
+	DEBUG_LOG(("Last Week: %s %s %s\n", usa.toUTF8().str(), china.toUTF8().str(), gla.toUTF8().str()));
 	win = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY("WOLWelcomeMenu.wnd:StaticTextUSALastWeek") );
 	GadgetStaticTextSetText(win, usa);
 	win = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY("WOLWelcomeMenu.wnd:StaticTextChinaLastWeek") );
@@ -367,7 +367,7 @@ static void updateOverallStats(void)
 	usa = calcPercent(s_statsUSA, STATS_TODAY, TheGameText->fetch("SIDE:America"));
 	china = calcPercent(s_statsChina, STATS_TODAY, TheGameText->fetch("SIDE:China"));
 	gla = calcPercent(s_statsGLA, STATS_TODAY, TheGameText->fetch("SIDE:GLA"));
-	DEBUG_LOG(("Today: %ls %ls %ls\n", usa.str(), china.str(), gla.str()));
+	DEBUG_LOG(("Today: %s %s %s\n", usa.toUTF8().str(), china.toUTF8().str(), gla.toUTF8().str()));
 	win = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY("WOLWelcomeMenu.wnd:StaticTextUSAToday") );
 	GadgetStaticTextSetText(win, usa);
 	win = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY("WOLWelcomeMenu.wnd:StaticTextChinaToday") );

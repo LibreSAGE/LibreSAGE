@@ -2184,7 +2184,7 @@ UpdateSleepTime AIUpdateInterface::doLocomotor( void )
 							{
 								return UPDATE_SLEEP_FOREVER;  // Can't move till we get our path.
 							}
-							DEBUG_LOG(("Dead %d, obj %s %x\n", isAiInDeadState(), getObject()->getTemplate()->getName().str(), getObject()));
+							DEBUG_LOG(("Dead %d, obj %s %p\n", isAiInDeadState(), getObject()->getTemplate()->getName().str(), (void*)(getObject())));
 #ifdef STATE_MACHINE_DEBUG
 							DEBUG_LOG(("Waiting %d, state %s\n", m_waitingForPath, getStateMachine()->getCurrentStateName().str()));
 							m_stateMachine->setDebugOutput(1);

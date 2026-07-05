@@ -479,8 +479,8 @@ static Object * placeObjectAtPosition(Int slotNum, AsciiString objectTemplateNam
 	DEBUG_ASSERTCRASH(btt, ("TheThingFactory didn't find a template in placeObjectAtPosition()") );
 
 	Object *obj = TheThingFactory->newObject( btt, pPlayer->getDefaultTeam() );
-	DEBUG_ASSERTCRASH(obj, ("TheThingFactory didn't give me a valid Object for player %d's (%ls) starting building\n",
-		slotNum, pTemplate->getDisplayName().str()));
+	DEBUG_ASSERTCRASH(obj, ("TheThingFactory didn't give me a valid Object for player %d's (%s) starting building\n",
+		slotNum, pTemplate->getDisplayName().toUTF8().str()));
 	if (obj)
 	{
 		obj->setOrientation(obj->getTemplate()->getPlacementViewAngle());	
@@ -540,8 +540,8 @@ static void placeNetworkBuildingsForPlayer(Int slotNum, const GameSlot *pSlot, P
 
 	AsciiString buildingTemplateName = pTemplate->getStartingBuilding();
 
-	DEBUG_ASSERTCRASH(!buildingTemplateName.isEmpty(), ("no starting building type for player %d (playertemplate %ls)\n",
-		slotNum, pTemplate->getDisplayName().str()));
+	DEBUG_ASSERTCRASH(!buildingTemplateName.isEmpty(), ("no starting building type for player %d (playertemplate %s)\n",
+		slotNum, pTemplate->getDisplayName().toUTF8().str()));
 	if (buildingTemplateName.isEmpty())
 		return;
 
@@ -1700,7 +1700,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 
 	// reveal the map for the permanent observer
 	ThePartitionManager->revealMapForPlayerPermanently( ThePlayerList->findPlayerWithNameKey(TheNameKeyGenerator->nameToKey("ReplayObserver"))->getPlayerIndex() );
-	DEBUG_LOG(("Reveal shroud for %ls whose index is %d\n", ThePlayerList->findPlayerWithNameKey(TheNameKeyGenerator->nameToKey("ReplayObserver"))->getPlayerDisplayName().str(),ThePlayerList->findPlayerWithNameKey(TheNameKeyGenerator->nameToKey("ReplayObserver"))->getPlayerIndex()));
+	DEBUG_LOG(("Reveal shroud for %s whose index is %d\n", ThePlayerList->findPlayerWithNameKey(TheNameKeyGenerator->nameToKey("ReplayObserver"))->getPlayerDisplayName().toUTF8().str(),ThePlayerList->findPlayerWithNameKey(TheNameKeyGenerator->nameToKey("ReplayObserver"))->getPlayerIndex()));
 	
 	if (game)
 	{
@@ -2130,8 +2130,8 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 			if (pPlayer)
 			{
 				pPlayer->addSkillPoints(m_rankPointsToAddAtGameStart);
-				DEBUG_LOG(("GameLogic::startNewGame() - adding m_rankPointsToAddAtGameStart==%d to player %d(%ls)\n",
-					m_rankPointsToAddAtGameStart, i, pPlayer->getPlayerDisplayName().str()));
+				DEBUG_LOG(("GameLogic::startNewGame() - adding m_rankPointsToAddAtGameStart==%d to player %d(%s)\n",
+					m_rankPointsToAddAtGameStart, i, pPlayer->getPlayerDisplayName().toUTF8().str()));
 			}
 		}
 	}
@@ -2225,7 +2225,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 			TheRadar->forceOn(TRUE);
 			ThePartitionManager->refreshShroudForLocalPlayer();
 			TheControlBar->setControlBarSchemeByPlayer( ThePlayerList->getLocalPlayer());
-			DEBUG_LOG(("Start of a replay game %ls, %d\n",ThePlayerList->getLocalPlayer()->getPlayerDisplayName().str(), ThePlayerList->getLocalPlayer()->getPlayerIndex()));
+			DEBUG_LOG(("Start of a replay game %s, %d\n",ThePlayerList->getLocalPlayer()->getPlayerDisplayName().toUTF8().str(), ThePlayerList->getLocalPlayer()->getPlayerIndex()));
 		}
 		else
 			TheControlBar->setControlBarSchemeByPlayer(ThePlayerList->getLocalPlayer());
@@ -2566,12 +2566,12 @@ void GameLogic::processCommandList( CommandList *list )
 		if (sawCRCMismatch)
 		{
 #ifdef DEBUG_LOGGING
-			DEBUG_LOG(("CRC Mismatch - saw %d CRCs from %d players\n", m_cachedCRCs.size(), numPlayers));
+			DEBUG_LOG(("CRC Mismatch - saw %d CRCs from %d players\n", (int)(m_cachedCRCs.size()), numPlayers));
 			for (std::map<Int, UnsignedInt>::const_iterator crcIt = m_cachedCRCs.begin(); crcIt != m_cachedCRCs.end(); ++crcIt)
 			{
 				Player *player = ThePlayerList->getNthPlayer(crcIt->first);
-				DEBUG_LOG(("CRC from player %d (%ls) = %X\n", crcIt->first,
-					player?player->getPlayerDisplayName().str():u"<NONE>", crcIt->second));
+				DEBUG_LOG(("CRC from player %d (%s) = %X\n", crcIt->first,
+					UnicodeString(player?player->getPlayerDisplayName().str():u"<NONE>").toUTF8().str(), crcIt->second));
 			}
 #endif DEBUG_LOGGING
 			TheNetwork->setSawCRCMismatch();

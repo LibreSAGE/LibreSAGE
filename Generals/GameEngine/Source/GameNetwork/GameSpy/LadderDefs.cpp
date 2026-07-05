@@ -163,8 +163,8 @@ static LadderInfo *parseLadder(AsciiString raw)
 		}
 		else if ( lad && line.compare("</Ladder>") == 0 )
 		{
-			DEBUG_LOG(("Saw a ladder: name=%ls, addr=%s:%d, players=%dv%d, pass=%s, replay=%d, homepage=%s\n",
-				lad->name.str(), lad->address.str(), lad->port, lad->playersPerTeam, lad->playersPerTeam, lad->cryptedPassword.str(),
+			DEBUG_LOG(("Saw a ladder: name=%s, addr=%s:%d, players=%dv%d, pass=%s, replay=%d, homepage=%s\n",
+				lad->name.toUTF8().str(), lad->address.str(), lad->port, lad->playersPerTeam, lad->playersPerTeam, lad->cryptedPassword.str(),
 				lad->submitReplay, lad->homepageURL.str()));
 			// end of a ladder
 			if (lad->playersPerTeam >= 1 && lad->playersPerTeam <= MAX_SLOTS/2)
@@ -184,7 +184,7 @@ static LadderInfo *parseLadder(AsciiString raw)
 						AsciiString faction = *it;
 						AsciiString marker;
 						marker.format("INI:Faction%s", faction.str());
-						DEBUG_LOG(("Faction %s has marker %s corresponding to str %ls\n", faction.str(), marker.str(), TheGameText->fetch(marker).str()));
+						DEBUG_LOG(("Faction %s has marker %s corresponding to str %s\n", faction.str(), marker.str(), TheGameText->fetch(marker).toUTF8().str()));
 					}
 				}
 
@@ -332,7 +332,7 @@ LadderList::LadderList()
 	// look for local ladders
 	loadLocalLadders();
 
-	DEBUG_LOG(("After looking for ladders, we have %d local, %d special && %d normal\n", m_localLadders.size(), m_specialLadders.size(), m_standardLadders.size()));
+	DEBUG_LOG(("After looking for ladders, we have %d local, %d special && %d normal\n", (int)(m_localLadders.size()), (int)(m_specialLadders.size()), (int)(m_standardLadders.size())));
 }
 
 LadderList::~LadderList()
@@ -522,6 +522,6 @@ void LadderList::checkLadder( AsciiString fname, Int index )
 	//	fname.removeLastChar(); // remove .lad
 	//li->name = UnicodeString(MultiByteToWideCharSingleLine(fname.reverseFind('\\')+1).c_str());
 
-	DEBUG_LOG(("Adding local ladder %ls\n", li->name.str()));
+	DEBUG_LOG(("Adding local ladder %s\n", li->name.toUTF8().str()));
 	m_localLadders.push_back(li);
 }

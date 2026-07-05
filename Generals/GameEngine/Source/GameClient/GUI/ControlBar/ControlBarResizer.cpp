@@ -203,7 +203,7 @@ void ControlBarResizer::sizeWindowsAlt( void )
 		win->winSetPosition(rWin->m_altPos.x * x, rWin->m_altPos.y * y);
 		if(rWin->m_altSize.x >0 || rWin->m_altSize.y > 0)
 			win->winSetSize(rWin->m_altSize.x *x, rWin->m_altSize.y *y);
-		DEBUG_LOG(("sizeWindowsAlt:%s pos X:%d pos Y: %d size X:%d sizeY: %d",rWin->m_name.str(), rWin->m_altPos.x*x, rWin->m_altPos.y*y,rWin->m_altSize.x*x, rWin->m_altSize.y *y));
+		DEBUG_LOG(("sizeWindowsAlt:%s pos X:%d pos Y: %d size X:%d sizeY: %d",rWin->m_name.str(), (int)(rWin->m_altPos.x*x), (int)(rWin->m_altPos.y*y),(int)(rWin->m_altSize.x*x), (int)(rWin->m_altSize.y *y)));
 		it ++;	
 	}
 }

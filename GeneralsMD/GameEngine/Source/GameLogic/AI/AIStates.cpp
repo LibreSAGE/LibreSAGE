@@ -676,8 +676,8 @@ void AIRappelState::onExit( StateExitType status )
 */
 AIStateMachine::AIStateMachine( Object *obj, AsciiString name ) : StateMachine( obj, name )
 {
-	DEBUG_ASSERTCRASH(getOwner(), ("An AI State Machine '%s' was constructed without an owner, please tell JKMCD", name));
-	DEBUG_ASSERTCRASH(getOwner()->getAI(), ("An AI State Machine '%s' was constructed without an AIUpdateInterface, please tell JKMCD", name));
+	DEBUG_ASSERTCRASH(getOwner(), ("An AI State Machine '%s' was constructed without an owner, please tell JKMCD", name.str()));
+	DEBUG_ASSERTCRASH(getOwner()->getAI(), ("An AI State Machine '%s' was constructed without an AIUpdateInterface, please tell JKMCD", name.str()));
 
 	m_goalPath.clear();
 	m_goalWaypoint = NULL;
@@ -936,7 +936,7 @@ StateReturnType AIStateMachine::setTemporaryState( StateID newStateID, Int frame
 		if (m_temporaryState) {
 			curState = m_temporaryState->getID();
 		}
-		DEBUG_LOG(("%d '%s' -(TEMP)- '%s' %x exit ", TheGameLogic->getFrame(), getOwner()->getTemplate()->getName().str(), getName().str(), this));
+		DEBUG_LOG(("%d '%s' -(TEMP)- '%s' %p exit ", TheGameLogic->getFrame(), getOwner()->getTemplate()->getName().str(), getName().str(), (void*)(this)));
 		if (m_temporaryState) {
 			DEBUG_LOG((" '%s' ", m_temporaryState->getName().str()));
 		} else {

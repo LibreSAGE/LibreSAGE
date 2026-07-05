@@ -191,9 +191,9 @@ void dumpBattlePlanBonuses(const BattlePlanBonuses *b, AsciiString name, const P
 		kindofMaskAsAsciiString(b->m_invalidKindOf).str()));
 	if (!doDebugLog)
 		return;
-	DEBUG_LOG(("dumpBattlePlanBonuses() %s:%d %s\n  Player %d(%ls) object %d(%s) armor:%g/%8.8X bombardment:%d, holdTheLine:%d, searchAndDestroy:%d sight:%g/%8.8X, valid:%s invalid:%s\n",
+	DEBUG_LOG(("dumpBattlePlanBonuses() %s:%d %s\n  Player %d(%s) object %d(%s) armor:%g/%8.8X bombardment:%d, holdTheLine:%d, searchAndDestroy:%d sight:%g/%8.8X, valid:%s invalid:%s\n",
 		fname.str(), line, name.str(),
-		(p)?p->getPlayerIndex():-1, (p)?((Player *)p)->getPlayerDisplayName().str():u"<No Name>", (o)?o->getID():-1, (o)?o->getTemplate()->getName().str():"<No Name>",
+		(p)?p->getPlayerIndex():-1, UnicodeString((p)?((Player *)p)->getPlayerDisplayName().str():u"<No Name>").toUTF8().str(), (o)?o->getID():-1, (o)?o->getTemplate()->getName().str():"<No Name>",
 		b->m_armorScalar, AS_INT(b->m_armorScalar),
 		b->m_bombardment, b->m_holdTheLine, b->m_searchAndDestroy,
 		b->m_sightRangeScalar, AS_INT(b->m_sightRangeScalar),
@@ -3867,7 +3867,7 @@ void Player::removeKindOfProductionCostChange(	KindOfMaskType kindOf, Real perce
 		}
 		++it;
 	}
-	DEBUG_ASSERTCRASH(FALSE, ("removeKindOfProductionCostChange was called with kindOf=%d and percent=%f. We could not find the entry in the list with these variables. CLH.",kindOf, percent));
+	DEBUG_ASSERTCRASH(FALSE, ("removeKindOfProductionCostChange was called with percent=%f. We could not find the entry in the list with these variables. CLH.", percent));
 }
 
 //-------------------------------------------------------------------------------------------------

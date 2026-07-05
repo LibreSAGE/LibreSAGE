@@ -295,7 +295,7 @@ UnsignedShort FirewallHelperClass::getNextTemporarySourcePort(Int skip)
 			closeSpareSocket(return_port);
 			return(return_port);
 		} else {
-			DEBUG_LOG(("FirewallHelperClass::getNextTemporarySourcePort - failed to open socket on port %d\n"));
+			DEBUG_LOG(("FirewallHelperClass::getNextTemporarySourcePort - failed to open socket on port\n"));
 		}
 	}
 
@@ -325,7 +325,7 @@ UnsignedShort FirewallHelperClass::getNextTemporarySourcePort(Int skip)
 Bool FirewallHelperClass::sendToManglerFromPort(NET_Address* address, UnsignedShort port, UnsignedShort packetID, Bool blitzme)
 {
 	DEBUG_LOG(("sizeof(ManglerMessage) == %d, sizeof(ManglerData) == %d\n",
-		sizeof(ManglerMessage), sizeof(ManglerData)));
+		(int)(sizeof(ManglerMessage)), (int)(sizeof(ManglerData))));
 
 	/*
 	** Build the packet to send out.
@@ -997,7 +997,7 @@ Bool FirewallHelperClass::detectionTest3WaitForResponsesUpdate() {
 			*/
 			m_sourcePortAllocationDelta = m_lastSourcePortAllocationDelta;
 		}
-		DEBUG_LOG(("FirewallHelperClass::detectionTest3WaitForResponsesUpdate - didn't get enough responses, using %d as the source port allocation delta, finished test\n"));
+		DEBUG_LOG(("FirewallHelperClass::detectionTest3WaitForResponsesUpdate - didn't get enough responses, using the source port allocation delta, finished test\n"));
 		m_currentState = DETECTIONSTATE_DONE;
 		return TRUE;
 	}

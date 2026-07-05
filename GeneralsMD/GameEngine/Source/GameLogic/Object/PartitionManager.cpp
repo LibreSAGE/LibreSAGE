@@ -2753,7 +2753,7 @@ void PartitionManager::update()
 			// save it.
 			PartitionData *dirty = m_dirtyModules;
 			DEBUG_ASSERTCRASH(dirty->getObject() != NULL || dirty->getGhostObject() != NULL, 
-												("must be attached to an Object here %08lx",dirty));
+												("must be attached to an Object here %p",(void*)(dirty)));
 
 			// get this BEFORE removing from dirty list, since that clears the
 			// flag in question.

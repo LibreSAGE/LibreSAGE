@@ -1569,7 +1569,7 @@ bool TextureLoadTaskClass::Begin_Uncompressed_Load(void)
    	&&	src_format != WW3D_FORMAT_R8G8B8 
   		&&	src_format != WW3D_FORMAT_X8R8G8B8 ) 
 	{
-		WWDEBUG_SAY(("Invalid TGA format used in %s - only 24 and 32 bit formats should be used!\n", Texture->Get_Full_Path()));
+		WWDEBUG_SAY(("Invalid TGA format used in %s - only 24 and 32 bit formats should be used!\n", Texture->Get_Full_Path().Peek_Buffer()));
 	}
 
 	// Destination size will be the next power of two square from the larger width and height...
@@ -1578,7 +1578,7 @@ bool TextureLoadTaskClass::Begin_Uncompressed_Load(void)
 	TextureLoader::Validate_Texture_Size(width, height,depth);
 	if (width != ow || height != oh) 
 	{
-		WWDEBUG_SAY(("Invalid texture size, scaling required. Texture: %s, size: %d x %d -> %d x %d\n", Texture->Get_Full_Path(), ow, oh, width, height));
+		WWDEBUG_SAY(("Invalid texture size, scaling required. Texture: %s, size: %d x %d -> %d x %d\n", Texture->Get_Full_Path().Peek_Buffer(), ow, oh, width, height));
 	}
 
 	Width		= width;
@@ -1723,7 +1723,7 @@ bool TextureLoadTaskClass::Begin_Uncompressed_Load(void)
 	if (	src_format != WW3D_FORMAT_A8R8G8B8 
 		&&	src_format != WW3D_FORMAT_R8G8B8 
 		&&	src_format != WW3D_FORMAT_X8R8G8B8) {
-		WWDEBUG_SAY(("Invalid TGA format used in %s - only 24 and 32 bit formats should be used!\n", Texture->Get_Full_Path()));
+		WWDEBUG_SAY(("Invalid TGA format used in %s - only 24 and 32 bit formats should be used!\n", Texture->Get_Full_Path().Peek_Buffer()));
 	}
 
 	// Destination size will be the next power of two square from the larger width and height...
@@ -1750,7 +1750,7 @@ bool TextureLoadTaskClass::Begin_Uncompressed_Load(void)
 	unsigned oh = height;
 	TextureLoader::Validate_Texture_Size(width, height);
 	if (width != ow || height != oh) {
-		WWDEBUG_SAY(("Invalid texture size, scaling required. Texture: %s, size: %d x %d -> %d x %d\n", Texture->Get_Full_Path(), ow, oh, width, height));
+		WWDEBUG_SAY(("Invalid texture size, scaling required. Texture: %s, size: %d x %d -> %d x %d\n", Texture->Get_Full_Path().Peek_Buffer(), ow, oh, width, height));
 	}
 
 	Width		= width;
@@ -2351,7 +2351,7 @@ bool CubeTextureLoadTaskClass::Begin_Uncompressed_Load(void)
    		&&	src_format != WW3D_FORMAT_R8G8B8 
   			&&	src_format != WW3D_FORMAT_X8R8G8B8 ) 
 	{
-		WWDEBUG_SAY(("Invalid TGA format used in %s - only 24 and 32 bit formats should be used!\n", Texture->Get_Full_Path()));
+		WWDEBUG_SAY(("Invalid TGA format used in %s - only 24 and 32 bit formats should be used!\n", Texture->Get_Full_Path().Peek_Buffer()));
 	}
 
 	// Destination size will be the next power of two square from the larger width and height...
@@ -2360,7 +2360,7 @@ bool CubeTextureLoadTaskClass::Begin_Uncompressed_Load(void)
 	TextureLoader::Validate_Texture_Size(width, height,depth);
 	if (width != ow || height != oh) 
 	{
-		WWDEBUG_SAY(("Invalid texture size, scaling required. Texture: %s, size: %d x %d -> %d x %d\n", Texture->Get_Full_Path(), ow, oh, width, height));
+		WWDEBUG_SAY(("Invalid texture size, scaling required. Texture: %s, size: %d x %d -> %d x %d\n", Texture->Get_Full_Path().Peek_Buffer(), ow, oh, width, height));
 	}
 
 	Width		= width;
@@ -2717,7 +2717,7 @@ bool VolumeTextureLoadTaskClass::Begin_Uncompressed_Load(void)
    		&&	src_format != WW3D_FORMAT_R8G8B8 
   			&&	src_format != WW3D_FORMAT_X8R8G8B8 ) 
 	{
-		WWDEBUG_SAY(("Invalid TGA format used in %s - only 24 and 32 bit formats should be used!\n", Texture->Get_Full_Path()));
+		WWDEBUG_SAY(("Invalid TGA format used in %s - only 24 and 32 bit formats should be used!\n", Texture->Get_Full_Path().Peek_Buffer()));
 	}
 
 	// Destination size will be the next power of two square from the larger width and height...
@@ -2727,7 +2727,7 @@ bool VolumeTextureLoadTaskClass::Begin_Uncompressed_Load(void)
 	TextureLoader::Validate_Texture_Size(width, height, depth);
 	if (width != ow || height != oh || depth != od) 
 	{
-		WWDEBUG_SAY(("Invalid texture size, scaling required. Texture: %s, size: %d x %d -> %d x %d\n", Texture->Get_Full_Path(), ow, oh, width, height));
+		WWDEBUG_SAY(("Invalid texture size, scaling required. Texture: %s, size: %d x %d -> %d x %d\n", Texture->Get_Full_Path().Peek_Buffer(), ow, oh, width, height));
 	}
 
 	Width		= width;

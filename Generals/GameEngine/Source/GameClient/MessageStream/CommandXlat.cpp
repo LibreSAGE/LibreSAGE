@@ -3899,7 +3899,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 						UnicodeString umsg;
 						umsg.translate(msg);
 						TheInGameUI->message(umsg);
-						DEBUG_LOG(("%ls\n", msg.str()));
+						DEBUG_LOG(("%p\n", (void*)(msg.str())));
 
 						pObject->setGeometryInfo( newGeometry );
 					}

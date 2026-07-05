@@ -1377,8 +1377,8 @@ void GameWindowManager::dumpWindow( GameWindow *window )
 	if( window == NULL )
 		return;
 
-	DEBUG_LOG(( "ID: %d\tRedraw: 0x%08X\tUser Data: %d\n",
-				 	 window->winGetWindowId(), window->m_draw, window->m_userData ));
+	DEBUG_LOG(( "ID: %d\tRedraw: %p\tUser Data: %p\n",
+				 	 window->winGetWindowId(), (void*)window->m_draw, window->m_userData ));
 	
 	for( child = window->m_child; child; child = child->m_next )
 		dumpWindow( child );

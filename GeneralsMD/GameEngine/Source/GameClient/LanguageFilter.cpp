@@ -106,7 +106,7 @@ void LanguageFilter::filterLine(UnicodeString &line)
 		unHaxor(token);
 		LangMapIter iter = m_wordList.find(token);
 		if (iter != m_wordList.end()) {
-			DEBUG_LOG(("Found word %ls in bad word list. Token was %ls\n", (*iter).first.str(), token.str()));
+			DEBUG_LOG(("Found word %s in bad word list. Token was %s\n", (*iter).first.toUTF8().str(), token.toUTF8().str()));
 			for (Int i = 0; i < len; ++i) {
 				*pos = u'*';
 				++pos;

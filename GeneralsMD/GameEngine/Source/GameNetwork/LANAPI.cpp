@@ -73,7 +73,7 @@ LANGame::LANGame( void )
 LANAPI::LANAPI( void ) : m_transport(NULL)
 {
 	DEBUG_LOG(("LANAPI::LANAPI() - max game option size is %d, sizeof(LANMessage)=%d, MAX_PACKET_SIZE=%d\n",
-		m_lanMaxOptionsLength, sizeof(LANMessage), MAX_PACKET_SIZE));
+		m_lanMaxOptionsLength, (int)(sizeof(LANMessage)), MAX_PACKET_SIZE));
 
 	m_lastResendTime = 0;
 	//
@@ -902,7 +902,7 @@ void LANAPI::RequestGameCreate( UnicodeString gameName, Bool isDirectConnect )
 	while (s.getLength() > g_lanGameNameLength)
 		s.removeLastChar();
 
-	DEBUG_LOG(("Setting local game name to '%ls'\n", s.str()));
+	DEBUG_LOG(("Setting local game name to '%s'\n", s.toUTF8().str()));
 
 	myGame->setName(s);
 

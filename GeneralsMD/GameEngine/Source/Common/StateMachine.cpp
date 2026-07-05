@@ -339,7 +339,7 @@ void StateMachine::internalClear()
 #ifdef STATE_MACHINE_DEBUG
 	if (getWantsDebugOutput())
 	{
-		DEBUG_LOG(("%d '%s'%x -- '%s' %x internalClear()\n", TheGameLogic->getFrame(), m_owner->getTemplate()->getName().str(), m_owner, m_name.str(), this));
+		DEBUG_LOG(("%d '%s'%p -- '%s' %p internalClear()\n", TheGameLogic->getFrame(), m_owner->getTemplate()->getName().str(), (void*)(m_owner), m_name.str(), (void*)(this)));
 	}
 #endif
 }
@@ -519,7 +519,7 @@ State *StateMachine::internalGetState( StateID id )
 	if (i == m_stateMap.end())
 	{
 		DEBUG_CRASH( ("StateMachine::internalGetState(): Invalid state for object %s using state %d", m_owner->getTemplate()->getName().str(), id) );
-		DEBUG_LOG(("Transisioning to state #d\n", (Int)id));
+		DEBUG_LOG(("Transisioning to state %d\n", (Int)id));
 		DEBUG_LOG(("Attempting to recover - locating default state...\n"));
 		i = m_stateMap.find(m_defaultStateID);
 		if (i == m_stateMap.end()) {
@@ -591,7 +591,7 @@ StateReturnType StateMachine::internalSetState( StateID newStateID )
 			if (m_currentState) {
 				curState = m_currentState->getID();
 			}
-			DEBUG_LOG(("%d '%s'%x -- '%s' %x exit ", TheGameLogic->getFrame(), m_owner->getTemplate()->getName().str(), m_owner, m_name.str(), this));
+			DEBUG_LOG(("%d '%s'%p -- '%s' %p exit ", TheGameLogic->getFrame(), m_owner->getTemplate()->getName().str(), (void*)(m_owner), m_name.str(), (void*)(this)));
 			if (m_currentState) {
 				DEBUG_LOG((" '%s' ", m_currentState->getName().str()));
 			} else {
@@ -759,7 +759,7 @@ void StateMachine::halt()
 #ifdef STATE_MACHINE_DEBUG
 	if (getWantsDebugOutput())
 	{
-		DEBUG_LOG(("%d '%s' -- '%s' %x halt()\n", TheGameLogic->getFrame(), m_owner->getTemplate()->getName().str(), m_name.str(), this));
+		DEBUG_LOG(("%d '%s' -- '%s' %p halt()\n", TheGameLogic->getFrame(), m_owner->getTemplate()->getName().str(), m_name.str(), (void*)(this)));
 	}	
 #endif
 }

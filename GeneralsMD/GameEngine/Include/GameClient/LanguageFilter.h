@@ -55,7 +55,7 @@ struct UnicodeStringsEqual
 	Bool operator()(UnicodeString a, UnicodeString b) const
 	{
 		Bool retval = (a.compareNoCase(b) == 0);
-		DEBUG_LOG(("Comparing %ls with %ls, return value is ", a.str(), b.str()));
+		DEBUG_LOG(("Comparing %s with %s, return value is ", a.toUTF8().str(), b.toUTF8().str()));
 		if (retval) {
 			DEBUG_LOG(("true.\n"));
 		} else {

@@ -1097,8 +1097,8 @@ GameSlot *lSlot = game->getSlot(game->getLocalSlotNum());
 
 		// Get the stats for the player
 		PSPlayerStats stats = TheGameSpyPSMessageQueue->findPlayerStatsByID(slot->getProfileID());
-		DEBUG_LOG(("LoadScreen - populating info for %ls(%d) - stats returned id %d\n",
-			slot->getName().str(), slot->getProfileID(), stats.id));
+		DEBUG_LOG(("LoadScreen - populating info for %s(%d) - stats returned id %d\n",
+			slot->getName().toUTF8().str(), slot->getProfileID(), stats.id));
 
 		Bool isPreorder = TheGameSpyInfo->didPlayerPreorder(stats.id);
 		Int rankPoints = CalculateRank(stats);

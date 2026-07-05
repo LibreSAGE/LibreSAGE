@@ -582,7 +582,7 @@ void GameSpyInfo::markAsStagingRoomJoiner( Int game )
 		m_localStagingRoom.setAllowObservers(info->getAllowObservers());
 		m_localStagingRoom.setHasPassword(info->getHasPassword());
 		m_localStagingRoom.setGameName(info->getGameName());
-		DEBUG_LOG(("Joining game: host is %ls\n", m_localStagingRoom.getConstSlot(0)->getName().str()));
+		DEBUG_LOG(("Joining game: host is %s\n", m_localStagingRoom.getConstSlot(0)->getName().toUTF8().str()));
 	}
 }
 
@@ -888,11 +888,11 @@ void GameSpyInfo::updateAdditionalGameSpyDisconnections(Int count)
 
 		Int ptIdx;
 		const PlayerTemplate *myTemplate = player->getPlayerTemplate();
-		DEBUG_LOG(("myTemplate = %X(%s)\n", myTemplate, myTemplate->getName().str()));
+		DEBUG_LOG(("myTemplate = %p(%s)\n", (void*)(myTemplate), myTemplate->getName().str()));
 		for (ptIdx = 0; ptIdx < ThePlayerTemplateStore->getPlayerTemplateCount(); ++ptIdx)
 		{
 			const PlayerTemplate *nthTemplate = ThePlayerTemplateStore->getNthPlayerTemplate(ptIdx);
-			DEBUG_LOG(("nthTemplate = %X(%s)\n", nthTemplate, nthTemplate->getName().str()));
+			DEBUG_LOG(("nthTemplate = %p(%s)\n", (void*)(nthTemplate), nthTemplate->getName().str()));
 			if (nthTemplate == myTemplate)
 			{
 					break;

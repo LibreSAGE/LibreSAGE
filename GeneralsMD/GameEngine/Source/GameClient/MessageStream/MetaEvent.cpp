@@ -394,7 +394,7 @@ static const char * findGameMessageNameByType(GameMessage::Type type)
 		if (metaNames->value == (Int)type)
 			return metaNames->name;
 
-	DEBUG_CRASH(("MetaTypeName %d not found -- did you remember to add it to GameMessageMetaTypeNames[] ?\n"));
+	DEBUG_CRASH(("MetaTypeName not found -- did you remember to add it to GameMessageMetaTypeNames[] ?\n"));
 	return "???";
 }
 
