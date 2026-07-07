@@ -6,6 +6,14 @@ target_sources(c_gameengine
     Include/Common/ArchiveFile.h
     Include/Common/ArchiveFileSystem.h
     Include/Common/AsciiString.h
+    Include/Common/AudioAffect.h
+    Include/Common/AudioEventInfo.h
+    Include/Common/AudioEventRTS.h
+    Include/Common/AudioHandleSpecialValues.h
+    Include/Common/AudioRandomValue.h
+    Include/Common/AudioRequest.h
+    Include/Common/AudioSettings.h
+    Include/Common/BitFlags.h
     Include/Common/CopyProtection.h
     Include/Common/CRC.h
     Include/Common/CriticalSection.h
@@ -15,14 +23,21 @@ target_sources(c_gameengine
     Include/Common/Encrypt.h
     Include/Common/Errors.h
     Include/Common/FileSystem.h
+    Include/Common/GameAudio.h
     Include/Common/GameCommon.h
     Include/Common/GameMemory.h
+    Include/Common/GameMusic.h
+    Include/Common/GameSounds.h
     Include/Common/GameType.h
+    Include/Common/GlobalData.h
     Include/Common/INIException.h
+    Include/Common/INIParsers.h
     Include/Common/Language.h
     Include/Common/List.h
     Include/Common/LocalFile.h
     Include/Common/LocalFileSystem.h
+    Include/Common/MiscAudio.h
+    Include/Common/Money.h
     Include/Common/NameKeyGenerator.h
     Include/Common/Overridable.h
     Include/Common/Override.h
@@ -30,6 +45,7 @@ target_sources(c_gameengine
     Include/Common/QuotedPrintable.h
     Include/Common/RAMFile.h
     Include/Common/Registry.h
+    Include/Common/Snapshot.h
     Include/Common/StackDump.h
     Include/Common/STLTypedefs.h
     Include/Common/StreamingArchiveFile.h
@@ -40,9 +56,15 @@ target_sources(c_gameengine
     Include/GameClient/Statistics.h
     Include/GameClient/VideoPlayer.h
     Include/GameClient/Water.h
+    Include/GameClient/WindowVideoManager.h
     Include/GameLogic/FPUControl.h
     Include/GameNetwork/GameSpy/ThreadUtils.h
+    Source/Common/Audio/AudioRequest.cpp
+    Source/Common/Audio/GameMusic.cpp
     Source/Common/INI/INI.cpp
+    Source/Common/INI/INIAudioEventInfo.cpp
+    Source/Common/INI/INIMiscAudio.cpp
+    Source/Common/INI/INIVideo.cpp
     Source/Common/System/ArchiveFile.cpp
     Source/Common/System/ArchiveFileSystem.cpp
     Source/Common/System/AsciiString.cpp
@@ -75,6 +97,7 @@ target_sources(c_gameengine
     Source/GameClient/Line2D.cpp
     Source/GameClient/Statistics.cpp
     Source/GameClient/VideoPlayer.cpp
+    Source/GameClient/VideoStream.cpp
     Source/GameClient/Water.cpp
     Source/GameLogic/System/FPUControl.cpp
     Source/GameNetwork/GameSpy/Thread/ThreadUtils.cpp

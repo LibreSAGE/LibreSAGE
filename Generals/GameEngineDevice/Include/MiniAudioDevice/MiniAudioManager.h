@@ -113,7 +113,7 @@ class MiniAudioManager : public AudioManager
 		///< NOTE NOTE NOTE !!DO NOT USE THIS IN FOR GAMELOGIC PURPOSES!! NOTE NOTE NOTE
 		virtual Bool isCurrentlyPlaying( AudioHandle handle );
 
-		virtual void notifyOfAudioCompletion( UnsignedIntPtr audioCompleted, UnsignedInt flags );
+		virtual void notifyOfAudioCompletion( UnsignedInt audioCompleted, UnsignedInt flags );
 		virtual PlayingAudio *findPlayingAudioFrom( UnsignedIntPtr audioCompleted, UnsignedInt flags );
 
 		virtual UnsignedInt getProviderCount( void ) const;
@@ -138,6 +138,7 @@ class MiniAudioManager : public AudioManager
 		virtual Bool isPlayingLowerPriority( AudioEventRTS *event ) const;
 		virtual Bool isPlayingAlready( AudioEventRTS *event ) const;
 		virtual Bool isObjectPlayingVoice( UnsignedInt objID ) const;
+		virtual Bool has3DSensitiveStreamsPlaying( void ) const;
 		Bool killLowestPrioritySoundImmediately( AudioEventRTS *event );
 		AudioEventRTS* findLowestPrioritySound( AudioEventRTS *event );
 

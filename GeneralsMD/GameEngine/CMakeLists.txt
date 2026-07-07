@@ -5,17 +5,9 @@ target_sources(
   z_gameengine
   PRIVATE
           Include/Common/ActionManager.h
-          Include/Common/AudioAffect.h
-          Include/Common/AudioEventInfo.h
-          Include/Common/AudioEventRTS.h
-          Include/Common/AudioHandleSpecialValues.h
-          Include/Common/AudioRandomValue.h
-          Include/Common/AudioRequest.h
-          Include/Common/AudioSettings.h
           Include/Common/BattleHonors.h
           Include/Common/BezFwdIterator.h
           Include/Common/BezierSegment.h
-          Include/Common/BitFlags.h
           Include/Common/BitFlagsIO.h
           Include/Common/BorderColors.h
           Include/Common/BuildAssistant.h
@@ -31,18 +23,13 @@ target_sources(
           Include/Common/DrawModule.h
           Include/Common/Energy.h
           Include/Common/FunctionLexicon.h
-          Include/Common/GameAudio.h
           Include/Common/GameEngine.h
           Include/Common/GameLOD.h
-          Include/Common/GameMusic.h
-          Include/Common/GameSounds.h
           Include/Common/GameSpyMiscPreferences.h
           Include/Common/GameState.h
           Include/Common/GameStateMap.h
           Include/Common/Geometry.h
-          Include/Common/GlobalData.h
           Include/Common/Handicap.h
-          Include/Common/INIParsers.h
           Include/Common/IgnorePreferences.h
           Include/Common/KindOf.h
           Include/Common/LadderPreferences.h
@@ -51,12 +38,10 @@ target_sources(
           Include/Common/MapReaderWriterInfo.h
           Include/Common/MessageStream.h
           Include/Common/MiniLog.h
-          Include/Common/MiscAudio.h
           Include/Common/MissionStats.h
           Include/Common/ModelState.h
           Include/Common/Module.h
           Include/Common/ModuleFactory.h
-          Include/Common/Money.h
           Include/Common/MultiplayerSettings.h
           Include/Common/OSDisplay.h
           Include/Common/PerfMetrics.h
@@ -76,7 +61,6 @@ target_sources(
           Include/Common/ScoreKeeper.h
           Include/Common/SkirmishBattleHonors.h
           Include/Common/SkirmishPreferences.h
-          Include/Common/Snapshot.h
           Include/Common/SparseMatchFinder.h
           Include/Common/SpecialPower.h
           Include/Common/SpecialPowerMaskType.h
@@ -185,7 +169,6 @@ target_sources(
           Include/GameClient/View.h
           Include/GameClient/WinInstanceData.h
           Include/GameClient/WindowLayout.h
-          Include/GameClient/WindowVideoManager.h
           Include/GameClient/WindowXlat.h
           Include/GameLogic/AI.h
           Include/GameLogic/AIDock.h
@@ -472,9 +455,7 @@ target_sources(
           Include/GameNetwork/NetworkUtil.h
           Include/GameNetwork/udp.h
           Source/Common/Audio/AudioEventRTS.cpp
-          Source/Common/Audio/AudioRequest.cpp
           Source/Common/Audio/GameAudio.cpp
-          Source/Common/Audio/GameMusic.cpp
           Source/Common/Audio/GameSounds.cpp
           Source/Common/Bezier/BezFwdIterator.cpp
           Source/Common/Bezier/BezierSegment.cpp
@@ -489,7 +470,6 @@ target_sources(
           Source/Common/GlobalData.cpp
           Source/Common/INI/INIAiData.cpp
           Source/Common/INI/INIAnimation.cpp
-          Source/Common/INI/INIAudioEventInfo.cpp
           Source/Common/INI/INICommandButton.cpp
           Source/Common/INI/INICommandSet.cpp
           Source/Common/INI/INIControlBarScheme.cpp
@@ -500,7 +480,6 @@ target_sources(
           Source/Common/INI/INIMapCache.cpp
           Source/Common/INI/INIMapData.cpp
           Source/Common/INI/INIMappedImage.cpp
-          Source/Common/INI/INIMiscAudio.cpp
           Source/Common/INI/INIModel.cpp
           Source/Common/INI/INIMultiplayer.cpp
           Source/Common/INI/INIObject.cpp
@@ -511,7 +490,6 @@ target_sources(
           Source/Common/INI/INITerrainBridge.cpp
           Source/Common/INI/INITerrainRoad.cpp
           Source/Common/INI/INIUpgrade.cpp
-          Source/Common/INI/INIVideo.cpp
           Source/Common/INI/INIWeapon.cpp
           Source/Common/INI/INIWebpageURL.cpp
           Source/Common/MessageStream.cpp
@@ -705,7 +683,6 @@ target_sources(
           Source/GameClient/System/Smudge.cpp
           Source/GameClient/Terrain/TerrainRoads.cpp
           Source/GameClient/Terrain/TerrainVisual.cpp
-          Source/GameClient/VideoStream.cpp
           Source/GameClient/View.cpp
           Source/GameLogic/AI/AI.cpp
           Source/GameLogic/AI/AIDock.cpp

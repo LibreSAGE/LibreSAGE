@@ -174,8 +174,8 @@ class MilesAudioManager : public AudioManager
 		///< NOTE NOTE NOTE !!DO NOT USE THIS IN FOR GAMELOGIC PURPOSES!! NOTE NOTE NOTE
 		virtual Bool isCurrentlyPlaying( AudioHandle handle );
 
-		virtual void notifyOfAudioCompletion( UnsignedIntPtr audioCompleted, UnsignedInt flags );
-		virtual PlayingAudio *findPlayingAudioFrom( UnsignedIntPtr audioCompleted, UnsignedInt flags );
+		virtual void notifyOfAudioCompletion( UnsignedInt audioCompleted, UnsignedInt flags );
+		virtual PlayingAudio *findPlayingAudioFrom( UnsignedInt audioCompleted, UnsignedInt flags );
 
 		virtual UnsignedInt getProviderCount( void ) const;
 		virtual AsciiString getProviderName( UnsignedInt providerNum ) const;
@@ -226,7 +226,9 @@ class MilesAudioManager : public AudioManager
 
 		virtual void closeAnySamplesUsingFile( const void *fileToClose );
 
-	protected:	
+		virtual Bool has3DSensitiveStreamsPlaying( void ) const;
+
+	protected:
 		// 3-D functions
 		virtual void setDeviceListenerPosition( void );
 		const Coord3D *getCurrentPositionFromEvent( AudioEventRTS *event );

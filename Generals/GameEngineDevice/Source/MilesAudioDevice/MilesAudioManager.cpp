@@ -1526,7 +1526,7 @@ Bool MilesAudioManager::isCurrentlyPlaying( AudioHandle handle )
 }
 
 //-------------------------------------------------------------------------------------------------
-void MilesAudioManager::notifyOfAudioCompletion( UnsignedIntPtr audioCompleted, UnsignedInt flags )
+void MilesAudioManager::notifyOfAudioCompletion( UnsignedInt audioCompleted, UnsignedInt flags )
 {
 	PlayingAudio *playing = findPlayingAudioFrom(audioCompleted, flags);
 	if (!playing) {
@@ -1588,7 +1588,7 @@ void MilesAudioManager::notifyOfAudioCompletion( UnsignedIntPtr audioCompleted, 
 }
 
 //-------------------------------------------------------------------------------------------------
-PlayingAudio *MilesAudioManager::findPlayingAudioFrom( UnsignedIntPtr audioCompleted, UnsignedInt flags )
+PlayingAudio *MilesAudioManager::findPlayingAudioFrom( UnsignedInt audioCompleted, UnsignedInt flags )
 {
 	std::list<PlayingAudio *>::iterator it;
 	PlayingAudio *playing;
@@ -2388,6 +2388,43 @@ void MilesAudioManager::processPlayingList( void )
 	if (m_volumeHasChanged) {
 		m_volumeHasChanged = false;
 	}
+}
+
+//Patch for a rare bug (only on about 5% of in-studio machines suffer, and not all the time) .
+//The actual mechanics of this problem are still elusive as of the date of this comment. 8/21/03
+//but the cause is clear. Some cinematics do a radical change in the microphone position, which
+//calls for a radical 3DSoundVolume adjustment. If this happens while a stereo stream is *ENDING*,
+//low-level code gets caught in a tight loop. (Hangs) on some machines.
+//To prevent this condition, we just suppress the updating of 3DSoundVolume while one of these
+//is on the list. Since the music tracks play continuously, they never *END* during these cinematics.
+//so we filter them out as, *NOT SENSITIVE*... we do want to update 3DSoundVolume during music,
+//which is almost all of the time.
+
+Bool MilesAudioManager::has3DSensitiveStreamsPlaying( void ) const
+{
+  if ( m_playingStreams.empty() )
+    return FALSE;
+
+	for ( std::list< PlayingAudio* >::const_iterator it = m_playingStreams.begin(); it != m_playingStreams.end(); ++it )
+  {
+		const PlayingAudio *playing = (*it);
+
+    if ( ! playing )
+      continue;
+
+    if ( playing->m_audioEventRTS->getAudioEventInfo()->m_soundType != AT_Music )
+    {
+      return TRUE;
+    }
+
+    if ( playing->m_audioEventRTS->getEventName().startsWith("Game_") == FALSE )
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+
 }
 
 //-------------------------------------------------------------------------------------------------

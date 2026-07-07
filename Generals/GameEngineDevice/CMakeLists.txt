@@ -63,7 +63,6 @@ target_sources(
           Include/W3DDevice/GameClient/W3DTerrainTracks.h
           Include/W3DDevice/GameClient/W3DTerrainVisual.h
           Include/W3DDevice/GameClient/W3DTreeBuffer.h
-          Include/W3DDevice/GameClient/W3DVideobuffer.h
           Include/W3DDevice/GameClient/W3DView.h
           Include/W3DDevice/GameClient/W3DVolumetricShadow.h
           Include/W3DDevice/GameClient/W3DWater.h
@@ -149,7 +148,6 @@ target_sources(
           Source/W3DDevice/GameClient/W3DTerrainTracks.cpp
           Source/W3DDevice/GameClient/W3DTerrainVisual.cpp
           Source/W3DDevice/GameClient/W3DTreeBuffer.cpp
-          Source/W3DDevice/GameClient/W3DVideoBuffer.cpp
           Source/W3DDevice/GameClient/W3DView.cpp
           Source/W3DDevice/GameClient/W3dWaypointBuffer.cpp
           Source/W3DDevice/GameClient/W3DWebBrowser.cpp
@@ -200,8 +198,7 @@ target_link_libraries(g_gameenginedevice PRIVATE glm::glm)
 
 if(SAGE_USE_FFMPEG)
   target_sources(
-    g_gameenginedevice PRIVATE Include/VideoDevice/FFmpeg/FFmpegVideoPlayer.h
-                               Source/VideoDevice/FFmpeg/FFmpegVideoPlayer.cpp)
+    g_gameenginedevice PRIVATE Source/VideoDevice/FFmpeg/FFmpegVideoPlayer.cpp)
   find_package(FFMPEG REQUIRED)
   target_include_directories(g_gameenginedevice PRIVATE ${FFMPEG_INCLUDE_DIRS})
   target_link_libraries(g_gameenginedevice PRIVATE ${FFMPEG_LIBRARIES})

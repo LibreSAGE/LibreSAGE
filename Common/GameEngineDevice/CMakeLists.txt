@@ -5,8 +5,10 @@ target_sources(
   c_gameenginedevice
   PRIVATE Include/W3DDevice/Common/W3DConvert.h
           Include/W3DDevice/GameClient/W3DDynamicLight.h
+          Include/W3DDevice/GameClient/W3DVideobuffer.h
           Source/W3DDevice/Common/W3DConvert.cpp
-          Source/W3DDevice/GameClient/W3DDynamicLight.cpp)
+          Source/W3DDevice/GameClient/W3DDynamicLight.cpp
+          Source/W3DDevice/GameClient/W3DVideoBuffer.cpp)
 
 if(SAGE_USE_SDL3)
   target_sources(
@@ -31,6 +33,7 @@ if(SAGE_USE_FFMPEG)
   target_sources(
     c_gameenginedevice
     PRIVATE Include/VideoDevice/FFmpeg/FFmpegFile.h
+            Include/VideoDevice/FFmpeg/FFmpegVideoPlayer.h
             Source/VideoDevice/FFmpeg/FFmpegFile.cpp)
 
   find_package(FFMPEG REQUIRED)

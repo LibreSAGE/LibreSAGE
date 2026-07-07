@@ -461,7 +461,7 @@ GlobalData* GlobalData::m_theOriginal = NULL;
 
 	{ "StandardPublicBone", INI::parseAsciiStringVectorAppend, NULL, offsetof(GlobalData, m_standardPublicBones) },
 	{ "ShowMetrics",								INI::parseBool,				NULL,			offsetof( GlobalData, m_showMetrics ) },
-	{ "DefaultStartingCash",				INI::parseUnsignedInt, NULL,		offsetof( GlobalData, m_defaultStartingCash ) },
+	{ "DefaultStartingCash",				Money::parseMoneyAmount, NULL,		offsetof( GlobalData, m_defaultStartingCash ) },
 
 // NOTE: m_doubleClickTimeMS is still in use, but we disallow setting it from the GameData.ini file. It is now set in the constructor according to the windows parameter.
 //	{ "DoubleClickTimeMS",									INI::parseUnsignedInt,			NULL, offsetof( GlobalData, m_doubleClickTimeMS ) },
@@ -1040,12 +1040,6 @@ GlobalData::GlobalData()
 	m_keyboardCameraRotateSpeed = 0.1f;
 
 }  // end GlobalData
-
-//-------------------------------------------------------------------------------------------------
-AsciiString GlobalData::getPath_UserData() const
-{
-	return m_userDataDir;
-}
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------

@@ -752,11 +752,11 @@ void AudioManager::set3DVolumeAdjustment( Real volumeAdjustment )
 	if (m_sound3DVolume < 0.0f) 
 		m_sound3DVolume = 0.0f;
 
-	if (m_sound3DVolume > 1.0f) 
+	if (m_sound3DVolume > 1.0f)
 		m_sound3DVolume = 1.0f;
 
-
-	m_volumeHasChanged = TRUE;
+	if ( ! has3DSensitiveStreamsPlaying() )
+		m_volumeHasChanged = TRUE;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -796,9 +796,21 @@ void AudioManager::appendAudioRequest( AudioRequest *m_request )
 }
 
 //-------------------------------------------------------------------------------------------------
+// Remove all pending audio requests
+void AudioManager::removeAllAudioRequests( void )
+{
+  std::list<AudioRequest*>::iterator it;
+  for ( it = m_audioRequests.begin(); it != m_audioRequests.end(); it++ ) {
+    releaseAudioRequest( *it );
+  }
+
+  m_audioRequests.clear();
+}
+
+//-------------------------------------------------------------------------------------------------
 void AudioManager::processRequestList( void )
 {
-	
+
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -815,6 +827,23 @@ AudioEventInfo *AudioManager::newAudioEventInfo( AsciiString audioName )
 }
 
 //-------------------------------------------------------------------------------------------------
+// Add an AudioEventInfo structure allocated elsewhere to the audio event list
+void AudioManager::addAudioEventInfo( AudioEventInfo * newEvent )
+{
+  // Warning: Don't try to copy the structure. It may be a derived class
+  AudioEventInfo *eventInfo = findAudioEventInfo( newEvent->m_audioName );
+  if (eventInfo)
+  {
+    DEBUG_CRASH(("Requested add of '%s' multiple times. Is this intentional? - jkmcd\n", newEvent->m_audioName.str()));
+    *eventInfo = *newEvent;
+  }
+  else
+  {
+    m_allAudioEventInfo[newEvent->m_audioName] = newEvent;
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
 AudioEventInfo *AudioManager::findAudioEventInfo( AsciiString eventName ) const
 {
 	AudioEventInfoHash::const_iterator it;
@@ -824,6 +853,28 @@ AudioEventInfo *AudioManager::findAudioEventInfo( AsciiString eventName ) const
 	}
 
 	return (*it).second;
+}
+
+//-------------------------------------------------------------------------------------------------
+// Remove all AudioEventInfo's with the m_isLevelSpecific flag
+void AudioManager::removeLevelSpecificAudioEventInfos(void)
+{
+  AudioEventInfoHash::iterator it = m_allAudioEventInfo.begin();
+
+  while ( it != m_allAudioEventInfo.end() )
+  {
+    AudioEventInfoHash::iterator next = it; // Make sure erase doesn't cause problems
+    next++;
+
+    if ( it->second->isLevelSpecific() )
+    {
+      it->second->deleteInstance();
+      m_allAudioEventInfo.erase( it );
+    }
+
+    it = next;
+  }
+
 }
 
 //-------------------------------------------------------------------------------------------------

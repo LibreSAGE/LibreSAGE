@@ -455,7 +455,7 @@ void Player::init(const PlayerTemplate* pt)
 
 		if( m_money.countMoney() == 0 )
 		{
-			m_money.deposit( TheGlobalData->m_defaultStartingCash, FALSE );
+			m_money = TheGlobalData->m_defaultStartingCash;
 		}
 
 		m_playerDisplayName.clear();

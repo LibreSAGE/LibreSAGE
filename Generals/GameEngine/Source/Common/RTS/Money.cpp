@@ -44,6 +44,7 @@
 #include "Common/Money.h"
 
 #include "Common/GameAudio.h"
+#include "Common/INI.h"
 #include "Common/MiscAudio.h"
 #include "Common/Player.h"
 #include "Common/Xfer.h"
@@ -85,6 +86,15 @@ void Money::deposit(UnsignedInt amountToDeposit, Bool playSound)
 		TheAudio->addAudioEvent(&event);
 	
 	m_money += amountToDeposit;
+}
+
+// ------------------------------------------------------------------------------------------------
+/** Parse a money amount for the ini file. E.g. DefaultStartingMoney = 10000 */
+// ------------------------------------------------------------------------------------------------
+void Money::parseMoneyAmount( INI *ini, void *instance, void *store, const void* userData )
+{
+	Money * money = (Money *)store;
+	INI::parseUnsignedInt( ini, instance, &money->m_money, userData );
 }
 
 // ------------------------------------------------------------------------------------------------

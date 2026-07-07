@@ -815,7 +815,7 @@ Bool MiniAudioManager::isCurrentlyPlaying( AudioHandle handle )
 }
 
 //-------------------------------------------------------------------------------------------------
-void MiniAudioManager::notifyOfAudioCompletion( UnsignedIntPtr audioCompleted, UnsignedInt flags )
+void MiniAudioManager::notifyOfAudioCompletion( UnsignedInt audioCompleted, UnsignedInt flags )
 {
 	PlayingAudio *playing = findPlayingAudioFrom(audioCompleted, flags);
 	if (!playing) {
@@ -946,6 +946,12 @@ Bool MiniAudioManager::isPlayingAlready( AudioEventRTS *event ) const
 
 //-------------------------------------------------------------------------------------------------
 Bool MiniAudioManager::isObjectPlayingVoice( UnsignedInt objID ) const
+{
+	return FALSE;
+}
+
+//-------------------------------------------------------------------------------------------------
+Bool MiniAudioManager::has3DSensitiveStreamsPlaying( void ) const
 {
 	return FALSE;
 }

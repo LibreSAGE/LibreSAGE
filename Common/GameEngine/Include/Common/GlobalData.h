@@ -44,7 +44,7 @@
 
 // FORWARD DECLARATIONS ///////////////////////////////////////////////////////////////////////////
 struct FieldParse;
-typedef enum _TerrainLOD : int;
+enum _TerrainLOD : int;
 class GlobalData;
 class INI;
 class WeaponBonusSet;
@@ -95,7 +95,7 @@ public:
 	Bool m_useTrees;
 	Bool m_useTreeSway;
 	Bool m_useDrawModuleLOD;
-	Bool m_useHeatEffects;
+	Bool m_useHeatEffects = TRUE;
 	Bool m_useFpsLimit;
 	Bool m_dumpAssetUsage;
 	Int m_framesPerSecondLimit;
@@ -119,8 +119,8 @@ public:
 	Bool m_enableStaticLOD;
 	Int m_terrainLODTargetTimeMS;
 	Bool m_useAlternateMouse;
-	Bool m_clientRetaliationModeEnabled;
-	Bool m_doubleClickAttackMove;
+	Bool m_clientRetaliationModeEnabled = TRUE;
+	Bool m_doubleClickAttackMove = FALSE;
 	Bool m_rightMouseAlwaysScrolls;
 	Bool m_useWaterPlane;
 	Bool m_useCloudPlane;
@@ -250,7 +250,7 @@ public:
 
 	UnsignedInt m_noDraw;					///< Used to disable drawing, to profile game logic code.
 	AIDebugOptions m_debugAI;			///< Used to display AI debug information
-	Bool m_debugSupplyCenterPlacement; ///< Dumps to log everywhere it thinks about placing a supply center
+	Bool m_debugSupplyCenterPlacement = FALSE; ///< Dumps to log everywhere it thinks about placing a supply center
 	Bool m_debugAIObstacles;			///< Used to display AI obstacle debug information
 	Bool m_showObjectHealth;			///< debug display object health
 	Bool m_scriptDebug;						///< Should we attempt to load the script debugger window (.DLL)
@@ -336,7 +336,7 @@ public:
 	AsciiString m_shellMapName;				///< Holds the shell map name
 	Bool m_shellMapOn;								///< User can set the shell map not to load
 	Bool m_playIntro;									///< Flag to say if we're to play the intro or not
-	Bool m_playSizzle;								///< Flag to say whether we play the sizzle movie after the logo movie.
+	Bool m_playSizzle = TRUE;								///< Flag to say whether we play the sizzle movie after the logo movie.
 	Bool m_afterIntro;								///< we need to tell the game our intro is done
 	Bool m_allowExitOutOfMovies;			///< flag to allow exit out of movies only after the Intro has played
 
@@ -526,7 +526,11 @@ private:
 	// this is private, since we read the info from Windows and cache it for
 	// future use. No one is allowed to change it, ever. (srj)
 	AsciiString m_userDataDir;
-	
+
+	// just the "leaf name", read from INI on some ports; private because no one is ever allowed
+	// to look at it directly; they must go thru getPath_UserData(). (srj)
+	AsciiString m_userDataLeafName;
+
 	static GlobalData *m_theOriginal;		///< the original global data instance (no overrides)
 	GlobalData *m_next;									///< next instance (for overrides)
 	GlobalData *newOverride( void );		/** create a new override, copy data from previous
