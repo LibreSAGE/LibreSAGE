@@ -6,6 +6,16 @@
 
 This repository includes source code for Command & Conquer Generals, and its expansion pack Zero Hour. 
 
+## Goals
+
+- Make all SAGE games playable on all modern machines
+- Share as much code as possible between games 
+- Backport features from newer games to older games 
+
+## Non-Goals
+
+- Being network / replay / savegame compatible to the retail games
+
 ## Dependencies
 
 If you wish to rebuild the source code and tools successfully you will need to find or write new replacements (or remove the code using them entirely) for the following libraries;

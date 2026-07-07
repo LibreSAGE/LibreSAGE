@@ -7,7 +7,7 @@
   "registries": [
     {
       "kind": "git",
-      "baseline": "a8f3f6d914680f22b565ba66d0a495fd1b45f407",
+      "baseline": "48c951f13901c8eea84979cdfb250341cfe460d1",
       "repository": "https://github.com/LibreSAGE/vcpkg-registry",
       "packages": [
         "dxvk"      
