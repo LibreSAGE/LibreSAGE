@@ -3,6 +3,7 @@ find_package(SDL3 REQUIRED)
 
 add_executable(c_gameenginetest
     Common/AsciiStringTest.cpp
+    Common/AudioManagerStub.cpp
     Common/CRCTest.cpp
     Common/DictTest.cpp
     Common/EncryptTest.cpp

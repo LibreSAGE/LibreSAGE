@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "Common/INI.h"
+#include "Common/INIParsers.h"
 #include "GameClient/Water.h"
 #include "SDL3Device/Common/SDL3BIGFileSystem.h"
 #include "SDL3Device/Common/SDL3LocalFileSystem.h"
@@ -26,3 +27,48 @@ TEST(INI, ParseWaterINI)
     ini.load(SAGE_TEST_INI_DATA_DIR "/water.ini", INI_LOAD_OVERWRITE, NULL );
 
 }
+
+TEST(INI, ParseSoundEffectsINI)
+{
+    // Filesystem Boilerplate
+    SDL3LocalFileSystem local_fs;
+    TheLocalFileSystem = &local_fs;
+    FileSystem fs;
+    TheFileSystem = &fs;
+
+    // Register parsing functions
+    INI::registerBlockParse("AudioEvent", INI::parseAudioEventDefinition);
+
+    INI ini;
+    ini.load(SAGE_TEST_INI_DATA_DIR "/soundeffects.ini", INI_LOAD_OVERWRITE, NULL );
+}
+
+TEST(INI, ParseMusicINI)
+{
+    // Filesystem Boilerplate
+    SDL3LocalFileSystem local_fs;
+    TheLocalFileSystem = &local_fs;
+    FileSystem fs;
+    TheFileSystem = &fs;
+
+    // Register parsing functions
+    INI::registerBlockParse("MusicTrack", INI::parseMusicTrackDefinition);
+
+    INI ini;
+    ini.load(SAGE_TEST_INI_DATA_DIR "/music.ini", INI_LOAD_OVERWRITE, NULL );
+}
+
+// TEST(INI, ParseMiscAudioINI)
+// {
+//     // Filesystem Boilerplate
+//     SDL3LocalFileSystem local_fs;
+//     TheLocalFileSystem = &local_fs;
+//     FileSystem fs;
+//     TheFileSystem = &fs;
+
+//     // Register parsing functions
+//     INI::registerBlockParse("MiscAudio", INI::parseMiscAudio);
+
+//     INI ini;
+//     ini.load(SAGE_TEST_INI_DATA_DIR "/miscaudio.ini", INI_LOAD_OVERWRITE, NULL );
+// }
