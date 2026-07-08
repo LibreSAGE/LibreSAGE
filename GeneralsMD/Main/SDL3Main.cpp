@@ -326,7 +326,7 @@ int main(int argc, char **argv)
 				char name[_MAX_PATH], file[_MAX_PATH];
 				unsigned int line;
 				unsigned int addr;
-				GetFunctionDetails((void*)pc, name, file, &line, &addr);
+				GetFunctionDetails((void*)pc, name, sizeof(name), file, sizeof(file), &line, &addr);
 				DEBUG_LOG(("0x%x - %s, %s, line %d address 0x%x\n", pc, name, file, line, addr));
 			}
 			DEBUG_LOG(("\n--- END OF DX STACK DUMP\n"));

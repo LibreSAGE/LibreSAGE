@@ -1304,10 +1304,10 @@ void WW3D::Make_Screen_Shot( const char * filename_base , const float gamma, con
 	char ext[4];
 	switch (format) {
 		case TGA:
-			sprintf(ext,"tga");
+			snprintf(ext,sizeof(ext),"tga");
 			break;
 		case BMP:
-			sprintf(ext,"bmp");
+			snprintf(ext,sizeof(ext),"bmp");
 			break;
 		default:
 			WWASSERT(0);
@@ -1319,7 +1319,7 @@ void WW3D::Make_Screen_Shot( const char * filename_base , const float gamma, con
 
 	bool done = false;
 	while (!done) {
-		sprintf( filename, "%s%.2d.%s", filename_base, frame_number++, ext);
+		snprintf( filename, sizeof(filename), "%s%.2d.%s", filename_base, frame_number++, ext);
 		FileClass*file=_TheFileFactory->Get_File( filename );
 		if ( file ) {
 			file->Open();

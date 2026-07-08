@@ -116,7 +116,7 @@ const char *TheDebugLevels[DEBUG_LEVEL_MAX] = {
 // ----------------------------------------------------------------------------
 static const char *getCurrentTimeString(void);
 static const char *getCurrentTickString(void);
-static const char *prepBuffer(const char* format, char *buffer);
+static const char *prepBuffer(const char* format, char *buffer, size_t bufferSize);
 #ifdef DEBUG_LOGGING
 static void doLogOutput(const char *buffer);
 #endif
@@ -173,7 +173,7 @@ static const char *getCurrentTimeString(void)
 static const char *getCurrentTickString(void)
 {
 	static char TheTickString[32];
-	sprintf(TheTickString, "(T=%08lx)",::GetTickCount());
+	snprintf(TheTickString, sizeof(TheTickString), "(T=%08lx)",::GetTickCount());
 	return TheTickString;
 }
 
@@ -185,14 +185,15 @@ static const char *getCurrentTickString(void)
 	Empty the buffer passed in, then optionally prepend the current TickCount
 	value in string form, depending on the setting of theDebugFlags.
 */
-static const char *prepBuffer(const char* format, char *buffer)
+static const char *prepBuffer(const char* format, char *buffer, size_t bufferSize)
 {
 	buffer[0] = 0;
 #ifdef ALLOW_DEBUG_UTILS
 	if (theDebugFlags & DEBUG_FLAG_PREPEND_TIME)
 	{
-		strcpy(buffer, getCurrentTickString());
-		strcat(buffer, " ");
+		strncpy(buffer, getCurrentTickString(), bufferSize);
+		buffer[bufferSize - 1] = '\0';
+		strncat(buffer, " ", bufferSize - strlen(buffer) - 1);
 	}
 #endif
 	return format;
@@ -361,12 +362,14 @@ void DebugInit(int flags)
 		char prevbuf[ _MAX_PATH ];
 		char curbuf[ _MAX_PATH ];
 
-		strcpy(prevbuf, dirbuf);
-		strcat(prevbuf, gAppPrefix);
-		strcat(prevbuf, DEBUG_FILE_NAME_PREV);
-		strcpy(curbuf, dirbuf);
-		strcat(curbuf, gAppPrefix);
-		strcat(curbuf, DEBUG_FILE_NAME);
+		strncpy(prevbuf, dirbuf, sizeof(prevbuf));
+		prevbuf[sizeof(prevbuf) - 1] = '\0';
+		strncat(prevbuf, gAppPrefix, sizeof(prevbuf) - strlen(prevbuf) - 1);
+		strncat(prevbuf, DEBUG_FILE_NAME_PREV, sizeof(prevbuf) - strlen(prevbuf) - 1);
+		strncpy(curbuf, dirbuf, sizeof(curbuf));
+		curbuf[sizeof(curbuf) - 1] = '\0';
+		strncat(curbuf, gAppPrefix, sizeof(curbuf) - strlen(curbuf) - 1);
+		strncat(curbuf, DEBUG_FILE_NAME, sizeof(curbuf) - strlen(curbuf) - 1);
 
  		remove(prevbuf);
 		rename(curbuf, prevbuf);
@@ -397,11 +400,11 @@ void DebugLog(const char *format, ...)
 	if (theDebugFlags == 0)
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "DebugLog - Debug not inited properly", "", ApplicationWindow);
 
-	format = prepBuffer(format, theBuffer);
+	format = prepBuffer(format, theBuffer, sizeof(theBuffer));
 
 	va_list arg;
   va_start(arg, format);
-  vsprintf(theBuffer + strlen(theBuffer), format, arg);
+  vsnprintf(theBuffer + strlen(theBuffer), sizeof(theBuffer) - strlen(theBuffer), format, arg);
   va_end(arg);
 
 	if (strlen(theBuffer) >= sizeof(theBuffer))
@@ -439,12 +442,12 @@ void DebugCrash(const char *format, ...)
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "", "DebugCrash - Debug not inited properly", ApplicationWindow);
 	}
 
-	format = prepBuffer(format, theCrashBuffer);
-	strcat(theCrashBuffer, "ASSERTION FAILURE: ");
+	format = prepBuffer(format, theCrashBuffer, sizeof(theCrashBuffer));
+	strncat(theCrashBuffer, "ASSERTION FAILURE: ", sizeof(theCrashBuffer) - strlen(theCrashBuffer) - 1);
 
 	va_list arg;
   va_start(arg, format);
-  vsprintf(theCrashBuffer + strlen(theCrashBuffer), format, arg);
+  vsnprintf(theCrashBuffer + strlen(theCrashBuffer), sizeof(theCrashBuffer) - strlen(theCrashBuffer), format, arg);
   va_end(arg);
 
 	if (strlen(theCrashBuffer) >= sizeof(theCrashBuffer))
@@ -472,7 +475,7 @@ void DebugCrash(const char *format, ...)
 	}
 #endif
 
-	strcat(theCrashBuffer, "\n\nAbort->exception; Retry->debugger; Ignore->continue\n");
+	strncat(theCrashBuffer, "\n\nAbort->exception; Retry->debugger; Ignore->continue\n", sizeof(theCrashBuffer) - strlen(theCrashBuffer) - 1);
 
 	int result = doCrashBox(theCrashBuffer, true);
 
@@ -688,8 +691,10 @@ void ReleaseCrash(const char *reason)
 	char prevbuf[ _MAX_PATH ] = { 0 };
 	char curbuf[ _MAX_PATH ] = { 0 };
 
-	strcpy(prevbuf, RELEASECRASH_FILE_NAME_PREV);
-	strcpy(curbuf, RELEASECRASH_FILE_NAME);
+	strncpy(prevbuf, RELEASECRASH_FILE_NAME_PREV, sizeof(prevbuf));
+	prevbuf[sizeof(prevbuf) - 1] = '\0';
+	strncpy(curbuf, RELEASECRASH_FILE_NAME, sizeof(curbuf));
+	curbuf[sizeof(curbuf) - 1] = '\0';
 
  	remove(prevbuf);
 	rename(curbuf, prevbuf);

@@ -133,13 +133,15 @@ char const * GameFileClass::Set_Name( char const *filename )
 	const Int EXT_LEN = 32;
 	char extension[EXT_LEN];
 	extension[0] = 0;
-	strcpy(name, filename);
+	strncpy(name, filename, sizeof(name));
+	name[sizeof(name) - 1] = '\0';
 	Int i = strlen(name);
 	i--;
 	Int extLen = 1;
 	while(i>0 && extLen < EXT_LEN) {
 		if (name[i] == '.') {
-			strcpy(extension, name+i);
+			strncpy(extension, name+i, sizeof(extension));
+			extension[sizeof(extension) - 1] = '\0';
 			name[i] = 0;
 			break;
 		}
@@ -169,19 +171,24 @@ char const * GameFileClass::Set_Name( char const *filename )
 	if( fileType == FILE_TYPE_W3D )
 	{
 
-		strcpy( m_filePath, W3D_DIR_PATH );
-		strcat( m_filePath, filename );
+		strncpy( m_filePath, W3D_DIR_PATH, sizeof(m_filePath) );
+		m_filePath[sizeof(m_filePath) - 1] = '\0';
+		strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 	}  // end if
 	else if( isImageFileType(fileType) )
 	{
 
-		strcpy( m_filePath, TGA_DIR_PATH );
-		strcat( m_filePath, filename );
+		strncpy( m_filePath, TGA_DIR_PATH, sizeof(m_filePath) );
+		m_filePath[sizeof(m_filePath) - 1] = '\0';
+		strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 	}  // end else if
 	else
-		strcpy( m_filePath, filename );
+	{
+		strncpy( m_filePath, filename, sizeof(m_filePath) );
+		m_filePath[sizeof(m_filePath) - 1] = '\0';
+	}
 
 	// see if the file exists
 	m_fileExists = TheFileSystem->doesFileExist( m_filePath );
@@ -194,15 +201,17 @@ char const * GameFileClass::Set_Name( char const *filename )
 		if( fileType == FILE_TYPE_W3D )
 		{
 
-			strcpy( m_filePath, LEGACY_W3D_DIR_PATH );
-			strcat( m_filePath, filename );
+			strncpy( m_filePath, LEGACY_W3D_DIR_PATH, sizeof(m_filePath) );
+			m_filePath[sizeof(m_filePath) - 1] = '\0';
+			strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 		}  // end if
 		else if( isImageFileType(fileType) )
 		{
 
-			strcpy( m_filePath, LEGACY_TGA_DIR_PATH );
-			strcat( m_filePath, filename );
+			strncpy( m_filePath, LEGACY_TGA_DIR_PATH, sizeof(m_filePath) );
+			m_filePath[sizeof(m_filePath) - 1] = '\0';
+			strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 		}  // end else if
 
@@ -220,15 +229,17 @@ char const * GameFileClass::Set_Name( char const *filename )
 		if( fileType == FILE_TYPE_W3D )
 		{
 			
-			strcpy( m_filePath, TEST_W3D_DIR_PATH );
-			strcat( m_filePath, filename );
+			strncpy( m_filePath, TEST_W3D_DIR_PATH, sizeof(m_filePath) );
+			m_filePath[sizeof(m_filePath) - 1] = '\0';
+			strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 		}  // end if
 		else if( isImageFileType(fileType) )
 		{
 
-			strcpy( m_filePath, TEST_TGA_DIR_PATH );
-			strcat( m_filePath, filename );
+			strncpy( m_filePath, TEST_TGA_DIR_PATH, sizeof(m_filePath) );
+			m_filePath[sizeof(m_filePath) - 1] = '\0';
+			strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 		}  // end else if
 
@@ -243,16 +254,16 @@ char const * GameFileClass::Set_Name( char const *filename )
 	{
 		if( fileType == FILE_TYPE_W3D )
 		{
-			sprintf(m_filePath,USER_W3D_DIR_PATH, TheGlobalData->getPath_UserData().str());
+			snprintf(m_filePath, sizeof(m_filePath), USER_W3D_DIR_PATH, TheGlobalData->getPath_UserData().str());
 			//strcpy( m_filePath, USER_W3D_DIR_PATH );
-			strcat( m_filePath, filename );
+			strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 		}  // end if
 		if( isImageFileType(fileType) )
 		{
-			sprintf(m_filePath,USER_TGA_DIR_PATH, TheGlobalData->getPath_UserData().str());
+			snprintf(m_filePath, sizeof(m_filePath), USER_TGA_DIR_PATH, TheGlobalData->getPath_UserData().str());
 			//strcpy( m_filePath, USER_TGA_DIR_PATH );
-			strcat( m_filePath, filename );
+			strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 		}  // end else if
 
@@ -267,9 +278,9 @@ char const * GameFileClass::Set_Name( char const *filename )
 	{
 		if( fileType == FILE_TYPE_TGA ) // just TGA, since we don't dds previews
 		{
-			sprintf(m_filePath,MAP_PREVIEW_DIR_PATH, TheGlobalData->getPath_UserData().str());
+			snprintf(m_filePath, sizeof(m_filePath), MAP_PREVIEW_DIR_PATH, TheGlobalData->getPath_UserData().str());
 			//strcpy( m_filePath, USER_TGA_DIR_PATH );
-			strcat( m_filePath, filename );
+			strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 		}  // end else if
 
@@ -284,8 +295,8 @@ char const * GameFileClass::Set_Name( char const *filename )
 		if( isImageFileType(fileType) )
 		{
 			static const char *localizedPathFormat = "Data/%s/Art/Textures/";
-			sprintf(m_filePath,localizedPathFormat, GetRegistryLanguage().str());
-			strcat( m_filePath, filename );
+			snprintf(m_filePath, sizeof(m_filePath), localizedPathFormat, GetRegistryLanguage().str());
+			strncat( m_filePath, filename, sizeof(m_filePath) - strlen(m_filePath) - 1 );
 
 		}  // end else if
 

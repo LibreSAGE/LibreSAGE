@@ -873,8 +873,10 @@ void initInternetMultiPlayer(void)
 	BuddyRequest req;
 	req.buddyRequestType = BuddyRequest::BUDDYREQUEST_SETSTATUS;
 	req.arg.status.status = GP_ONLINE;
-	strcpy(req.arg.status.statusString, "Online");
-	strcpy(req.arg.status.locationString, "");
+	strncpy(req.arg.status.statusString, "Online", sizeof(req.arg.status.statusString));
+	req.arg.status.statusString[sizeof(req.arg.status.statusString) - 1] = '\0';
+	strncpy(req.arg.status.locationString, "", sizeof(req.arg.status.locationString));
+	req.arg.status.locationString[sizeof(req.arg.status.locationString) - 1] = '\0';
 	TheGameSpyBuddyMessageQueue->addRequest(req);
 }
 

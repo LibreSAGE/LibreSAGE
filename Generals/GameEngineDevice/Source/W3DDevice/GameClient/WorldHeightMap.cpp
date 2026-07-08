@@ -863,7 +863,7 @@ void WorldHeightMap::readTexClass(TXTextureClass *texClass, TileData **tileData)
 	} 
 	else 
 	{
-		sprintf( texturePath, "%s%s", TERRAIN_TGA_DIR_PATH, terrain->getTexture().str() );
+		snprintf( texturePath, sizeof(texturePath), "%s%s", TERRAIN_TGA_DIR_PATH, terrain->getTexture().str() );
 		theFile = TheFileSystem->openFile( texturePath, File::READ|File::BINARY);
 		if (theFile == NULL) {
 			DEBUG_LOG(("WorldHeightMap::readTexClass - Failed to open terrain texture '%s' for class '%s'", texturePath, texClass->name.str()));
@@ -2019,7 +2019,7 @@ TextureClass *WorldHeightMap::getTerrainTexture(void)
 		m_terrainTex = MSGNEW("WorldHeightMap_getTerrainTexture") TerrainTextureClass(pow2Height);
 		m_terrainTexHeight = m_terrainTex->update(this);
 		char buf[64];
-		sprintf(buf, "Base tex height %d\n", pow2Height);
+		snprintf(buf, sizeof(buf), "Base tex height %d\n", pow2Height);
 		DEBUG_LOG(("%s", buf));
 		REF_PTR_RELEASE(m_alphaTerrainTex);
 		m_alphaTerrainTex = MSGNEW("WorldHeightMap_getTerrainTexture") AlphaTerrainTextureClass(m_terrainTex);

@@ -122,7 +122,8 @@ void LANAPI::init( void )
 	char userName[UNLEN + 1];
 	if (!GetUserName(userName, &bufSize))
 	{
-		strcpy(userName, "unknown");
+		strncpy(userName, "unknown", sizeof(userName));
+		userName[sizeof(userName) - 1] = '\0';
 	}
 	m_userName = userName;
 
@@ -130,7 +131,8 @@ void LANAPI::init( void )
 	char computerName[MAX_COMPUTERNAME_LENGTH + 1];
 	if (!GetComputerName(computerName, &bufSize))
 	{
-		strcpy(computerName, "unknown");
+		strncpy(computerName, "unknown", sizeof(computerName));
+		computerName[sizeof(computerName) - 1] = '\0';
 	}
 	m_hostName = computerName;
 }

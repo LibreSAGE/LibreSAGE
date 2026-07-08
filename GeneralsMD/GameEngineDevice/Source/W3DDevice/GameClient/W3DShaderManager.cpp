@@ -2989,7 +2989,7 @@ ChipsetType W3DShaderManager::getChipset( void )
 		char buf[256];
 
 		//Convert version to Real
-		sprintf(buf,"%d.%d",DX8Wrapper::Get_Current_Caps()->Get_Pixel_Shader_Major_Version(),DX8Wrapper::Get_Current_Caps()->Get_Pixel_Shader_Minor_Version());
+		snprintf(buf,sizeof(buf),"%d.%d",DX8Wrapper::Get_Current_Caps()->Get_Pixel_Shader_Major_Version(),DX8Wrapper::Get_Current_Caps()->Get_Pixel_Shader_Minor_Version());
 		sscanf(buf,"%f",&pixelShaderVersion);
 
 		if (maxTextures >= 4)

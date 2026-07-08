@@ -763,12 +763,12 @@ void ModelConditionInfo::validateWeaponBarrelInfo() const
 
 				if (!recoilBoneName.isEmpty())
 				{
-					sprintf(buffer, "%s%02d", recoilBoneName.str(), i);
+					snprintf(buffer, sizeof(buffer), "%s%02d", recoilBoneName.str(), i);
 					findPristineBone(NAMEKEY(buffer), &info.m_recoilBone);
 				}
 				if (!mfName.isEmpty())
 				{
-					sprintf(buffer, "%s%02d", mfName.str(), i);
+					snprintf(buffer, sizeof(buffer), "%s%02d", mfName.str(), i);
 					findPristineBone(NAMEKEY(buffer), &info.m_muzzleFlashBone);
 #if defined(_DEBUG) || defined(_INTERNAL)
 					if (info.m_muzzleFlashBone)
@@ -777,7 +777,7 @@ void ModelConditionInfo::validateWeaponBarrelInfo() const
 				}
 				if (!fxBoneName.isEmpty())
 				{
-					sprintf(buffer, "%s%02d", fxBoneName.str(), i);
+					snprintf(buffer, sizeof(buffer), "%s%02d", fxBoneName.str(), i);
 					findPristineBone(NAMEKEY(buffer), &info.m_fxBone);
 					// special case: if we have multiple muzzleflashes, but only one fxbone, use that fxbone for everything.
 					if (info.m_fxBone == 0 && info.m_muzzleFlashBone != 0)
@@ -787,7 +787,7 @@ void ModelConditionInfo::validateWeaponBarrelInfo() const
 				Int plbBoneIndex = 0;
 				if (!plbName.isEmpty())
 				{
-					sprintf(buffer, "%s%02d", plbName.str(), i);
+					snprintf(buffer, sizeof(buffer), "%s%02d", plbName.str(), i);
 					const Matrix3D* mtx = findPristineBone(NAMEKEY(buffer), &plbBoneIndex);
 					if (mtx != NULL)
 						info.m_projectileOffsetMtx = *mtx;
@@ -1858,7 +1858,8 @@ void W3DModelDraw::allocateShadows(void)
 	if (m_shadow == NULL && m_renderObject && TheW3DShadowManager && tmplate->getShadowType() != SHADOW_NONE)
 	{	
 		Shadow::ShadowTypeInfo shadowInfo;
-		strcpy(shadowInfo.m_ShadowName, tmplate->getShadowTextureName().str());
+		strncpy(shadowInfo.m_ShadowName, tmplate->getShadowTextureName().str(), sizeof(shadowInfo.m_ShadowName));
+		shadowInfo.m_ShadowName[sizeof(shadowInfo.m_ShadowName)-1] = '\0';
 		DEBUG_ASSERTCRASH(shadowInfo.m_ShadowName[0] != '\0', ("this should be validated in ThingTemplate now"));
 		shadowInfo.allowUpdates			= FALSE;		//shadow image will never update
 		shadowInfo.allowWorldAlign	= TRUE;	//shadow image will wrap around world objects
@@ -2750,9 +2751,15 @@ void W3DModelDraw::setTerrainDecal(TerrainDecalType type)
 	//decalInfo.m_type = SHADOW_ADDITIVE_DECAL;//temporary kluge to test graphics
 
 	if (type == TERRAIN_DECAL_SHADOW_TEXTURE)
-		strcpy(decalInfo.m_ShadowName,tmplate->getShadowTextureName().str());
+	{
+		strncpy(decalInfo.m_ShadowName, tmplate->getShadowTextureName().str(), sizeof(decalInfo.m_ShadowName));
+		decalInfo.m_ShadowName[sizeof(decalInfo.m_ShadowName)-1] = '\0';
+	}
 	else
-		strcpy(decalInfo.m_ShadowName,TerrainDecalTextureName[type]);
+	{
+		strncpy(decalInfo.m_ShadowName, TerrainDecalTextureName[type], sizeof(decalInfo.m_ShadowName));
+		decalInfo.m_ShadowName[sizeof(decalInfo.m_ShadowName)-1] = '\0';
+	}
 	decalInfo.m_sizeX = tmplate->getShadowSizeX();
 	decalInfo.m_sizeY = tmplate->getShadowSizeY();
 	decalInfo.m_offsetX = tmplate->getShadowOffsetX();
@@ -3067,7 +3074,8 @@ void W3DModelDraw::setModelState(const ModelConditionInfo* newState)
 		if (m_renderObject && TheW3DShadowManager && tmplate->getShadowType() != SHADOW_NONE)
 		{	
 			Shadow::ShadowTypeInfo shadowInfo;
-			strcpy(shadowInfo.m_ShadowName, tmplate->getShadowTextureName().str());
+			strncpy(shadowInfo.m_ShadowName, tmplate->getShadowTextureName().str(), sizeof(shadowInfo.m_ShadowName));
+			shadowInfo.m_ShadowName[sizeof(shadowInfo.m_ShadowName)-1] = '\0';
 			DEBUG_ASSERTCRASH(shadowInfo.m_ShadowName[0] != '\0', ("this should be validated in ThingTemplate now"));
 			shadowInfo.allowUpdates			= FALSE;		//shadow image will never update
 			shadowInfo.allowWorldAlign	= TRUE;	//shadow image will wrap around world objects
@@ -3451,9 +3459,12 @@ Int W3DModelDraw::getPristineBonePositionsForConditionState(
 	for (Int i = startIndex; i <= endIndex; ++i)
 	{
 		if (i == 0)
-			strcpy(buffer, boneNamePrefix);
+		{
+			strncpy(buffer, boneNamePrefix, sizeof(buffer));
+			buffer[sizeof(buffer)-1] = '\0';
+		}
 		else
-			sprintf(buffer, "%s%02d", boneNamePrefix, i);
+			snprintf(buffer, sizeof(buffer), "%s%02d", boneNamePrefix, i);
 		
 		for (char *c = buffer; c && *c; ++c)
 		{
@@ -3607,9 +3618,12 @@ Int W3DModelDraw::getCurrentBonePositions(
 	for (Int i = startIndex; i <= endIndex; ++i)
 	{
 		if (i == 0)
-			strcpy(buffer, boneNamePrefix);
+		{
+			strncpy(buffer, boneNamePrefix, sizeof(buffer));
+			buffer[sizeof(buffer)-1] = '\0';
+		}
 		else
-			sprintf(buffer, "%s%02d", boneNamePrefix, i);
+			snprintf(buffer, sizeof(buffer), "%s%02d", boneNamePrefix, i);
 		
 		Int boneIndex = m_renderObject->Get_Bone_Index(buffer);
 		if (boneIndex == 0)

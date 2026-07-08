@@ -190,7 +190,8 @@ char *RegistryClass::Get_String( const char * name, char *value, int value_size,
 		   *value = 0;
       } else {
          assert(strlen(default_string) < (unsigned int) value_size);
-         strcpy(value, default_string);
+         strncpy(value, default_string, value_size);
+         value[value_size - 1] = '\0';
       }
 	}
 	return value;
@@ -343,7 +344,8 @@ char *RegistryClass::Get_String( const char * name, char *value, int value_size,
 	  *value = 0;
    } else {
 	  assert(strlen(default_string) < (unsigned int) value_size);
-	  strcpy(value, default_string);
+	  strncpy(value, default_string, value_size);
+	  value[value_size - 1] = '\0';
    }
 	return value;
 }

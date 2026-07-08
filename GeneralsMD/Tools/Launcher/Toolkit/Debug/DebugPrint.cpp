@@ -71,7 +71,7 @@ void __cdecl DebugPrint(const char* string, ...)
 		// Format string
 		va_list	va;
 		va_start(va, string);
-		vsprintf(&_buffer[0], string, va);
+		vsnprintf(&_buffer[0], sizeof(_buffer), string, va);
 		va_end(va);
 
 		// Open log file
@@ -167,7 +167,7 @@ void __cdecl PrintWin32Error(const char* string, ...)
 		// Format string
 		va_list	va;
 		va_start(va, string);
-		vsprintf(&_buffer[0], string, va);
+		vsnprintf(&_buffer[0], sizeof(_buffer), string, va);
 		va_end(va);
 
 		LPVOID lpMsgBuf;

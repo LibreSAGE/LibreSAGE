@@ -528,7 +528,8 @@ PrototypeClass * GrannyLoaderClass::Load_W3D(const char *filename)
 		// ok, accept this model! 
 		GrannyPrototypeClass * hproto = NEW GrannyPrototypeClass(File);
 		_splitpath(filename, drive, dir, fname, ext );
-		hproto->Set_Name(strcat(fname,ext));
+		strncat(fname, ext, _MAX_FNAME - strlen(fname) - 1);
+		hproto->Set_Name(fname);
 		hproto->setBoundingBox(box);
 		hproto->setBoundingSphere(SphereClass(box.Center,box.Extent.Length()));
 		hproto->setVertexCount(vertexCount);
@@ -703,7 +704,7 @@ int GrannyAnimClass::Load_W3D(const char *name)
 		if (fileInfo && fileInfo->AnimationCount)
 		{	Animation = fileInfo->Animations[0];
 			File = file;
-			strcpy(Name,name);
+			strncpy(Name, name, sizeof(Name)); Name[sizeof(Name)-1] = '\0';
 			FrameRate = 1.0f/Animation->TimeStep;
 			NumFrames = Animation->Duration / Animation->TimeStep;
 			return OK;

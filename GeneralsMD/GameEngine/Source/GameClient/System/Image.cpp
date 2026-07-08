@@ -245,7 +245,7 @@ void ImageCollection::load( Int textureSize )
 	}
 #endif
 	// construct path to the mapped images folder of the correct texture size
-	sprintf( buffer, "Data\\INI\\MappedImages\\TextureSize_%d", textureSize );
+	snprintf( buffer, sizeof(buffer), "Data\\INI\\MappedImages\\TextureSize_%d", textureSize );
 
 	// load all the ine files in that directory
 

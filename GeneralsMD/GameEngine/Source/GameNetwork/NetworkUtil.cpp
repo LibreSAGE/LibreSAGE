@@ -126,7 +126,7 @@ NET_Address *IPToNetAddress(UnsignedInt ip)
   }
 
   char buf[24];
-  sprintf(buf, "%u.%u.%u.%u", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
+  snprintf(buf, sizeof(buf), "%u.%u.%u.%u", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
 
   NET_Address *addr = NET_ResolveHostname(buf);
   if (addr != NULL && NET_WaitUntilResolved(addr, -1) != NET_SUCCESS)

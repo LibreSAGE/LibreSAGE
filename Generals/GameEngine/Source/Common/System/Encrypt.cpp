@@ -81,23 +81,3 @@ const char *EncryptString(const char *String)
 	return (Return_Buffer);
 
 }
-
-
-#ifdef UNIT_TEST
-void main(void)
-{
-	char Input_String[9];
-	char *new_string;
-
-	while (1)
-	{
-		printf ("Enter a string to encrypt:");
-		gets(Input_String);
-		printf("\nString enterred was: %s", Input_String);
-		new_string = encrypt(Input_String, "ab");
-		printf("\nEncrypted string is: %s", new_string);
-	}
-}
-
-#endif
-

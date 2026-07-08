@@ -297,7 +297,8 @@ void INI::load( AsciiString filename, INILoadType loadType, Xfer *pXfer )
 				if (parse)
 				{
 					#if defined(_DEBUG) || defined(_INTERNAL)
-					strcpy(m_curBlockStart, m_buffer);
+					strncpy(m_curBlockStart, m_buffer, sizeof(m_curBlockStart));
+					m_curBlockStart[sizeof(m_curBlockStart) - 1] = '\0';
 					#endif
 					try {
 						(*parse)( this );
@@ -305,12 +306,13 @@ void INI::load( AsciiString filename, INILoadType loadType, Xfer *pXfer )
 					} catch (...) {
 						DEBUG_CRASH(("Error parsing block '%s' in INI file '%s'\n", token, m_filename.str()) );
 						char buff[1024];
-						sprintf(buff, "Error parsing INI file '%s' (Line: '%s')\n", m_filename.str(), currentLine.str());
+						snprintf(buff, sizeof(buff), "Error parsing INI file '%s' (Line: '%s')\n", m_filename.str(), currentLine.str());
 
 						throw INIException(buff);
 					}
 					#if defined(_DEBUG) || defined(_INTERNAL)
-						strcpy(m_curBlockStart, "NO_BLOCK");
+						strncpy(m_curBlockStart, "NO_BLOCK", sizeof(m_curBlockStart));
+						m_curBlockStart[sizeof(m_curBlockStart) - 1] = '\0';
 					#endif
 				}
 				else
@@ -635,7 +637,8 @@ AsciiString INI::getNextQuotedAsciiString()
 			Bool done=FALSE;
 			if ((strLen=strlen(token)) > 1)
 			{
-				strcpy(buff, &token[1]);	//skip the starting quote
+				strncpy(buff, &token[1], sizeof(buff));	//skip the starting quote
+				buff[sizeof(buff) - 1] = '\0';
 				//Check for end of quoted string.  Checking here fixes cases where quoted string on same line with other data.
 				if (buff[strLen-2]=='"')	//skip ending quote if present
 				{	buff[strLen-2]='\0';
@@ -649,8 +652,8 @@ AsciiString INI::getNextQuotedAsciiString()
 				
 				if (strlen(token) > 1 && token[1] != '\t')
 				{
-					strcat(buff, " ");
-					strcat(buff, token);
+					strncat(buff, " ", sizeof(buff) - strlen(buff) - 1);
+					strncat(buff, token, sizeof(buff) - strlen(buff) - 1);
 				}
 				else
 				{	Int buflen=strlen(buff);
@@ -684,16 +687,17 @@ AsciiString INI::getNextAsciiString()
 			buff[0] = 0;
 			if (strlen(token) > 1)
 			{
-				strcpy(buff, &token[1]);
-			} 
+				strncpy(buff, &token[1], sizeof(buff));
+				buff[sizeof(buff) - 1] = '\0';
+			}
 
 			token = getNextTokenOrNull(getSepsQuote());
 			if (token) {
 				if (strlen(token) > 1 && token[1] != '\t')
 				{
-					strcat(buff, " ");
+					strncat(buff, " ", sizeof(buff) - strlen(buff) - 1);
 				}
-				strcat(buff, token);
+				strncat(buff, token, sizeof(buff) - strlen(buff) - 1);
 				result.set(buff);
 			} else {
 				Int len = strlen(buff);
@@ -1107,7 +1111,7 @@ void INI::initFromINIMulti( void *what, const MultiIniFieldParse& parseTableList
 
 
 							char buff[1024];
-							sprintf(buff, "[LINE: %d - FILE: '%s'] Error reading field '%s'\n", INI::getLineNum(), INI::getFilename().str(), field);
+							snprintf(buff, sizeof(buff), "[LINE: %d - FILE: '%s'] Error reading field '%s'\n", INI::getLineNum(), INI::getFilename().str(), field);
 							throw INIException(buff);
 						}
 						

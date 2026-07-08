@@ -867,7 +867,8 @@ static AsciiString getMapLeafAndDirName(const AsciiString& in)
 static AsciiString removeExtension(const AsciiString& in)
 {
 	char buf[1024];
-	strcpy(buf, in.str());
+	strncpy(buf, in.str(), sizeof(buf));
+	buf[sizeof(buf) - 1] = '\0';
 	char* p = strrchr(buf, '.');
 	if (p)
 	{
@@ -1634,7 +1635,8 @@ void GameState::xfer( Xfer *xfer )
 	{
 		char string[ _MAX_PATH ];
 
-		strcpy( string, TheGlobalData->m_mapName.str() );
+		strncpy( string, TheGlobalData->m_mapName.str(), sizeof(string) );
+		string[sizeof(string) - 1] = '\0';
 		char *p = strrchr( string, '\\' );
 		if( p == NULL )
 			saveGameInfo->mapLabel = TheGlobalData->m_mapName;

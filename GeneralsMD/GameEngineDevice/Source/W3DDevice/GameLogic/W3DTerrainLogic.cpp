@@ -126,7 +126,7 @@ Bool W3DTerrainLogic::loadMap( AsciiString filename , Bool query )
 	char	filenameBuf[_MAX_PATH];
 	int length = 0;
 
-	strcpy(tempBuf, filename.str());
+	strncpy(tempBuf, filename.str(), sizeof(tempBuf)); tempBuf[sizeof(tempBuf)-1] = '\0';
 
 	length = strlen( tempBuf );
 	if( length >= 4 )

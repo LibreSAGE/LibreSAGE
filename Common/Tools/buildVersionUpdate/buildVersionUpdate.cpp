@@ -85,7 +85,8 @@ static char* strtrim(char* buffer)
 
 		if (source != buffer)
 		{
-			strcpy(buffer, source);
+			size_t srcLen = strlen(source);
+			strncpy(buffer, source, srcLen); buffer[srcLen] = '\0';
 		}
 
 		//	Clip trailing white space from the string.

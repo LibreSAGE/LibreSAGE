@@ -2574,7 +2574,7 @@ void ScriptActions::doDisplayCinematicText(const AsciiString& displayText, const
 	AsciiString fontName = AsciiString::TheEmptyString;
 	char buf[256];
 	char *c;
-	strcpy(buf, fontType.str());
+	strncpy(buf, fontType.str(), sizeof(buf)); buf[sizeof(buf)-1] = '\0';
 	for( c = buf; *c != '\0'; *c++ )
 	{
 		if( *c != ' ' && *c++ != '-' ) 

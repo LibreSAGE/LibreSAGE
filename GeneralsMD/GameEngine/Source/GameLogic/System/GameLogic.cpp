@@ -1275,7 +1275,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 	#ifdef DUMP_PERF_STATS
 	GetPrecisionTimer(&endTime64);
 	char Buf[256];
-	sprintf(Buf,"After terrainlogic->loadmap=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
+	snprintf(Buf, sizeof(Buf),"After terrainlogic->loadmap=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
 		//DEBUG_LOG(("Placed a starting building for %s at waypoint %s\n", playerName.str(), waypointName.str()));
 	DEBUG_LOG(("%s", Buf));
 	#endif
@@ -1631,7 +1631,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 
 	#ifdef DUMP_PERF_STATS
 	GetPrecisionTimer(&endTime64);
-	sprintf(Buf,"After terrainlogic->newmap=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
+	snprintf(Buf, sizeof(Buf),"After terrainlogic->newmap=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
 	DEBUG_LOG(("%s", Buf));
 	#endif
 
@@ -1731,7 +1731,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 
 	#ifdef DUMP_PERF_STATS
 	GetPrecisionTimer(&endTime64);
-	sprintf(Buf,"Before loading objects=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
+	snprintf(Buf, sizeof(Buf),"Before loading objects=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
 	DEBUG_LOG(("%s", Buf));
 	#endif
 
@@ -1902,7 +1902,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 
 	#ifdef DUMP_PERF_STATS
 	GetPrecisionTimer(&endTime64);
-	sprintf(Buf,"After loading objects=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
+	snprintf(Buf, sizeof(Buf),"After loading objects=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
 	DEBUG_LOG(("%s", Buf));
 	#endif
 
@@ -2059,7 +2059,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 
 	#ifdef DUMP_PERF_STATS
 	GetPrecisionTimer(&endTime64);
-	sprintf(Buf,"After partition manager update=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
+	snprintf(Buf, sizeof(Buf),"After partition manager update=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
 	DEBUG_LOG(("%s", Buf));
 	#endif
 
@@ -2186,7 +2186,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 	
 	#ifdef DUMP_PERF_STATS
 	GetPrecisionTimer(&endTime64);
-	sprintf(Buf,"After delete load screen=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
+	snprintf(Buf, sizeof(Buf),"After delete load screen=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
 	DEBUG_LOG(("%s", Buf));
 	#endif
 
@@ -2300,8 +2300,8 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 		BuddyRequest req;
 		req.buddyRequestType = BuddyRequest::BUDDYREQUEST_SETSTATUS;
 		req.arg.status.status = GP_PLAYING;
-		strcpy(req.arg.status.statusString, "Playing");
-		sprintf(req.arg.status.locationString, "%s", WideCharStringToMultiByte(TheGameSpyGame->getGameName().str()).c_str());
+		strncpy(req.arg.status.statusString, "Playing", sizeof(req.arg.status.statusString)); req.arg.status.statusString[sizeof(req.arg.status.statusString)-1] = '\0';
+		snprintf(req.arg.status.locationString, sizeof(req.arg.status.locationString), "%s", WideCharStringToMultiByte(TheGameSpyGame->getGameName().str()).c_str());
 		TheGameSpyBuddyMessageQueue->addRequest(req);
 	}	
 	
@@ -2325,7 +2325,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 
 #ifdef DUMP_PERF_STATS
 	GetPrecisionTimer(&endTime64);
-	sprintf(Buf,"Total startnewgame=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
+	snprintf(Buf, sizeof(Buf),"Total startnewgame=%f\n",((double)(endTime64-startTime64)/(double)(freq64)*1000.0));
 	DEBUG_LOG(("%s", Buf));
 #endif
 
@@ -2374,7 +2374,7 @@ void GameLogic::loadMapINI( AsciiString mapName )
 	char fullFledgeFilename[_MAX_PATH];
 
 	memset(filename, 0, _MAX_PATH);
-	strcpy(filename, mapName.str());
+	strncpy(filename, mapName.str(), sizeof(filename)); filename[sizeof(filename)-1] = '\0';
 
 	//
 	// if map name begins with a "SAVE_DIRECTORY\", then the map refers to a map
@@ -2383,7 +2383,7 @@ void GameLogic::loadMapINI( AsciiString mapName )
 	// for that map from it's original location
 	//
 	if (TheGameState->isInSaveDirectory(filename))
-		strcpy( filename, TheGameState->getSaveGameInfo()->pristineMapName.str() );
+		{ strncpy( filename, TheGameState->getSaveGameInfo()->pristineMapName.str(), sizeof(filename) ); filename[sizeof(filename)-1] = '\0'; }
 
 	// sanity
 	int length = strlen(filename);
@@ -2399,14 +2399,14 @@ void GameLogic::loadMapINI( AsciiString mapName )
 	*extension = 0;
 
 
-	sprintf(fullFledgeFilename, "%s\\map.ini", filename);
+	snprintf(fullFledgeFilename, sizeof(fullFledgeFilename), "%s\\map.ini", filename);
 	if (TheFileSystem->doesFileExist(fullFledgeFilename)) {
 		DEBUG_LOG(("Loading map.ini\n"));
 		INI ini;
 		ini.load( AsciiString(fullFledgeFilename), INI_LOAD_CREATE_OVERRIDES, NULL );
 	}
 
-	sprintf(fullFledgeFilename, "%s\\solo.ini", filename);
+	snprintf(fullFledgeFilename, sizeof(fullFledgeFilename), "%s\\solo.ini", filename);
 	if (TheFileSystem->doesFileExist(fullFledgeFilename)) {
 		DEBUG_LOG(("Loading solo.ini\n"));
 		INI ini;
@@ -2416,7 +2416,7 @@ void GameLogic::loadMapINI( AsciiString mapName )
 	// No error here. There could've just *not* been a map.ini file.
 
 	// now look for a string file
-	sprintf(fullFledgeFilename, "%s\\map.str", filename);
+	snprintf(fullFledgeFilename, sizeof(fullFledgeFilename), "%s\\map.str", filename);
 
 	if (TheFileSystem->doesFileExist(fullFledgeFilename)) {
 		TheGameText->initMapStringFile(fullFledgeFilename);
@@ -2426,7 +2426,7 @@ void GameLogic::loadMapINI( AsciiString mapName )
 	if (TheDisplay)
 	{
 		const char* ASSET_USAGE_FILE_NAME = "AssetUsage.txt";
-		sprintf(fullFledgeFilename, "%s\\%s", filename, ASSET_USAGE_FILE_NAME);
+		snprintf(fullFledgeFilename, sizeof(fullFledgeFilename), "%s\\%s", filename, ASSET_USAGE_FILE_NAME);
 		// note: call this EVEN IF THE FILE IN QUESTION DOES NOT EXIST.
 		TheDisplay->doSmartAssetPurgeAndPreload(fullFledgeFilename);
 	}
@@ -3197,39 +3197,39 @@ static void unitTimings(void)
 			thingName = "No Object";
 		}
 
-    sprintf(remark, "All %f: (%d ms) for %d %s's\n", timeAll, (Int)(timeAll*1000/TIME_FRAMES), TOTAL_UNITS, thingName.str() );
+    snprintf(remark, sizeof(remark), "All %f: (%d ms) for %d %s's\n", timeAll, (Int)(timeAll*1000/TIME_FRAMES), TOTAL_UNITS, thingName.str() );
     DEBUG_LOG((remark));
     drawGraph( "@", graphScale, timeAll );
 
-		sprintf(remark, "Without Particles %f\n", timeNoPart);
+		snprintf(remark, sizeof(remark), "Without Particles %f\n", timeNoPart);
     DEBUG_LOG((remark));
     drawGraph( "@", graphScale, timeNoPart );
         
- 		sprintf(remark, "Without Spawn %f  \n", timeNoSpawn );
+ 		snprintf(remark, sizeof(remark), "Without Spawn %f  \n", timeNoSpawn );
     DEBUG_LOG((remark));
     drawGraph( "@", graphScale, timeNoSpawn );
 
- 		sprintf(remark, "Logic %f \n", timeLogic);
+ 		snprintf(remark, sizeof(remark), "Logic %f \n", timeLogic);
     DEBUG_LOG((remark));
     drawGraph( "@", graphScale, timeLogic );
     
     
-		sprintf(remark, "DrawCalls for %s \n", thingName.str() ) ;
+		snprintf(remark, sizeof(remark), "DrawCalls for %s \n", thingName.str() ) ;
 		DEBUG_LOG((remark));
 
-		sprintf(remark, "All %f\n", drawCallAll );
+		snprintf(remark, sizeof(remark), "All %f\n", drawCallAll );
 		DEBUG_LOG((remark));
     drawGraph( "#", graphScale, drawCallAll );
 
-		sprintf(remark, "Without Particles %f\n", drawCallNoPart );
+		snprintf(remark, sizeof(remark), "Without Particles %f\n", drawCallNoPart );
 		DEBUG_LOG((remark));
     drawGraph( "#", graphScale, drawCallNoPart );
 
-		sprintf(remark, "Without Spawn %f \n", drawCallNoSpawn );
+		snprintf(remark, sizeof(remark), "Without Spawn %f \n", drawCallNoSpawn );
 		DEBUG_LOG((remark));
     drawGraph( "#", graphScale, drawCallNoSpawn );
 
-		sprintf(remark, "Draw Call Logic %f \n", drawCallLogic );
+		snprintf(remark, sizeof(remark), "Draw Call Logic %f \n", drawCallLogic );
 		DEBUG_LOG((remark));
     drawGraph( "#", graphScale, drawCallLogic );
 
@@ -3265,7 +3265,7 @@ static void unitTimings(void)
 				modelName = "**NO MODEL**";
 				veryFirstTime = false;
 			}
-			sprintf(remark, "%f,%d,%f,%d,%f,%d,%f,%d,%s,%s,%s,%s,%f,%f,%f\n", timeAll, 
+			snprintf(remark, sizeof(remark), "%f,%d,%f,%d,%f,%d,%f,%d,%s,%s,%s,%s,%f,%f,%f\n", timeAll, 
 			(Int)(timeAll*1000/TIME_FRAMES),timeNoPart, 
 			(Int)(timeNoPart*1000/TIME_FRAMES),timeNoSpawn, 
 			(Int)(timeNoSpawn*1000/TIME_FRAMES),timeLogic, 
@@ -3578,7 +3578,7 @@ void GameLogic::update( void )
 		Int64 freq64;
 		GetPrecisionTimerTicksPerSec(&freq64);
 
-		sprintf(Buf,"Texture=%f, Anim=%f, CreateRobj=%f, Load3DAssets=%f\n",
+		snprintf(Buf, sizeof(Buf),"Texture=%f, Anim=%f, CreateRobj=%f, Load3DAssets=%f\n",
 			((double)Total_Get_Texture_Time/(double)(freq64)*1000.0),
 			((double)Total_Get_HAnim_Time/(double)(freq64)*1000.0),
 			((double)Total_Create_Render_Obj_Time/(double)(freq64)*1000.0),
@@ -4388,7 +4388,7 @@ void GameLogic::setControlBarOverride(const AsciiString& commandSetName, Int slo
 {
 	char buf[256];
 	buf[0] = '0' + slot;
-	strcpy(&buf[1], commandSetName.str());
+	strncpy(&buf[1], commandSetName.str(), sizeof(buf) - 1); buf[sizeof(buf)-1] = '\0';
 	m_controlBarOverrides[buf] = commandButton;
 }
 
@@ -4397,7 +4397,7 @@ Bool GameLogic::findControlBarOverride(const AsciiString& commandSetName, Int sl
 {
 	char buf[256];
 	buf[0] = '0' + slot;
-	strcpy(&buf[1], commandSetName.str());
+	strncpy(&buf[1], commandSetName.str(), sizeof(buf) - 1); buf[sizeof(buf)-1] = '\0';
 
 	ControlBarOverrideMap::const_iterator it = m_controlBarOverrides.find(buf);
 	if (it != m_controlBarOverrides.end())

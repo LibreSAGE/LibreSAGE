@@ -42,7 +42,7 @@ AsciiString g_LastErrorDump;
 BOOL InitSymbolInfo(void);
 void UninitSymbolInfo(void);
 void MakeStackTrace(DWORD myeip,DWORD myesp,DWORD myebp, int skipFrames, void (*callback)(const char*));
-void GetFunctionDetails(void *pointer, char*name, char*filename, unsigned int* linenumber, unsigned int* address);
+void GetFunctionDetails(void *pointer, char*name, size_t nameSize, char*filename, size_t filenameSize, unsigned int* linenumber, unsigned int* address);
 void WriteStackLine(void*address, void (*callback)(const char*));
 
 //*****************************************************************************
@@ -144,7 +144,7 @@ BOOL InitSymbolInfo()
 
 	// turn it into a search path
 	_splitpath(pathname, drive, directory, NULL, NULL);
-	sprintf(pathname, "%s:\\%s", drive, directory);
+	snprintf(pathname, sizeof(pathname), "%s:\\%s", drive, directory);
 
 	// append the current directory to build a search path for SymInit
 	::lstrcat(pathname, ";.;");
@@ -258,16 +258,18 @@ stack_frame.AddrFrame.Offset = myebp;
 
 //*****************************************************************************
 //*****************************************************************************
-void GetFunctionDetails(void *pointer, char*name, char*filename, unsigned int* linenumber, unsigned int* address)
+void GetFunctionDetails(void *pointer, char*name, size_t nameSize, char*filename, size_t filenameSize, unsigned int* linenumber, unsigned int* address)
 {
 	InitSymbolInfo();
 	if (name)
 	{
-		strcpy(name, "<Unknown>");
+		strncpy(name, "<Unknown>", nameSize);
+		name[nameSize - 1] = '\0';
 	}
 	if (filename)
 	{
-		strcpy(filename, "<Unknown>");
+		strncpy(filename, "<Unknown>", filenameSize);
+		filename[filenameSize - 1] = '\0';
 	}
 	if (linenumber)
 	{
@@ -293,8 +295,9 @@ void GetFunctionDetails(void *pointer, char*name, char*filename, unsigned int* l
     {
 		if (name)
 		{
-			strcpy(name, psymbol->Name);
-			strcat(name, "();");
+			strncpy(name, psymbol->Name, nameSize - 1);
+			name[nameSize - 1] = '\0';
+			strncat(name, "();", nameSize - strlen(name) - 1);
 		}
 
 		// Get line now
@@ -311,7 +314,8 @@ void GetFunctionDetails(void *pointer, char*name, char*filename, unsigned int* l
 			{
 				if (filename)
 				{
-					strcpy(filename, line.FileName);
+					strncpy(filename, line.FileName, filenameSize);
+					filename[filenameSize - 1] = '\0';
 				}
 				if (linenumber)
 				{
@@ -462,8 +466,8 @@ void WriteStackLine(void*address, void (*callback)(const char*))
 	unsigned int linenumber;
 	unsigned int addr;
 
-	GetFunctionDetails(address, function_name, filename, &linenumber, &addr);
-    sprintf(line, "  %s(%d) : %s 0x%08p", filename, linenumber, function_name, address);
+	GetFunctionDetails(address, function_name, sizeof(function_name), filename, sizeof(filename), &linenumber, &addr);
+    snprintf(line, sizeof(line), "  %s(%d) : %s 0x%08p", filename, linenumber, function_name, address);
 		if (g_LastErrorDump.isNotEmpty()) {
 			g_LastErrorDump.concat(line);
 			g_LastErrorDump.concat("\n");

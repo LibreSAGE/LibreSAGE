@@ -324,7 +324,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message,
 #ifdef	DEBUG_WINDOWS_MESSAGES
 		static msgCount=0;
 		char testString[256];
-		sprintf(testString,"\n%d: %s (%X,%X)", msgCount++,messageToString(message), wParam, lParam); 
+		snprintf(testString,sizeof(testString),"\n%d: %s (%X,%X)", msgCount++,messageToString(message), wParam, lParam);
 		OutputDebugString(testString);
 #endif
 
@@ -770,7 +770,8 @@ static char* strtrim(char* buffer)
 
 		if (source != buffer)
 		{
-			strcpy(buffer, source);
+			size_t srcLen = strlen(source);
+			strncpy(buffer, source, srcLen); buffer[srcLen] = '\0';
 		}
 
 		//	Clip trailing white space from the string.
@@ -914,7 +915,7 @@ Int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 				char name[_MAX_PATH], file[_MAX_PATH];
 				unsigned int line;
 				unsigned int addr;
-				GetFunctionDetails((void*)pc, name, file, &line, &addr);
+				GetFunctionDetails((void*)pc, name, sizeof(name), file, sizeof(file), &line, &addr);
 				DEBUG_LOG(("0x%x - %s, %s, line %d address 0x%x\n", pc, name, file, line, addr));
 			}
 			DEBUG_LOG(("\n--- END OF DX STACK DUMP\n"));

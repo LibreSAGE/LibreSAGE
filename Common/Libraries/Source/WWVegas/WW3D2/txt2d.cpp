@@ -70,7 +70,7 @@ Text2DObjClass::Text2DObjClass(FontClass &font, const char *str, float screen_x,
 	// print the variable argument string into an argument list
 	va_list args;
 	va_start(args, clamp);
-	vsprintf(text, str, args);
+	vsnprintf(text, sizeof(text), str, args);
 	va_end(args);
 
 	Set_Text(font, text, screen_x, screen_y, fore, back, conv, center, clamp);
@@ -103,7 +103,7 @@ void Text2DObjClass::Set_Text(FontClass &font, const char *str, float screen_x, 
 	va_list	args;
 
 	va_start(args, clamp);
-	vsprintf(text, str, args);
+	vsnprintf(text, sizeof(text), str, args);
 	va_end(args);
 
 

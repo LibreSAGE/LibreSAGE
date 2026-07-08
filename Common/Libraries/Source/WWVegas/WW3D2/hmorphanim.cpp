@@ -559,9 +559,10 @@ int HMorphAnimClass::Load_W3D(ChunkLoadClass & cload)
 
 	strncpy(AnimName,header.Name,sizeof(AnimName));
    strncpy(HierarchyName,header.HierarchyName,sizeof(HierarchyName));
-	strcpy(Name,HierarchyName);
-	strcat(Name,".");
-	strcat(Name,AnimName);
+	strncpy(Name,HierarchyName,sizeof(Name));
+	Name[sizeof(Name)-1] = '\0';
+	strncat(Name,".",sizeof(Name) - strlen(Name) - 1);
+	strncat(Name,AnimName,sizeof(Name) - strlen(Name) - 1);
 
 	HTreeClass * base_pose = WW3DAssetManager::Get_Instance()->Get_HTree(HierarchyName);
 	if (base_pose == NULL) {

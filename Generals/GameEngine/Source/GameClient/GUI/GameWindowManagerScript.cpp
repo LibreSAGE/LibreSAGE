@@ -229,7 +229,8 @@ static void parseBitString( const char *inBuffer, UnsignedInt *bits, const char 
 	char *tok;
 
 	// do not modify the inBuffer argument
-	strcpy( buffer, inBuffer );
+	strncpy( buffer, inBuffer, sizeof(buffer) );
+	buffer[sizeof(buffer) - 1] = '\0';
 
 	if( strncmp( buffer, "NULL", 4 ) )
 	{
@@ -602,7 +603,8 @@ static Bool parseFont( char *token, WinInstanceData *instData,
 		ptr++;
 	ptr++;  // skip the "
 	c = strtok( ptr, stringSeps );  // value
-	strcpy( fontName, c );
+	strncpy( fontName, c, sizeof(fontName) );
+	fontName[sizeof(fontName) - 1] = '\0';
 
 	// "SIZE"
 	c = strtok( NULL, seps );  // label
@@ -1639,7 +1641,8 @@ static GameWindow *createGadget( char *type,
 		// filename the radio button was saved in
 		//
 		
-		strcpy( filename, instData->m_decoratedNameString.str() );
+		strncpy( filename, instData->m_decoratedNameString.str(), sizeof(filename) );
+		filename[sizeof(filename) - 1] = '\0';
 		c = strchr( filename, ':' );
 		if( c )
 			*c = 0;  // terminate after filename (format is filename:gadgetname)
@@ -2363,7 +2366,8 @@ static GameWindow *parseWindow( File *inFile, char *buffer )
 	c = strtok( buffer, seps );
 	assert( strcmp( c, "WINDOWTYPE" ) == 0 );
 	c = strtok( NULL, seps );  // get data to right of = sign
-	strcpy( type, c );
+	strncpy( type, c, sizeof(type) );
+	type[sizeof(type) - 1] = '\0';
 
 	//
 	// based on the window type get a pointer for any specific data
@@ -2392,7 +2396,8 @@ static GameWindow *parseWindow( File *inFile, char *buffer )
 			if (asciibuf.compare(parse->name) == 0)
 			{
 				
-				strcpy( token, asciibuf.str() );
+				strncpy( token, asciibuf.str(), sizeof(token) );
+				token[sizeof(token) - 1] = '\0';
 
 				// eat '='
 				inFile->scanString(asciibuf);
@@ -2608,7 +2613,8 @@ Bool parseLayoutBlock( File *inFile, char *buffer, UnsignedInt version, WindowLa
 				// eat equals separator " = "
 				c = strtok( buffer, " =" );
 
-				strcpy(token, asciitoken.str());
+				strncpy(token, asciitoken.str(), sizeof(token));
+				token[sizeof(token) - 1] = '\0';
 				
 				// parse it
 				if( parse->parse( token, c, version, info ) == FALSE )	
@@ -2715,9 +2721,12 @@ GameWindow *GameWindowManager::winCreateFromScript( AsciiString filenameString,
 	// place for the window files subdirectory
 	//
 	if( strchr( filename, '\\' ) == NULL )
-		sprintf( filepath, "Window\\%s", filename );
+		snprintf( filepath, sizeof(filepath), "Window\\%s", filename );
 	else
-		strcpy( filepath, filename );
+	{
+		strncpy( filepath, filename, sizeof(filepath) );
+		filepath[sizeof(filepath) - 1] = '\0';
+	}
 
   // Open the input file
 	inFile = TheFileSystem->openFile(filepath, File::READ);

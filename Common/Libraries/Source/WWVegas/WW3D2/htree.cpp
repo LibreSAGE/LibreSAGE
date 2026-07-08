@@ -95,7 +95,8 @@ void HTreeClass::Init_Default(void)
 	Pivot[0].BaseTransform.Make_Identity();
 	Pivot[0].Transform.Make_Identity();
 	Pivot[0].IsVisible = true;
-	strcpy(Pivot[0].Name,"RootTransform");
+	strncpy(Pivot[0].Name,"RootTransform",sizeof(Pivot[0].Name));
+	Pivot[0].Name[sizeof(Pivot[0].Name)-1] = '\0';
 	//::strcpy (Name, "Default");
 	Name[0] = 0;
 	return ;
@@ -274,7 +275,8 @@ bool HTreeClass::read_pivots(ChunkLoadClass & cload,bool pre30)
 		Pivot[0].BaseTransform.Make_Identity();
 		Pivot[0].Transform.Make_Identity();
 		Pivot[0].IsVisible = true;
-		strcpy(Pivot[0].Name,"RootTransform");
+		strncpy(Pivot[0].Name,"RootTransform",sizeof(Pivot[0].Name));
+		Pivot[0].Name[sizeof(Pivot[0].Name)-1] = '\0';
 		first_piv++;
 	}
 

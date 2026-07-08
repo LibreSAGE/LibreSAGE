@@ -571,11 +571,12 @@ static const char * Make_W3D_Filename (const char *w3d_name)
 		buffer[0] = 0;
 		return buffer;
 	}
-	strcpy(buffer, w3d_name);
+	strncpy(buffer, w3d_name, sizeof(buffer));
+	buffer[sizeof(buffer)-1] = '\0';
 	char *dot = strchr(buffer, '.');
 	if (dot)
 		*dot = 0;
 	strlwr(buffer);
-	strcat(buffer, ".w3d");
+	strncat(buffer, ".w3d", sizeof(buffer) - strlen(buffer) - 1);
 	return buffer;
 }

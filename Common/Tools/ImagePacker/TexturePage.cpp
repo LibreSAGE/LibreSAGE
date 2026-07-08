@@ -506,7 +506,7 @@ Bool TexturePage::addImageData( Byte *destBuffer,
 	{
 		char buffer[ _MAX_PATH + 32 ];
 
-		sprintf( buffer, "Error loading source file '%s'\n", image->m_path );
+		snprintf( buffer, sizeof(buffer), "Error loading source file '%s'\n", image->m_path );
 		DEBUG_ASSERTCRASH( 0, (buffer) );
 		TheImagePacker->reportError( "Cannot Load Source File", buffer );
 		return FALSE;
@@ -1236,7 +1236,7 @@ Bool TexturePage::writeFile( const char *baseFilename )
 
 	// construct filename
 	char filePath[ _MAX_PATH ];
-	sprintf( filePath, "%s%s_%03d.tga", TheImagePacker->getOutputDirectory(),
+	snprintf( filePath, sizeof(filePath), "%s%s_%03d.tga", TheImagePacker->getOutputDirectory(),
 					 baseFilename, getID() );
 
 	// write the file

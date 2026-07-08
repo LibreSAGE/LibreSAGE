@@ -223,7 +223,7 @@ Bool ImagePacker::packImages( void )
 	{
 
 		// update status
-		sprintf( m_statusBuffer, "Fitting Image %d of %d.", i, m_imageCount );
+		snprintf( m_statusBuffer, sizeof(m_statusBuffer), "Fitting Image %d of %d.", i, m_imageCount );
 		statusMessage( m_statusBuffer );
 
 		// get this image out of the list
@@ -255,7 +255,7 @@ Bool ImagePacker::packImages( void )
 			{
 				char buffer[ _MAX_PATH ];
 
-				sprintf( buffer, "Unable to add image '%s' to a brand new page!\n", image->m_path );
+				snprintf( buffer, sizeof(buffer), "Unable to add image '%s' to a brand new page!\n", image->m_path );
 				DEBUG_ASSERTCRASH( 0, (buffer) );
 				reportError( "Internal Error", buffer );
 				return FALSE;
@@ -289,7 +289,7 @@ void ImagePacker::writeFinalTextures( void )
 	{
 
 		// update status message
-		sprintf( buffer, "Generating texture #%d of %d.",
+		snprintf( buffer, sizeof(buffer), "Generating texture #%d of %d.",
 						 page->getID(), m_pageCount );
 		statusMessage( buffer );
 
@@ -524,7 +524,7 @@ void ImagePacker::addDirectory( const char *path, Bool subDirs )
 	// allocate space for the path
 	Int len = dirPath.size();
 	dir->m_path = new char[ len + 1 ];
-	strcpy( dir->m_path, dirPath.c_str() );
+	strncpy( dir->m_path, dirPath.c_str(), len ); dir->m_path[len] = '\0';
 
 	// tie to list
 	dir->m_prev = NULL;
@@ -537,7 +537,7 @@ void ImagePacker::addDirectory( const char *path, Bool subDirs )
 	m_dirCount++;
 
 	// update status
-	sprintf( m_statusBuffer, "Folder Added: %d.", m_dirCount );
+	snprintf( m_statusBuffer, sizeof(m_statusBuffer), "Folder Added: %d.", m_dirCount );
 	statusMessage( m_statusBuffer );
 
 	// count how many image files are in this directory
@@ -582,7 +582,7 @@ void ImagePacker::addImage( const char *path )
 	// allocate space for the path
 	Int len = strlen( path );
 	info->m_path = new char[ len + 1 ];
-	strcpy( info->m_path, path );
+	strncpy( info->m_path, path, len ); info->m_path[len] = '\0';
 
 	// load just the header information from the targa
 	m_targa->Load( info->m_path, 0, TRUE );
@@ -597,18 +597,18 @@ void ImagePacker::addImage( const char *path )
 	QFileInfo fileInfo( QString::fromUtf8( path ) );
 	std::string filenameOnly = fileInfo.fileName().toStdString();
 	info->m_filenameOnly = new char[ filenameOnly.size() + 1 ];
-	strcpy( info->m_filenameOnly, filenameOnly.c_str() );
+	strncpy( info->m_filenameOnly, filenameOnly.c_str(), filenameOnly.size() ); info->m_filenameOnly[filenameOnly.size()] = '\0';
 
 	// save the filename without the extension
 	std::string filenameNoExt = fileInfo.completeBaseName().toStdString();
 	info->m_filenameOnlyNoExt = new char[ filenameNoExt.size() + 1 ];
-	strcpy( info->m_filenameOnlyNoExt, filenameNoExt.c_str() );
+	strncpy( info->m_filenameOnlyNoExt, filenameNoExt.c_str(), filenameNoExt.size() ); info->m_filenameOnlyNoExt[filenameNoExt.size()] = '\0';
 
 	// assign to array
 	m_imageList[ m_imageCount++ ] = info;
 
 	// update status
-	sprintf( m_statusBuffer, "Loading Image %d of %d.",
+	snprintf( m_statusBuffer, sizeof(m_statusBuffer), "Loading Image %d of %d.",
 					 m_imageCount, m_imagesInDirs );
 	statusMessage( m_statusBuffer );
 
@@ -623,7 +623,7 @@ Bool ImagePacker::generateINIFile( void )
 	char filename[ _MAX_PATH ];
 
 	// construct filename we'll use
-	sprintf( filename, "%s%s.INI", m_outputDirectory, m_outputFile );
+	snprintf( filename, sizeof(filename), "%s%s.INI", m_outputDirectory, m_outputFile );
 
 	// open the file
 	fp = fopen( filename, "w" );
@@ -631,7 +631,7 @@ Bool ImagePacker::generateINIFile( void )
 	{
 		char buffer[ _MAX_PATH + 64 ];
 
-		sprintf( buffer, "Cannot open INI file '%s' for writing.", filename );
+		snprintf( buffer, sizeof(buffer), "Cannot open INI file '%s' for writing.", filename );
 		reportError( "Error Opening File", buffer );
 		return FALSE;
 
@@ -755,14 +755,14 @@ ImagePacker::ImagePacker( void )
 	m_targetSize.x = DEFAULT_TARGET_SIZE;
 	m_targetSize.y = DEFAULT_TARGET_SIZE;
 	m_useSubFolders = TRUE;
-	strcpy( m_outputFile, "" );
-	strcpy( m_outputDirectory, "" );
+	strncpy( m_outputFile, "", sizeof(m_outputFile) ); m_outputFile[sizeof(m_outputFile)-1] = '\0';
+	strncpy( m_outputDirectory, "", sizeof(m_outputDirectory) ); m_outputDirectory[sizeof(m_outputDirectory)-1] = '\0';
 	m_dirList = NULL;
 	m_dirCount = 0;
 	m_imagesInDirs = 0;
 	m_imageList = NULL;
 	m_imageCount = 0;
-	strcpy( m_statusBuffer, "" );
+	strncpy( m_statusBuffer, "", sizeof(m_statusBuffer) ); m_statusBuffer[sizeof(m_statusBuffer)-1] = '\0';
 	m_pageList = NULL;
 	m_pageTail = NULL;
 	m_pageCount = 0;
@@ -881,7 +881,7 @@ Bool ImagePacker::process( void )
 			m_host->onProcessComplete( this );
 
 		// all done
-		sprintf( m_statusBuffer, "Image Packing Complete: '%d' Texture Pages Generated from '%d' Images in '%d' Folder(s)",
+		snprintf( m_statusBuffer, sizeof(m_statusBuffer), "Image Packing Complete: '%d' Texture Pages Generated from '%d' Images in '%d' Folder(s)",
 						 m_pageCount, m_imageCount, m_dirCount );
 		statusMessage( m_statusBuffer );
 

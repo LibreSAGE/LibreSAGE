@@ -151,7 +151,7 @@ void addCRCDebugLine(const char *fmt, ...)
 			lastCRCDebugIndex = 0;
 		}
 
-		sprintf(DebugStrings[nextDebugString], "%d:%d ",  TheGameLogic->getFrame(), lastCRCDebugIndex++);
+		snprintf(DebugStrings[nextDebugString], sizeof(DebugStrings[nextDebugString]), "%d:%d ",  TheGameLogic->getFrame(), lastCRCDebugIndex++);
 		//DebugStrings[nextDebugString][0] = 0;
 		Int len = strlen(DebugStrings[nextDebugString]);
 

@@ -275,10 +275,11 @@ WW3DErrorType MeshModelClass::Load_W3D(ChunkLoadClass & cload)
 	memset(tmpname,0,namelen);
 
 	if (strlen(context->Header.ContainerName) > 0) {
-		strcpy(tmpname,context->Header.ContainerName);
-		strcat(tmpname,".");
+		strncpy(tmpname,context->Header.ContainerName,namelen);
+		tmpname[namelen-1] = '\0';
+		strncat(tmpname,".",namelen - strlen(tmpname) - 1);
 	}
-	strcat(tmpname,context->Header.MeshName);
+	strncat(tmpname,context->Header.MeshName,namelen - strlen(tmpname) - 1);
 
 	Set_Name(tmpname);
 
@@ -2335,7 +2336,7 @@ WW3DErrorType MeshModelClass::write_header(ChunkSaveClass & csave,MeshSaveContex
 		strncpy( header.MeshName, mesh_name, W3D_NAME_LEN);
 		strncpy( header.ContainerName, name, hierarchy_name_len);
 	} else {
-		sprintf(header.MeshName,"UnNamed");
+		snprintf(header.MeshName,sizeof(header.MeshName),"UnNamed");
 	}
 
 	header.Version = W3D_CURRENT_MESH_VERSION;

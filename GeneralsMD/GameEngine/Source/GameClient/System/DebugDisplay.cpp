@@ -202,7 +202,7 @@ void	DebugDisplay::printf( const Char *format, ...)
 	static char text[5*1024];
 
   va_start( args, format );
-	result = vsprintf( text, format, args );
+	result = vsnprintf( text, sizeof(text), format, args );
   va_end( args );
 
 	if ( result < 0 )

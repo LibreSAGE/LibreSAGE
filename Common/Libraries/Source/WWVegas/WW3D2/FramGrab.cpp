@@ -51,7 +51,7 @@ FrameGrabClass::FrameGrabClass(const char *filename, MODE mode, int width, int h
 	int result;
 	char file[256];
 	do {
-		sprintf(file, "%s%d.AVI", filename, counter++);
+		snprintf(file, sizeof(file), "%s%d.AVI", filename, counter++);
 		result = _access(file, 0);
 	} while(result != -1);
 
@@ -59,7 +59,7 @@ FrameGrabClass::FrameGrabClass(const char *filename, MODE mode, int width, int h
     hr = AVIFileOpen(&AVIFile, file, OF_WRITE | OF_CREATE, NULL); 
     if (hr != 0) {
 		char buf[256];
-		sprintf(buf, "Unable to open %s\n", Filename);
+		snprintf(buf, sizeof(buf), "Unable to open %s\n", Filename);
 		OutputDebugString(buf);
 		CleanupAVI();
 		return;
@@ -84,7 +84,7 @@ FrameGrabClass::FrameGrabClass(const char *filename, MODE mode, int width, int h
 	SetRect(&AVIStreamInfo.rcFrame, 0, 0, width, height);  
 	AVIStreamInfo.dwEditCount = 0;
 	AVIStreamInfo.dwFormatChangeCount = 0;
-	sprintf(AVIStreamInfo.szName,"G");
+	snprintf(AVIStreamInfo.szName,sizeof(AVIStreamInfo.szName),"G");
 
     hr = AVIFileCreateStream(AVIFile, &Stream, &AVIStreamInfo); 
     if (hr != 0) {   
@@ -138,7 +138,7 @@ void FrameGrabClass::GrabAVI(void *BitmapPointer)
     HRESULT hr = AVIStreamWrite(Stream, Counter++, 1, BitmapPointer, BitmapInfoHeader.biSizeImage, AVIIF_KEYFRAME, NULL, NULL);     
 	if(hr != 0) {
 		char buf[256];
-		sprintf(buf, "avi write error %x/%d\n", hr, hr);
+		snprintf(buf, sizeof(buf), "avi write error %x/%d\n", hr, hr);
 		OutputDebugString(buf);
 	} 
 }

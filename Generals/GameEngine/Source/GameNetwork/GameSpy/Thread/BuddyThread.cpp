@@ -403,7 +403,7 @@ void BuddyThreadClass::errorCallback( GPConnection *con, GPErrorArg *arg )
 	char errorCodeString[256];
 	char resultString[256];
 
-	#define RESULT(x) case x: strcpy(resultString, #x); break;
+	#define RESULT(x) case x: strncpy(resultString, #x, sizeof(resultString)); resultString[sizeof(resultString) - 1] = '\0'; break;
 	switch(arg->result)
 	{
 		RESULT(GP_NO_ERROR)
@@ -412,11 +412,12 @@ void BuddyThreadClass::errorCallback( GPConnection *con, GPErrorArg *arg )
 		RESULT(GP_NETWORK_ERROR)
 		RESULT(GP_SERVER_ERROR)
 	default:
-		strcpy(resultString, "Unknown result!");
+		strncpy(resultString, "Unknown result!", sizeof(resultString));
+		resultString[sizeof(resultString) - 1] = '\0';
 	}
 	#undef RESULT
 
-	#define ERRORCODE(x) case x: strcpy(errorCodeString, #x); break;
+	#define ERRORCODE(x) case x: strncpy(errorCodeString, #x, sizeof(errorCodeString)); errorCodeString[sizeof(errorCodeString) - 1] = '\0'; break;
 	switch(arg->errorCode)
 	{
 		ERRORCODE(GP_GENERAL)
@@ -465,7 +466,8 @@ void BuddyThreadClass::errorCallback( GPConnection *con, GPErrorArg *arg )
 		ERRORCODE(GP_SEARCH)
 		ERRORCODE(GP_SEARCH_CONNECTION_FAILED)
 	default:
-		strcpy(errorCodeString, "Unknown error code!");
+		strncpy(errorCodeString, "Unknown error code!", sizeof(errorCodeString));
+		errorCodeString[sizeof(errorCodeString) - 1] = '\0';
 	}
 	#undef ERRORCODE
 
@@ -509,7 +511,8 @@ void BuddyThreadClass::errorCallback( GPConnection *con, GPErrorArg *arg )
 static void getNickForMessage( GPConnection *con, GPGetInfoResponseArg *arg, void *param )
 {
 	BuddyResponse *resp = (BuddyResponse *)param;
-	strcpy(resp->arg.message.nick, arg->nick);
+	strncpy(resp->arg.message.nick, arg->nick, sizeof(resp->arg.message.nick));
+	resp->arg.message.nick[sizeof(resp->arg.message.nick) - 1] = '\0';
 }
 
 void BuddyThreadClass::messageCallback( GPConnection *con, GPRecvBuddyMessageArg *arg )
@@ -563,9 +566,12 @@ void BuddyThreadClass::connectCallback( GPConnection *con, GPConnectResponseArg 
 				DEBUG_LOG(("User Error: Create Account instead of Login.  Fixing them...\n"));
 				BuddyRequest req;
 				req.buddyRequestType = BuddyRequest::BUDDYREQUEST_LOGIN;
-				strcpy(req.arg.login.nick, m_nick.c_str());
-				strcpy(req.arg.login.email, m_email.c_str());
-				strcpy(req.arg.login.password, m_pass.c_str());
+				strncpy(req.arg.login.nick, m_nick.c_str(), sizeof(req.arg.login.nick));
+				req.arg.login.nick[sizeof(req.arg.login.nick) - 1] = '\0';
+				strncpy(req.arg.login.email, m_email.c_str(), sizeof(req.arg.login.email));
+				req.arg.login.email[sizeof(req.arg.login.email) - 1] = '\0';
+				strncpy(req.arg.login.password, m_pass.c_str(), sizeof(req.arg.login.password));
+				req.arg.login.password[sizeof(req.arg.login.password) - 1] = '\0';
 				req.arg.login.hasFirewall = true;
 				TheGameSpyBuddyMessageQueue->addRequest( req );
 				return;
@@ -624,9 +630,12 @@ static void getInfoResponseForRequest( GPConnection *con, GPGetInfoResponseArg *
 {
 	BuddyResponse *resp = (BuddyResponse *)param;
 	resp->profile = arg->profile;
-	strcpy(resp->arg.request.nick, arg->nick);
-	strcpy(resp->arg.request.email, arg->email);
-	strcpy(resp->arg.request.countrycode, arg->countrycode);
+	strncpy(resp->arg.request.nick, arg->nick, sizeof(resp->arg.request.nick));
+	resp->arg.request.nick[sizeof(resp->arg.request.nick) - 1] = '\0';
+	strncpy(resp->arg.request.email, arg->email, sizeof(resp->arg.request.email));
+	resp->arg.request.email[sizeof(resp->arg.request.email) - 1] = '\0';
+	strncpy(resp->arg.request.countrycode, arg->countrycode, sizeof(resp->arg.request.countrycode));
+	resp->arg.request.countrycode[sizeof(resp->arg.request.countrycode) - 1] = '\0';
 }
 
 void BuddyThreadClass::requestCallback( GPConnection *con, GPRecvBuddyRequestArg *arg )
@@ -651,9 +660,12 @@ static void getInfoResponseForStatus(GPConnection * connection, GPGetInfoRespons
 {
 	BuddyResponse *resp = (BuddyResponse *)param;
 	resp->profile = arg->profile;
-	strcpy(resp->arg.status.nick, arg->nick);
-	strcpy(resp->arg.status.email, arg->email);
-	strcpy(resp->arg.status.countrycode, arg->countrycode);
+	strncpy(resp->arg.status.nick, arg->nick, sizeof(resp->arg.status.nick));
+	resp->arg.status.nick[sizeof(resp->arg.status.nick) - 1] = '\0';
+	strncpy(resp->arg.status.email, arg->email, sizeof(resp->arg.status.email));
+	resp->arg.status.email[sizeof(resp->arg.status.email) - 1] = '\0';
+	strncpy(resp->arg.status.countrycode, arg->countrycode, sizeof(resp->arg.status.countrycode));
+	resp->arg.status.countrycode[sizeof(resp->arg.status.countrycode) - 1] = '\0';
 }
 
 void BuddyThreadClass::statusCallback( GPConnection *con, GPRecvBuddyStatusArg *arg )
@@ -667,8 +679,10 @@ void BuddyThreadClass::statusCallback( GPConnection *con, GPRecvBuddyStatusArg *
 	// get user's status
 	GPBuddyStatus status;
 	gpGetBuddyStatus( con, arg->index, &status );
-	strcpy(response.arg.status.location, status.locationString);
-	strcpy(response.arg.status.statusString, status.statusString);
+	strncpy(response.arg.status.location, status.locationString, sizeof(response.arg.status.location));
+	response.arg.status.location[sizeof(response.arg.status.location) - 1] = '\0';
+	strncpy(response.arg.status.statusString, status.statusString, sizeof(response.arg.status.statusString));
+	response.arg.status.statusString[sizeof(response.arg.status.statusString) - 1] = '\0';
 	response.arg.status.status = status.status;
 	DEBUG_LOG(("Got buddy status for %d(%s) - status %d\n", status.profile, response.arg.status.nick, status.status));
 

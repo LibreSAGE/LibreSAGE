@@ -156,7 +156,8 @@ int HModelDefClass::Load_W3D(ChunkLoadClass & cload)
 	ModelName[W3D_NAME_LEN - 1] = 0;
 	strncpy(BasePoseName,header.HierarchyName,W3D_NAME_LEN);
 	BasePoseName[W3D_NAME_LEN-1] = 0;
-	strcpy(Name,ModelName);
+	strncpy(Name,ModelName,sizeof(Name));
+	Name[sizeof(Name)-1] = '\0';
 
 	/*
 	** Just allocate a node for the number of sub objects we're expecting
@@ -238,9 +239,10 @@ bool HModelDefClass::read_connection(ChunkLoadClass & cload,HmdlNodeDefStruct * 
 		return false;
 	}
 
-	strcpy(node->RenderObjName,ModelName);
-	strcat(node->RenderObjName,".");
-	strcat(node->RenderObjName,con.RenderObjName);
+	strncpy(node->RenderObjName,ModelName,sizeof(node->RenderObjName));
+	node->RenderObjName[sizeof(node->RenderObjName)-1] = '\0';
+	strncat(node->RenderObjName,".",sizeof(node->RenderObjName) - strlen(node->RenderObjName) - 1);
+	strncat(node->RenderObjName,con.RenderObjName,sizeof(node->RenderObjName) - strlen(node->RenderObjName) - 1);
 
 	if (pre30) {
 		if (con.PivotIdx == 65535) {

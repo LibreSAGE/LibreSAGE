@@ -609,7 +609,8 @@ ModuleData* ModuleFactory::newModuleDataFromINI(INI* ini, const AsciiString& nam
 {
 	char tmp[256];
 	tmp[0] = '0' + (int)type;
-	strcpy(&tmp[1], name.str());
+	strncpy(&tmp[1], name.str(), sizeof(tmp) - 1);
+	tmp[sizeof(tmp) - 1] = '\0';
 	return TheNameKeyGenerator->nameToKey(tmp);
 }
 

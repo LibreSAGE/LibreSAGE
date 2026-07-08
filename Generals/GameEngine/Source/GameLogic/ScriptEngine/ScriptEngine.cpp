@@ -8647,7 +8647,7 @@ void _adjustVariable(const AsciiString& str, Int value, Bool shouldPause)
 	}
 
 	char buff[12];	// for sprintf
-	sprintf(buff, "%d", value);
+	snprintf(buff, sizeof(buff), "%d", value);
 
 	((funcptr)proc)(str.str(), buff);
 }
@@ -8869,7 +8869,7 @@ static void _writeOutINI( void )
 				saveFile->close();
 				saveFile = NULL;
 		}
-		sprintf(buff, "%s%d.%s", BACKUP_FILE_NAME, i, BACKUP_EXT);
+		snprintf(buff, sizeof(buff), "%s%d.%s", BACKUP_FILE_NAME, i, BACKUP_EXT);
 		saveFile = TheFileSystem->openFile(buff, File::READ | File::TEXT);
 		++i;
 	} while (saveFile);
@@ -9046,45 +9046,45 @@ void _writeSingleParticleSystem( File *out, ParticleSystemTemplate *templ )
 	thisEntry.append(SEP_HEAD).append(F_TYPE).append(EQ_WITH_SPACES).append(ParticleTypeNames[templ->m_particleType]).append(SEP_EOL);
 	thisEntry.append(SEP_HEAD).append(F_PARTICLENAME).append(EQ_WITH_SPACES).append(templ->m_particleTypeName.str()).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_angleX.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_angleX.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_angleX.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_angleX.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLEX).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_angleY.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_angleY.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_angleY.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_angleY.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLEY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_angleZ.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_angleZ.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_angleZ.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_angleZ.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLEZ).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_angularRateX.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_angularRateX.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_angularRateX.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_angularRateX.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLERATEX).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_angularRateY.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_angularRateY.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_angularRateY.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_angularRateY.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLERATEY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_angularRateZ.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_angularRateZ.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_angularRateZ.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_angularRateZ.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLERATEZ).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_angularDamping.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_angularDamping.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_angularDamping.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_angularDamping.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLEDAMP).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_velDamping.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_velDamping.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_velDamping.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_velDamping.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_VELOCITYDAMP).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_gravity);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_gravity);
 	thisEntry.append(SEP_HEAD).append(F_GRAVITY).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 	if (!templ->m_slaveSystemName.isEmpty()) {
 		thisEntry.append(SEP_HEAD).append(F_SLAVESYSTEM).append(EQ_WITH_SPACES).append(templ->m_slaveSystemName.str()).append(SEP_EOL);
-		sprintf(buff1, FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_slavePosOffset.x);
-		sprintf(buff2, FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_slavePosOffset.y);
-		sprintf(buff3, FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_slavePosOffset.z);
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_slavePosOffset.x);
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_slavePosOffset.y);
+		snprintf(buff3, sizeof(buff3), FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_slavePosOffset.z);
 		thisEntry.append(SEP_HEAD).append(F_SLAVEPOS).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	}
 
@@ -9092,179 +9092,179 @@ void _writeSingleParticleSystem( File *out, ParticleSystemTemplate *templ )
 		thisEntry.append(SEP_HEAD).append(F_ATTACHED).append(EQ_WITH_SPACES).append(templ->m_attachedSystemName.str()).append(SEP_EOL);
 	}
 
-	sprintf(buff1, FORMAT_STRING, templ->m_lifetime.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_lifetime.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_lifetime.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_lifetime.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_LIFETIME).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-	sprintf(buff1, "%d", templ->m_systemLifetime);
+	snprintf(buff1, sizeof(buff1), "%d", templ->m_systemLifetime);
 	thisEntry.append(SEP_HEAD).append(F_SYSLIFETIME).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_startSize.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_startSize.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_startSize.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_startSize.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_SIZE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_startSizeRate.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_startSizeRate.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_startSizeRate.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_startSizeRate.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_STARTSIZERATE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_sizeRate.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_sizeRate.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_sizeRate.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_sizeRate.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_SIZERATE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_sizeRateDamping.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_sizeRateDamping.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_sizeRateDamping.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_sizeRateDamping.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_SIZERATEDAMP).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[0].var.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[0].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[0].frame);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_alphaKey[0].var.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_alphaKey[0].var.getMaximumValue());
+	snprintf(buff3, sizeof(buff3), "%d", templ->m_alphaKey[0].frame);
 	thisEntry.append(SEP_HEAD).append(F_ALPHA1).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[1].var.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[1].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[1].frame);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_alphaKey[1].var.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_alphaKey[1].var.getMaximumValue());
+	snprintf(buff3, sizeof(buff3), "%d", templ->m_alphaKey[1].frame);
 	thisEntry.append(SEP_HEAD).append(F_ALPHA2).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[2].var.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[2].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[2].frame);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_alphaKey[2].var.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_alphaKey[2].var.getMaximumValue());
+	snprintf(buff3, sizeof(buff3), "%d", templ->m_alphaKey[2].frame);
 	thisEntry.append(SEP_HEAD).append(F_ALPHA3).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[3].var.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[3].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[3].frame);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_alphaKey[3].var.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_alphaKey[3].var.getMaximumValue());
+	snprintf(buff3, sizeof(buff3), "%d", templ->m_alphaKey[3].frame);
 	thisEntry.append(SEP_HEAD).append(F_ALPHA4).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[4].var.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[4].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[4].frame);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_alphaKey[4].var.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_alphaKey[4].var.getMaximumValue());
+	snprintf(buff3, sizeof(buff3), "%d", templ->m_alphaKey[4].frame);
 	thisEntry.append(SEP_HEAD).append(F_ALPHA5).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[5].var.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[5].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[5].frame);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_alphaKey[5].var.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_alphaKey[5].var.getMaximumValue());
+	snprintf(buff3, sizeof(buff3), "%d", templ->m_alphaKey[5].frame);
 	thisEntry.append(SEP_HEAD).append(F_ALPHA6).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[6].var.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[6].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[6].frame);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_alphaKey[6].var.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_alphaKey[6].var.getMaximumValue());
+	snprintf(buff3, sizeof(buff3), "%d", templ->m_alphaKey[6].frame);
 	thisEntry.append(SEP_HEAD).append(F_ALPHA7).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[7].var.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[7].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[7].frame);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_alphaKey[7].var.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_alphaKey[7].var.getMaximumValue());
+	snprintf(buff3, sizeof(buff3), "%d", templ->m_alphaKey[7].frame);
 	thisEntry.append(SEP_HEAD).append(F_ALPHA8).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
-	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[0].color.red * 255 + 0.5));
-	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[0].color.green * 255 + 0.5));
-	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[0].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[0].frame);
+	snprintf(buff1, sizeof(buff1), "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[0].color.red * 255 + 0.5));
+	snprintf(buff2, sizeof(buff2), "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[0].color.green * 255 + 0.5));
+	snprintf(buff3, sizeof(buff3), "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[0].color.blue * 255 + 0.5));
+	snprintf(buff4, sizeof(buff4), "%d", templ->m_colorKey[0].frame);
 	thisEntry.append(SEP_HEAD).append(F_COLOR1).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 
-	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[1].color.red * 255 + 0.5));
-	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[1].color.green * 255 + 0.5));
-	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[1].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[1].frame);
+	snprintf(buff1, sizeof(buff1), "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[1].color.red * 255 + 0.5));
+	snprintf(buff2, sizeof(buff2), "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[1].color.green * 255 + 0.5));
+	snprintf(buff3, sizeof(buff3), "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[1].color.blue * 255 + 0.5));
+	snprintf(buff4, sizeof(buff4), "%d", templ->m_colorKey[1].frame);
 	thisEntry.append(SEP_HEAD).append(F_COLOR2).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 
-	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[2].color.red * 255 + 0.5));
-	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[2].color.green * 255 + 0.5));
-	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[2].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[2].frame);
+	snprintf(buff1, sizeof(buff1), "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[2].color.red * 255 + 0.5));
+	snprintf(buff2, sizeof(buff2), "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[2].color.green * 255 + 0.5));
+	snprintf(buff3, sizeof(buff3), "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[2].color.blue * 255 + 0.5));
+	snprintf(buff4, sizeof(buff4), "%d", templ->m_colorKey[2].frame);
 	thisEntry.append(SEP_HEAD).append(F_COLOR3).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
-	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[3].color.red * 255 + 0.5));
-	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[3].color.green * 255 + 0.5));
-	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[3].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[3].frame);
+	snprintf(buff1, sizeof(buff1), "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[3].color.red * 255 + 0.5));
+	snprintf(buff2, sizeof(buff2), "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[3].color.green * 255 + 0.5));
+	snprintf(buff3, sizeof(buff3), "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[3].color.blue * 255 + 0.5));
+	snprintf(buff4, sizeof(buff4), "%d", templ->m_colorKey[3].frame);
 	thisEntry.append(SEP_HEAD).append(F_COLOR4).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
-	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[4].color.red * 255 + 0.5));
-	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[4].color.green * 255 + 0.5));
-	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[4].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[4].frame);
+	snprintf(buff1, sizeof(buff1), "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[4].color.red * 255 + 0.5));
+	snprintf(buff2, sizeof(buff2), "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[4].color.green * 255 + 0.5));
+	snprintf(buff3, sizeof(buff3), "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[4].color.blue * 255 + 0.5));
+	snprintf(buff4, sizeof(buff4), "%d", templ->m_colorKey[4].frame);
 	thisEntry.append(SEP_HEAD).append(F_COLOR5).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
-	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[5].color.red * 255 + 0.5));
-	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[5].color.green * 255 + 0.5));
-	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[5].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[5].frame);
+	snprintf(buff1, sizeof(buff1), "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[5].color.red * 255 + 0.5));
+	snprintf(buff2, sizeof(buff2), "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[5].color.green * 255 + 0.5));
+	snprintf(buff3, sizeof(buff3), "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[5].color.blue * 255 + 0.5));
+	snprintf(buff4, sizeof(buff4), "%d", templ->m_colorKey[5].frame);
 	thisEntry.append(SEP_HEAD).append(F_COLOR6).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
-	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[6].color.red * 255 + 0.5));
-	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[6].color.green * 255 + 0.5));
-	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[6].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[6].frame);
+	snprintf(buff1, sizeof(buff1), "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[6].color.red * 255 + 0.5));
+	snprintf(buff2, sizeof(buff2), "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[6].color.green * 255 + 0.5));
+	snprintf(buff3, sizeof(buff3), "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[6].color.blue * 255 + 0.5));
+	snprintf(buff4, sizeof(buff4), "%d", templ->m_colorKey[6].frame);
 	thisEntry.append(SEP_HEAD).append(F_COLOR7).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
-	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[7].color.red * 255 + 0.5));
-	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[7].color.green * 255 + 0.5));
-	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[7].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[7].frame);
+	snprintf(buff1, sizeof(buff1), "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[7].color.red * 255 + 0.5));
+	snprintf(buff2, sizeof(buff2), "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[7].color.green * 255 + 0.5));
+	snprintf(buff3, sizeof(buff3), "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[7].color.blue * 255 + 0.5));
+	snprintf(buff4, sizeof(buff4), "%d", templ->m_colorKey[7].frame);
 	thisEntry.append(SEP_HEAD).append(F_COLOR8).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_colorScale.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_colorScale.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_colorScale.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_colorScale.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_COLORSCALE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_burstDelay.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_burstDelay.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_burstDelay.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_burstDelay.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_BURSTDELAY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_burstCount.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_burstCount.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_burstCount.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_burstCount.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_BURSTCOUNT).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_initialDelay.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_initialDelay.getMaximumValue());
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_initialDelay.getMinimumValue());
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_initialDelay.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_INITIALDELAY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_driftVelocity.x);
-	sprintf(buff2, FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_driftVelocity.y);
-	sprintf(buff3, FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_driftVelocity.z);
+	snprintf(buff1, sizeof(buff1), FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_driftVelocity.x);
+	snprintf(buff2, sizeof(buff2), FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_driftVelocity.y);
+	snprintf(buff3, sizeof(buff3), FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_driftVelocity.z);
 	thisEntry.append(SEP_HEAD).append(F_DRIFTVELOCITY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
 	thisEntry.append(SEP_HEAD).append(F_VELOCITYTYPE).append(EQ_WITH_SPACES).append(EmissionVelocityTypeNames[templ->m_emissionVelocityType]).append(SEP_EOL);
 
 	if (templ->m_emissionVelocityType == ParticleSystemInfo::ORTHO) {
 
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.ortho.x.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.ortho.x.getMaximumValue());
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVelocity.ortho.x.getMinimumValue());
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_emissionVelocity.ortho.x.getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELORTHOX).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 		
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.ortho.y.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.ortho.y.getMaximumValue());
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVelocity.ortho.y.getMinimumValue());
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_emissionVelocity.ortho.y.getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELORTHOY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 		
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.ortho.z.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.ortho.z.getMaximumValue());
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVelocity.ortho.z.getMinimumValue());
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_emissionVelocity.ortho.z.getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELORTHOZ).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	} else if (templ->m_emissionVelocityType == ParticleSystemInfo::SPHERICAL) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.spherical.speed.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.spherical.speed.getMaximumValue());
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVelocity.spherical.speed.getMinimumValue());
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_emissionVelocity.spherical.speed.getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELSPHERE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
 	} else if (templ->m_emissionVelocityType == ParticleSystemInfo::HEMISPHERICAL) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.hemispherical.speed.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.hemispherical.speed.getMaximumValue());
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVelocity.hemispherical.speed.getMinimumValue());
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_emissionVelocity.hemispherical.speed.getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_HEMISPHERE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
 	} else if (templ->m_emissionVelocityType == ParticleSystemInfo::CYLINDRICAL) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.radial.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.radial.getMaximumValue());
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVelocity.cylindrical.radial.getMinimumValue());
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_emissionVelocity.cylindrical.radial.getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELCYLRAD).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.normal.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.normal.getMaximumValue());
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVelocity.cylindrical.normal.getMinimumValue());
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_emissionVelocity.cylindrical.normal.getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELCYLNOR).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
 	} else if (templ->m_emissionVelocityType == ParticleSystemInfo::OUTWARD) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.outward.speed.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.outward.speed.getMaximumValue());
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVelocity.outward.speed.getMinimumValue());
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_emissionVelocity.outward.speed.getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELOUTWARD).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.outward.otherSpeed.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.outward.otherSpeed.getMaximumValue());
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVelocity.outward.otherSpeed.getMinimumValue());
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING, templ->m_emissionVelocity.outward.otherSpeed.getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELOUTOTHER).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	}	
 
@@ -9273,31 +9273,31 @@ void _writeSingleParticleSystem( File *out, ParticleSystemTemplate *templ )
 	if (templ->m_emissionVolumeType == ParticleSystemInfo::POINT) {
 		// nothing to output here for lines
 	} else if (templ->m_emissionVolumeType == ParticleSystemInfo::LINE) {
-		sprintf(buff1, FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_emissionVolume.line.start.x);
-		sprintf(buff2, FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_emissionVolume.line.start.y);
-		sprintf(buff3, FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_emissionVolume.line.start.z);
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_emissionVolume.line.start.x);
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_emissionVolume.line.start.y);
+		snprintf(buff3, sizeof(buff3), FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_emissionVolume.line.start.z);
 		thisEntry.append(SEP_HEAD).append(F_VOLLINESTART).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
-		sprintf(buff1, FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_emissionVolume.line.end.x);
-		sprintf(buff2, FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_emissionVolume.line.end.y);
-		sprintf(buff3, FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_emissionVolume.line.end.z);
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_emissionVolume.line.end.x);
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_emissionVolume.line.end.y);
+		snprintf(buff3, sizeof(buff3), FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_emissionVolume.line.end.z);
 		thisEntry.append(SEP_HEAD).append(F_VOLLINEEND).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
 	} else if (templ->m_emissionVolumeType == ParticleSystemInfo::BOX) {
-		sprintf(buff1, FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_emissionVolume.box.halfSize.x);
-		sprintf(buff2, FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_emissionVolume.box.halfSize.y);
-		sprintf(buff3, FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_emissionVolume.box.halfSize.z);
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_emissionVolume.box.halfSize.x);
+		snprintf(buff2, sizeof(buff2), FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_emissionVolume.box.halfSize.y);
+		snprintf(buff3, sizeof(buff3), FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_emissionVolume.box.halfSize.z);
 		thisEntry.append(SEP_HEAD).append(F_VOLBOXHALF).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
 	} else if (templ->m_emissionVolumeType == ParticleSystemInfo::SPHERE) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVolume.sphere.radius);
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVolume.sphere.radius);
 		thisEntry.append(SEP_HEAD).append(F_VOLSPHERERAD).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 
 	} else if (templ->m_emissionVolumeType == ParticleSystemInfo::CYLINDER) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVolume.cylinder.radius);
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVolume.cylinder.radius);
 		thisEntry.append(SEP_HEAD).append(F_VOLCYLRAD).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVolume.cylinder.length);
+		snprintf(buff1, sizeof(buff1), FORMAT_STRING, templ->m_emissionVolume.cylinder.length);
 		thisEntry.append(SEP_HEAD).append(F_VOLCYLLEN).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 	}
 
@@ -9309,19 +9309,19 @@ void _writeSingleParticleSystem( File *out, ParticleSystemTemplate *templ )
 	// wind angle and stuff
 	thisEntry.append(SEP_HEAD).append(F_WINDMOTION).append(EQ_WITH_SPACES).append(WindMotionNames[templ->m_windMotion]).append(SEP_EOL);
 
-	sprintf( buff1, "%f", templ->m_windAngleChangeMin );
+	snprintf( buff1, sizeof(buff1), "%f", templ->m_windAngleChangeMin );
 	thisEntry.append(SEP_HEAD).append(F_WINDANGLECHANGEMIN).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
-	sprintf( buff1, "%f", templ->m_windAngleChangeMax );
+	snprintf( buff1, sizeof(buff1), "%f", templ->m_windAngleChangeMax );
 	thisEntry.append(SEP_HEAD).append(F_WINDANGLECHANGEMAX).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 
-	sprintf( buff1, "%f", templ->m_windMotionStartAngleMin );
+	snprintf( buff1, sizeof(buff1), "%f", templ->m_windMotionStartAngleMin );
 	thisEntry.append(SEP_HEAD).append(F_WINDPINGPONGSTARTANGLEMIN).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
-	sprintf( buff1, "%f", templ->m_windMotionStartAngleMax );
+	snprintf( buff1, sizeof(buff1), "%f", templ->m_windMotionStartAngleMax );
 	thisEntry.append(SEP_HEAD).append(F_WINDPINGPONGSTARTANGLEMAX).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 
-	sprintf( buff1, "%f", templ->m_windMotionEndAngleMin );
+	snprintf( buff1, sizeof(buff1), "%f", templ->m_windMotionEndAngleMin );
 	thisEntry.append(SEP_HEAD).append(F_WINDPINGPONGENDANGLEMIN).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
-	sprintf( buff1, "%f", templ->m_windMotionEndAngleMax );
+	snprintf( buff1, sizeof(buff1), "%f", templ->m_windMotionEndAngleMax );
 	thisEntry.append(SEP_HEAD).append(F_WINDPINGPONGENDANGLEMAX).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 
 	thisEntry.append(STR_END).append(SEP_EOL).append(SEP_EOL);

@@ -58,7 +58,7 @@ inline ErrorClass::ErrorClass(char * format,...)
 	va_list va;
 	char tmp[1024];
 	va_start(va,format);
-	vsprintf(tmp,format,va);
+	vsnprintf(tmp,sizeof(tmp),format,va);
 	assert(strlen(tmp) < 1024);
 	va_end(va);
 	error_message = strdup(tmp);

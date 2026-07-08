@@ -326,26 +326,26 @@ void MilesAudioManager::audioDebugDisplay(DebugDisplayInterface *dd, void *, FIL
 				Coord3D vector = *microphonePos;
 				vector.sub( pos );
 				dist = vector.length();
-				sprintf( distStr, "%d", REAL_TO_INT( dist ) );
+				snprintf( distStr, sizeof(distStr), "%d", REAL_TO_INT( dist ) );
 			}
 			else
 			{
-				sprintf( distStr, "???" );
+				snprintf( distStr, sizeof(distStr), "???" );
 			}
 			char str[32];
 			switch( playing->m_audioEventRTS->getOwnerType() )
 			{
 				case OT_Positional:
-					sprintf( str, "(3D)" );
+					snprintf( str, sizeof(str), "(3D)" );
 					break;
 				case OT_Object:
-					sprintf( str, "(3DObj)" );
+					snprintf( str, sizeof(str), "(3DObj)" );
 					break;
 				case OT_Drawable:
-					sprintf( str, "(3DDraw)" );
+					snprintf( str, sizeof(str), "(3DDraw)" );
 					break;
 				case OT_Dead:
-					sprintf( str, "(3DDead)" );
+					snprintf( str, sizeof(str), "(3DDead)" );
 					break;
 
 			}

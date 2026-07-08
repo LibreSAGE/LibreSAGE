@@ -87,7 +87,7 @@ void DebugCrash(const char *format, ...)
 
 	va_list arg;
   va_start(arg, format);
-  vsprintf(theBuffer + strlen(theBuffer), format, arg);
+  vsnprintf(theBuffer + strlen(theBuffer), sizeof(theBuffer) - strlen(theBuffer), format, arg);
   va_end(arg);
 
 	if (strlen(theBuffer) >= sizeof(theBuffer))

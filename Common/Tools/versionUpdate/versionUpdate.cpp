@@ -58,26 +58,26 @@ static void writeVersion(char *file, int build)
 			char userName[UNLEN + 1];
 			if (!GetUserName(userName, &bufSize))
 			{
-				strcpy(userName, "unknown");
+				strncpy(userName, "unknown", sizeof(userName)); userName[sizeof(userName)-1] = '\0';
 			}
 
 			bufSize = MAX_COMPUTERNAME_LENGTH + 1;
 			char computerName[MAX_COMPUTERNAME_LENGTH + 1];
 			if (!GetComputerName(computerName, &bufSize))
 			{
-				strcpy(computerName, "unknown");
+				strncpy(computerName, "unknown", sizeof(computerName)); computerName[sizeof(computerName)-1] = '\0';
 			}
 #else
 			char userName[256];
 			char computerName[256];
 			if (getlogin_r(userName, sizeof(userName))!=0)
 			{
-				strcpy(userName, "unknown");
+				strncpy(userName, "unknown", sizeof(userName)); userName[sizeof(userName)-1] = '\0';
 			}
 
 			if (gethostname(computerName, sizeof(computerName)) == -1)
 			{
-				strcpy(computerName, "unknown");
+				strncpy(computerName, "unknown", sizeof(computerName)); computerName[sizeof(computerName)-1] = '\0';
 			}
 #endif
 
@@ -125,7 +125,8 @@ static char* strtrim(char* buffer)
 
 		if (source != buffer)
 		{
-			strcpy(buffer, source);
+			size_t srcLen = strlen(source);
+			strncpy(buffer, source, srcLen); buffer[srcLen] = '\0';
 		}
 
 		//	Clip trailing white space from the string.

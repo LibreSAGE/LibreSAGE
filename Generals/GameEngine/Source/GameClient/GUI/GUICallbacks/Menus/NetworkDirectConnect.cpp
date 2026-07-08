@@ -229,7 +229,8 @@ void JoinDirectConnectGame()
 	asciientry.nextToken(&ipstring, "(");
 
 	char ipstr[16];
-	strcpy(ipstr, ipstring.str());
+	strncpy(ipstr, ipstring.str(), sizeof(ipstr));
+	ipstr[sizeof(ipstr) - 1] = '\0';
 
 	Int ip1, ip2, ip3, ip4;
 	sscanf(ipstr, "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4);

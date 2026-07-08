@@ -234,11 +234,12 @@ char *TextureFileCache::_Create_File_Name(const char *fileprefix)
 			
    char path[_MAX_PATH];
    if (addpath && _getcwd(path, _MAX_PATH ))  {
-		sprintf(_FileNamePtr, "%s\\%s.tfc", path, fileprefix);
+		snprintf(_FileNamePtr, strlen(fileprefix) + 256, "%s\\%s.tfc", path, fileprefix);
    } else {
 		// Create a file name.
-		strcpy(_FileNamePtr, fileprefix);
-		strcat(_FileNamePtr, ".tfc");
+		strncpy(_FileNamePtr, fileprefix, strlen(fileprefix) + 6);
+		_FileNamePtr[strlen(fileprefix) + 5] = '\0';
+		strncat(_FileNamePtr, ".tfc", strlen(fileprefix) + 6 - strlen(_FileNamePtr) - 1);
 		*_FileNamePtr = 0;
 	}
 

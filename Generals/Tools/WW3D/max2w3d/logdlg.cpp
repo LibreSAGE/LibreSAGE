@@ -110,7 +110,7 @@ void LogDataDialogClass::printf(char * text, const va_list & args)
 {
 	static char string_buffer[256];
 
-	vsprintf(string_buffer, text, args);
+	vsnprintf(string_buffer, sizeof(string_buffer), text, args);
 
 	HWND ctrlHwnd = GetDlgItem(Hwnd, IDC_ANIM_LOG_RICHEDIT);
 
@@ -154,7 +154,7 @@ void LogDataDialogClass::rprintf(char *text, ...)
 void LogDataDialogClass::rprintf(char *text, const va_list & args)
 {
 	static char string_buffer[256];
-	vsprintf(string_buffer, text, args);
+	vsnprintf(string_buffer, sizeof(string_buffer), text, args);
 
 	HWND ctrlHwnd = GetDlgItem(Hwnd, IDC_ANIM_LOG_RICHEDIT);
 

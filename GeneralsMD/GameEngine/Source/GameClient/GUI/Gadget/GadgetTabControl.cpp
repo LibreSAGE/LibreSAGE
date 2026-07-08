@@ -312,7 +312,7 @@ void GadgetTabControlCreateSubPanes( GameWindow *tabControl )///< Create User Wi
 			WinInstanceData *instData = tabData->subPanes[paneIndex]->winGetInstanceData();
 			BitSet( instData->m_style, GWS_TAB_PANE  );
 			char buffer[20];
-			sprintf( buffer, "Pane %d", paneIndex );
+			snprintf( buffer, sizeof(buffer), "Pane %d", paneIndex );
 			instData->m_decoratedNameString = buffer;
 			//set enabled status to that of Parent
 			tabData->subPanes[paneIndex]->winEnable( BitTest(tabControl->winGetStatus(), WIN_STATUS_ENABLED) );

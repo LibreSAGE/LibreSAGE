@@ -190,9 +190,9 @@ int fixed::To_ASCII(char * buffer, int maxlen) const
 	**	fractional component.
 	*/
 	if (frac == 0) {
-		sprintf(tbuffer, "%d", whole);
+		snprintf(tbuffer, sizeof(tbuffer), "%d", whole);
 	} else {
-		sprintf(tbuffer, "%d.%02d", whole, frac);
+		snprintf(tbuffer, sizeof(tbuffer), "%d.%02d", whole, frac);
 
 		char * ptr = &tbuffer[strlen(tbuffer)-1];
 		while (*ptr == '0') {

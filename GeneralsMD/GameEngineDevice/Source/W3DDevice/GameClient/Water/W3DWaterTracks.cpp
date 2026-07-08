@@ -977,10 +977,12 @@ void WaterTracksRenderSystem::saveTracks(void)
 	AsciiString fileName=TheTerrainLogic->getSourceFilename();
 	char path[256];
 
-	strcpy(path,fileName.str());
+	strncpy(path,fileName.str(),sizeof(path));
+	path[sizeof(path)-1] = '\0';
 	Int len=strlen(path);
 
-	strcpy(path+len-4,".wak");
+	strncpy(path+len-4,".wak",sizeof(path)-(len-4));
+	path[sizeof(path)-1] = '\0';
 
 	WaterTracksObj *umod;
 	Int trackCount=0;
@@ -1015,10 +1017,12 @@ void WaterTracksRenderSystem::loadTracks(void)
 	AsciiString fileName=TheTerrainLogic->getSourceFilename();
 	char path[256];
 
-	strcpy(path,fileName.str());
+	strncpy(path,fileName.str(),sizeof(path));
+	path[sizeof(path)-1] = '\0';
 	Int len=strlen(path);
 
-	strcpy(path+len-4,".wak");
+	strncpy(path+len-4,".wak",sizeof(path)-(len-4));
+	path[sizeof(path)-1] = '\0';
 
 	File *file = TheFileSystem->openFile(path, File::READ | File::BINARY);
 	WaterTracksObj *umod;

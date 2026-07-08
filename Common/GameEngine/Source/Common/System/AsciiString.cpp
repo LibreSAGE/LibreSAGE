@@ -129,7 +129,9 @@ void AsciiString::ensureUniqueBufferOfSize(int numCharsNeeded, Bool preserveData
 		if (strToCopy)
 			memmove(m_data->peek(), strToCopy, strlen(strToCopy)+1);
 		if (strToCat)
-			strcat(m_data->peek(), strToCat);
+		{
+			strncat(m_data->peek(), strToCat, m_data->m_numCharsAllocated - strlen(m_data->peek()) - 1);
+		}
 		return;
 	}
 
@@ -146,16 +148,24 @@ void AsciiString::ensureUniqueBufferOfSize(int numCharsNeeded, Bool preserveData
 #endif
 
 	if (m_data && preserveData)
-		strcpy(newData->peek(), m_data->peek());
+	{
+		strncpy(newData->peek(), m_data->peek(), newData->m_numCharsAllocated);
+		newData->peek()[newData->m_numCharsAllocated - 1] = '\0';
+	}
 	else
 		newData->peek()[0] = 0;
 
 	// do these BEFORE releasing the old buffer, so that self-copies
 	// or self-cats will work correctly.
 	if (strToCopy)
-		strcpy(newData->peek(), strToCopy);
+	{
+		strncpy(newData->peek(), strToCopy, newData->m_numCharsAllocated);
+		newData->peek()[newData->m_numCharsAllocated - 1] = '\0';
+	}
 	if (strToCat)
-		strcat(newData->peek(), strToCat);
+	{
+		strncat(newData->peek(), strToCat, newData->m_numCharsAllocated - strlen(newData->peek()) - 1);
+	}
 
 	releaseBuffer();
 	m_data = newData;
@@ -229,7 +239,8 @@ void AsciiString::toLower()
 	if (m_data)
 	{
 		char buf[MAX_FORMAT_BUF_LEN];
-		strcpy(buf, peek());
+		strncpy(buf, peek(), sizeof(buf));
+		buf[sizeof(buf) - 1] = '\0';
 
 		char *c = buf;
 		while (c && *c)

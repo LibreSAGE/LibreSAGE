@@ -92,7 +92,8 @@ void RecorderClass::logGameStart(AsciiString options)
 			char computerName[MAX_COMPUTERNAME_LENGTH + 1];
 			if (!GetComputerName(computerName, &bufSize))
 			{
-				strcpy(computerName, "unknown");
+				strncpy(computerName, "unknown", sizeof(computerName));
+				computerName[sizeof(computerName) - 1] = '\0';
 			}
 			AsciiString statsFile = TheGlobalData->m_baseStatsDir;
 			TheFileSystem->createDirectory(statsFile);
@@ -151,7 +152,8 @@ void RecorderClass::logPlayerDisconnect(UnicodeString player, Int slot)
 		char computerName[MAX_COMPUTERNAME_LENGTH + 1];
 		if (!GetComputerName(computerName, &bufSize))
 		{
-			strcpy(computerName, "unknown");
+			strncpy(computerName, "unknown", sizeof(computerName));
+			computerName[sizeof(computerName) - 1] = '\0';
 		}
 		AsciiString statsFile = TheGlobalData->m_baseStatsDir;
 		statsFile.concat(computerName);
@@ -197,7 +199,8 @@ void RecorderClass::logCRCMismatch( void )
 		char computerName[MAX_COMPUTERNAME_LENGTH + 1];
 		if (!GetComputerName(computerName, &bufSize))
 		{
-			strcpy(computerName, "unknown");
+			strncpy(computerName, "unknown", sizeof(computerName));
+			computerName[sizeof(computerName) - 1] = '\0';
 		}
 		AsciiString statsFile = TheGlobalData->m_baseStatsDir;
 		statsFile.concat(computerName);
@@ -252,7 +255,8 @@ void RecorderClass::logGameEnd( void )
 			char computerName[MAX_COMPUTERNAME_LENGTH + 1];
 			if (!GetComputerName(computerName, &bufSize))
 			{
-				strcpy(computerName, "unknown");
+				strncpy(computerName, "unknown", sizeof(computerName));
+				computerName[sizeof(computerName) - 1] = '\0';
 			}
 			AsciiString statsFile = TheGlobalData->m_baseStatsDir;
 			statsFile.concat(computerName);

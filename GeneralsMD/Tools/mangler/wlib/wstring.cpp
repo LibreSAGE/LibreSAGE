@@ -454,7 +454,7 @@ char Wstring::setFormatted(IN char *msg, ...)
 
 	string = new char[len];
         va_start(args, msg);
-        vsprintf(string, msg, args);
+        vsnprintf(string, len, msg, args);
         va_end(args);
 	set(string);
 	delete[] string;

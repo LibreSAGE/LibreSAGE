@@ -149,7 +149,8 @@ void SimpleFileFactoryClass::Prepend_Sub_Directory( const char * sub_directory )
 
 	// Ensure sub_directory ends with a slash, and append a semicolon
 	char temp_sub_dir[1024];
-	strcpy(temp_sub_dir, sub_directory);
+	strncpy(temp_sub_dir, sub_directory, sizeof(temp_sub_dir));
+	temp_sub_dir[sizeof(temp_sub_dir) - 1] = '\0';
 #ifdef _WINDOWS
 	if (temp_sub_dir[sub_len - 1] != '\\') {
 		temp_sub_dir[sub_len] = '\\';
@@ -192,7 +193,8 @@ void SimpleFileFactoryClass::Append_Sub_Directory( const char * sub_directory )
 
 	// Ensure sub_directory ends with a slash
 	char temp_sub_dir[1024];
-	strcpy(temp_sub_dir, sub_directory);
+	strncpy(temp_sub_dir, sub_directory, sizeof(temp_sub_dir));
+	temp_sub_dir[sizeof(temp_sub_dir) - 1] = '\0';
 #ifdef _WINDOWS
 	if (temp_sub_dir[sub_len - 1] != '\\') {
 		temp_sub_dir[sub_len] = '\\';

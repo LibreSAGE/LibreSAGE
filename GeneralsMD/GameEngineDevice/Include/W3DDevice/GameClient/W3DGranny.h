@@ -211,7 +211,7 @@ public:
 	virtual const char *			Get_Name(void)	const			{ return m_name; }	
 	virtual int						Get_Class_ID(void) const	{ return RenderObjClass::CLASSID_UNKNOWN; }
 	virtual RenderObjClass *	Create(void)					{ return NEW_REF( GrannyRenderObjClass, (*this) ); }
-	void	Set_Name(char *name)	{strcpy(m_name,name);}
+	void	Set_Name(char *name)	{strncpy(m_name,name,sizeof(m_name)); m_name[sizeof(m_name)-1]='\0';}
 	void	setBoundingBox(AABoxClass & box)	{m_boundingBox=box;}
 	void	setBoundingSphere(SphereClass & sphere)	{m_boundingSphere=sphere;}
 	void	setVertexCount(Int vertexCount) {m_vertexCount=vertexCount;}

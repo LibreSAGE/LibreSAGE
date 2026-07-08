@@ -771,7 +771,7 @@ void userMemoryManagerInitPools()
 		}
 		--pEnd;
 	}
-	strcat(buf, "\\Data\\INI\\MemoryPools.ini");
+	strncat(buf, "\\Data\\INI\\MemoryPools.ini", sizeof(buf) - strlen(buf) - 1);
 
 	FILE* fp = fopen(buf, "r");
 	if (fp)

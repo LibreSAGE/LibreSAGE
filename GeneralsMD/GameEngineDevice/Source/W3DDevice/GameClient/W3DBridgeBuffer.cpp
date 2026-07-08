@@ -219,20 +219,20 @@ Bool W3DBridge::load(enum BodyDamageType curDamageState)
 		default: return false;
 
 		case 	BODY_PRISTINE:
-			strcpy( textureFile, bridge->getTexture().str() );
-			strcpy( modelName, bridge->getBridgeModel().str() );
+			strncpy( textureFile, bridge->getTexture().str(), sizeof(textureFile) ); textureFile[sizeof(textureFile)-1] = '\0';
+			strncpy( modelName, bridge->getBridgeModel().str(), sizeof(modelName) ); modelName[sizeof(modelName)-1] = '\0';
 			break;
 		case BODY_DAMAGED:
-			strcpy( textureFile, bridge->getTextureDamaged().str() );
-			strcpy( modelName, bridge->getBridgeModelNameDamaged().str() );
+			strncpy( textureFile, bridge->getTextureDamaged().str(), sizeof(textureFile) ); textureFile[sizeof(textureFile)-1] = '\0';
+			strncpy( modelName, bridge->getBridgeModelNameDamaged().str(), sizeof(modelName) ); modelName[sizeof(modelName)-1] = '\0';
 			break;
 		case BODY_REALLYDAMAGED:
-			strcpy( textureFile, bridge->getTextureReallyDamaged().str() );
-			strcpy( modelName, bridge->getBridgeModelNameReallyDamaged().str() );
+			strncpy( textureFile, bridge->getTextureReallyDamaged().str(), sizeof(textureFile) ); textureFile[sizeof(textureFile)-1] = '\0';
+			strncpy( modelName, bridge->getBridgeModelNameReallyDamaged().str(), sizeof(modelName) ); modelName[sizeof(modelName)-1] = '\0';
 			break;
 		case BODY_RUBBLE:
-			strcpy( textureFile, bridge->getTextureBroken().str() );
-			strcpy( modelName, bridge->getBridgeModelNameBroken().str() );
+			strncpy( textureFile, bridge->getTextureBroken().str(), sizeof(textureFile) ); textureFile[sizeof(textureFile)-1] = '\0';
+			strncpy( modelName, bridge->getBridgeModelNameBroken().str(), sizeof(modelName) ); modelName[sizeof(modelName)-1] = '\0';
 			break;
 	}
 
@@ -241,12 +241,12 @@ Bool W3DBridge::load(enum BodyDamageType curDamageState)
 	char section[_MAX_PATH];
 	char right[_MAX_PATH];
 
-	strcpy(left, modelName);
-	strcat(left, ".BRIDGE_LEFT");
-	strcpy(section, modelName);
-	strcat(section, ".BRIDGE_SPAN");
-	strcpy(right, modelName);
-	strcat(right, ".BRIDGE_RIGHT");
+	strncpy(left, modelName, sizeof(left)); left[sizeof(left)-1] = '\0';
+	strncat(left, ".BRIDGE_LEFT", sizeof(left) - strlen(left) - 1);
+	strncpy(section, modelName, sizeof(section)); section[sizeof(section)-1] = '\0';
+	strncat(section, ".BRIDGE_SPAN", sizeof(section) - strlen(section) - 1);
+	strncpy(right, modelName, sizeof(right)); right[sizeof(right)-1] = '\0';
+	strncat(right, ".BRIDGE_RIGHT", sizeof(right) - strlen(right) - 1);
 
 	m_bridgeTexture = pMgr->Get_Texture(textureFile,  MIP_LEVELS_3); 
 	m_leftMtx.Make_Identity();
@@ -261,15 +261,15 @@ Bool W3DBridge::load(enum BodyDamageType curDamageState)
 		Matrix3D mtx = pSub->Get_Transform();
 		if (0==strnicmp(left, pSub->Get_Name(), strlen(left))) {
 			m_leftMtx = mtx;
-			strcpy(left, pSub->Get_Name());
+			strncpy(left, pSub->Get_Name(), sizeof(left)); left[sizeof(left)-1] = '\0';
 		}
 		if (0==strnicmp(section, pSub->Get_Name(), strlen(section))) {
 			m_sectionMtx = mtx;
-			strcpy(section, pSub->Get_Name());
+			strncpy(section, pSub->Get_Name(), sizeof(section)); section[sizeof(section)-1] = '\0';
 		}
 		if (0==strnicmp(right, pSub->Get_Name(), strlen(right))) {
 			m_rightMtx = mtx;
-			strcpy(right, pSub->Get_Name());
+			strncpy(right, pSub->Get_Name(), sizeof(right)); right[sizeof(right)-1] = '\0';
 		}
 		REF_PTR_RELEASE(pSub);
 		//DEBUG_LOG(("Sub obj name %s\n", pSub->Get_Name()));

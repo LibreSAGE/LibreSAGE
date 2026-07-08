@@ -52,7 +52,7 @@ static bool getNextLine(FILE *fp, char *line, int& frame, int& index) {
 			buf[len-1] = '\0';
 		if (sscanf(buf, "%d:%d ", &frame, &index) == 2)
 		{
-			strcpy(line, buf);
+			strncpy(line, buf, LINESIZE); line[LINESIZE-1] = '\0';
 			return true;
 		}
 	}

@@ -81,7 +81,7 @@ HRESULT MakeEscapedURL( LPWSTR pszInURL, LPWSTR *ppszOutURL )
 
     if( fNeedFilePrefix )
     {
-        wcscpy( *ppszOutURL, FILE_PREFIX );
+        wcsncpy( *ppszOutURL, FILE_PREFIX, wcslen( FILE_PREFIX ) + 1 );
         pchNext += wcslen( FILE_PREFIX );
     }
 
@@ -94,7 +94,7 @@ HRESULT MakeEscapedURL( LPWSTR pszInURL, LPWSTR *ppszOutURL )
             //
             // Copy the rest of the input string and get out
             //
-            wcscpy( pchNext, pszTemp );
+            wcsncpy( pchNext, pszTemp, wcslen( pszTemp ) + 1 );
             break;
         }
 
@@ -113,7 +113,7 @@ HRESULT MakeEscapedURL( LPWSTR pszInURL, LPWSTR *ppszOutURL )
         //
         // Expand this character into an escape code and move on
         //
-        pchNext += swprintf( pchNext, u"%%%02x", *pchToEscape );
+        pchNext += swprintf( pchNext, 4, u"%%%02x", *pchToEscape );
 
         pszTemp = pchToEscape + 1;
     }

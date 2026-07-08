@@ -98,7 +98,7 @@ MetalMapManagerClass::MetalMapManagerClass(INIClass &ini) :
 
 	int lp;
 	for (lp = 0; ; lp++) {
-		sprintf(section, "Metal%02d", lp);
+		snprintf(section, sizeof(section), "Metal%02d", lp);
 		if (!ini.Find_Section(section)) {
 			break;			// NAK - Mar 8, 2000: changed to a break to fix off by one error in lp
 		}
@@ -111,7 +111,7 @@ MetalMapManagerClass::MetalMapManagerClass(INIClass &ini) :
 		Vector3 white(1.0f, 1.0f, 1.0f);
 		Vector3 black(0.0f, 0.0f, 0.0f);
 		for (int i = 0; i < lp; i++) {
-			sprintf(section, "Metal%02d", i);
+			snprintf(section, sizeof(section), "Metal%02d", i);
 			static const float cf =  0.003921568627451f;	// 1 / 255
 			TPoint3D<float> color;
 			color = ini.Get_Point(section, "AmbientColor", white_tpoint);

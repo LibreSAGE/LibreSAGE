@@ -325,7 +325,7 @@ void GameEngine::init( int argc, char *argv[] )
 
     	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheNameKeyGenerator  = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheNameKeyGenerator  = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -337,7 +337,7 @@ void GameEngine::init( int argc, char *argv[] )
 
     	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheCommandList  = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheCommandList  = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -353,7 +353,7 @@ void GameEngine::init( int argc, char *argv[] )
 
     	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheLocalFileSystem  = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheLocalFileSystem  = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -363,7 +363,7 @@ void GameEngine::init( int argc, char *argv[] )
 
     	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheArchiveFileSystem  = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheArchiveFileSystem  = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -374,7 +374,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After  TheWritableGlobalData = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After  TheWritableGlobalData = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -414,7 +414,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After water INI's = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After water INI's = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -427,7 +427,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheGameText = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheGameText = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -441,7 +441,7 @@ void GameEngine::init( int argc, char *argv[] )
 		initSubsystem(TheCDManager,"TheCDManager", CreateCDManager(), NULL);
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheCDManager = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheCDManager = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -451,7 +451,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheAudio = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheAudio = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -468,7 +468,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheParticleSystemManager = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheParticleSystemManager = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -486,7 +486,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheBuildAssistant = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheBuildAssistant = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -497,7 +497,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheThingFactory = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheThingFactory = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -509,7 +509,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheGameClient = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheGameClient = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -528,7 +528,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheVictoryConditions = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheVictoryConditions = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -558,7 +558,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheGameResultsQueue = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheGameResultsQueue = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////
@@ -623,7 +623,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
-	sprintf(Buf,"----------------------------------------------------------------------------After TheMapCache->updateCache = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
+	snprintf(Buf, sizeof(Buf),"----------------------------------------------------------------------------After TheMapCache->updateCache = %f seconds \n",((double)(endTime64-startTime64)/(double)(freq64)));
   startTime64 = endTime64;//Reset the clock ////////////////////////////////////////////////////////
 	DEBUG_LOG(("%s", Buf));////////////////////////////////////////////////////////////////////////////
 	#endif/////////////////////////////////////////////////////////////////////////////////////////////

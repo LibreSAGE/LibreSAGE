@@ -1065,9 +1065,9 @@ Int WaterRenderObjClass::init(Real waterLevel, Real dx, Real dy, SceneClass *par
 		{
 			char bump_name[128];
 
-			sprintf(bump_name,"caust%.2d.tga",i);
+			snprintf(bump_name,sizeof(bump_name),"caust%.2d.tga",i);
 			pBumpSource=WW3DAssetManager::Get_Instance()->Get_Texture(bump_name);
-			sprintf(bump_name,"caustS%.2d.tga",i);
+			snprintf(bump_name,sizeof(bump_name),"caustS%.2d.tga",i);
 			pBumpSource2=WW3DAssetManager::Get_Instance()->Get_Texture(bump_name);
 			initBumpMap(m_pBumpTexture+i, pBumpSource);
 			initBumpMap(m_pBumpTexture2+i, pBumpSource2);

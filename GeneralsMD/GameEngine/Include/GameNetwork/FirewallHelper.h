@@ -191,7 +191,7 @@ class FirewallHelperClass {
 
 		void flagNeedToRefresh(Bool flag);
 
-		static void getManglerName(Int manglerIndex, Char *nameBuf);
+		static void getManglerName(Int manglerIndex, Char *nameBuf, size_t nameBufSize);
 		Bool sendToManglerFromPort(NET_Address* address, UnsignedShort port, UnsignedShort packetID, Bool blitzme = FALSE);
 		UnsignedShort getManglerResponse(UnsignedShort packetID, Int time = 0);
 		Bool openSpareSocket(UnsignedShort port);

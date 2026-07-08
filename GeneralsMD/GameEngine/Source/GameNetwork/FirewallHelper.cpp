@@ -619,12 +619,13 @@ Short FirewallHelperClass::getSourcePortAllocationDelta() {
 	return m_sourcePortAllocationDelta;
 }
 
-/* static */ void FirewallHelperClass::getManglerName(Int manglerIndex, Char *nameBuf)
+/* static */ void FirewallHelperClass::getManglerName(Int manglerIndex, Char *nameBuf, size_t nameBufSize)
 {
 	AsciiString host;
 	UnsignedShort port;
 	TheGameSpyConfig->getManglerLocation(manglerIndex, host, port);
-	strcpy(nameBuf, host.str());
+	strncpy(nameBuf, host.str(), nameBufSize);
+	nameBuf[nameBufSize - 1] = '\0';
 }
 
 Bool FirewallHelperClass::detectionBeginUpdate() {

@@ -1154,13 +1154,13 @@ void W3DDisplay::gatherDebugStats( void )
 				fps, ms, gameOverheadMS, consoleMS, threeDOverheadMS, terrainMS, objectMS, overlapMS);
 			if (extendedStats==SHOW_STATS_TIME-2) {
 				char bufferA[ 256 ];
-				sprintf( bufferA, "FPS: %.2f, %.2fms - OH %.2fms, Console %.2fms, 3D OH %.2fms, Terrain %.2fms, Obs %.2fms, CPU %.2fms\n", 
+				snprintf( bufferA, sizeof(bufferA), "FPS: %.2f, %.2fms - OH %.2fms, Console %.2fms, 3D OH %.2fms, Terrain %.2fms, Obs %.2fms, CPU %.2fms\n",
 					fps, ms, gameOverheadMS, consoleMS, threeDOverheadMS, terrainMS, objectMS, overlapMS);
 				::OutputDebugString(bufferA);
 				if (pListFile) {
 					fprintf(pListFile, "\n%s", bufferA);
-				}				
-				sprintf( bufferA, "Polygons: per frame %d, per second %d\n", polyPerFrame,
+				}
+				snprintf( bufferA, sizeof(bufferA), "Polygons: per frame %d, per second %d\n", polyPerFrame,
 						(Int)(polyPerFrame*fps));
 				::OutputDebugString(bufferA);
 				if (pListFile) {
@@ -1615,7 +1615,7 @@ void W3DDisplay::calculateTerrainLOD( void )
 			}
 			Int64 time64 = getPerformanceCounter();
 			timeForFrame = (float)((double)(time64-startTime64) / (double)(freq64));
-			sprintf(buf, "%.2fms ", timeForFrame*1000.0f);
+			snprintf(buf, sizeof(buf), "%.2fms ", timeForFrame*1000.0f);
 			::OutputDebugString(buf);
 			if (i>=NUM_TO_DISCARD) {
 				frameTime += timeForFrame;
@@ -1628,7 +1628,7 @@ void W3DDisplay::calculateTerrainLOD( void )
 		}
 		frameTime /= ((i)-NUM_TO_DISCARD);
 		count++;
-		sprintf(buf, "\n LOD %d, time %.2fms\n", curLOD, frameTime*1000.0f);
+		snprintf(buf, sizeof(buf), "\n LOD %d, time %.2fms\n", curLOD, frameTime*1000.0f);
 		::OutputDebugString(buf);
 		if (frameTime<maxTimeLimit && goodLOD<curLOD) {
 			goodLOD = curLOD;
@@ -2927,12 +2927,13 @@ void W3DDisplay::takeScreenShot(void)
 	Bool done = false;
 	while (!done) {
 #ifdef CAPTURE_TO_TARGA
-		sprintf( leafname, "%s%.3d.tga", "sshot", frame_number++);
+		snprintf( leafname, sizeof(leafname), "%s%.3d.tga", "sshot", frame_number++);
 #else
-		sprintf( leafname, "%s%.3d.bmp", "sshot", frame_number++);
+		snprintf( leafname, sizeof(leafname), "%s%.3d.bmp", "sshot", frame_number++);
 #endif
-		strcpy(pathname, TheGlobalData->getPath_UserData().str());
-		strcat(pathname, leafname);
+		strncpy(pathname, TheGlobalData->getPath_UserData().str(), sizeof(pathname));
+		pathname[sizeof(pathname)-1] = '\0';
+		strncat(pathname, leafname, sizeof(pathname) - strlen(pathname) - 1);
 		if (access( pathname, 0 ) == -1)
 			done = true;
 	}
@@ -3139,7 +3140,7 @@ void W3DDisplay::dumpAssetUsage(const char* mapname)
 	int idx = 1;
 	while (true)
 	{
-		sprintf(buf, "AssetUsage_%s_%04d.txt",leafname,idx);
+		snprintf(buf, sizeof(buf), "AssetUsage_%s_%04d.txt",leafname,idx);
 		if (access(buf, 0) != 0)
 			break;	// it exists, we're good
 		++idx;

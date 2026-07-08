@@ -70,7 +70,7 @@ char * strtrim(char * buffer)
 			source++;
 		}
 		if (source != buffer) {
-			strcpy(buffer, source);
+			memmove(buffer, source, strlen(source) + 1);
 		}
 
 		/*

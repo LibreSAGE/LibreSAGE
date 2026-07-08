@@ -131,7 +131,7 @@ void Win32LocalFileSystem::getFileListInDirectory(const AsciiString& currentDire
 	asciisearch = originalDirectory;
 	asciisearch.concat(currentDirectory);
 	asciisearch.concat(searchName);
-	strcpy(search, asciisearch.str());
+	strncpy(search, asciisearch.str(), sizeof(search)); search[sizeof(search)-1] = '\0';
 
 	Bool done = FALSE;
 

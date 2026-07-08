@@ -47,19 +47,22 @@ NullLoaderClass _NullLoader;
 
 
 
-Null3DObjClass::Null3DObjClass(const char * name)																	
+Null3DObjClass::Null3DObjClass(const char * name)
 {
-	strcpy(Name, name);
+	strncpy(Name, name, sizeof(Name));
+	Name[sizeof(Name)-1] = '\0';
 }
 
-Null3DObjClass::Null3DObjClass(const Null3DObjClass & src)									
+Null3DObjClass::Null3DObjClass(const Null3DObjClass & src)
 {
-	strcpy(Name, src.Name);
+	strncpy(Name, src.Name, sizeof(Name));
+	Name[sizeof(Name)-1] = '\0';
 }
 
-Null3DObjClass & Null3DObjClass::operator = (const Null3DObjClass & that)				
+Null3DObjClass & Null3DObjClass::operator = (const Null3DObjClass & that)
 {
-	strcpy(Name, that.Name);
+	strncpy(Name, that.Name, sizeof(Name));
+	Name[sizeof(Name)-1] = '\0';
 
 	RenderObjClass::operator = (that); return *this; 
 }
@@ -98,7 +101,8 @@ NullPrototypeClass::NullPrototypeClass (void)
 {
 	// Note that the other members of the definition are uninitialized..
 	// So don't rely on them if the name is "NULL".
-	strcpy(Definition.Name, "NULL");
+	strncpy(Definition.Name, "NULL", sizeof(Definition.Name));
+	Definition.Name[sizeof(Definition.Name)-1] = '\0';
 }
 
 NullPrototypeClass::NullPrototypeClass (const W3dNullObjectStruct &null)

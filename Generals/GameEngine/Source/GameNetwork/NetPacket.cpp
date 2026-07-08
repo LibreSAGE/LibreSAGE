@@ -2429,7 +2429,7 @@ Bool NetPacket::addFileCommand(NetCommandRef *msg) {
 		++m_packetLen;
 
 		AsciiString filename = cmdMsg->getPortableFilename();		// PORTABLE
-		strcpy((char *)(m_packet + m_packetLen), filename.str());
+		strncpy((char *)(m_packet + m_packetLen), filename.str(), filename.getLength() + 1);
 		m_packetLen += filename.getLength() + 1;
 
 		UnsignedInt fileLength = cmdMsg->getFileLength();
@@ -2533,7 +2533,7 @@ Bool NetPacket::addFileAnnounceCommand(NetCommandRef *msg) {
 		++m_packetLen;
 
 		AsciiString filename = cmdMsg->getPortableFilename();	// PORTABLE
-		strcpy((char *)(m_packet + m_packetLen), filename.str());
+		strncpy((char *)(m_packet + m_packetLen), filename.str(), filename.getLength() + 1);
 		m_packetLen += filename.getLength() + 1;
 
 		UnsignedShort fileID = cmdMsg->getFileID();

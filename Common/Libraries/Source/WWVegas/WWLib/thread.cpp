@@ -36,9 +36,11 @@ ThreadClass::ThreadClass(const char *thread_name) : handle(0), running(false), t
 {
 	if (thread_name) {
 		assert(strlen(thread_name) < sizeof(ThreadName) - 1);
-		strcpy(ThreadName, thread_name);
+		strncpy(ThreadName, thread_name, sizeof(ThreadName));
+		ThreadName[sizeof(ThreadName) - 1] = '\0';
 	} else {
-		strcpy(ThreadName, "WWVegasThread");;
+		strncpy(ThreadName, "WWVegasThread", sizeof(ThreadName));
+		ThreadName[sizeof(ThreadName) - 1] = '\0';
 	}
 }
 

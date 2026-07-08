@@ -116,7 +116,7 @@ private:
 static AsciiString obfuscate( AsciiString in )
 {
 	char *buf = NEW char[in.getLength() + 1];
-	strcpy(buf, in.str());
+	strncpy(buf, in.str(), in.getLength() + 1);
 	static const char *xor_ = "1337Munkee";
 	char *c = buf;
 	const char *c2 = xor_;
@@ -1248,9 +1248,12 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 							loginAttemptTime = timeGetTime();
 							BuddyRequest req;
 							req.buddyRequestType = BuddyRequest::BUDDYREQUEST_LOGINNEW;
-							strcpy(req.arg.login.nick, login.str());
-							strcpy(req.arg.login.email, email.str());
-							strcpy(req.arg.login.password, password.str());
+							strncpy(req.arg.login.nick, login.str(), sizeof(req.arg.login.nick));
+							req.arg.login.nick[sizeof(req.arg.login.nick) - 1] = '\0';
+							strncpy(req.arg.login.email, email.str(), sizeof(req.arg.login.email));
+							req.arg.login.email[sizeof(req.arg.login.email) - 1] = '\0';
+							strncpy(req.arg.login.password, password.str(), sizeof(req.arg.login.password));
+							req.arg.login.password[sizeof(req.arg.login.password) - 1] = '\0';
 							req.arg.login.hasFirewall = TRUE;
 							
 							TheGameSpyInfo->setLocalBaseName( login );
@@ -1337,9 +1340,12 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 							loginAttemptTime = timeGetTime();
 							BuddyRequest req;
 							req.buddyRequestType = BuddyRequest::BUDDYREQUEST_LOGIN;
-							strcpy(req.arg.login.nick, login.str());
-							strcpy(req.arg.login.email, email.str());
-							strcpy(req.arg.login.password, password.str());
+							strncpy(req.arg.login.nick, login.str(), sizeof(req.arg.login.nick));
+							req.arg.login.nick[sizeof(req.arg.login.nick) - 1] = '\0';
+							strncpy(req.arg.login.email, email.str(), sizeof(req.arg.login.email));
+							req.arg.login.email[sizeof(req.arg.login.email) - 1] = '\0';
+							strncpy(req.arg.login.password, password.str(), sizeof(req.arg.login.password));
+							req.arg.login.password[sizeof(req.arg.login.password) - 1] = '\0';
 							req.arg.login.hasFirewall = true;
 							
 							TheGameSpyInfo->setLocalBaseName( login );

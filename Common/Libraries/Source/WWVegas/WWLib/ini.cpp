@@ -380,7 +380,8 @@ int INIClass::Load(Straw & ffile)
 			if (ptr != NULL) *ptr = '\0';
 			strtrim(buffer);
 			char section[64];
-			strcpy(section, buffer);
+			strncpy(section, buffer, sizeof(section));
+			section[sizeof(section) - 1] = '\0';
 
 			/*
 			**	Read in the entries of this section.

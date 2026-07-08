@@ -874,8 +874,9 @@ void GameSpyStagingRoom::launchGame( void )
 	BuddyRequest req;
 	req.buddyRequestType = BuddyRequest::BUDDYREQUEST_SETSTATUS;
 	req.arg.status.status = GP_PLAYING;
-	strcpy(req.arg.status.statusString, "Loading");
-	sprintf(req.arg.status.locationString, "%s", WideCharStringToMultiByte(TheGameSpyGame->getGameName().str()).c_str());
+	strncpy(req.arg.status.statusString, "Loading", sizeof(req.arg.status.statusString));
+	req.arg.status.statusString[sizeof(req.arg.status.statusString) - 1] = '\0';
+	snprintf(req.arg.status.locationString, sizeof(req.arg.status.locationString), "%s", WideCharStringToMultiByte(TheGameSpyGame->getGameName().str()).c_str());
 	TheGameSpyBuddyMessageQueue->addRequest(req);
 
 	if (TheNAT != NULL) {

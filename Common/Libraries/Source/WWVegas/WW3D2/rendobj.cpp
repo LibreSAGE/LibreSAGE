@@ -1253,7 +1253,8 @@ PersistClass *	RenderObjPersistFactoryClass::Load(ChunkLoadClass & cload) const
 			WWDEBUG_SAY(("RenderObjPersistFactory attempted to load an un-named render object!\r\n"));
 			WWDEBUG_SAY(("Replacing it with a NULL render object!\r\n"));
 		}
-		strcpy(name,"NULL");
+		strncpy(name,"NULL",sizeof(name));
+		name[sizeof(name)-1] = '\0';
 	}
 
 	RenderObjClass * new_obj = WW3DAssetManager::Get_Instance()->Create_Render_Obj(name);
@@ -1265,7 +1266,8 @@ PersistClass *	RenderObjPersistFactoryClass::Load(ChunkLoadClass & cload) const
 			WWDEBUG_SAY(("Either the asset for this object is gone or you tried to save a procedural object.\r\n"));
 			WWDEBUG_SAY(("Replacing it with a NULL render object!\r\n"));
 		}
-		strcpy(name,"NULL");
+		strncpy(name,"NULL",sizeof(name));
+		name[sizeof(name)-1] = '\0';
 		new_obj = WW3DAssetManager::Get_Instance()->Create_Render_Obj(name);
 	}
 

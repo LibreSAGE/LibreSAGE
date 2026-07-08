@@ -1498,8 +1498,9 @@ Shadow* W3DProjectedShadowManager::addDecal(Shadow::ShadowTypeInfo *shadowInfo)
 	//onto world geometry.
 	nameLen=strlen(shadowInfo->m_ShadowName);
 	strncpy(texture_name,shadowInfo->m_ShadowName,nameLen);
-	strcpy(texture_name+nameLen,".tga");	//append texture extension
-	
+	strncpy(texture_name+nameLen,".tga",sizeof(texture_name)-nameLen);	//append texture extension
+	texture_name[sizeof(texture_name)-1] = '\0';
+
 	//Check if we previously added a decal using this texture
 	st=m_W3DShadowTextureManager->getTexture(texture_name);
 	if (st == NULL)
@@ -1616,8 +1617,9 @@ Shadow* W3DProjectedShadowManager::addDecal(RenderObjClass *robj, Shadow::Shadow
 	//onto world geometry.
 	nameLen=strlen(shadowInfo->m_ShadowName);
 	strncpy(texture_name,shadowInfo->m_ShadowName,nameLen);
-	strcpy(texture_name+nameLen,".tga");	//append texture extension
-	
+	strncpy(texture_name+nameLen,".tga",sizeof(texture_name)-nameLen);	//append texture extension
+	texture_name[sizeof(texture_name)-1] = '\0';
+
 	//Check if we previously added a decal using this texture
 	st=m_W3DShadowTextureManager->getTexture(texture_name);
 	if (st == NULL)
@@ -1757,11 +1759,13 @@ W3DProjectedShadow* W3DProjectedShadowManager::addShadow(RenderObjClass *robj, S
 				//onto world geometry.
 				nameLen=strlen(shadowInfo->m_ShadowName);
 				if (nameLen <= 1)	//no texture name given, use same as object
-				{	strcpy(texture_name,defaultDecalName);
+				{	strncpy(texture_name,defaultDecalName,sizeof(texture_name));
+					texture_name[sizeof(texture_name)-1] = '\0';
 				}
 				else
 				{	strncpy(texture_name,shadowInfo->m_ShadowName,nameLen);
-					strcpy(texture_name+nameLen,".tga");	//append texture extension
+					strncpy(texture_name+nameLen,".tga",sizeof(texture_name)-nameLen);	//append texture extension
+					texture_name[sizeof(texture_name)-1] = '\0';
 				}
 					
 				st=m_W3DShadowTextureManager->getTexture(texture_name);
@@ -1801,10 +1805,14 @@ W3DProjectedShadow* W3DProjectedShadowManager::addShadow(RenderObjClass *robj, S
 					//to allow multiple models to share same shadow - for
 					//example, all trees could use same shadow even if slightly
 					//different color, etc.
-					strcpy(texture_name,shadowInfo->m_ShadowName);
+					strncpy(texture_name,shadowInfo->m_ShadowName,sizeof(texture_name));
+					texture_name[sizeof(texture_name)-1] = '\0';
 				}
 				else
-					strcpy(texture_name,robj->Get_Name());	//not texture name give, assume model name.
+				{
+					strncpy(texture_name,robj->Get_Name(),sizeof(texture_name));	//not texture name give, assume model name.
+					texture_name[sizeof(texture_name)-1] = '\0';
+				}
 					
 				st=m_W3DShadowTextureManager->getTexture(texture_name);
 				if (st == NULL)
@@ -1823,7 +1831,8 @@ W3DProjectedShadow* W3DProjectedShadowManager::addShadow(RenderObjClass *robj, S
 	}
 	else
 	{	//no shadow info, assume user wants a projected shadow
-		strcpy(texture_name,robj->Get_Name());
+		strncpy(texture_name,robj->Get_Name(),sizeof(texture_name));
+		texture_name[sizeof(texture_name)-1] = '\0';
 
 		st=m_W3DShadowTextureManager->getTexture(texture_name);
 
@@ -1944,13 +1953,15 @@ W3DProjectedShadow* W3DProjectedShadowManager::createDecalShadow(Shadow::ShadowT
 	//onto world geometry.
 	nameLen=strlen(shadowInfo->m_ShadowName);
 	if (nameLen <= 1)	//no texture name given, use same as object
-	{	strcpy(texture_name,defaultDecalName);
+	{	strncpy(texture_name,defaultDecalName,sizeof(texture_name));
+		texture_name[sizeof(texture_name)-1] = '\0';
 	}
 	else
 	{	strncpy(texture_name,shadowInfo->m_ShadowName,nameLen);
-		strcpy(texture_name+nameLen,".tga");	//append texture extension
+		strncpy(texture_name+nameLen,".tga",sizeof(texture_name)-nameLen);	//append texture extension
+		texture_name[sizeof(texture_name)-1] = '\0';
 	}
-		
+
 	st=m_W3DShadowTextureManager->getTexture(texture_name);
 	if (st == NULL)
 	{

@@ -255,7 +255,7 @@ HRESULT CSimplePlayer::Play( LPCWSTR pszUrl, DWORD dwSecDuration, HANDLE hComple
         return( E_OUTOFMEMORY );
     }
 
-    wcscpy( m_pszUrl, pszUrl );
+    wcsncpy( m_pszUrl, pszUrl, wcslen( pszUrl ) + 1 );
 
     //
     // Attempt to open the URL
@@ -589,7 +589,7 @@ HRESULT STDMETHODCALLTYPE CSimplePlayer::OnStatus(
             {
                 WCHAR wszURL[ 0x1000 ];
 
-                swprintf( wszURL, u"%s&filename=%s&embedded=false", pValue, pwszEscapedURL );
+                swprintf( wszURL, ARRAYSIZE( wszURL ), u"%s&filename=%s&embedded=false", pValue, pwszEscapedURL );
 
                 hr = LaunchURL( wszURL );
 

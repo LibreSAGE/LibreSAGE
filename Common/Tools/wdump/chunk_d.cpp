@@ -134,23 +134,23 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, const char *V
 void ChunkTableClass::AddItemVersion(ChunkModel *model, uint32 version)
 {
 	char buf[64];
-	sprintf(buf,"%d.%d",W3D_GET_MAJOR_VERSION(version),W3D_GET_MINOR_VERSION(version));
+	snprintf(buf, sizeof(buf),"%d.%d",W3D_GET_MAJOR_VERSION(version),W3D_GET_MINOR_VERSION(version));
 	AddItem(model,"Version",buf);
 }
 
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, uint32 Value) {
 	char buf[256];
-	sprintf(buf, "%d", Value);
+	snprintf(buf, sizeof(buf), "%d", Value);
 	AddItem(model, Name, buf, "int32");
 }
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, uint16 Value) {
 	char buf[256];
-	sprintf(buf, "%d", Value);
+	snprintf(buf, sizeof(buf), "%d", Value);
 	AddItem(model, Name, buf, "int16");
 }
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, uint8 Value) {
 	char buf[256];
-	sprintf(buf, "%d", Value);
+	snprintf(buf, sizeof(buf), "%d", Value);
 	AddItem(model, Name, buf, "int8");
 }
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, uint8 *Value, int Count) {
@@ -161,12 +161,12 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, uint8 *Value,
 		buffer += QString("%1 ").arg(Value[counter++]);
 	}
 	char type[256];
-	sprintf(type, "int8[%d]", Count);
+	snprintf(type, sizeof(type), "int8[%d]", Count);
 	AddItem(model, Name, buffer, type);
 }
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, float32 Value) {
 	char buf[256];
-	sprintf(buf, "%f", Value);
+	snprintf(buf, sizeof(buf), "%f", Value);
 	AddItem(model, Name, buf, "float");
 }
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, uint32 *Value, int Count) {
@@ -177,7 +177,7 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, uint32 *Value
 		buffer += QString("%1 ").arg(Value[counter++]);
 	}
 	char type[256];
-	sprintf(type, "int32[%d]", Count);
+	snprintf(type, sizeof(type), "int32[%d]", Count);
 	AddItem(model, Name, buffer, type);
 }
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, float32 *Value, int Count) {
@@ -188,25 +188,25 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, float32 *Valu
 		buffer += QString("%1 ").arg(Value[counter++]);
 	}
 	char type[256];
-	sprintf(type, "float[%d]", Count);
+	snprintf(type, sizeof(type), "float[%d]", Count);
 	AddItem(model, Name, buffer, type);
 }
 
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, IOVector3Struct *Value) {
 	char buf[256];
-	sprintf(buf, "%f %f %f", Value->X, Value->Y, Value->Z);
+	snprintf(buf, sizeof(buf), "%f %f %f", Value->X, Value->Y, Value->Z);
 	AddItem(model, Name, buf, "vector");
 }
 
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, IOVector4Struct *Value) {
 	char buf[256];
-	sprintf(buf, "%f %f %f %f", Value->X, Value->Y, Value->Z, Value->W);
+	snprintf(buf, sizeof(buf), "%f %f %f %f", Value->X, Value->Y, Value->Z, Value->W);
 	AddItem(model, Name, buf, "vector4");
 }
 
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, W3dQuaternionStruct *Value) {
 	char buf[256];
-	sprintf(buf, "%f %f %f %f", Value->Q[0], Value->Q[1], Value->Q[2], Value->Q[3]);
+	snprintf(buf, sizeof(buf), "%f %f %f %f", Value->Q[0], Value->Q[1], Value->Q[2], Value->Q[3]);
 	AddItem(model, Name, buf, "quaternion");
 }
 
@@ -225,7 +225,7 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, W3dRGBStruct 
 		counter++;
 	}
 	char type[256];
-	sprintf(type, "RGB[%d]", Count);
+	snprintf(type, sizeof(type), "RGB[%d]", Count);
 	AddItem(model, Name, buffer, type);
 }
 
@@ -241,7 +241,7 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, W3dTexCoordSt
 	
 	while(counter < Count) {
 		char type[256];
-		sprintf(type, "%s.TexCoord[%d]", Name, counter);
+		snprintf(type, sizeof(type), "%s.TexCoord[%d]", Name, counter);
 		AddItem(model, type, &Value[counter]);
 		counter++;
 	}
@@ -250,7 +250,7 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, W3dTexCoordSt
 void ChunkTableClass::AddItem(ChunkModel *model, const char *Name, W3dTexCoordStruct *Value) 
 {
 	char buf[256];
-	sprintf(buf, "%f %f", Value->U, Value->V);
+	snprintf(buf, sizeof(buf), "%f %f", Value->U, Value->V);
 	AddItem(model, Name, buf, "UV");
 }
 
@@ -274,25 +274,25 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *name, W3dShaderStru
 	
 	char label[256];
 
-	sprintf(label,"%s.DepthCompare",name);
+	snprintf(label, sizeof(label),"%s.DepthCompare",name);
 	AddItem(model, label, _depth_compare[W3d_Shader_Get_Depth_Compare(shader)]);
-	sprintf(label,"%s.DepthMask",name);
+	snprintf(label, sizeof(label),"%s.DepthMask",name);
 	AddItem(model, label, _depth_mask[W3d_Shader_Get_Depth_Mask(shader)]);
-	sprintf(label,"%s.DestBlend",name);
+	snprintf(label, sizeof(label),"%s.DestBlend",name);
 	AddItem(model, label, _destblend[W3d_Shader_Get_Dest_Blend_Func(shader)]);
-	sprintf(label,"%s.PriGradient",name);
+	snprintf(label, sizeof(label),"%s.PriGradient",name);
 	AddItem(model, label, _prigradient[W3d_Shader_Get_Pri_Gradient(shader)]);
-	sprintf(label,"%s.SecGradient",name);
+	snprintf(label, sizeof(label),"%s.SecGradient",name);
 	AddItem(model, label, _secgradient[W3d_Shader_Get_Sec_Gradient(shader)]);
-	sprintf(label,"%s.SrcBlend",name);
+	snprintf(label, sizeof(label),"%s.SrcBlend",name);
 	AddItem(model, label, _srcblend[W3d_Shader_Get_Src_Blend_Func(shader)]);
-	sprintf(label,"%s.Texturing",name);
+	snprintf(label, sizeof(label),"%s.Texturing",name);
 	AddItem(model, label, _texturing[W3d_Shader_Get_Texturing(shader)]);
-	sprintf(label,"%s.DetailColor",name);
+	snprintf(label, sizeof(label),"%s.DetailColor",name);
 	AddItem(model, label, _detailcolor[W3d_Shader_Get_Detail_Color_Func(shader)]);
-	sprintf(label,"%s.DetailAlpha",name);
+	snprintf(label, sizeof(label),"%s.DetailAlpha",name);
 	AddItem(model, label, _detailalpha[W3d_Shader_Get_Detail_Alpha_Func(shader)]);
-	sprintf(label,"%s.AlphaTest",name);
+	snprintf(label, sizeof(label),"%s.AlphaTest",name);
 	AddItem(model, label, _alphatest[W3d_Shader_Get_Alpha_Test(shader)]);	
 }
 
@@ -315,25 +315,25 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *name, W3dPS2ShaderS
 	
 	char label[256];
 
-	sprintf(label,"%s.DepthCompare",name);
+	snprintf(label, sizeof(label),"%s.DepthCompare",name);
 	AddItem(model, label, _depth_compare[W3d_Shader_Get_Depth_Compare(shader)]);
-	sprintf(label,"%s.DepthMask",name);
+	snprintf(label, sizeof(label),"%s.DepthMask",name);
 	AddItem(model, label, _depth_mask[W3d_Shader_Get_Depth_Mask(shader)]);
-	sprintf(label,"%s.PriGradient",name);
+	snprintf(label, sizeof(label),"%s.PriGradient",name);
 	AddItem(model, label, _prigradient[W3d_Shader_Get_Pri_Gradient(shader)]);
-	sprintf(label,"%s.Texturing",name);
+	snprintf(label, sizeof(label),"%s.Texturing",name);
 	AddItem(model, label, _texturing[W3d_Shader_Get_Texturing(shader)]);
 
-	sprintf(label,"%s.AParam",name);
+	snprintf(label, sizeof(label),"%s.AParam",name);
 	AddItem(model, label, _ablend[W3d_Shader_Get_PS2_Param_A(shader)]);
 
-	sprintf(label,"%s.BParam",name);
+	snprintf(label, sizeof(label),"%s.BParam",name);
 	AddItem(model, label, _ablend[W3d_Shader_Get_PS2_Param_B(shader)]);
 
-	sprintf(label,"%s.CParam",name);
+	snprintf(label, sizeof(label),"%s.CParam",name);
 	AddItem(model, label, _cblend[W3d_Shader_Get_PS2_Param_C(shader)]);
 
-	sprintf(label,"%s.DParam",name);
+	snprintf(label, sizeof(label),"%s.DParam",name);
 	AddItem(model, label, _ablend[W3d_Shader_Get_PS2_Param_D(shader)]);
 
 	shader++;
@@ -342,7 +342,7 @@ void ChunkTableClass::AddItem(ChunkModel *model, const char *name, W3dPS2ShaderS
 
 void ChunkTableClass::AddItem(ChunkModel *Model, const char *Name, Vector3i *Value) {
 	char buf[256];
-	sprintf(buf, "%d %d %d", Value->I, Value->J, Value->K);
+	snprintf(buf, sizeof(buf), "%d %d %d", Value->I, Value->J, Value->K);
 	AddItem(Model, Name, buf, "IJK");
 }
 
@@ -362,7 +362,7 @@ void ChunkTableClass::List_W3D_CHUNK_MESH_HEADER(ChunkItem *Item, ChunkModel *Mo
 	data = (W3dMeshHeaderStruct *) Item->Data;
 	
 	char buf[64];
-	sprintf(buf,"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
+	snprintf(buf, sizeof(buf),"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
 	AddItem(Model, "Version", buf);
 	AddItem(Model, "MeshName", data->MeshName);
 	AddItem(Model,"Attributes",data->Attributes);
@@ -409,7 +409,7 @@ void ChunkTableClass::List_W3D_CHUNK_VERTICES(ChunkItem *Item, ChunkModel *Model
 	
 	char buf[256];
 	while(data < max) {
-		sprintf(buf, "Vertex[%d]", counter++);
+		snprintf(buf, sizeof(buf), "Vertex[%d]", counter++);
 		AddItem(Model, buf, data);
 		data++;
 	}
@@ -422,7 +422,7 @@ void ChunkTableClass::List_W3D_CHUNK_VERTEX_NORMALS(ChunkItem *Item, ChunkModel 
 	int counter = 0;
 	char buf[256];
 	while(data < max) {
-		sprintf(buf, "Normal[%d]", counter++);
+		snprintf(buf, sizeof(buf), "Normal[%d]", counter++);
 		AddItem(Model, buf, data);
 		data++;
 	}
@@ -435,7 +435,7 @@ void ChunkTableClass::List_W3D_CHUNK_SURRENDER_NORMALS(ChunkItem *Item, ChunkMod
 	int counter = 0;
 	char buf[256];
 	while(data < max) {
-		sprintf(buf, "SRNormal[%d]", counter++);
+		snprintf(buf, sizeof(buf), "SRNormal[%d]", counter++);
 		AddItem(Model, buf, data);
 		data++;
 	}
@@ -449,7 +449,7 @@ void ChunkTableClass::List_W3D_CHUNK_TEXCOORDS(ChunkItem *Item, ChunkModel *Mode
 	int counter = 0;
 	char buf[256];
 	while(data < max) {
-		sprintf(buf, "TexCoord[%d]", counter++);
+		snprintf(buf, sizeof(buf), "TexCoord[%d]", counter++);
 		AddItem(Model, buf, data);
 		data++;
 	}
@@ -464,25 +464,25 @@ void ChunkTableClass::List_O_W3D_CHUNK_MATERIALS(ChunkItem *Item, ChunkModel *Mo
 	char buf[256];
 	while(data < max) {
 
-		sprintf(buf, "Material[%d].MaterialName", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].MaterialName", counter);
 		AddItem(Model, buf, data->MaterialName);
 
-		sprintf(buf, "Material[%d].PrimaryName", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].PrimaryName", counter);
 		AddItem(Model, buf, data->PrimaryName);
 
-		sprintf(buf, "Material[%d].SecondaryName", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].SecondaryName", counter);
 		AddItem(Model, buf, data->SecondaryName);
 
-		sprintf(buf, "Material[%d].RenderFlags", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].RenderFlags", counter);
 		AddItem(Model, buf, data->RenderFlags);
 
-		sprintf(buf, "Material[%d].Red", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].Red", counter);
 		AddItem(Model, buf, data->Red);
 
-		sprintf(buf, "Material[%d].Green", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].Green", counter);
 		AddItem(Model, buf, data->Green);
 
-		sprintf(buf, "Material[%d].Blue", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].Blue", counter);
 		AddItem(Model, buf, data->Blue);
 
 		counter++;
@@ -510,22 +510,22 @@ void ChunkTableClass::List_O_W3D_CHUNK_SURRENDER_TRIANGLES(ChunkItem *Item, Chun
 	char buf[256];
 	while(data < max) {
 
-		sprintf(buf, "Triangle[%d].Attributes", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].Attributes", counter);
 		AddItem(Model, buf, data->Attributes);
 
-		sprintf(buf, "Triangle[%d].Gouraud", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].Gouraud", counter);
 		AddItem(Model, buf, data->Gouraud, 3);
 
-		sprintf(buf, "Triangle[%d].VertexIndices", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].VertexIndices", counter);
 		AddItem(Model, buf, data->Vindex, 3);
 
-		sprintf(buf, "Triangle[%d].MaterialIdx", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].MaterialIdx", counter);
 		AddItem(Model, buf, data->MaterialIdx);
 
-		sprintf(buf, "Triangle[%d].Normal", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].Normal", counter);
 		AddItem(Model, buf, &data->Normal);
 
-		sprintf(buf, "Triangle[%d].TexCoord", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].TexCoord", counter);
 		AddItem(Model, buf, data->TexCoord, 3);
 
 		counter++;
@@ -555,7 +555,7 @@ void ChunkTableClass::List_W3D_CHUNK_VERTEX_COLORS(ChunkItem *Item, ChunkModel *
 
 	while(data < max) {
 	
-		sprintf(buf, "Vertex[%d].RGB", counter);
+		snprintf(buf, sizeof(buf), "Vertex[%d].RGB", counter);
 		AddItem(Model, buf, data);
 
 		counter++;
@@ -573,9 +573,9 @@ void ChunkTableClass::List_W3D_CHUNK_VERTEX_INFLUENCES(ChunkItem *Item, ChunkMod
 	char buf[256];
 	while(data < max) {
 	
-		sprintf(buf, "VertexInfluence[%d].BoneIdx", counter);
+		snprintf(buf, sizeof(buf), "VertexInfluence[%d].BoneIdx", counter);
 		AddItem(Model, buf, data->BoneIdx);
-		sprintf(buf, "VertexInfluence[%d].Pad", counter);
+		snprintf(buf, sizeof(buf), "VertexInfluence[%d].Pad", counter);
 		AddItem(Model, buf, data->Pad, 6);
 
 		counter++;
@@ -596,13 +596,13 @@ void ChunkTableClass::List_W3D_CHUNK_DAMAGE_HEADER(ChunkItem *Item, ChunkModel *
 	char buf[256];
 	while(data < max) {
 	
-		sprintf(buf, "DamageStruct[%d].NumDamageMaterials", counter);
+		snprintf(buf, sizeof(buf), "DamageStruct[%d].NumDamageMaterials", counter);
 		AddItem(Model, buf, data->NumDamageMaterials);
-		sprintf(buf, "DamageStruct[%d].NumDamageVerts", counter);
+		snprintf(buf, sizeof(buf), "DamageStruct[%d].NumDamageVerts", counter);
 		AddItem(Model, buf, data->NumDamageVerts);
-		sprintf(buf, "DamageStruct[%d].NumDamageColors", counter);
+		snprintf(buf, sizeof(buf), "DamageStruct[%d].NumDamageColors", counter);
 		AddItem(Model, buf, data->NumDamageColors);
-		sprintf(buf, "DamageStruct[%d].DamageIndex", counter);
+		snprintf(buf, sizeof(buf), "DamageStruct[%d].DamageIndex", counter);
 		AddItem(Model, buf, data->DamageIndex);
 
 		counter++;
@@ -621,10 +621,10 @@ void ChunkTableClass::List_W3D_CHUNK_DAMAGE_VERTICES(ChunkItem *Item, ChunkModel
 	char buf[256];
 	while(data < max) {
 	
-		sprintf(buf, "DamageVertexStruct[%d].VertexIndex", counter);
+		snprintf(buf, sizeof(buf), "DamageVertexStruct[%d].VertexIndex", counter);
 		AddItem(Model, buf, data->VertexIndex);
 
-		sprintf(buf, "DamageVertexStruct[%d].NewVertex", counter);
+		snprintf(buf, sizeof(buf), "DamageVertexStruct[%d].NewVertex", counter);
 		AddItem(Model, buf, data->VertexIndex);
 
 		counter++;
@@ -643,10 +643,10 @@ void ChunkTableClass::List_W3D_CHUNK_DAMAGE_COLORS(ChunkItem *Item, ChunkModel *
 	char buf[256];
 	while(data < max) {
 	
-		sprintf(buf, "DamageColorStruct[%d].VertexIndex", counter);
+		snprintf(buf, sizeof(buf), "DamageColorStruct[%d].VertexIndex", counter);
 		AddItem(Model, buf, data->VertexIndex);
 
-		sprintf(buf, "DamageColorStruct[%d].NewColor", counter);
+		snprintf(buf, sizeof(buf), "DamageColorStruct[%d].NewColor", counter);
 		AddItem(Model, buf, &data->NewColor);
 
 		counter++;
@@ -663,34 +663,34 @@ void ChunkTableClass::List_O_W3D_CHUNK_MATERIALS2(ChunkItem *Item, ChunkModel *M
 	char buf[256];
 	while(data < max) {
 
-		sprintf(buf, "Material[%d].MaterialName", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].MaterialName", counter);
 		AddItem(Model, buf, data->MaterialName);
 
-		sprintf(buf, "Material[%d].PrimaryName", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].PrimaryName", counter);
 		AddItem(Model, buf, data->PrimaryName);
 
-		sprintf(buf, "Material[%d].SecondaryName", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].SecondaryName", counter);
 		AddItem(Model, buf, data->SecondaryName);
 
-		sprintf(buf, "Material[%d].RenderFlags", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].RenderFlags", counter);
 		AddItem(Model, buf, data->RenderFlags);
 
-		sprintf(buf, "Material[%d].Red", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].Red", counter);
 		AddItem(Model, buf, data->Red);
 
-		sprintf(buf, "Material[%d].Green", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].Green", counter);
 		AddItem(Model, buf, data->Green);
 
-		sprintf(buf, "Material[%d].Blue", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].Blue", counter);
 		AddItem(Model, buf, data->Blue);
 	
-		sprintf(buf, "Material[%d].Alpha", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].Alpha", counter);
 		AddItem(Model, buf, data->Alpha);
 
-		sprintf(buf, "Material[%d].PrimaryNumFrames", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].PrimaryNumFrames", counter);
 		AddItem(Model, buf, data->PrimaryNumFrames);
 
-		sprintf(buf, "Material[%d].SecondaryNumFrames", counter);
+		snprintf(buf, sizeof(buf), "Material[%d].SecondaryNumFrames", counter);
 		AddItem(Model, buf, data->SecondaryNumFrames);
 
 		counter++;
@@ -789,7 +789,7 @@ void ChunkTableClass::List_W3D_CHUNK_MESH_HEADER3(ChunkItem *Item, ChunkModel* M
 	
 
 	char buf[64];
-	sprintf(buf,"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
+	snprintf(buf, sizeof(buf),"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
 	AddItem(Model,"Version", buf);
 	AddItem(Model,"MeshName", data->MeshName);
 	AddItem(Model,"ContainerName", data->ContainerName);
@@ -843,12 +843,12 @@ void ChunkTableClass::List_W3D_CHUNK_MESH_HEADER3(ChunkItem *Item, ChunkModel* M
 
 	if ((data->Attributes & W3D_MESH_FLAG_PRELIT_MASK) != 0x0) {
 		if (data->PrelitVersion != 0) {
-			sprintf (buf, "%d.%d", W3D_GET_MAJOR_VERSION (data->PrelitVersion), W3D_GET_MINOR_VERSION (data->PrelitVersion));
+			snprintf(buf, sizeof(buf), "%d.%d", W3D_GET_MAJOR_VERSION (data->PrelitVersion), W3D_GET_MINOR_VERSION (data->PrelitVersion));
 		} else {
-			sprintf (buf, "UNKNOWN");
+			snprintf(buf, sizeof(buf), "UNKNOWN");
 		}
 	} else {	  
-		sprintf (buf, "N/A");
+		snprintf(buf, sizeof(buf), "N/A");
 	}
 	AddItem(Model, "PrelitVersion", buf);
 
@@ -877,16 +877,16 @@ void ChunkTableClass::List_W3D_CHUNK_TRIANGLES(ChunkItem *Item, ChunkModel* Mode
 	char buf[256];
 	while(data < max) {
 
-		sprintf(buf, "Triangle[%d].VertexIndices", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].VertexIndices", counter);
 		AddItem(Model,buf, data->Vindex, 3);
 
-		sprintf(buf, "Triangle[%d].Attributes", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].Attributes", counter);
 		AddItem(Model,buf, data->Attributes);
 
-		sprintf(buf, "Triangle[%d].Normal", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].Normal", counter);
 		AddItem(Model,buf, &data->Normal);
 
-		sprintf(buf, "Triangle[%d].Dist", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].Dist", counter);
 		AddItem(Model,buf, data->Dist);
 
 		counter++;
@@ -906,7 +906,7 @@ void ChunkTableClass::List_W3D_CHUNK_PER_TRI_MATERIALS(ChunkItem * Item,ChunkMod
 	char buf[256];
 
 	while(data < max) {
-		sprintf(buf, "Triangle[%d].MaterialIdx", counter);
+		snprintf(buf, sizeof(buf), "Triangle[%d].MaterialIdx", counter);
 		AddItem(Model,buf, *data);
 		counter++;
 		data++;
@@ -923,7 +923,7 @@ void	ChunkTableClass::List_W3D_CHUNK_VERTEX_SHADE_INDICES(ChunkItem * Item,Chunk
 	
 	char buf[256];
 	while(data < max) {
-		sprintf(buf, "Index[%d]", counter);
+		snprintf(buf, sizeof(buf), "Index[%d]", counter);
 		AddItem(Model, buf, *data);
 		counter++;
 		data++;
@@ -1053,7 +1053,7 @@ void	ChunkTableClass::List_W3D_CHUNK_SHADERS(ChunkItem * Item,ChunkModel* Model)
     int counter = 0;
 
 	while(shader < max) {
-		sprintf(label,"shader[%d]",counter);
+		snprintf(label, sizeof(label),"shader[%d]",counter);
 		AddItem(Model,label,shader);
 		counter++;
 		shader++;
@@ -1069,7 +1069,7 @@ void	ChunkTableClass::List_W3D_CHUNK_PS2_SHADERS(ChunkItem * Item,ChunkModel* Mo
 	char label[256];
 
 	while(shader < max) {
-		sprintf(label,"shader[%d]",counter);
+		snprintf(label, sizeof(label),"shader[%d]",counter);
 		AddItem(Model,label,shader);
 		counter++;
 		shader++;
@@ -1123,7 +1123,7 @@ void	ChunkTableClass::List_W3D_CHUNK_VERTEX_MATERIAL_IDS(ChunkItem * Item,ChunkM
 
 	while(data < max) {
 	
-		sprintf(buf, "Vertex[%d] Vertex Material Index", counter);
+		snprintf(buf, sizeof(buf), "Vertex[%d] Vertex Material Index", counter);
 		AddItem(Model,buf, *data);
 
 		counter++;
@@ -1142,7 +1142,7 @@ void	ChunkTableClass::List_W3D_CHUNK_SHADER_IDS(ChunkItem * Item,ChunkModel* Mod
 
 	while(data < max) {
 	
-		sprintf(buf, "Face[%d] Shader Index", counter);
+		snprintf(buf, sizeof(buf), "Face[%d] Shader Index", counter);
 		AddItem(Model, buf, *data);
 
 		counter++;
@@ -1161,7 +1161,7 @@ void	ChunkTableClass::List_W3D_CHUNK_DCG(ChunkItem * Item,ChunkModel* Model)
 
 	while(data < max) {
 	
-		sprintf(buf, "Vertex[%d].DCG", counter);
+		snprintf(buf, sizeof(buf), "Vertex[%d].DCG", counter);
 		AddItem(Model,buf, data);
 
 		counter++;
@@ -1180,7 +1180,7 @@ void	ChunkTableClass::List_W3D_CHUNK_DIG(ChunkItem * Item,ChunkModel* Model)
 
 	while(data < max) {
 	
-		sprintf(buf, "Vertex[%d].DIG", counter);
+		snprintf(buf, sizeof(buf), "Vertex[%d].DIG", counter);
 		AddItem(Model,buf, data);
 
 		counter++;
@@ -1199,7 +1199,7 @@ void	ChunkTableClass::List_W3D_CHUNK_SCG(ChunkItem * Item,ChunkModel* Model)
 
 	while(data < max) {
 	
-		sprintf(buf, "Vertex[%d].SCG", counter);
+		snprintf(buf, sizeof(buf), "Vertex[%d].SCG", counter);
 		AddItem(Model,buf, data);
 
 		counter++;
@@ -1221,7 +1221,7 @@ void	ChunkTableClass::List_W3D_CHUNK_TEXTURE_IDS(ChunkItem * Item,ChunkModel* Mo
 
 	while(data < max) {
 	
-		sprintf(buf, "Face[%d] Texture Index", counter);
+		snprintf(buf, sizeof(buf), "Face[%d] Texture Index", counter);
 		AddItem(Model, buf, *data);
 
 		counter++;
@@ -1240,7 +1240,7 @@ void	ChunkTableClass::List_W3D_CHUNK_STAGE_TEXCOORDS(ChunkItem * Item,ChunkModel
 
 	while(data < max) {
 	
-		sprintf(buf, "Vertex[%d].UV", counter);
+		snprintf(buf, sizeof(buf), "Vertex[%d].UV", counter);
 		AddItem(Model, buf, data);
 
 		counter++;
@@ -1257,7 +1257,7 @@ void	ChunkTableClass::List_W3D_CHUNK_PER_FACE_TEXCOORD_IDS(ChunkItem * Item,Chun
 
 	while(data < max) {
 	
-		sprintf(buf, "Face[%d] UV Indices", counter);
+		snprintf(buf, sizeof(buf), "Face[%d] UV Indices", counter);
 		AddItem(Model, buf, data);
 
 		counter++;
@@ -1287,7 +1287,7 @@ void ChunkTableClass::List_W3D_CHUNK_AABTREE_POLYINDICES(ChunkItem * Item,ChunkM
 
 	while(data < max) {
 	
-		sprintf(buf, "Polygon Index[%d]", counter);
+		snprintf(buf, sizeof(buf), "Polygon Index[%d]", counter);
 		AddItem(Model, buf, *data);
 
 		counter++;
@@ -1306,21 +1306,21 @@ void ChunkTableClass::List_W3D_CHUNK_AABTREE_NODES(ChunkItem * Item,ChunkModel* 
 	
 	while(data < max) {
 
-		sprintf(buf, "Node[%d].Min", counter);
+		snprintf(buf, sizeof(buf), "Node[%d].Min", counter);
 		AddItem(Model,buf, &data->Min);
 
-		sprintf(buf, "Node[%d].Max", counter);
+		snprintf(buf, sizeof(buf), "Node[%d].Max", counter);
 		AddItem(Model,buf, &data->Max);
 
 		if (data->FrontOrPoly0 & 0x80000000) {
-			sprintf(buf, "Node[%d].Poly0",counter);
+			snprintf(buf, sizeof(buf), "Node[%d].Poly0",counter);
 			AddItem(Model, buf, data->FrontOrPoly0 & 0x7FFFFFFF);
-			sprintf(buf, "Node[%d].PolyCount",counter);
+			snprintf(buf, sizeof(buf), "Node[%d].PolyCount",counter);
 			AddItem(Model, buf, data->BackOrPolyCount);
 		} else {
-			sprintf(buf, "Node[%d].Front",counter);
+			snprintf(buf, sizeof(buf), "Node[%d].Front",counter);
 			AddItem(Model, buf, data->FrontOrPoly0);
-			sprintf(buf, "Node[%d].Back",counter);
+			snprintf(buf, sizeof(buf), "Node[%d].Back",counter);
 			AddItem(Model, buf, data->BackOrPolyCount);
 		}
 
@@ -1339,7 +1339,7 @@ void ChunkTableClass::List_W3D_CHUNK_HIERARCHY_HEADER(ChunkItem *Item, ChunkMode
 
 	
 	char buf[64];
-	sprintf(buf,"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
+	snprintf(buf, sizeof(buf),"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
 	AddItem(Model,"Version", buf);
 	AddItem(Model, "Name", data->Name);
 	AddItem(Model, "NumPivots", data->NumPivots);
@@ -1355,19 +1355,19 @@ void ChunkTableClass::List_W3D_CHUNK_PIVOTS(ChunkItem *Item, ChunkModel* Model) 
 	char buf[256];
 	while(data < max) {
 
-		sprintf(buf, "Pivot[%d].Name", counter);
+		snprintf(buf, sizeof(buf), "Pivot[%d].Name", counter);
 		AddItem(Model,buf, data->Name);
 
-		sprintf(buf, "Pivot[%d].ParentIdx", counter);
+		snprintf(buf, sizeof(buf), "Pivot[%d].ParentIdx", counter);
 		AddItem(Model,buf, data->ParentIdx);
 
-		sprintf(buf, "Pivot[%d].Translation", counter);
+		snprintf(buf, sizeof(buf), "Pivot[%d].Translation", counter);
 		AddItem(Model,buf, &data->Translation);
 
-		sprintf(buf, "Pivot[%d].EulerAngles", counter);
+		snprintf(buf, sizeof(buf), "Pivot[%d].EulerAngles", counter);
 		AddItem(Model,buf, &data->EulerAngles);
 
-		sprintf(buf, "Pivot[%d].Rotation", counter);
+		snprintf(buf, sizeof(buf), "Pivot[%d].Rotation", counter);
 		AddItem(Model,buf, &data->Rotation);
 
 		counter++;
@@ -1384,7 +1384,7 @@ void ChunkTableClass::List_W3D_CHUNK_PIVOT_FIXUPS(ChunkItem *Item, ChunkModel* M
 	while ((char*)data < (char*)Item->Data + Item->Length) {
 		char tmp[256];
 		for (int i=0;i<4;i++) {
-			sprintf(tmp,"Transform %d, Row[%d]", pivot_counter,i);
+			snprintf(tmp, sizeof(tmp),"Transform %d, Row[%d]", pivot_counter,i);
 			AddItem(Model, tmp, data->TM[i], 3);
 		}
 		data++;
@@ -1401,7 +1401,7 @@ void ChunkTableClass::List_W3D_CHUNK_ANIMATION_HEADER(ChunkItem *Item, ChunkMode
 	
 	
 	char buf[64];
-	sprintf(buf,"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
+	snprintf(buf, sizeof(buf),"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
 	AddItem(Model,"Version", buf);
 	AddItem(Model, "Name", data->Name);
 	AddItem(Model, "HierarchyName", data->HierarchyName);
@@ -1484,7 +1484,7 @@ void ChunkTableClass::List_W3D_CHUNK_HMODEL_HEADER(ChunkItem *Item, ChunkModel* 
 	
 	
 	char buf[64];
-	sprintf(buf,"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
+	snprintf(buf, sizeof(buf),"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
 	AddItem(Model,"Version", buf);
 	AddItem(Model, "Name", data->Name);
 	AddItem(Model, "HierarchyName", data->HierarchyName);
@@ -1548,7 +1548,7 @@ void ChunkTableClass::List_W3D_CHUNK_LODMODEL_HEADER(ChunkItem *Item, ChunkModel
 	
 
 	char buf[64];
-	sprintf(buf,"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
+	snprintf(buf, sizeof(buf),"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
 	AddItem(Model,"Version", buf);
 	AddItem(Model, "Name", data->Name);
 	AddItem(Model, "NumLODs", data->NumLODs);
@@ -1574,7 +1574,7 @@ void ChunkTableClass::List_W3D_CHUNK_COLLECTION_HEADER(ChunkItem * Item, ChunkMo
 	
 
 	char buf[64];
-	sprintf(buf,"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
+	snprintf(buf, sizeof(buf),"%d.%d",W3D_GET_MAJOR_VERSION(data->Version),W3D_GET_MINOR_VERSION(data->Version));
 	AddItem(Model,"Version", buf);
 	AddItem(Model, "Name", data->Name);
 	AddItem(Model, "RenderObjectCount", data->RenderObjectCount);
@@ -1624,7 +1624,7 @@ void ChunkTableClass::List_W3D_CHUNK_POINTS(ChunkItem * Item, ChunkModel* Model)
 	char buf[256];
 
 	while (data < max) {
-		sprintf(buf, "Point[%d]", counter++);
+		snprintf(buf, sizeof(buf), "Point[%d]", counter++);
 		AddItem(Model,buf, data);
 		data++;
 	}
@@ -1781,9 +1781,9 @@ void ChunkTableClass::List_W3D_CHUNK_EMITTER_ROTATION_KEYFRAMES(ChunkItem * Item
 	W3dEmitterRotationKeyframeStruct * key = (W3dEmitterRotationKeyframeStruct *)((char*)Item->Data + sizeof(W3dEmitterRotationHeaderStruct));
 	char buf[256];
 	for (unsigned int i=0; i<header->KeyframeCount+1; i++) {
-		sprintf(buf,"Time[%d]",i);
+		snprintf(buf, sizeof(buf),"Time[%d]",i);
 		AddItem(Model,buf,key[i].Time);
-		sprintf(buf,"Rotation[%d]",i);
+		snprintf(buf, sizeof(buf),"Rotation[%d]",i);
 		AddItem(Model,buf,key[i].Rotation);
 	}
 }
@@ -1798,9 +1798,9 @@ void ChunkTableClass::List_W3D_CHUNK_EMITTER_FRAME_KEYFRAMES(ChunkItem * Item, C
 	W3dEmitterFrameKeyframeStruct * key = (W3dEmitterFrameKeyframeStruct *)((char *)Item->Data + sizeof(W3dEmitterFrameHeaderStruct));
 	char buf[256];
 	for (unsigned int i=0; i<header->KeyframeCount+1; i++) {
-		sprintf(buf,"Time[%d]",i);
+		snprintf(buf, sizeof(buf),"Time[%d]",i);
 		AddItem(Model,buf,key[i].Time);
-		sprintf(buf,"Frame[%d]",i);
+		snprintf(buf, sizeof(buf),"Frame[%d]",i);
 		AddItem(Model,buf,key[i].Frame);
 	}
 }
@@ -1815,9 +1815,9 @@ void ChunkTableClass::List_W3D_CHUNK_EMITTER_BLUR_TIME_KEYFRAMES(ChunkItem * Ite
 	W3dEmitterBlurTimeKeyframeStruct * key = (W3dEmitterBlurTimeKeyframeStruct *)((char *)Item->Data + sizeof(W3dEmitterBlurTimeHeaderStruct));
 	char buf[256];
 	for (unsigned int i=0; i<header->KeyframeCount+1; i++) {
-		sprintf(buf,"Time[%d]",i);
+		snprintf(buf, sizeof(buf),"Time[%d]",i);
 		AddItem(Model,buf,key[i].Time);
-		sprintf(buf,"BlurTime[%d]",i);
+		snprintf(buf, sizeof(buf),"BlurTime[%d]",i);
 		AddItem(Model,buf,key[i].BlurTime);
 	}
 }
@@ -1846,9 +1846,9 @@ void ChunkTableClass::List_W3D_CHUNK_AGGREGATE_INFO(ChunkItem * Item, ChunkModel
 	W3dAggregateSubobjectStruct * defs = (W3dAggregateSubobjectStruct *)((char*)Item->Data + sizeof(W3dAggregateInfoStruct));
 	
 	for (unsigned int subobj=0; subobj<info->SubobjectCount; subobj++) {		
-		sprintf(label,"SubObject[%d].SubobjectName",subobj);
+		snprintf(label, sizeof(label),"SubObject[%d].SubobjectName",subobj);
 		AddItem(Model,label,defs[subobj].SubobjectName);
-		sprintf(label,"SubObject[%d].BoneName",subobj);
+		snprintf(label, sizeof(label),"SubObject[%d].BoneName",subobj);
 		AddItem(Model,label,defs[subobj].BoneName);
 
 	}
@@ -1867,12 +1867,12 @@ void ChunkTableClass::List_W3D_CHUNK_TEXTURE_REPLACER_INFO(ChunkItem * Item, Chu
 		char label[256];
 
 		for (pathidx=0; pathidx<MESH_PATH_ENTRIES; pathidx++){
-			sprintf(label,"Replacer[%d].MeshPath[%d]",replaceidx,pathidx);
+			snprintf(label, sizeof(label),"Replacer[%d].MeshPath[%d]",replaceidx,pathidx);
 			AddItem(Model,label,data->MeshPath[pathidx]);
 		}
 
 		for (pathidx=0; pathidx<MESH_PATH_ENTRIES; pathidx++){
-			sprintf(label,"Replacer[%d].BonePath[%d]",replaceidx,pathidx);
+			snprintf(label, sizeof(label),"Replacer[%d].BonePath[%d]",replaceidx,pathidx);
 			AddItem(Model,label,data->BonePath[pathidx]);
 		}
 		

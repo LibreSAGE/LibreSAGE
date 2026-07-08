@@ -78,7 +78,8 @@ inline int GetComputerName(char *buffer, unsigned long *size)
     size_t nameLen = strlen(name);
     if (*size > nameLen)
     {
-        strcpy(buffer, name);
+        strncpy(buffer, name, *size);
+        buffer[*size - 1] = '\0';
         *size = nameLen;
     }
     else
@@ -98,7 +99,8 @@ inline int GetUserName(char *buffer, unsigned long *size)
     size_t nameLen = strlen(name);
     if (*size > nameLen)
     {
-        strcpy(buffer, name);
+        strncpy(buffer, name, *size);
+        buffer[*size - 1] = '\0';
         *size = nameLen;
     }
     else

@@ -675,38 +675,48 @@ static void updateBuddyStatus( GameSpyBuddyStatus status, Int groupRoom = 0, std
 	{
 		case BUDDY_OFFLINE:
 			req.arg.status.status = GP_OFFLINE;
-			strcpy(req.arg.status.statusString, "Offline");
-			strcpy(req.arg.status.locationString, "");
+			strncpy(req.arg.status.statusString, "Offline", sizeof(req.arg.status.statusString));
+			req.arg.status.statusString[sizeof(req.arg.status.statusString) - 1] = '\0';
+			strncpy(req.arg.status.locationString, "", sizeof(req.arg.status.locationString));
+			req.arg.status.locationString[sizeof(req.arg.status.locationString) - 1] = '\0';
 			break;
 		case BUDDY_ONLINE:
 			req.arg.status.status = GP_ONLINE;
-			strcpy(req.arg.status.statusString, "Online");
-			strcpy(req.arg.status.locationString, "");
+			strncpy(req.arg.status.statusString, "Online", sizeof(req.arg.status.statusString));
+			req.arg.status.statusString[sizeof(req.arg.status.statusString) - 1] = '\0';
+			strncpy(req.arg.status.locationString, "", sizeof(req.arg.status.locationString));
+			req.arg.status.locationString[sizeof(req.arg.status.locationString) - 1] = '\0';
 			break;
 		case BUDDY_LOBBY:
 			req.arg.status.status = GP_CHATTING;
-			strcpy(req.arg.status.statusString, "Chatting");
-			sprintf(req.arg.status.locationString, "%d", groupRoom);
+			strncpy(req.arg.status.statusString, "Chatting", sizeof(req.arg.status.statusString));
+			req.arg.status.statusString[sizeof(req.arg.status.statusString) - 1] = '\0';
+			snprintf(req.arg.status.locationString, sizeof(req.arg.status.locationString), "%d", groupRoom);
 			break;
 		case BUDDY_STAGING:
 			req.arg.status.status = GP_STAGING;
-			strcpy(req.arg.status.statusString, "Staging");
-			sprintf(req.arg.status.locationString, "%s", gameName.c_str());
+			strncpy(req.arg.status.statusString, "Staging", sizeof(req.arg.status.statusString));
+			req.arg.status.statusString[sizeof(req.arg.status.statusString) - 1] = '\0';
+			snprintf(req.arg.status.locationString, sizeof(req.arg.status.locationString), "%s", gameName.c_str());
 			break;
 		case BUDDY_LOADING:
 			req.arg.status.status = GP_PLAYING;
-			strcpy(req.arg.status.statusString, "Loading");
-			sprintf(req.arg.status.locationString, "%s", gameName.c_str());
+			strncpy(req.arg.status.statusString, "Loading", sizeof(req.arg.status.statusString));
+			req.arg.status.statusString[sizeof(req.arg.status.statusString) - 1] = '\0';
+			snprintf(req.arg.status.locationString, sizeof(req.arg.status.locationString), "%s", gameName.c_str());
 			break;
 		case BUDDY_PLAYING:
 			req.arg.status.status = GP_PLAYING;
-			strcpy(req.arg.status.statusString, "Playing");
-			sprintf(req.arg.status.locationString, "%s", gameName.c_str());
+			strncpy(req.arg.status.statusString, "Playing", sizeof(req.arg.status.statusString));
+			req.arg.status.statusString[sizeof(req.arg.status.statusString) - 1] = '\0';
+			snprintf(req.arg.status.locationString, sizeof(req.arg.status.locationString), "%s", gameName.c_str());
 			break;
 		case BUDDY_MATCHING:
 			req.arg.status.status = GP_ONLINE;
-			strcpy(req.arg.status.statusString, "Matching");
-			strcpy(req.arg.status.locationString, "");
+			strncpy(req.arg.status.statusString, "Matching", sizeof(req.arg.status.statusString));
+			req.arg.status.statusString[sizeof(req.arg.status.statusString) - 1] = '\0';
+			strncpy(req.arg.status.locationString, "", sizeof(req.arg.status.locationString));
+			req.arg.status.locationString[sizeof(req.arg.status.locationString) - 1] = '\0';
 			break;
 	}
 	DEBUG_LOG(("updateBuddyStatus %d:%s\n", req.arg.status.status, req.arg.status.statusString));

@@ -238,7 +238,7 @@ Bool	File::print ( const Char *format, ...)
 
 	va_list args;
 	va_start( args, format );     /* Initialize variable arguments. */
-	len = vsprintf( buffer, format, args );
+	len = vsnprintf( buffer, sizeof(buffer), format, args );
 	va_end( args );
 
 	if ( len >= sizeof(buffer) )

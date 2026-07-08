@@ -258,9 +258,10 @@ int HCompressedAnimClass::Load_W3D(ChunkLoadClass & cload)
 
 	cload.Close_Chunk();
 
-	strcpy(Name,aheader.HierarchyName);
-	strcat(Name,".");
-	strcat(Name,aheader.Name);
+	strncpy(Name,aheader.HierarchyName,sizeof(Name));
+	Name[sizeof(Name)-1] = '\0';
+	strncat(Name,".",sizeof(Name) - strlen(Name) - 1);
+	strncat(Name,aheader.Name,sizeof(Name) - strlen(Name) - 1);
 
 	// TSS chasing crash bug 05/26/99
    WWASSERT(HierarchyName != NULL);
