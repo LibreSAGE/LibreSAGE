@@ -17,33 +17,23 @@
 */
 
 ////////////////////////////////////////////////////////////////////////////////
-//                                                                            //
-//  (c) 2001-2003 Electronic Arts Inc.                                        //
-//                                                                            //
+//																																						//
+//  (c) 2001-2003 Electronic Arts Inc.																				//
+//																																						//
 ////////////////////////////////////////////////////////////////////////////////
 
-// FILE: MiniLog.h /////////////////////////////////////////////////////////////
-// Alternative logging
-// Author: Matthew D. Campbell, January 2003
-////////////////////////////////////////////////////////////////////////////////
+// SpecialPowerMaskType.h /////////////////////////////////////////////////////////////////////////
+// Part of header detangling
+// JKMCD Aug 2002
 
 #pragma once
-#include "Common/Debug.h"
+#ifndef __SPECIALPOWERMASKTYPE_H__
+#define __SPECIALPOWERMASKTYPE_H__
 
-#ifdef DEBUG_LOGGING
+#include "Common/BitFlags.h"
+#include "Common/BitFlagsIO.h"
+#include "Common/SpecialPowerType.h"
 
-#include "Lib/BaseType.h"
-#include "GameLogic/GameLogic.h"
-#include <cstdarg>
-class LogClass
-{
-public:
-	LogClass(const char *fname);
-	~LogClass();
-	void log(const char *fmt, ...);
+typedef BitFlags<SPECIALPOWER_COUNT>	SpecialPowerMaskType;
 
-protected:
-	FILE *m_fp;
-};
-
-#endif // DEBUG_LOGGING
+#endif /* __SPECIALPOWERMASKTYPE_H__ */

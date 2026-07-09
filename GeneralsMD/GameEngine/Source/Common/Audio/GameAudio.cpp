@@ -60,7 +60,6 @@
 #include "Common/UserPreferences.h"
 
 #include "GameClient/ControlBar.h"
-#include "GameClient/Drawable.h"
 #include "GameClient/View.h"
 
 #include "GameLogic/GameLogic.h"
