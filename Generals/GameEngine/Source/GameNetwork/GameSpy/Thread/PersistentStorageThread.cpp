@@ -888,7 +888,7 @@ void PSThreadClass::Thread_Function()
 					{
 						DEBUG_LOG(("Successful login\n"));
 						incrOpCount();
-						GetPersistDataValues(0, req.player.id, pd_public_rw, 0, "", getPersistentDataCallback, this);
+						GetPersistDataValues(0, req.player.id, pd_public_rw, 0, (gsi_char*)"", getPersistentDataCallback, this);
 					}
 					else
 					{
@@ -1064,7 +1064,7 @@ void PSThreadClass::Thread_Function()
 						DEBUG_LOG(("Looking for preorder status for %d (success=%d, done=%d) from CDKey %s with hash %s\n",
 							cdAuthInfo.id, cdAuthInfo.success, cdAuthInfo.done, req.cdkey.c_str(), cdkeyHash));
 						if (cdAuthInfo.done && cdAuthInfo.success)
-							GetPersistDataValues(0, cdAuthInfo.id, pd_public_ro, 0, "\\preorder", getPreorderCallback, this);
+							GetPersistDataValues(0, cdAuthInfo.id, pd_public_ro, 0, (gsi_char*)"\\preorder", getPreorderCallback, this);
 						else
 							decrOpCount();
 					}

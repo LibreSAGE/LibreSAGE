@@ -4009,7 +4009,7 @@ UnsignedInt GameLogic::getCRC( Int mode, AsciiString deepCRCFileName )
 			crcName.format("logicFrame%d.crc", (m_frame%5));
 		}
 		else
-#endif DEBUG_CRC
+#endif // DEBUG_CRC
 		{
 			xferCRC = NEW XferCRC;
 			crcName = "lightCRC";
@@ -4065,7 +4065,7 @@ UnsignedInt GameLogic::getCRC( Int mode, AsciiString deepCRCFileName )
 			CRCGEN_LOG(("CRC after module factory for frame %d is 0x%8.8X\n", m_frame, xferCRC->getCRC()));
 		}
 	}
-#endif DEBUG_CRC
+#endif // DEBUG_CRC
 
 	marker = "MARKER:ThePlayerList";
 	xferCRC->xferAsciiString(&marker);

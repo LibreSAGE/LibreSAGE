@@ -176,7 +176,7 @@ static void parsePitchShift( INI* ini, void *instance, void *store, const void* 
 
 // STATIC DEFINIITIONS ////////////////////////////////////////////////////////////////////////////
 
-char *theAudioPriorityNames[] = 
+const char *theAudioPriorityNames[] = 
 {
 	"LOWEST",
 	"LOW",
@@ -186,7 +186,7 @@ char *theAudioPriorityNames[] =
 	NULL
 };
 
-char *theSoundTypeNames[] = 
+const char *theSoundTypeNames[] = 
 { 
 	"UI",
 	"WORLD",
@@ -200,7 +200,7 @@ char *theSoundTypeNames[] =
 	NULL
 };
 
-char *theAudioControlNames[] = 
+const char *theAudioControlNames[] = 
 {
 	"LOOP",
 	"RANDOM",

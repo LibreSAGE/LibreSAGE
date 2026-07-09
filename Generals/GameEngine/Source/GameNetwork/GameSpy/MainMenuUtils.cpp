@@ -718,7 +718,7 @@ void CheckNumPlayersOnline( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-int asyncGethostbyname(char * szName)
+int asyncGethostbyname(const char * szName)
 {
 	static int            stat = 0;
 	static unsigned long  threadid;

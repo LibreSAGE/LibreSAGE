@@ -164,7 +164,7 @@ static GameWindow *windowStack[ WIN_STACK_DEPTH ];
 static GameWindow **stackPtr;
 
 // for parsing
-static char *seps = " =;\n\r\t";
+static const char *seps = " =;\n\r\t";
 WinDrawData enabledDropDownButtonDrawData[ MAX_DRAW_DATA ];  ///< for combo boxes
 WinDrawData disabledDropDownButtonDrawData[ MAX_DRAW_DATA ];  ///< for combo boxes
 WinDrawData hiliteDropDownButtonDrawData[ MAX_DRAW_DATA ];  ///< for combo boxes
@@ -506,7 +506,7 @@ static Bool parseScreenRect( char *token, char *buffer,
 	GameWindow *parent = peekWindow();
 	IRegion2D screenRegion;
 	ICoord2D createRes;  // creation resolution
-	char *seps = " ,:=\n\r\t";
+	const char *seps = " ,:=\n\r\t";
 	char *c;
 
 	c = strtok( NULL, seps );  // UPPERLEFT token
@@ -835,7 +835,7 @@ static Bool parseListboxData( char *token, WinInstanceData *instData,
 {
 	ListboxData *listData = (ListboxData *)data;
 	char *c;
-	char *seps = " :,\n\r\t";
+	const char *seps = " :,\n\r\t";
 
 	// "LENGTH"
 	c = strtok( buffer, seps );  // label
@@ -911,7 +911,7 @@ static Bool parseComboBoxData( char *token, WinInstanceData *instData,
 {
 	ComboBoxData *comboData = (ComboBoxData *)data;
 	char *c;
-	char *seps = " :,\n\r\t";
+	const char *seps = " :,\n\r\t";
 
 	c = strtok( buffer, seps );  // label
 	c = strtok( NULL, seps );	// value
@@ -945,7 +945,7 @@ static Bool parseSliderData( char *token, WinInstanceData *instData,
 {
 	SliderData *sliderData = (SliderData *)data;
 	char *c;
-	char *seps = " :,\n\r\t";
+	const char *seps = " :,\n\r\t";
 
 	// "MINVALUE"
 	c = strtok( buffer, seps );  // label
@@ -969,7 +969,7 @@ static Bool parseRadioButtonData( char *token, WinInstanceData *instData,
 {
 	RadioButtonData *radioData = (RadioButtonData *)data;
 	char *c;
-	char *seps = " :,\n\r\t";
+	const char *seps = " :,\n\r\t";
 
 	// "GROUP"
 	c = strtok( buffer, seps );  // label
@@ -1022,7 +1022,7 @@ static Bool parseTooltipDelay( char *token, WinInstanceData *instData,
 {
 	//RadioButtonData *radioData = (RadioButtonData *)data;
 	char *c;
-	char *seps = " :,\n\r\t";
+	const char *seps = " :,\n\r\t";
 
 	// "getvalue"
 	c = strtok( buffer, seps );  // value
@@ -1071,7 +1071,7 @@ static Bool parseTextColor( char *token, WinInstanceData *instData,
 														char *buffer, void *data )
 {
 	char *c;
-	char *seps       = " :,\n\r\t";
+	const char *seps       = " :,\n\r\t";
 	UnsignedInt r, g, b, a;
 	Int i, states = 3;
 	TextDrawData *textData;
@@ -1138,7 +1138,7 @@ static Bool parseStaticTextData( char *token, WinInstanceData *instData,
 {
 	TextData *textData = (TextData *)data;
 	char *c;
-	char *seps       = " :,\n\r\t";
+	const char *seps       = " :,\n\r\t";
 
 	// "CENTERED"
 	c = strtok( buffer, seps );  // label
@@ -1164,7 +1164,7 @@ static Bool parseTextEntryData( char *token, WinInstanceData *instData,
 {
 	EntryData *entryData = (EntryData *)data;
 	char *c;
-	char *seps       = " :,\n\r\t";
+	const char *seps       = " :,\n\r\t";
 
 	// "MAXLEN"
 	c = strtok( buffer, seps );  // label
@@ -1203,7 +1203,7 @@ static Bool parseTabControlData( char *token, WinInstanceData *instData,
 {
 	TabControlData *tabControlData = (TabControlData *)data;
 	char *c;
-	char *seps       = " :,\n\r\t";
+	const char *seps       = " :,\n\r\t";
 
 	//TABORIENTATION
 	c = strtok( buffer, seps );  // label
@@ -1261,7 +1261,7 @@ static Bool parseDrawData( char *token, WinInstanceData *instData,
 	WinDrawData *drawData;
 	Bool first = TRUE;
 	char *c;
-	char *seps       = " :,\n\r\t";
+	const char *seps       = " :,\n\r\t";
 
 	for( i = 0; i < MAX_DRAW_DATA; i++ )
 	{
@@ -2524,7 +2524,7 @@ cleanupAndExit:
 Bool parseInit( char *token, char *buffer, UnsignedInt version, WindowLayoutInfo *info )
 {
 	char *c;
-	char *seps = " \n\r\t";
+	const char *seps = " \n\r\t";
 
 	// get string
 	c = strtok( buffer, seps );
@@ -2543,7 +2543,7 @@ Bool parseInit( char *token, char *buffer, UnsignedInt version, WindowLayoutInfo
 Bool parseUpdate( char *token, char *buffer, UnsignedInt version, WindowLayoutInfo *info )
 {
 	char *c;
-	char *seps = " \n\r\t";
+	const char *seps = " \n\r\t";
 
 	// get string
 	c = strtok( buffer, seps );
@@ -2562,7 +2562,7 @@ Bool parseUpdate( char *token, char *buffer, UnsignedInt version, WindowLayoutIn
 Bool parseShutdown( char *token, char *buffer, UnsignedInt version, WindowLayoutInfo *info )
 {
 	char *c;
-	char *seps = " \n\r\t";
+	const char *seps = " \n\r\t";
 
 	// get string
 	c = strtok( buffer, seps );

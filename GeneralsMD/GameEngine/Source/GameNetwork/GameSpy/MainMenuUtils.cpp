@@ -242,12 +242,12 @@ static void startOnline( void )
 	pref.load("GameSpyLogin.ini");
 	UserPreferences::const_iterator it = pref.find("useProfiles");
 	if (it != pref.end() && it->second.compareNoCase("yes") == 0)
-#endif ALLOW_NON_PROFILED_LOGIN
+#endif // ALLOW_NON_PROFILED_LOGIN
 		TheShell->push( AsciiString("Menus/GameSpyLoginProfile.wnd") );
 #ifdef ALLOW_NON_PROFILED_LOGIN
 	else
 		TheShell->push( AsciiString("Menus/GameSpyLoginQuick.wnd") );
-#endif ALLOW_NON_PROFILED_LOGIN
+#endif // ALLOW_NON_PROFILED_LOGIN
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -656,7 +656,7 @@ void CheckNumPlayersOnline( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-int asyncGethostbyname(char * szName)
+int asyncGethostbyname(const char * szName)
 {
 	static int            stat = 0;
 	static unsigned long  threadid;
