@@ -209,6 +209,8 @@ class MiniAudioManager : public AudioManager
 
 		ma_engine m_engine;
 		ma_context m_context;
+		Bool m_engineInitialized;		///< true once ma_engine_init succeeded; guards teardown
+		Bool m_contextInitialized;	///< true once ma_context_init succeeded; guards teardown
 		ma_resource_manager m_resourceManager;
 		ma_log m_log;
 		ma_sound_group m_musicGroup;

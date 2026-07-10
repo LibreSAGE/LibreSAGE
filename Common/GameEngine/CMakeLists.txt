@@ -1,8 +1,8 @@
 # Target setup
-add_library(c_gameengine STATIC)
+add_library(c_gameengine INTERFACE)
   
 target_sources(c_gameengine
-    PRIVATE
+    INTERFACE
             Include/Common/Science.h
             Include/Common/DisabledTypes.h
             Include/GameLogic/ArmorSet.h
@@ -391,7 +391,7 @@ target_sources(c_gameengine
 set_target_properties(c_gameengine PROPERTIES OUTPUT_NAME "GameEngine"
                                               POSITION_INDEPENDENT_CODE TRUE)
 
-target_link_libraries(c_gameengine PUBLIC c_wwvegas c_library_include)
+target_link_libraries(c_gameengine INTERFACE c_wwvegas c_library_include)
 
 target_include_directories(
-  c_gameengine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include)
+  c_gameengine INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Include)

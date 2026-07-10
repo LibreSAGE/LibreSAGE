@@ -81,7 +81,9 @@ MiniAudioManager::MiniAudioManager() :
 	m_lastSelectedPlaybackDevice(PROVIDER_ERROR),
 	m_binkHandle(NULL),
 	m_pref3DProvider(AsciiString::TheEmptyString),
-	m_prefSpeaker(AsciiString::TheEmptyString)
+	m_prefSpeaker(AsciiString::TheEmptyString),
+	m_engineInitialized(false),
+	m_contextInitialized(false)
 {
 }
 
@@ -750,6 +752,7 @@ void MiniAudioManager::openDevice( void )
 		setOn( false, AudioAffect_All );
         return;
     }
+	m_contextInitialized = true;
 
 
     /*
@@ -774,7 +777,8 @@ void MiniAudioManager::openDevice( void )
 		setOn( false, AudioAffect_All );
 		return;  // Failed to initialize the engine.
 	}
-	
+	m_engineInitialized = true;
+
 	ma_sound_group_init(&m_engine, 0, NULL, &m_musicGroup);
 	ma_sound_group_init(&m_engine, 0, NULL, &m_soundGroup);
 	ma_sound_group_init(&m_engine, 0, NULL, &m_sound3DGroup);
@@ -784,8 +788,17 @@ void MiniAudioManager::openDevice( void )
 //-------------------------------------------------------------------------------------------------
 void MiniAudioManager::closeDevice( void )
 {
-	ma_engine_uninit(&m_engine);
-	ma_context_uninit(&m_context);
+	// Guard against teardown when the device was never (fully) opened -- e.g.
+	// a MiniAudioManager constructed purely to satisfy TheAudio in unit tests.
+	// Calling ma_*_uninit on uninitialized structs walks garbage and crashes.
+	if (m_engineInitialized) {
+		ma_engine_uninit(&m_engine);
+		m_engineInitialized = false;
+	}
+	if (m_contextInitialized) {
+		ma_context_uninit(&m_context);
+		m_contextInitialized = false;
+	}
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 qt_add_library(
-  c_debugwindow SHARED
+  c_debugwindow MODULE
   DebugWindowExport.h
   DebugWindow.cpp
   DebugWindowDialog.cpp

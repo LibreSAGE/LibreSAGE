@@ -4,7 +4,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 qt_add_library(
-  c_particleeditor SHARED
+  c_particleeditor MODULE
   ParticleEditorExport.h
   ParticleEditor.cpp
   ParticleEditorDialog.cpp

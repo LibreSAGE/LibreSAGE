@@ -692,6 +692,7 @@ target_include_directories(
 
 target_link_libraries(g_gameengine PUBLIC c_gameengine c_ww3d2 c_wwmath c_wwlib c_wwsaveload
                                           c_compression c_wwdownload)
+target_compile_definitions(g_gameengine PUBLIC "RTS_GAME_GEN")
 
 # GLM
 find_package(glm CONFIG REQUIRED)

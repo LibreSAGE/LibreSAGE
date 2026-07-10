@@ -1,9 +1,9 @@
 # Target setup
-add_library(c_gameenginedevice)
+add_library(c_gameenginedevice INTERFACE)
 
 target_sources(
   c_gameenginedevice
-  PRIVATE Include/W3DDevice/Common/W3DConvert.h
+  INTERFACE Include/W3DDevice/Common/W3DConvert.h
             Source/W3DDevice/GameLogic/W3DGameLogic.cpp
             Source/W3DDevice/GameClient/W3DPoly.cpp
             Source/W3DDevice/GameClient/W3DGranny.cpp
@@ -76,7 +76,7 @@ target_sources(
 if(SAGE_USE_SDL3)
   target_sources(
     c_gameenginedevice
-    PRIVATE Include/SDL3Device/Common/SDL3BIGFile.h
+    INTERFACE Include/SDL3Device/Common/SDL3BIGFile.h
             Source/SDL3Device/Common/SDL3OSDisplay.cpp
             Source/SDL3Device/Common/SDL3CDManager.cpp
             Include/SDL3Device/Common/SDL3BIGFileSystem.h
@@ -93,35 +93,35 @@ if(SAGE_USE_SDL3)
 
   find_package(SDL3 CONFIG REQUIRED)
   find_package(SDL3_image CONFIG REQUIRED)
-  target_link_libraries(c_gameenginedevice PUBLIC SDL3::SDL3
+  target_link_libraries(c_gameenginedevice INTERFACE SDL3::SDL3
                                                   SDL3_image::SDL3_image)
-  target_compile_definitions(c_gameenginedevice PUBLIC SAGE_USE_SDL3)
+  target_compile_definitions(c_gameenginedevice INTERFACE SAGE_USE_SDL3)
 endif()
 
 if(SAGE_USE_FFMPEG)
   target_sources(
     c_gameenginedevice
-    PRIVATE Include/VideoDevice/FFmpeg/FFmpegFile.h
+    INTERFACE Include/VideoDevice/FFmpeg/FFmpegFile.h
             Source/VideoDevice/FFmpeg/FFmpegVideoPlayer.cpp
             Include/VideoDevice/FFmpeg/FFmpegVideoPlayer.h
             Source/VideoDevice/FFmpeg/FFmpegFile.cpp)
 
   find_package(FFMPEG REQUIRED)
-  target_include_directories(c_gameenginedevice PRIVATE ${FFMPEG_INCLUDE_DIRS})
-  target_link_libraries(c_gameenginedevice PRIVATE ${FFMPEG_LIBRARIES})
-  target_compile_definitions(c_gameenginedevice PRIVATE SAGE_USE_FFMPEG)
+  target_include_directories(c_gameenginedevice INTERFACE ${FFMPEG_INCLUDE_DIRS})
+  target_link_libraries(c_gameenginedevice INTERFACE ${FFMPEG_LIBRARIES})
+  target_compile_definitions(c_gameenginedevice INTERFACE SAGE_USE_FFMPEG)
 endif()
 
 if(SAGE_USE_MINIAUDIO)
   target_sources(
     c_gameenginedevice
-    PRIVATE Include/MiniAudioDevice/MiniAudioManager.h)
+    INTERFACE Include/MiniAudioDevice/MiniAudioManager.h)
 endif()
 
 if(WIN32)
   target_sources(
     c_gameenginedevice
-    PRIVATE Include/Win32Device/Common/Win32BIGFile.h
+    INTERFACE Include/Win32Device/Common/Win32BIGFile.h
             Include/Win32Device/GameClient/Win32Mouse.h
             Include/Win32Device/GameClient/Win32DIMouse.h
             Include/Win32Device/GameClient/Win32DIKeyboard.h
@@ -139,7 +139,7 @@ endif()
 if(SAGE_USE_BINK)
   target_sources(
     c_gameenginedevice
-    PRIVATE Include/VideoDevice/Bink/BinkVideoPlayer.h
+    INTERFACE Include/VideoDevice/Bink/BinkVideoPlayer.h
             Source/VideoDevice/Bink/BinkVideoPlayer.cpp)
 endif()
 
@@ -147,6 +147,6 @@ set_target_properties(c_gameenginedevice PROPERTIES OUTPUT_NAME
                                                     "GameEngineDevice")
 
 target_include_directories(c_gameenginedevice
-                           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include)
+                           INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Include)
 
-target_link_libraries(c_gameenginedevice PUBLIC c_gameengine)
+target_link_libraries(c_gameenginedevice INTERFACE c_gameengine)
