@@ -4,6 +4,7 @@ find_package(SDL3 REQUIRED)
 add_executable(z_gameenginedevicetest
     SDL3Device/SDL3LocalFileSystemTest.cpp
     SDL3Device/SDL3BigFileSystemTest.cpp
+    VideoDevice/FFmpeg/FFmpegVideoPlayerTest.cpp
     MainStub.cpp
 )
 
