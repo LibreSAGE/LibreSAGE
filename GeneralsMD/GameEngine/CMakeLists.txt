@@ -18,7 +18,6 @@ target_sources(
     Source/Common/INI/INISpecialPower.cpp
     Source/Common/GameMain.cpp
     Include/GameClient/Display.h
-    Include/Common/GameEngine.h
           Include/Common/ActionManager.h
           Include/Common/BattleHonors.h
           Include/Common/BitFlagsIO.h
@@ -95,7 +94,6 @@ target_sources(
           Include/GameLogic/Module/BattlePlanUpdate.h
           Include/GameLogic/Module/BehaviorModule.h
           Include/GameLogic/Module/BodyModule.h
-          Include/GameLogic/Module/BridgeBehavior.h
           Include/GameLogic/Module/CashHackSpecialPower.h
           Include/GameLogic/Module/CaveContain.h
           Include/GameLogic/Module/ChinookAIUpdate.h
@@ -110,18 +108,15 @@ target_sources(
           Include/GameLogic/Module/DeliverPayloadAIUpdate.h
           Include/GameLogic/Module/DemoralizeSpecialPower.h
           Include/GameLogic/Module/DeployStyleAIUpdate.h
-          Include/GameLogic/Module/DieModule.h
           Include/GameLogic/Module/DumbProjectileBehavior.h
           Include/GameLogic/Module/EMPUpdate.h
           Include/GameLogic/Module/FXListDie.h
           Include/GameLogic/Module/FireOCLAfterWeaponCooldownUpdate.h
-          Include/GameLogic/Module/FireWeaponCollide.h
           Include/GameLogic/Module/FireWeaponUpdate.h
           Include/GameLogic/Module/FireWeaponWhenDamagedBehavior.h
           Include/GameLogic/Module/FireWeaponWhenDeadBehavior.h
           Include/GameLogic/Module/GarrisonContain.h
           Include/GameLogic/Module/GenerateMinefieldBehavior.h
-          Include/GameLogic/Module/GrantUpgradeCreate.h
           Include/GameLogic/Module/HackInternetAIUpdate.h
           Include/GameLogic/Module/HordeUpdate.h
           Include/GameLogic/Module/InactiveBody.h
@@ -153,7 +148,6 @@ target_sources(
           Include/GameLogic/Module/SpecialAbilityUpdate.h
           Include/GameLogic/Module/SpecialPowerModule.h
           Include/GameLogic/Module/SpyVisionUpdate.h
-          Include/GameLogic/Module/StatusBitsUpgrade.h
           Include/GameLogic/Module/StealthUpdate.h
           Include/GameLogic/Module/StickyBombUpdate.h
           Include/GameLogic/Module/StructureToppleUpdate.h
@@ -206,7 +200,6 @@ target_sources(
           Source/Common/CRCDebug.cpp
           Source/Common/CommandLine.cpp
           Source/Common/DamageFX.cpp
-          Source/Common/DiscreteCircle.cpp
           Source/Common/GameEngine.cpp
           Source/Common/GameLOD.cpp
           Source/Common/GlobalData.cpp
@@ -214,7 +207,6 @@ target_sources(
           Source/Common/INI/INICommandButton.cpp
           Source/Common/INI/INICommandSet.cpp
           Source/Common/INI/INIControlBarScheme.cpp
-          Source/Common/INI/INICrate.cpp
           Source/Common/INI/INIDamageFX.cpp
           Source/Common/INI/INIMapCache.cpp
           Source/Common/INI/INIMappedImage.cpp
@@ -224,7 +216,6 @@ target_sources(
           Source/Common/INI/INIParticleSys.cpp
           Source/Common/INI/INITerrainBridge.cpp
           Source/Common/INI/INITerrainRoad.cpp
-          Source/Common/INI/INIUpgrade.cpp
           Source/Common/INI/INIWeapon.cpp
           Source/Common/MessageStream.cpp
           Source/Common/MiniLog.cpp
@@ -240,7 +231,6 @@ target_sources(
           Source/Common/RTS/PlayerTemplate.cpp
           Source/Common/RTS/ProductionPrerequisite.cpp
           Source/Common/RTS/ResourceGatheringManager.cpp
-          Source/Common/RTS/Science.cpp
           Source/Common/RTS/ScoreKeeper.cpp
           Source/Common/RTS/SpecialPower.cpp
           Source/Common/RTS/Team.cpp
@@ -256,7 +246,6 @@ target_sources(
           Source/Common/System/DataChunk.cpp
           Source/Common/System/DisabledTypes.cpp
           Source/Common/System/FunctionLexicon.cpp
-          Source/Common/System/GameCommon.cpp
           Source/Common/System/Geometry.cpp
           Source/Common/System/KindOf.cpp
           Source/Common/System/MemoryInit.cpp
@@ -384,7 +373,6 @@ target_sources(
           Source/GameClient/MessageStream/CommandXlat.cpp
           Source/GameClient/MessageStream/GUICommandTranslator.cpp
           Source/GameClient/MessageStream/HintSpy.cpp
-          Source/GameClient/MessageStream/HotKey.cpp
           Source/GameClient/MessageStream/LookAtXlat.cpp
           Source/GameClient/MessageStream/MetaEvent.cpp
           Source/GameClient/MessageStream/PlaceEventTranslator.cpp
@@ -441,7 +429,6 @@ target_sources(
           Source/GameLogic/Object/Behavior/SlowDeathBehavior.cpp
           Source/GameLogic/Object/Behavior/SpawnBehavior.cpp
           Source/GameLogic/Object/Behavior/SupplyWarehouseCripplingBehavior.cpp
-          Source/GameLogic/Object/Behavior/TechBuildingBehavior.cpp
           Source/GameLogic/Object/Body/ActiveBody.cpp
           Source/GameLogic/Object/Body/BodyModule.cpp
           Source/GameLogic/Object/Body/HighlanderBody.cpp
@@ -459,7 +446,6 @@ target_sources(
           Source/GameLogic/Object/Collide/CrateCollide/ShroudCrateCollide.cpp
           Source/GameLogic/Object/Collide/CrateCollide/UnitCrateCollide.cpp
           Source/GameLogic/Object/Collide/CrateCollide/VeterancyCrateCollide.cpp
-          Source/GameLogic/Object/Collide/FireWeaponCollide.cpp
           Source/GameLogic/Object/Collide/SquishCollide.cpp
           Source/GameLogic/Object/Contain/CaveContain.cpp
           Source/GameLogic/Object/Contain/GarrisonContain.cpp
@@ -487,7 +473,6 @@ target_sources(
           Source/GameLogic/Object/Die/CrushDie.cpp
           Source/GameLogic/Object/Die/DamDie.cpp
           Source/GameLogic/Object/Die/DestroyDie.cpp
-          Source/GameLogic/Object/Die/DieModule.cpp
           Source/GameLogic/Object/Die/EjectPilotDie.cpp
           Source/GameLogic/Object/Die/FXListDie.cpp
           Source/GameLogic/Object/Die/KeepObjectDie.cpp
@@ -608,7 +593,6 @@ target_sources(
           Source/GameLogic/Object/Upgrade/ObjectCreationUpgrade.cpp
           Source/GameLogic/Object/Upgrade/PowerPlantUpgrade.cpp
           Source/GameLogic/Object/Upgrade/RadarUpgrade.cpp
-          Source/GameLogic/Object/Upgrade/StatusBitsUpgrade.cpp
           Source/GameLogic/Object/Upgrade/StealthUpgrade.cpp
           Source/GameLogic/Object/Upgrade/SubObjectsUpgrade.cpp
           Source/GameLogic/Object/Upgrade/UnpauseSpecialPowerUpgrade.cpp
@@ -623,7 +607,6 @@ target_sources(
           Source/GameLogic/ScriptEngine/Scripts.cpp
           Source/GameLogic/ScriptEngine/VictoryConditions.cpp
           Source/GameLogic/System/CaveSystem.cpp
-          Source/GameLogic/System/CrateSystem.cpp
           Source/GameLogic/System/Damage.cpp
           Source/GameLogic/System/GameLogic.cpp
           Source/GameLogic/System/GameLogicDispatch.cpp
@@ -672,7 +655,6 @@ target_sources(
     # ----- Zero Hour additions (not present in Generals) -----
           Include/Common/AcademyStats.h
           Include/Common/DynamicAudioEventInfo.h
-          Include/Common/ObjectStatusTypes.h
           Include/GameClient/ChallengeGenerals.h
           Include/GameClient/ParabolicEase.h
           Include/GameLogic/AIGuardRetaliate.h
@@ -711,7 +693,6 @@ target_sources(
           Include/GameLogic/Module/WeaponBonusUpdate.h
           Source/Common/Audio/DynamicAudioEventInfo.cpp
           Source/Common/RTS/AcademyStats.cpp
-          Source/Common/System/ObjectStatusTypes.cpp
           Source/GameClient/GUI/ChallengeGenerals.cpp
           Source/GameClient/GUI/GUICallbacks/Menus/ChallengeMenu.cpp
           Source/GameClient/ParabolicEase.cpp

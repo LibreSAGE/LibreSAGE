@@ -610,7 +610,7 @@ Object *AI::findClosestEnemy( const Object *me, Real range, UnsignedInt qualifie
 	// (note that stealthed allies aren't hidden from us, but we're only looking for enemies here)
 	// *** This doesn't cut it anymore. Bombtrucks can be disguised as an enemy member meaning we
 	//     still want to acquire it -- however this old filter fails because the unit is stealthed.
-	//PartitionFilterRejectByObjectStatus filterStealth(OBJECT_STATUS_STEALTHED, OBJECT_STATUS_DETECTED);
+	//PartitionFilterRejectByObjectStatus filterStealth( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_STEALTHED ), MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_DETECTED ) );
 	// *** Use this new filter
 	PartitionFilterStealthedAndUndetected filterStealth( me, false );
 
@@ -786,7 +786,7 @@ Object *AI::findClosestRepulsor( const Object *me, Real range)
 
 	// and only stuff that isn't stealthed (and not detected)
 	// (note that stealthed allies aren't hidden from us, but that's ok. jba.)
-	PartitionFilterRejectByObjectStatus filterStealth(OBJECT_STATUS_STEALTHED, OBJECT_STATUS_DETECTED);
+	PartitionFilterRejectByObjectStatus filterStealth( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_STEALTHED ), MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_DETECTED ) );
 
 	PartitionFilter *filters[16];
 	Int numFilters = 0;

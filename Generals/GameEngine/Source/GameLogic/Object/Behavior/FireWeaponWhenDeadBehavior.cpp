@@ -87,7 +87,7 @@ void FireWeaponWhenDeadBehavior::onDie( const DamageInfo *damageInfo )
 	
 	// This will never apply until built.  Otherwise canceling construction sets it off, and killing
 	// a one hitpoint one percent building will too.
-	if( BitTest( getObject()->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE )
+	if( getObject()->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 		return;
 
 	

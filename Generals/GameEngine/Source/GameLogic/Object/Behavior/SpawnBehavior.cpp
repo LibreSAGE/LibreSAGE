@@ -783,7 +783,7 @@ Bool SpawnBehavior::shouldTryToSpawn()
 	// Not if we are turned off
 	if( !m_active )
 		return FALSE;
-	if( BitTest( getObject()-> getStatusBits(), OBJECT_STATUS_RECONSTRUCTING ) &&
+	if( getObject()-> getStatusBits().test( OBJECT_STATUS_RECONSTRUCTING )&&
 			modData->m_isOneShotData == TRUE )
 	{
 		// If we are a Hole rebuild, not only should we not, but we should never ask again.
@@ -970,7 +970,7 @@ void SpawnBehavior::computeAggregateStates(void)
 
 	// HOUSEKEEPING *************************************
 	//make sure no enemies are shooting at the nexus, since it doesn't 'exist'
-	obj->setStatus(OBJECT_STATUS_MASKED);
+	obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_MASKED ) );
 
 }
 

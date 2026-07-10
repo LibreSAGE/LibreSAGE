@@ -379,7 +379,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message,
 
 			// ------------------------------------------------------------------------
 			case WM_CLOSE:
-			TheGameEngine->checkAbnormalQuitting();
+			// TheGameEngine->checkAbnormalQuitting();	// removed in Zero Hour (GeneralsMD)
 			TheGameEngine->reset();
 			TheGameEngine->setQuitting(TRUE);
 			_exit(EXIT_SUCCESS);

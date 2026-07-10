@@ -172,7 +172,7 @@ AsciiString DescribeObject(const Object *obj)
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
-Object::Object( const ThingTemplate *tt, ObjectStatusBits statusBits, Team *team ) : 
+Object::Object( const ThingTemplate *tt, const ObjectStatusMaskType &objectStatusMask, Team *team ) :
 	Thing(tt),
 	m_indicatorColor(0),
 	m_ai(NULL),
@@ -255,7 +255,7 @@ Object::Object( const ThingTemplate *tt, ObjectStatusBits statusBits, Team *team
 	m_producerID = INVALID_ID;
 	m_builderID = INVALID_ID;
 
-	m_status = statusBits;
+	m_status = objectStatusMask;
 	m_layer = LAYER_GROUND;
 
 	m_group = NULL;
@@ -630,11 +630,11 @@ Bool Object::isHero() const
 //-------------------------------------------------------------------------------------------------
 void Object::onContainedBy( Object *containedBy )
 {
-	setStatus(OBJECT_STATUS_UNSELECTABLE);
+	setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_UNSELECTABLE ) );
 	if (containedBy && containedBy->getContain()->isEnclosingContainerFor(this))
-		setStatus(OBJECT_STATUS_MASKED);
+		setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_MASKED ) );
 	else
-		clearStatus(OBJECT_STATUS_MASKED);
+		clearStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_MASKED ) );
 	m_containedBy = containedBy;
 	m_containedByFrame = TheGameLogic->getFrame();
 }
@@ -644,8 +644,8 @@ void Object::onContainedBy( Object *containedBy )
 //-------------------------------------------------------------------------------------------------
 void Object::onRemovedFrom( Object *removedFrom )
 {
-	clearStatus(OBJECT_STATUS_UNSELECTABLE);
-	clearStatus(OBJECT_STATUS_MASKED);
+	clearStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_UNSELECTABLE ) );
+	clearStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_MASKED ) );
 	m_containedBy = NULL;
 	m_containedByFrame = 0;
 }
@@ -858,19 +858,19 @@ void Object::setOrRestoreTeam( Team* team, Bool restoring )
 }
 
 //=============================================================================
-void Object::setStatus( ObjectStatusBits bits, Bool set )
+void Object::setStatus( ObjectStatusMaskType objectStatus, Bool set )
 {
-	UnsignedInt oldStatus = m_status;
+	ObjectStatusMaskType oldStatus = m_status;
 
 	if (set)
-		m_status |= bits;
+		m_status.set( objectStatus );
 	else
-		m_status &= ~bits;
+		m_status.clear( objectStatus );
 
 	if (m_status != oldStatus)
 	{
-		if (set 
-				&& (bits & OBJECT_STATUS_REPULSOR) != 0
+		if (set
+				&& objectStatus.test( OBJECT_STATUS_REPULSOR )
 				&& m_repulsorHelper != NULL)
 		{
 			// Damaged repulsable civilians scare (repulse) other civs, but only
@@ -880,7 +880,7 @@ void Object::setStatus( ObjectStatusBits bits, Bool set )
 
 		// when an object's construction status changes, it needs to have its partition data updated,
 		// in order to maintain the shroud correctly.
-		if ((m_status & OBJECT_STATUS_UNDER_CONSTRUCTION) != (oldStatus & OBJECT_STATUS_UNDER_CONSTRUCTION))
+		if (m_status.test( OBJECT_STATUS_UNDER_CONSTRUCTION ) != oldStatus.test( OBJECT_STATUS_UNDER_CONSTRUCTION ))
 		{
 
 			// CHECK FOR MINES, AND DETONATE THEM NOW 
@@ -2118,7 +2118,7 @@ void Object::onCollide( Object *other, const Coord3D *loc, const Coord3D *normal
 			continue;
 
 		// check each time thru the loop, in case a collide module sets it
-		if (getStatusBits() & OBJECT_STATUS_NO_COLLISIONS)
+		if (getStatusBits().test( OBJECT_STATUS_NO_COLLISIONS ))
 		{
 #ifdef DEBUG_CRC
 			//DEBUG_LOG(("Object::onCollide() - OBJECT_STATUS_NO_COLLISIONS set\n"));
@@ -2857,7 +2857,7 @@ Bool Object::isAbleToAttack() const
 	//******************************************************
 
 	// For things that may or may not be able to normally attack, but are under a status condition
-	if (getStatusBits() & OBJECT_STATUS_NO_ATTACK)
+	if (getStatusBits().test( OBJECT_STATUS_NO_ATTACK ))
 		return false;
 
 	// if we're contained within a transport we cannot attack unless it specifically allows us
@@ -2937,7 +2937,7 @@ Bool Object::isAbleToAttack() const
 		return true;
 
 	// for garrisonned buildings that can attack sometimes
-	if (getStatusBits() & OBJECT_STATUS_CAN_ATTACK)
+	if (getStatusBits().test( OBJECT_STATUS_CAN_ATTACK ))
 		return true;
 	
 	// for weaponless transports.  This will make me think I can, but I will check if I literally can by looking
@@ -2985,7 +2985,7 @@ void Object::maskObject( Bool mask )
 {
 
 	// set or clear the mask bit
-	setStatus( OBJECT_STATUS_MASKED, mask );
+	setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_MASKED ), mask );
 
 	//
 	// when masking objects they become unselected ... we do this in any situation for
@@ -3557,7 +3557,7 @@ void Object::xfer( Xfer *xfer )
 	xfer->xferAsciiString( &m_name );
 
 	// status
-	xfer->xferUnsignedInt( &m_status );
+	m_status.xfer( xfer );
 
 	// script status
 	xfer->xferUnsignedByte( &m_scriptStatus );
@@ -4221,7 +4221,7 @@ void Object::addValue()
 	if (!getControllingPlayer()) 
 		return;
 
-	if( ((getStatusBits() & OBJECT_STATUS_UNDER_CONSTRUCTION) != 0) 
+	if( ((getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION )) != 0) 
 			|| ( isEffectivelyDead() )
 			|| ( getShroudClearingRange() <= 0.0f ))
 		return;
@@ -4273,7 +4273,7 @@ void Object::addThreat()
 	if (!getControllingPlayer()) 
 		return;
 
-	if( ((getStatusBits() & OBJECT_STATUS_UNDER_CONSTRUCTION) != 0) 
+	if( ((getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION )) != 0) 
 			|| ( isEffectivelyDead() )
 			|| ( getShroudClearingRange() <= 0.0f ))
 		return;
@@ -4417,7 +4417,7 @@ void Object::shroud()
 	if ( controller )
 	{
 		// things under construction don't  shroud. (srj), nor do dead or blind things
-		if( ((getStatusBits() & OBJECT_STATUS_UNDER_CONSTRUCTION) == 0)
+		if( ((getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION )) == 0)
 				&& ( ! isEffectivelyDead() )
 				&& ( getShroudRange() > 0.0f )
 			)
@@ -4495,7 +4495,7 @@ Real Object::getShroudClearingRange() const
 {
 	Real shroudClearingRange=m_shroudClearingRange;
 
-	if ((getStatusBits() & OBJECT_STATUS_UNDER_CONSTRUCTION))
+	if ((getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION )))
 	{	//structures under construction have limited vision range.  For now, base it
 		//on the geometry extents so the structure can only see itself.
 		shroudClearingRange = getGeometryInfo().getBoundingCircleRadius();

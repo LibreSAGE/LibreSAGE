@@ -34,6 +34,7 @@
 
 #include "Common/GameCommon.h"	// ensure we get DUMP_PERF_STATS, or not
 #include "Common/GameType.h"
+#include "Common/ObjectStatusTypes.h"
 #include "Common/Snapshot.h"
 #include "Common/STLTypedefs.h"
 #include "GameNetwork/NetworkDefs.h"
@@ -66,7 +67,6 @@ class TerrainLogic;
 class GhostObjectManager;
 class CommandButton;
 enum BuildableStatus : int;
-enum ObjectStatusBits : int;
 
 typedef const CommandButton* ConstCommandButtonPtr;
 
@@ -147,7 +147,7 @@ public:
 
 	//-----------------------------------------------------------------------------------------------
 	/// create an object given the thing template. (Only for use by ThingFactory.)
-	Object *friend_createObject( const ThingTemplate *thing, ObjectStatusBits statusBits, Team *team );
+	Object *friend_createObject( const ThingTemplate *thing, const ObjectStatusMaskType &objectStatusMask, Team *team );
 	void destroyObject( Object *obj );							///< Mark object as destroyed for later deletion
 	Object *findObjectByID( ObjectID id );								///< Given an ObjectID, return a pointer to the object.
 	Object *getFirstObject( void );									///< Returns the "first" object in the world. When used with the object method "getNextObject()", all objects in the world can be iterated.

@@ -4806,7 +4806,7 @@ StateReturnType AIAttackAimAtTargetState::onEnter()
 	}
 	m_setLocomotor = false;
 
-	source->setStatus( OBJECT_STATUS_IS_AIMING_WEAPON, true );
+	source->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IS_AIMING_WEAPON ) , true );
 	return STATE_CONTINUE;
 }
 
@@ -4944,7 +4944,7 @@ void AIAttackAimAtTargetState::onExit( StateExitType status )
 		// don't do the loco call, or else we will "wiggle"... we already have an appropriate goal
 	}
 
-	getMachineOwner()->setStatus( OBJECT_STATUS_IS_AIMING_WEAPON, false );
+	getMachineOwner()->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IS_AIMING_WEAPON ) , false );
 
 	//getMachineOwner()->clearModelConditionState( MODELCONDITION_PREATTACK );
 }
@@ -4979,7 +4979,7 @@ StateReturnType AIAttackFireWeaponState::onEnter()
 		}
 	}
 
-	obj->setStatus( OBJECT_STATUS_IS_FIRING_WEAPON, true );
+	obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IS_FIRING_WEAPON ) , true );
 	obj->preFireCurrentWeapon( getMachineGoalObject() );
 	return STATE_CONTINUE;	
 }
@@ -5037,7 +5037,7 @@ StateReturnType AIAttackFireWeaponState::update()
 	{
 		obj->fireCurrentWeapon(victim);
 		// clear this, just in case.
-		obj->setStatus( OBJECT_STATUS_IGNORING_STEALTH, false );
+		obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IGNORING_STEALTH ) , false );
 		Real continueRange = weapon->getContinueAttackRange();
 		if (
 			continueRange > 0.0f &&
@@ -5071,7 +5071,7 @@ StateReturnType AIAttackFireWeaponState::update()
 	{
 		obj->fireCurrentWeapon(getMachineGoalPosition());
 		// clear this, just in case.
-		obj->setStatus( OBJECT_STATUS_IGNORING_STEALTH, false );
+		obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IGNORING_STEALTH ) , false );
 	}
 		
 	m_att->notifyFired();
@@ -5087,9 +5087,9 @@ void AIAttackFireWeaponState::onExit( StateExitType status )
 {
 	// contained by AIAttackState, so no separate timer
 	Object *obj = getMachineOwner();
-	obj->setStatus( OBJECT_STATUS_IS_FIRING_WEAPON, false );
+	obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IS_FIRING_WEAPON ) , false );
 	// clear this, just in case.
-	obj->setStatus( OBJECT_STATUS_IGNORING_STEALTH, false );
+	obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IGNORING_STEALTH ) , false );
 
 	// this can occur if we start a preattack (eg, bayonet)
 	// and the target moves out range before we can actually "fire"...
@@ -5298,7 +5298,7 @@ StateReturnType AIAttackState::onEnter()
 		curWeapon->setMaxShotCount(NO_MAX_SHOTS_LIMIT);
 		// icky special case for ignoring stealth units we might be targeting, that are currently stealthed. (srj)
 		if (curWeapon->getContinueAttackRange() > 0.0f)
-			source->setStatus(OBJECT_STATUS_IGNORING_STEALTH, true);
+			source->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IGNORING_STEALTH ) , true);
 	}
 
 	m_lockedWeaponOnEnter = source->isCurWeaponLocked() ? curWeapon : NULL;
@@ -5306,7 +5306,7 @@ StateReturnType AIAttackState::onEnter()
 	StateReturnType retType = m_attackMachine->initDefaultState();
 	if( retType == STATE_CONTINUE )
 	{
-		source->setStatus( OBJECT_STATUS_IS_ATTACKING, true );
+		source->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IS_ATTACKING ) , true );
 		source->setModelConditionState( MODELCONDITION_ATTACKING );
 	}
 	return retType;
@@ -5359,7 +5359,7 @@ StateReturnType AIAttackState::update()
 			AIUpdateInterface *ai = source->getAI();
 			if (ai)
 			{
-				if ( (victim->getStatusBits() & OBJECT_STATUS_CAN_ATTACK) == 0 )
+				if ( (victim->getStatusBits().test( OBJECT_STATUS_CAN_ATTACK )) == 0 )
 				{
 					if ( victim->getContain() != NULL )
 					{
@@ -5441,10 +5441,10 @@ void AIAttackState::onExit( StateExitType status )
 	}
 
 	Object *obj = getMachineOwner();
-	obj->setStatus( OBJECT_STATUS_IS_FIRING_WEAPON, false );
-	obj->setStatus( OBJECT_STATUS_IS_AIMING_WEAPON, false );
-	obj->setStatus( OBJECT_STATUS_IS_ATTACKING, false );
-	obj->setStatus( OBJECT_STATUS_IGNORING_STEALTH, false );
+	obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IS_FIRING_WEAPON ) , false );
+	obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IS_AIMING_WEAPON ) , false );
+	obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IS_ATTACKING ) , false );
+	obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_IGNORING_STEALTH ) , false );
 	obj->clearModelConditionState( MODELCONDITION_ATTACKING );
 
 	obj->clearLeechRangeModeForAllWeapons();

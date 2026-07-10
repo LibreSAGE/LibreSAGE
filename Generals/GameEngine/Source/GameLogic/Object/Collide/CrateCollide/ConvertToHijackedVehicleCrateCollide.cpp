@@ -93,7 +93,7 @@ Bool ConvertToHijackedVehicleCrateCollide::isValidToExecute( const Object *other
 		return FALSE;
 	}
 
-	if ( other->getStatusBits() & OBJECT_STATUS_HIJACKED )
+	if ( other->getStatusBits().test( OBJECT_STATUS_HIJACKED ) )
 	{
 		return FALSE;// oops, sorry, I'll jack the next one.
 	}
@@ -154,7 +154,7 @@ Bool ConvertToHijackedVehicleCrateCollide::executeCrateBehavior( Object *other )
 	}
 	
 	other->setTeam( obj->getControllingPlayer()->getDefaultTeam() );
-	other->setStatus( OBJECT_STATUS_HIJACKED );// I claim this car in the name of the GLA
+	other->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_HIJACKED ) );// I claim this car in the name of the GLA
 
 	AIUpdateInterface* targetAI = other->getAIUpdateInterface();
 	targetAI->aiMoveToPosition( other->getPosition(), CMD_FROM_AI );
@@ -218,9 +218,9 @@ Bool ConvertToHijackedVehicleCrateCollide::executeCrateBehavior( Object *other )
 
 		// flag bits so hijacker won't be selectible or collideable
 		//while within the vehicle
-		obj->setStatus( OBJECT_STATUS_NO_COLLISIONS );
-		obj->setStatus( OBJECT_STATUS_MASKED );
-		obj->setStatus( OBJECT_STATUS_UNSELECTABLE );
+		obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_NO_COLLISIONS ) );
+		obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_MASKED ) );
+		obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_UNSELECTABLE ) );
 	}
 
 	// THIS BLOCK HIDES THE HIJACKER AND REMOVES HIM FROM PARTITION MANAGER

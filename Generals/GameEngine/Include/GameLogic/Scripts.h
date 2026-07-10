@@ -33,6 +33,7 @@
 #define SCRIPTS_H
 
 #include "Common/Snapshot.h"
+#include "Common/ObjectStatusTypes.h"
 #include "GameNetwork/NetworkDefs.h"
 
 #define THIS_TEAM "<This Team>"
@@ -799,15 +800,18 @@ private:
 	Real					m_real;
 	AsciiString		m_string;
 	Coord3D				m_coord;
+	ObjectStatusMaskType m_objectStatus;
 
 protected:
 	void setInt(Int i) {m_int = i;}
 	void setReal(Real r) {m_real = r;}
 	void setCoord3D(const Coord3D *pLoc);
 	void setString(AsciiString s) {m_string = s;}
+	void setStatus( ObjectStatusMaskType objectStatus ) { m_objectStatus.set( objectStatus ); }
 
 public:
 	Int getInt(void) const {return m_int;}
+	ObjectStatusMaskType getStatus() const { return m_objectStatus; }
 	Real getReal(void) const {return m_real;}
 	void getCoord3D(Coord3D *pLoc) const;
 	ParameterType getParameterType(void) const {return m_paramType;}

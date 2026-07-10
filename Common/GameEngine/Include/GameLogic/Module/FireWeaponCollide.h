@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -44,15 +45,13 @@ class FireWeaponCollideModuleData : public CollideModuleData
 {
 public:
 	const WeaponTemplate* m_collideWeaponTemplate;
-	UnsignedInt m_requiredStatus;
-	UnsignedInt m_forbiddenStatus;
+	ObjectStatusMaskType m_requiredStatus;
+	ObjectStatusMaskType m_forbiddenStatus;
 	Bool m_fireOnce;
 
 	FireWeaponCollideModuleData()
 	{
 		m_collideWeaponTemplate = NULL;
-		m_requiredStatus = 0;		// nothing required
-		m_forbiddenStatus = 0;	// nothing forbidden
 		m_fireOnce = FALSE;
 	}
 

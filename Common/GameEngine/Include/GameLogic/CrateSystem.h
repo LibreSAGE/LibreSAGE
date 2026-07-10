@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -35,6 +36,7 @@
 #include "Common/INI.h"
 #include "Common/Overridable.h"
 #include "Common/Override.h"
+#include "Common/SubsystemInterface.h"
 
 enum ScienceType : int;
 

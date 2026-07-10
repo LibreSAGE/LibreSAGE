@@ -559,8 +559,8 @@ StateReturnType DozerActionDoActionState::update( void )
 				{
 
 					// clear the under construction status
-					goalObject->clearStatus( OBJECT_STATUS_UNDER_CONSTRUCTION );
-					goalObject->clearStatus( OBJECT_STATUS_RECONSTRUCTING );
+					goalObject->clearStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_UNDER_CONSTRUCTION ) );
+					goalObject->clearStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_RECONSTRUCTING ) );
 
 					// stop playing the construction sound!
 					dozerAI->finishBuildingSound();
@@ -715,7 +715,7 @@ StateReturnType DozerActionDoActionState::update( void )
 					// try to give it a little bit-o-health
 					if ( ! goalObject->attemptHealingFromSoleBenefactor(health, dozer, 2) )//this frame and the next
 					{
-						// goalObject->setStatus( OBJECT_STATUS_UNDERGOING_REPAIR );
+						// goalObject->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_UNDERGOING_REPAIR ) );
 						// This bit used to be set way back in DozerAIUpdate::privateRepair(), but it has been outmoded
 						// so that several dozers/workers can target the same sick building for repair, but the first one to begin
 						// this is done by attemptHealingFromSoleBenefactor() which lets the beneficiary of the healing
@@ -1682,13 +1682,12 @@ Object *DozerAIUpdate::construct( const ThingTemplate *what,
 	// what will our initial status bits be, it is important to do this early
 	// before the hooks add/subtract power from a player are executed
 	//
-	UnsignedInt statusBits = OBJECT_STATUS_UNDER_CONSTRUCTION;
+	ObjectStatusMaskType statusBits = MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_UNDER_CONSTRUCTION );
 	if( isRebuild )
-		BitSet( statusBits, OBJECT_STATUS_RECONSTRUCTING );
+		statusBits.set( OBJECT_STATUS_RECONSTRUCTING );
 
 	// create an object at the destination location
-	Object *obj = TheThingFactory->newObject( what, owningPlayer->getDefaultTeam(), 
-																						(ObjectStatusBits)statusBits );
+	Object *obj = TheThingFactory->newObject( what, owningPlayer->getDefaultTeam(), statusBits );
 
 	// even though we haven't actually built anything yet, this keeps things tidy
 	obj->setProducer( getObject() );
@@ -1826,7 +1825,7 @@ void DozerAIUpdate::privateRepair( Object *obj, CommandSourceType cmdSource )
   //
 	//	Object *bridge = TheGameLogic->findObjectByID( btbi->getBridgeID() );
 	//	DEBUG_ASSERTCRASH( bridge, ("Unable to find bridge object\n") );
-	//	if( BitTest( bridge->getStatusBits(), OBJECT_STATUS_UNDERGOING_REPAIR ) == TRUE )
+	//	if( bridge->getStatusBits().test( OBJECT_STATUS_UNDERGOING_REPAIR ) )
 	//		return;
   //
 	//}  // end if
@@ -1840,7 +1839,7 @@ void DozerAIUpdate::privateRepair( Object *obj, CommandSourceType cmdSource )
 	//
 	//  Object *bridge = TheGameLogic->findObjectByID( btbi->getBridgeID() );
 	//	DEBUG_ASSERTCRASH( bridge, ("Unable to find bridge object\n") );
-	//	bridge->setStatus( OBJECT_STATUS_UNDERGOING_REPAIR );
+	//	bridge->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_UNDERGOING_REPAIR ) );
   //
 	//}  // end if
 
@@ -2196,7 +2195,7 @@ void DozerAIUpdate::internalTaskCompleteOrCancelled( DozerTask task )
 			//		DEBUG_ASSERTCRASH( btbi, ("Unable to find bridge tower behavior interface\n") );
 			//		Object *bridge = TheGameLogic->findObjectByID( btbi->getBridgeID() );
 			//		DEBUG_ASSERTCRASH( bridge, ("Unable to find bridge object\n") );
-			//		bridge->clearStatus( OBJECT_STATUS_UNDERGOING_REPAIR );
+			//		bridge->clearStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_UNDERGOING_REPAIR ) );
 			//	
 			//	}  // end if
       //

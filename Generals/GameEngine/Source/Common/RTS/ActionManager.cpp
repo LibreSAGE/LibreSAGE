@@ -159,8 +159,8 @@ Bool ActionManager::canGetRepairedAt( const Object *obj, const Object *repairDes
 		return FALSE;
 
 	// nothing can be done with things that are under construction
-	if( BitTest( obj->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE ||
-			BitTest( repairDest->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE )
+	if( obj->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) ||
+			repairDest->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 		return FALSE;
 
 	// Can't get repaired at something being sold
@@ -215,8 +215,8 @@ Bool ActionManager::canTransferSuppliesAt( const Object *obj, const Object *tran
 	}
 
 	// nothing can be done with things that are under construction
-	if( BitTest( obj->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE ||
-			BitTest( transferDest->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE )
+	if( obj->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) ||
+			transferDest->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 		return FALSE;
 
 	// Can't transfer at something being sold
@@ -340,8 +340,8 @@ Bool ActionManager::canGetHealedAt( const Object *obj, const Object *healDest, C
 		return FALSE;
 
 	// nothing can be done with things that are under construction
-	if( BitTest( obj->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE ||
-			BitTest( healDest->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE )
+	if( obj->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) ||
+			healDest->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 		return FALSE;
 
 	// Can't get healed at something being sold
@@ -404,8 +404,8 @@ Bool ActionManager::canRepairObject( const Object *obj, const Object *objectToRe
 		return FALSE;
 
 	// nothing can be done with things that are under construction
-	if( BitTest( obj->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE ||
-			BitTest( objectToRepair->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE )
+	if( obj->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) ||
+			objectToRepair->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 		return FALSE;
 
 	// we cannot manually repair things that are regeneration holes
@@ -464,8 +464,7 @@ Bool ActionManager::canResumeConstructionOf( const Object *obj,
 		return FALSE;
 
 	// if the objectBeingConstructed is not actually under construction we can't resume that!
-	if( BitTest( objectBeingConstructed->getStatusBits(), 
-							 OBJECT_STATUS_UNDER_CONSTRUCTION ) == FALSE )
+	if( !objectBeingConstructed->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 		return FALSE;
 
 	// dead things can do nothing
@@ -540,8 +539,8 @@ Bool ActionManager::canEnterObject( const Object *obj, const Object *objectToEnt
 		return FALSE;
 
 	// nothing can be done with things that are under construction
-	if( BitTest( obj->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE ||
-			BitTest( objectToEnter->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE )
+	if( obj->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) ||
+			objectToEnter->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 	{
 		return FALSE;
 	}
@@ -980,8 +979,8 @@ Bool ActionManager::canCaptureBuilding( const Object *obj, const Object *objectT
 		return false;
 
 	//If the enemy unit is stealthed and not detected, then we can't capture it!
-	UnsignedInt status = objectToCapture->getStatusBits();
-	if ((status & OBJECT_STATUS_STEALTHED) && !(status & OBJECT_STATUS_DETECTED))
+	ObjectStatusMaskType status = objectToCapture->getStatusBits();
+	if ((status.test( OBJECT_STATUS_STEALTHED )) && !(status.test( OBJECT_STATUS_DETECTED )))
 	{
 		return FALSE;
 	}
@@ -1069,8 +1068,8 @@ Bool ActionManager::canDisableVehicleViaHacking( const Object *obj, const Object
 		}
 
 		//If the enemy unit is stealthed and not detected, then we can't attack it!
-		UnsignedInt status = objectToHack->getStatusBits();
-		if( status & OBJECT_STATUS_STEALTHED && !(status & OBJECT_STATUS_DETECTED) )
+		ObjectStatusMaskType status = objectToHack->getStatusBits();
+		if( status.test( OBJECT_STATUS_STEALTHED ) && !(status.test( OBJECT_STATUS_DETECTED )) )
 		{
 			return FALSE;
 		}
@@ -1164,7 +1163,7 @@ Bool ActionManager::canStealCashViaHacking( const Object *obj, const Object *obj
 		return FALSE;
 	}
 
-	if( BitTest( objectToHack->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == TRUE )
+	if( objectToHack->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 	{
 		return FALSE;
 	}
@@ -1186,8 +1185,8 @@ Bool ActionManager::canStealCashViaHacking( const Object *obj, const Object *obj
 		}
 		
 		//Make sure object isn't under construction!
-		UnsignedInt status = objectToHack->getStatusBits();
-		if( status & OBJECT_STATUS_UNDER_CONSTRUCTION )
+		ObjectStatusMaskType status = objectToHack->getStatusBits();
+		if( status.test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 		{
 			return FALSE;
 		}
@@ -1199,7 +1198,7 @@ Bool ActionManager::canStealCashViaHacking( const Object *obj, const Object *obj
 		}
 
 		//If the enemy unit is stealthed and not detected, then we can't attack it!
-		if( status & OBJECT_STATUS_STEALTHED && !(status & OBJECT_STATUS_DETECTED) )
+		if( status.test( OBJECT_STATUS_STEALTHED ) && !(status.test( OBJECT_STATUS_DETECTED )) )
 		{
 			return FALSE;
 		}
@@ -1270,8 +1269,8 @@ Bool ActionManager::canDisableBuildingViaHacking( const Object *obj, const Objec
 
 
 	//If the enemy unit is stealthed and not detected, then we can't attack it!
-	UnsignedInt status = objectToHack->getStatusBits();
-	if( (status & OBJECT_STATUS_STEALTHED) && !(status & OBJECT_STATUS_DETECTED) )
+	ObjectStatusMaskType status = objectToHack->getStatusBits();
+	if( (status.test( OBJECT_STATUS_STEALTHED )) && !(status.test( OBJECT_STATUS_DETECTED )) )
 	{
 		return FALSE;
 	}
@@ -1526,7 +1525,7 @@ Bool ActionManager::canDoSpecialPowerAtObject( const Object *obj, const Object *
 					}
 					
 					//Can't cash hack a building that's under construction.
-					if( BitTest( target->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) )
+					if( target->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ))
 					{
 						return FALSE;
 					}

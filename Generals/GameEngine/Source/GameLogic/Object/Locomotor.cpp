@@ -1052,7 +1052,7 @@ void Locomotor::locoUpdate_moveTowardsPosition(Object* obj, const Coord3D& goalP
 		setFlag(IS_BRAKING, false);
 	}
 
-	Bool wasBraking = BitTest( obj->getStatusBits(), OBJECT_STATUS_BRAKING );
+	Bool wasBraking = obj->getStatusBits().test( OBJECT_STATUS_BRAKING );
 
 	physics->setTurning(TURN_NONE);
 	if (getAllowMotiveForceWhileAirborne() || !treatAsAirborne)
@@ -1089,7 +1089,7 @@ void Locomotor::locoUpdate_moveTowardsPosition(Object* obj, const Coord3D& goalP
 
 	handleBehaviorZ(obj, physics, goalPos);
 	// Objects that are braking don't follow the normal physics, so they end up at their destination exactly.
-	obj->setStatus(OBJECT_STATUS_BRAKING, getFlag(IS_BRAKING));
+	obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_BRAKING ) , getFlag(IS_BRAKING));
 
 	if (wasBraking) 
 	{
@@ -1099,7 +1099,7 @@ void Locomotor::locoUpdate_moveTowardsPosition(Object* obj, const Coord3D& goalP
 		if (obj->isKindOf(KINDOF_PROJECTILE)) 
 		{
 			// Projectiles never stop braking once they start.  jba.
-			obj->setStatus(OBJECT_STATUS_BRAKING, TRUE);
+			obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_BRAKING ) , TRUE);
 			// Projectiles cheat in 3 dimensions.
 			dist = sqrt(dx*dx+dy*dy+dz*dz);
 			Real vel = physics->getVelocityMagnitude();
@@ -1957,7 +1957,7 @@ void Locomotor::moveTowardsPositionThrust(Object* obj, PhysicsBehavior *physics,
 		const Coord3D* veltmp = physics->getVelocity();
 		Vector3 vel(veltmp->x, veltmp->y, veltmp->z);
 		Bool adjust = true;
-		if (BitTest( obj->getStatusBits(), OBJECT_STATUS_BRAKING )) {
+		if (obj->getStatusBits().test( OBJECT_STATUS_BRAKING )) {
 			// align to target, cause that's where we're going anyway.
 
 			vel.Set(goalPos.x - pos.x, goalPos.y-pos.y, goalPos.z-pos.z);

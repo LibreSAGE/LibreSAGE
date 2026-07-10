@@ -113,8 +113,8 @@ enum WeaponStatus : int;
 enum RadarPriorityType : int;
 enum CanAttackResult : int;
 
-// For ObjectStatusBits and TheObjectStatusBitNames
-#include "GameLogic/ObjectStatusBits.h"
+// For ObjectStatusTypes and ObjectStatusMaskType
+#include "Common/ObjectStatusTypes.h"
 
 // For ObjectScriptStatusBit
 #include "GameLogic/ObjectScriptStatusBits.h"
@@ -161,7 +161,7 @@ class Object : public Thing, public Snapshot
 public:
 
 	/// Object constructor automatically attaches all objects to "TheGameLogic"
-	Object(const ThingTemplate *thing, ObjectStatusBits statusBits, Team *team);
+	Object(const ThingTemplate *thing, const ObjectStatusMaskType &objectStatusMask, Team *team);
 
 	void initObject();
 
@@ -194,8 +194,8 @@ public:
 	void maskObject( Bool mask );				///< mask/unmask object
 
 	// cannot set velocity, since this is calculated from position every frame
-	Bool isDestroyed() const { return (m_status & OBJECT_STATUS_DESTROYED) != 0; }		///< Returns TRUE if object has been destroyed
-	Bool isAirborneTarget() const { return (m_status & OBJECT_STATUS_AIRBORNE_TARGET) != 0; }	///< Our locomotor will control marking us as a valid target for anti air weapons or not
+	Bool isDestroyed() const { return m_status.test( OBJECT_STATUS_DESTROYED ); }		///< Returns TRUE if object has been destroyed
+	Bool isAirborneTarget() const { return m_status.test( OBJECT_STATUS_AIRBORNE_TARGET ); }	///< Our locomotor will control marking us as a valid target for anti air weapons or not
 	Bool isUsingAirborneLocomotor( void ) const;										///< returns true if the current locomotor is an airborne one
 
 	/// central place for us to put any additional capture logic
@@ -306,10 +306,10 @@ public:
 	SpecialPowerCompletionDie* findSpecialPowerCompletionDie() const;
 	SpecialPowerUpdateInterface* findSpecialPowerWithOverridableDestinationActive( SpecialPowerType type = SPECIAL_INVALID ) const;
 
-	inline UnsignedInt getStatusBits() const { return m_status; }
-	inline Bool testStatus(ObjectStatusBits bit) const { return (m_status & bit) != 0; }
-	void setStatus( ObjectStatusBits bits, Bool set = true );
-	inline void clearStatus( ObjectStatusBits bits ) { setStatus(bits, false); }
+	inline ObjectStatusMaskType getStatusBits() const { return m_status; }
+	inline Bool testStatus( ObjectStatusTypes bit ) const { return m_status.test( bit ); }
+	void setStatus( ObjectStatusMaskType objectStatus, Bool set = true );
+	inline void clearStatus( ObjectStatusMaskType objectStatus ) { setStatus( objectStatus, false ); }
 	void updateUpgradeModules();	///< We need to go through our Upgrade Modules and see which should be activated
 	Int64 getObjectCompletedUpgradeMask() const { return m_objectUpgradesCompleted; } ///< Upgrades I complete locally
 
@@ -655,7 +655,7 @@ private:
 
 	Object *			m_next;
 	Object *			m_prev;
-	UnsignedInt		m_status;									///< status bits (see ObjectStatusBits enum)
+	ObjectStatusMaskType		m_status;									///< status bits (see ObjectStatusMaskType)
 
 	GeometryInfo	m_geometryInfo;
 

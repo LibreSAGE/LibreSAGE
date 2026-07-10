@@ -2498,8 +2498,8 @@ void PartitionContactList::processContactList()
 		Object* obj = cd->m_obj->getObject();
 		Object* other = cd->m_other->getObject();
 		
-		if ((obj->getStatusBits() & OBJECT_STATUS_NO_COLLISIONS) != 0 ||
-				(other->getStatusBits() & OBJECT_STATUS_NO_COLLISIONS) != 0)
+		if ((obj->getStatusBits().test( OBJECT_STATUS_NO_COLLISIONS )) != 0 ||
+				(other->getStatusBits().test( OBJECT_STATUS_NO_COLLISIONS )) != 0)
 			continue;
 
 		DEBUG_ASSERTCRASH(!(obj->isKindOf(KINDOF_IMMOBILE) && other->isKindOf(KINDOF_IMMOBILE)), 
@@ -5373,8 +5373,8 @@ Bool PartitionFilterPossibleToAttack::allow(Object *objOther)
 
 // don't do this here... done in getAbleToAttackSpecificObject, with more/better checking for Disguise (srj)
 //  // stealthed items can't ever be attacked.
-//	UnsignedInt status = objOther->getStatusBits();
-//	if ((status & OBJECT_STATUS_STEALTHED) && !(status & OBJECT_STATUS_DETECTED))
+//	ObjectStatusMaskType status = objOther->getStatusBits();
+//	if ((status.test( OBJECT_STATUS_STEALTHED )) && !(status.test( OBJECT_STATUS_DETECTED )))
 //		return false;
 
 	// we should have already filtered out isAbleToAttack!
@@ -5423,8 +5423,8 @@ Bool PartitionFilterLastAttackedBy::allow(Object *other)
 //-----------------------------------------------------------------------------
 Bool PartitionFilterAcceptByObjectStatus::allow(Object *objOther)
 { 
-	UnsignedInt status = objOther->getStatusBits();
-	return ((status & m_mustBeSet) == m_mustBeSet) && ((status & m_mustBeClear) == 0);
+	ObjectStatusMaskType status = objOther->getStatusBits();
+	return status.testForAll( m_mustBeSet ) && status.testForNone( m_mustBeClear );
 }
 
 
@@ -5435,8 +5435,9 @@ Bool PartitionFilterAcceptByObjectStatus::allow(Object *objOther)
 //-----------------------------------------------------------------------------
 Bool PartitionFilterRejectByObjectStatus::allow(Object *objOther)
 { 
-	UnsignedInt status = objOther->getStatusBits();
-	return !(((status & m_mustBeSet) == m_mustBeSet) && ((status & m_mustBeClear) == 0));
+	ObjectStatusMaskType status = objOther->getStatusBits();
+
+	return !( status.testForAll( m_mustBeSet ) && status.testForNone( m_mustBeClear ) );
 }
 
 
@@ -5471,7 +5472,7 @@ Bool PartitionFilterStealthedAndUndetected::allow( Object *objOther )
 {
 	// objOther is guaranteed to be non-null, so we don't need to check (srj)
 
-	if( BitTest( objOther->getStatusBits(), OBJECT_STATUS_STEALTHED ) && !BitTest( objOther->getStatusBits(), OBJECT_STATUS_DETECTED ) )
+	if( objOther->getStatusBits().test( OBJECT_STATUS_STEALTHED )&& !objOther->getStatusBits().test( OBJECT_STATUS_DETECTED ))
 	{
 		if( !objOther->isKindOf( KINDOF_DISGUISER ) )
 		{
@@ -5517,7 +5518,7 @@ Bool PartitionFilterStealthedAndUndetected::allow( Object *objOther )
 				//Check if the first object inside is detected (if one is detected, all are detected).
 				ContainedItemsList::const_iterator it = contain->getContainedItemsList()->begin();
 				Object *member = (*it);
-				if( member && !BitTest( (*it)->getStatusBits(), OBJECT_STATUS_DETECTED ) )
+				if( member && !(*it)->getStatusBits().test( OBJECT_STATUS_DETECTED ))
 				{
 					//Finally check the relationship!
 					if( victimApparentController && m_obj->getTeam()->getRelationship( victimApparentController->getDefaultTeam() ) == ENEMIES )

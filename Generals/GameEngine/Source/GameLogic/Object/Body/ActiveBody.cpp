@@ -216,7 +216,7 @@ void ActiveBody::setCorrectDamageState()
 
 		// here we make sure nobody collides with us, ever again...			//Lorenzen
 		//THis allows projectiles shot from infantry that are inside rubble to get out of said rubble safely
-		getObject()->setStatus( OBJECT_STATUS_NO_COLLISIONS );
+		getObject()->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_NO_COLLISIONS ) );
 
 
 	}
@@ -542,7 +542,7 @@ void ActiveBody::attemptDamage( DamageInfo *damageInfo )
 	// Damaged repulsable civilians scare (repulse) other civs.	jba.
 	if (TheAI->getAiData()->m_enableRepulsors) {
 		if (obj->isKindOf(KINDOF_CAN_BE_REPULSED)) {
-			obj->setStatus(OBJECT_STATUS_REPULSOR, true);
+			obj->setStatus( MAKE_OBJECT_STATUS_MASK( OBJECT_STATUS_REPULSOR ) , true);
 		}
 	}
 }
@@ -992,7 +992,7 @@ void ActiveBody::internalChangeHealth( Real delta )
 		// for damage states when things are under construction because we just don't have
 		// all the art states for that during buildup animation
 		//
-		if( BitTest( getObject()->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == FALSE)
+		if( !getObject()->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ))
 			evaluateVisualCondition();
 
 	}  // end if

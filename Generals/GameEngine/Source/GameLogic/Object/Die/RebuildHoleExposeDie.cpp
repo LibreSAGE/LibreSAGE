@@ -104,7 +104,7 @@ void RebuildHoleExposeDie::onDie( const DamageInfo *damageInfo )
 	// we do not "spawn" a hole object
 	//
 	if( us->getControllingPlayer() != ThePlayerList->getNeutralPlayer() && (us->getControllingPlayer()->isPlayerActive()) && 
-		(BitTest( us->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == FALSE ))
+		(!us->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) ))
 	{
 		Object *hole;
 

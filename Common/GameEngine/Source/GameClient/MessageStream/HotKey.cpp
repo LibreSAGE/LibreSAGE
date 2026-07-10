@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -210,7 +211,7 @@ AsciiString HotKeyManager::searchHotKey( const UnicodeString& uStr )
 	const WideChar *marker = (const WideChar *)uStr.str();
 	while (marker && *marker)
 	{
-		if (*marker == L'&')
+		if (*marker == u'&')
 		{
 			// found a '&' - now look for the next char
 			UnicodeString tmp = UnicodeString::TheEmptyString;

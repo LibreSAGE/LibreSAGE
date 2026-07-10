@@ -3,6 +3,25 @@ add_library(c_gameengine INTERFACE)
   
 target_sources(c_gameengine
     INTERFACE
+            Include/GameLogic/Module/GrantUpgradeCreate.h
+            Source/GameLogic/Object/Upgrade/StatusBitsUpgrade.cpp
+            Include/GameLogic/Module/StatusBitsUpgrade.h
+            Source/GameLogic/Object/Die/DieModule.cpp
+            Include/GameLogic/Module/DieModule.h
+            Source/GameLogic/Object/Collide/FireWeaponCollide.cpp
+            Include/GameLogic/Module/FireWeaponCollide.h
+            Include/Common/ObjectStatusTypes.h
+            Source/Common/System/ObjectStatusTypes.cpp
+            Source/GameClient/MessageStream/HotKey.cpp
+            Source/Common/INI/INIUpgrade.cpp
+            Source/Common/System/GameCommon.cpp
+            Include/GameLogic/Module/BridgeBehavior.h
+            Source/GameLogic/Object/Behavior/TechBuildingBehavior.cpp
+            Source/GameLogic/System/CrateSystem.cpp
+            Source/Common/RTS/Science.cpp
+            Source/Common/INI/INICrate.cpp
+            Source/Common/DiscreteCircle.cpp
+            Include/Common/GameEngine.h
             Include/Common/Science.h
             Include/Common/DisabledTypes.h
             Include/GameLogic/ArmorSet.h

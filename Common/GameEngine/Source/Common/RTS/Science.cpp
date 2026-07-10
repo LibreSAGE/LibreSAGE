@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -30,6 +31,7 @@
 #include "Common/Player.h"
 #include "Common/Science.h"
 #include "GameClient/GameText.h"
+
 ScienceStore* TheScienceStore = NULL;
 
 #ifdef _INTERNAL

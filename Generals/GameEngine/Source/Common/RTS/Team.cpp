@@ -1522,8 +1522,8 @@ Object *Team::getTeamTargetObject(void)
 	Object *target = TheGameLogic->findObjectByID(m_commonAttackTarget);
 	if (target) {
 		//If the enemy unit is stealthed and not detected, then we can't attack it!
-		UnsignedInt status = target->getStatusBits();
-		if( (status & OBJECT_STATUS_STEALTHED) && !(status & OBJECT_STATUS_DETECTED) ) {
+		ObjectStatusMaskType status = target->getStatusBits();
+		if( (status.test( OBJECT_STATUS_STEALTHED )) && !(status.test( OBJECT_STATUS_DETECTED )) ) {
 			target = NULL;
 		}
 	}
@@ -1622,7 +1622,7 @@ void Team::countObjectsByThingTemplate(Int numTmplates, const ThingTemplate* con
 			if (ignoreDead && iter.cur()->isEffectivelyDead())
 				continue;
 
-			if( ignoreUnderConstruction && (BitTest(iter.cur()->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION) == TRUE) )
+			if( ignoreUnderConstruction && (iter.cur()->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION )) )
 				continue;
 
 			counts[i] += 1;

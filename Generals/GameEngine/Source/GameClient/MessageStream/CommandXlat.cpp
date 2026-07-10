@@ -1350,7 +1350,7 @@ GameMessage::Type CommandTranslator::evaluateContextCommand( Drawable *draw,
 	//Added: shrubberies are the exception for interactions...
 	//Removed: GS Took out ObjectStatusUnselectable, since that status only prevents selection, not everything
 	if (obj == NULL || 
-		(BitTest(obj->getStatusBits(), OBJECT_STATUS_MASKED) && 
+		(obj->getStatusBits().test( OBJECT_STATUS_MASKED )&& 
 		!obj->isKindOf(KINDOF_SHRUBBERY) && !obj->isKindOf(KINDOF_FORCEATTACKABLE)) 
 	)
 	{

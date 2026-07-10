@@ -1025,7 +1025,7 @@ void Player::becomingTeamMember(Object *obj, Bool yes)
 		return;	
 
 	// energy production/consumption hooks, note we ignore things that are UNDER_CONSTRUCTION
-	if( BitTest( obj->getStatusBits(), OBJECT_STATUS_UNDER_CONSTRUCTION ) == FALSE )
+	if( !obj->getStatusBits().test( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 	{
 		obj->friend_adjustPowerForPlayer(yes);
 	}  // end if

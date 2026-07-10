@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -27,7 +28,6 @@
 // Desc:   System responsible for Crates as code objects - ini, new/delete etc
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/SubsystemInterface.h"
 #include "Common/KindOf.h"
 
 #define DEFINE_VETERANCY_NAMES				// for TheVeterancyNames[]

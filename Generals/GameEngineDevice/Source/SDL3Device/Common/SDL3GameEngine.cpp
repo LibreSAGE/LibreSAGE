@@ -178,7 +178,7 @@ void SDL3GameEngine::serviceWindowsOS( void )
 			case SDL_EVENT_QUIT:
 				if (TheGameEngine && !TheGameEngine->getQuitting())
 				{
-					TheGameEngine->checkAbnormalQuitting();
+					// TheGameEngine->checkAbnormalQuitting();	// removed in Zero Hour (GeneralsMD); see WinMain.cpp
 					TheGameEngine->setQuitting(TRUE);
 				}
 				break;

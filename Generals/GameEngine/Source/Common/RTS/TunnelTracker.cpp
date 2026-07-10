@@ -136,8 +136,8 @@ Object *TunnelTracker::getCurNemesis(void)
 	Object *target = TheGameLogic->findObjectByID(m_curNemesisID);
 	if (target) {
 		//If the enemy unit is stealthed and not detected, then we can't attack it!
-		UnsignedInt status = target->getStatusBits();
-		if( (status & OBJECT_STATUS_STEALTHED) && !(status & OBJECT_STATUS_DETECTED) ) {
+		ObjectStatusMaskType status = target->getStatusBits();
+		if( (status.test( OBJECT_STATUS_STEALTHED )) && !(status.test( OBJECT_STATUS_DETECTED )) ) {
 			target = NULL;
 		}
 	}
