@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,7 +18,7 @@
 */
 
 // MoundTool.h
-// Texture tiling tools for worldbuilder.
+// Height mound/dig tools for worldbuilder.
 // Author: John Ahlquist, April 2001
 
 #pragma once
@@ -30,7 +31,7 @@ class WorldHeightMapEdit;
 /*************************************************************************
 **                             MoundTool
 ***************************************************************************/
-class MoundTool : public Tool 
+class MoundTool : public Tool
 {
 	enum {MIN_DELAY_TIME=60}; // 60 ms minimum delay between applications.
 protected:
@@ -56,9 +57,9 @@ public:
 	static void setFeather(Int feather);
 
 public:
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	virtual WorldHeightMapEdit *getHeightMap(void) {return m_htMapEditCopy;};
 	virtual void activate(); ///< Become the current tool.
 };
@@ -66,7 +67,7 @@ public:
 /*************************************************************************
 **                             DigTool
 ***************************************************************************/
-class DigTool : public MoundTool 
+class DigTool : public MoundTool
 {
 public:
 	DigTool(void);

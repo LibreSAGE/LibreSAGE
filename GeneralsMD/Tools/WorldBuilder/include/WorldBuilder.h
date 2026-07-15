@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -19,53 +20,30 @@
 // WorldBuilder.h : main header file for the WORLDBUILDER application
 //
 
-#if !defined(AFX_WORLDBUILDER_H__FBA41345_2826_11D5_8CE0_00010297BBAC__INCLUDED_)
-#define AFX_WORLDBUILDER_H__FBA41345_2826_11D5_8CE0_00010297BBAC__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef __AFXWIN_H__
-	#error include 'stdafx.h' before including this file for PCH
-#endif
+#include <QApplication>
 
-#include "resource.h"       // main symbols
-
+#include "Lib/BaseType.h"
+#include "Common/AsciiString.h"
 #include "Common/STLTypedefs.h"
-
-#include "BrushTool.h"
-#include "TileTool.h"
-#include "FeatherTool.h"
-#include "AutoEdgeOutTool.h"
-#include "FloodFillTool.h"
-#include "MoundTool.h"
-#include "EyedropperTool.h"
-#include "ObjectTool.h"
-#include "FenceTool.h"
-#include "PointerTool.h"
-#include "BlendEdgeTool.h"
-#include "BorderTool.h"
-#include "GroveTool.h"
-#include "HandScrollTool.h"
-#include "RoadTool.h"
-#include "MeshMoldTool.h"
-#include "WaypointTool.h"
-#include "PolygonTool.h"
-#include "WaterTool.h"
-#include "BuildListTool.h"
-#include "RampTool.h"
-#include "ScorchTool.h"
-#include "RulerTool.h"
 #include "Common/Debug.h"
 
+class BrushTool;
+class CWorldBuilderDoc;
+class HandScrollTool;
+class MapObject;
+class PointerTool;
+class SplashScreen;
+class Tool;
+
 /////////////////////////////////////////////////////////////////////////////
-// CWorldBuilderApp:
+// WorldBuilderApp:
 // See WorldBuilder.cpp for the implementation of this class
 //
 
 // Force maps into a directory structure.
-#define DO_MAPS_IN_DIRECTORIES 1	
+#define DO_MAPS_IN_DIRECTORIES 1
 
 #define NONE_STRING "<none>"
 
@@ -73,108 +51,69 @@
 enum {THREE_D_VIEW_WIDTH=800, THREE_D_VIEW_HEIGHT=600};
 enum {MAX_OBJECTS_IN_MAP = 3000};
 
-class CWorldBuilderApp : public CWinApp
+class WorldBuilderApp : public QApplication
 {
+	Q_OBJECT
+
 public:
-	CWorldBuilderApp();
-	~CWorldBuilderApp();
+	WorldBuilderApp(int &argc, char **argv);
+	~WorldBuilderApp() override;
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CWorldBuilderApp)
-	public:
-	virtual BOOL InitInstance();
-	virtual int ExitInstance();
-	//}}AFX_VIRTUAL
-
-// Implementation
-	//{{AFX_MSG(CWorldBuilderApp)
-	afx_msg void OnAppAbout();
-	afx_msg void OnResetWindows();
-	afx_msg void OnFileOpen();
-	afx_msg void OnTexturesizingMapclifftextures();
-	afx_msg void OnUpdateTexturesizingMapclifftextures(CCmdUI* pCmdUI);
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+	/// Brings up the game-engine subsystems the editor depends on.
+	/// Must run before any document or view is created.  argc/argv are the
+	/// raw program arguments; the engine command line (-dir, -bigdir, ...) is
+	/// parsed by the same code the game uses (CommandLine.cpp).  When a
+	/// splash screen is given, progress messages are shown on it.
+	bool initEngine(int argc, char **argv, SplashScreen *splash = NULL);
+	void shutdownEngine();
 
 protected:
 
 	enum {NUM_VIEW_TOOLS=25};
 
+	/// @todo port the remaining tools (TileTool, FeatherTool, ...) and re-add
+	/// their members here; m_tools is populated as they come back.
 	Tool							*m_tools[NUM_VIEW_TOOLS]; ///< array of tool pointers.
 	Tool							*m_curTool;   ///< Currently active tool.
 	Tool							*m_selTool;   ///< Normal tool.  If we hit alt, curTool turns to eyedropper.
-	BrushTool					m_brushTool;				///< Height brush tool.
-	TileTool					m_tileTool;					///< Single texture tile tool.
-	BigTileTool				m_bigTileTool;			///< Wide texture tile tool.
-	FeatherTool				m_featherTool;			///< Feather the height values tool.
-	AutoEdgeOutTool		m_autoEdgeOutTool;	///< Auto blend texture edges out tool.
-	FloodFillTool			m_floodFillTool;		///< Flood fill tool.
-	MoundTool					m_moundTool;				///< Add height to height values tool.
-	DigTool						m_digTool;					///< Remove height from height values tool.
-	EyedropperTool		m_eyedropperTool;	  ///< Eyedropper tool.
-	ObjectTool				m_objectTool;				///< Add and orient object tool.
-	PointerTool				m_pointerTool;			///< Select and move/rotate tool.
-	BlendEdgeTool			m_blendEdgeTool;		///< Blend a single edge tool.
-	GroveTool					m_groveTool;				///< Plant a grove of trees tool.
-	HandScrollTool		m_handScrollTool;		///< Scroll tool.
-	RoadTool					m_roadTool;					///< Road tool.
-	MeshMoldTool			m_meshMoldTool;			///< Mesh shaping mold tool.
-	WaypointTool			m_waypointTool;			///< Waypoint tool.
-	PolygonTool				m_polygonTool;			///< Polygon tool.
-	WaterTool					m_waterTool;				///< Water tool.
-	BuildListTool			m_buildListTool;		///< Build List tool.
-	FenceTool					m_fenceTool;				///< Fence tool.
-	RampTool					m_rampTool;					///< Ramp tool.
-	ScorchTool				m_scorchTool;				///< Scorch tool.
-	BorderTool				m_borderTool;				///< Border tool.
-	RulerTool					m_rulerTool;				///< Ruler tool.
+	BrushTool					*m_brushTool;				///< Height brush tool.
+	PointerTool				*m_pointerTool;			///< Select and move/rotate tool.
+	HandScrollTool		*m_handScrollTool;	///< Scroll tool.
 
 	Int								m_lockCurTool;
 
 	AsciiString				m_currentDirectory; ///< Current directory for open file.
 
-	CDocTemplate			*m_3dtemplate;
+	CWorldBuilderDoc	*m_document;				///< The (single) open document.
 
 	MapObject					*m_pasteMapObjList;	///< List of copied/cut map objects.
 
+	bool							m_engineInited;
+
 protected:
-	void deletePasteObjList(void) 
-	{ 
-		if (m_pasteMapObjList) 
-			m_pasteMapObjList->deleteInstance(); 
-		m_pasteMapObjList = NULL; 
-	};
+	void deletePasteObjList(void);
 
 public:
 
-	CDocTemplate *Get3dTemplate() { return m_3dtemplate; }
-
-	/// Set the brush tool as the active tool.
-	void selectBrushTool(void) { setActiveTool(&m_brushTool); }
+	CWorldBuilderDoc *getDocument(void) { return m_document; }
 
 	/// Set the pointer tool as the active tool.
 	void selectPointerTool(void);
 
-	/// Set the hand tool as the cur tool (but not active tool)
-	void selectHandToolTemp(void) { m_curTool = &m_handScrollTool; }
+	/// Look up a tool by its id (returns NULL when not (yet) ported).
+	Tool *findTool(Int toolID);
 
 	/// Set the tool that will be active.
 	void setActiveTool(Tool *newTool);
 
 	/// Sets the current directry for file opens.
 	void setCurrentDirectory(AsciiString dir) {m_currentDirectory = dir;};
+	AsciiString getCurrentDirectory(void) {return m_currentDirectory;};
 
 	Tool *getCurTool() { return m_curTool; }
 
 	/// Check to see if any keyboard overrides are changing the current tool.
 	void updateCurTool(Bool forceHand);
-
-	/// Switch to the poly tool if we aren't already.
-	void setPolyTool(void){ setActiveTool(&m_polygonTool); };
-
-	/// Return true if the hand scroll tool is active.
-	Bool isHandScroll(void) {return m_curTool == &m_handScrollTool; }
 
 	void lockCurTool()		{ DEBUG_ASSERTCRASH(!m_lockCurTool,("already locked")); m_lockCurTool = 1; }
 	void unlockCurTool()	{ m_lockCurTool = 0; }
@@ -185,19 +124,6 @@ public:
 
 	/// Note - the app owns this, and will delete it on close.
 	void setMapObjPasteList(MapObject *list) { deletePasteObjList(); m_pasteMapObjList = list; };
-
-
-	/// Handles command messages.
-	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra,
-						  AFX_CMDHANDLERINFO* pHandlerInfo);
 };
 
-inline CWorldBuilderApp *WbApp() { return (CWorldBuilderApp*)::AfxGetApp(); }
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_WORLDBUILDER_H__FBA41345_2826_11D5_8CE0_00010297BBAC__INCLUDED_)
+inline WorldBuilderApp *WbApp() { return static_cast<WorldBuilderApp*>(QApplication::instance()); }

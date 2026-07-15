@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,7 +18,7 @@
 */
 
 // FeatherTool.h
-// Texture tiling tools for worldbuilder.
+// Terrain smoothing tool for worldbuilder.
 // Author: John Ahlquist, April 2001
 
 #pragma once
@@ -27,12 +28,10 @@
 
 #include "Tool.h"
 class WorldHeightMapEdit;
-/**************************************************************************/
-/**                             FeatherTool
-	 Does the smooth height map tool operation. 
+/*************************************************************************
+**                             FeatherTool
 ***************************************************************************/
-///  smooth height map tool.
-class FeatherTool : public Tool 
+class FeatherTool : public Tool
 {
 protected:
 	WorldHeightMapEdit *m_htMapEditCopy; //< ref counted.
@@ -46,13 +45,16 @@ public:
 	FeatherTool(void);
 	~FeatherTool(void);
 
+	static Int getFeather(void) {return m_feather;};
+	static Int getRate(void) {return m_rate;};
+	static Int getRadius(void) {return m_radius;};
 	static void setFeather(Int feather);
 	static void setRate(Int rate);
 	static void setRadius(Int Radius);
 public:
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	virtual WorldHeightMapEdit *getHeightMap(void) {return m_htMapEditCopy;};
 	virtual void activate(); ///< Become the current tool.
 };

@@ -16,19 +16,21 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QMessageBox>
+
+extern const char* NEUTRAL_TEAM_UI_STR;
+extern const char* NEUTRAL_TEAM_INTERNAL_STR;
+
 // WorldHeightMapEdit.cpp
 // Class to encapsulate height map.
 // Author: John Ahlquist, April 2001
 
-#include "StdAfx.h" 
-#include "resource.h"
 #include "Common/STLTypedefs.h"
 #include "WHeightMapEdit.h"
 #include "W3DDevice/GameClient/TileData.h"
 #include "W3DDevice/GameClient/TerrainTex.h"
-#include "TerrainModal.h"
 #include "Common/Debug.h"
-#include "common/GlobalData.h"
+#include "Common/GlobalData.h"
 #include "Common/MapReaderWriterInfo.h"
 #include "Common/FileSystem.h"
 #include "Common/TerrainTypes.h"
@@ -38,10 +40,9 @@
 #include "W3DDevice/GameClient/W3DShadow.h"
 #include "W3DDevice/GameClient/HeightMap.h"
 #include "Common/WellKnownKeys.h"
-#include "mapobjectprops.h"
-#include "LayersList.h"
 
-#include "common/DataChunk.h"
+#include "Common/DataChunk.h"
+
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -100,14 +101,14 @@ WorldHeightMapEdit::WorldHeightMapEdit(Int width, Int height, UnsignedByte initi
 		m_edgeTiles[i]=NULL;
 	}
 	if (width<0 || height < 0) {
-		AfxMessageBox(IDS_BAD_VALUE);
+		QMessageBox::warning(NULL, "WorldBuilder", "A value is out of range.");
 		return;
 	}
 	width += 2*border;
 	height += 2*border;
 	m_dataSize = width*height;
 	if (m_dataSize<=0) {
-		AfxMessageBox(IDS_BAD_VALUE);
+		QMessageBox::warning(NULL, "WorldBuilder", "A value is out of range.");
 		return;
 	}
 	this->freeListOfMapObjects();
@@ -139,7 +140,7 @@ WorldHeightMapEdit::WorldHeightMapEdit(Int width, Int height, UnsignedByte initi
 
 	Int j;
 	if (m_data == NULL) {
-		AfxMessageBox(IDS_OUT_OF_MEMORY);
+		QMessageBox::critical(NULL, "WorldBuilder", "Out of memory.");
 		m_dataSize = 0;
 	} else {
 		Int i;
@@ -226,7 +227,7 @@ m_warnTooManyBlend(false)
 	memset(m_cellCliffState,0,numBytesX*numBytesY);	//clear all flags
 	m_data = new UnsignedByte[m_dataSize + m_width+1];
 	if (m_data == NULL) {
-		AfxMessageBox(IDS_OUT_OF_MEMORY);
+		QMessageBox::critical(NULL, "WorldBuilder", "Out of memory.");
 		m_dataSize = 0;
 	} else {
 		Int i;
@@ -286,9 +287,10 @@ WorldHeightMapEdit::WorldHeightMapEdit(ChunkInputStream *pStrm):
 	// check for missing texture classes.
 	for (i=0; i<m_numTextureClasses; i++) {
 		if (m_textureClasses[i].globalTextureClass < 0) {
-			TerrainModal modalTerrainDlg(m_textureClasses[i].name, this);	
-			if (IDOK==modalTerrainDlg.DoModal()) {
-				Int globalTex = modalTerrainDlg.getNewNdx();
+			/// @todo port the TerrainModal missing-texture chooser dialog;
+			/// until then missing textures behave as if the user cancelled.
+			Int globalTex = -1;
+			if (globalTex >= 0) {
 				m_textureClasses[i].globalTextureClass = globalTex;
 				m_textureClasses[i].name = m_globalTextureClasses[globalTex].name;
 				didMajorRemap = true;
@@ -331,13 +333,13 @@ Bool WorldHeightMapEdit::remapTextures(void)
 	Int i;
 	Bool anyChanges;
 	for (i=0; i<m_numTextureClasses; i++) {
-		TerrainModal modalTerrainDlg(m_textureClasses[i].name, this);	
-		if (IDOK==modalTerrainDlg.DoModal()) {
-			Int globalTex = modalTerrainDlg.getNewNdx();
+		/// @todo port the TerrainModal texture chooser dialog for remapping.
+		Int globalTex = -1;
+		if (globalTex >= 0) {
 			m_textureClasses[i].globalTextureClass = globalTex;
 			anyChanges = true;
 			m_textureClasses[i].name = m_globalTextureClasses[globalTex].name;
-		} 
+		}
 	}
 	if (anyChanges) {
 		optimizeTiles();
@@ -764,7 +766,7 @@ void WorldHeightMapEdit::saveToFile(DataChunkOutput &chunkWriter)
 				chunkWriter.writeReal(TheGlobalData->m_terrainObjectsLighting[i+TIME_OF_DAY_FIRST][j].lightPos.y);
 				chunkWriter.writeReal(TheGlobalData->m_terrainObjectsLighting[i+TIME_OF_DAY_FIRST][j].lightPos.z);
 			}
-			for (j=1; j<MAX_GLOBAL_LIGHTS; j++)
+			for (Int j=1; j<MAX_GLOBAL_LIGHTS; j++)
 			{
 				chunkWriter.writeReal(TheGlobalData->m_terrainLighting[i+TIME_OF_DAY_FIRST][j].ambient.red);
 				chunkWriter.writeReal(TheGlobalData->m_terrainLighting[i+TIME_OF_DAY_FIRST][j].ambient.green);
@@ -1223,7 +1225,7 @@ void WorldHeightMapEdit::autoBlendOut(Int xIndex, Int yIndex, Int globalEdgeClas
 		pProcessed[i] = false;
 	}
 	if (pProcessed == NULL) {
-		AfxMessageBox(IDS_OUT_OF_MEMORY);
+		QMessageBox::critical(NULL, "WorldBuilder", "Out of memory.");
 		return;
 	}
 
@@ -1453,11 +1455,10 @@ Bool WorldHeightMapEdit::floodFill(Int xIndex, Int yIndex, Int textureClass, Boo
 		}
 	}
 	if (!canFitTexture(textureClass) || doReplace) {
-		CString confirm;
-		confirm.Format(IDS_CONFIRM_REPLACE_TEXTURE, m_globalTextureClasses[curTileClass].name.str());
-		Int msg = ::AfxMessageBox(confirm, MB_YESNO);
-		::AfxGetMainWnd()->SetFocus();
-		if (msg == IDNO) {
+		QString confirm = QString("The selected texture will replace '%1' in the map.  Continue?")
+			.arg(m_globalTextureClasses[curTileClass].name.str());
+		if (QMessageBox::question(NULL, "WorldBuilder", confirm,
+								  QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
 			return false;
 		}
 		doReplace = true;
@@ -1614,19 +1615,15 @@ void WorldHeightMapEdit::reloadTextures(void)
 */
 void WorldHeightMapEdit::showTileStatusInfo(void)
 {
-	CString message;
 	Int tilesPerRow = TEXTURE_WIDTH/(2*TILE_PIXEL_EXTENT+TILE_OFFSET);
 	Int availableTiles = 4 * tilesPerRow * tilesPerRow;
 	Int availableBlends = NUM_BLEND_TILES;
 
-	CString tmp;
-	tmp.Format("Base tiles used %d of %d (%d%%)\n", m_numBitmapTiles, availableTiles,
-						(m_numBitmapTiles*100+50)/availableTiles);
-	message += tmp;
-	tmp.Format("Blend tiles used %d of %d (%d%%)\n", m_numBlendedTiles, availableBlends,
-						(m_numBlendedTiles*100+50)/availableBlends);
-	message += tmp;
-	::AfxMessageBox(message);
+	QString message = QString("Base tiles used %1 of %2 (%3%)\n")
+		.arg(m_numBitmapTiles).arg(availableTiles).arg((m_numBitmapTiles*100+50)/availableTiles);
+	message += QString("Blend tiles used %1 of %2 (%3%)\n")
+		.arg(m_numBlendedTiles).arg(availableBlends).arg((m_numBlendedTiles*100+50)/availableBlends);
+	QMessageBox::information(NULL, "WorldBuilder", message);
 }
 
 
@@ -1772,7 +1769,7 @@ Bool WorldHeightMapEdit::resize(Int newXSize, Int newYSize, Int newHeight, Int n
 	newYSize += 2*newBorder;
 	Int newDataSize = newXSize*newYSize;
 	if (newDataSize<=0) {
-		AfxMessageBox(IDS_BAD_VALUE);
+		QMessageBox::warning(NULL, "WorldBuilder", "A value is out of range.");
 		return(false);
 	}
 	pObjOffset->x = 0;
@@ -2098,9 +2095,10 @@ Bool WorldHeightMapEdit::selectSimilar(void)
 
 		Bool exists;
 		AsciiString layerName = otherObj->getProperties()->getAsciiString(TheKey_objectLayer, &exists);
-		if (exists && TheLayersList->isLayerHidden(layerName)) {
-			continue;			
-		}
+		/// @todo skip objects on hidden layers once the LayersList panel is ported:
+		/// if (exists && TheLayersList->isLayerHidden(layerName)) continue;
+		(void)exists;
+		(void)layerName;
 
 		otherObj->setSelected(true);
 	}
@@ -2185,7 +2183,7 @@ Bool WorldHeightMapEdit::selectInvalidTeam(void)
 	if (anySelected)
 	{
 		DEBUG_LOG(("%s\n", report.str()));
-		MessageBox(NULL, report.str(), "Missing team report", MB_OK);
+		QMessageBox::information(NULL, "Missing team report", report.str());
 	}
 
 	return anySelected;
@@ -2235,7 +2233,7 @@ Bool WorldHeightMapEdit::doCliffAdjustment(Int xIndex, Int yIndex)
 		pProcessed[i] = false;
 	}
 	if (pProcessed == NULL) {
-		AfxMessageBox(IDS_OUT_OF_MEMORY);
+		QMessageBox::critical(NULL, "WorldBuilder", "Out of memory.");
 		return false;
 	}
 
@@ -3362,7 +3360,7 @@ void WorldHeightMapEdit::removeLastBoundary(void)
 		return;
 	}
 	
-	m_boundaries.erase(&m_boundaries.back());
+	m_boundaries.pop_back();
 }
 
 void WorldHeightMapEdit::findBoundaryNear(Coord3D *pt, float okDistance, Int *outNdx, Int *outHandle)

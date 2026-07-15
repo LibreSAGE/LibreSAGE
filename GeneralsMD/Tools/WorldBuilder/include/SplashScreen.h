@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,30 +17,19 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// SplashScreen.h : the loading splash (Qt6 port of the IDD_LOADING dialog)
+//
 
 #pragma once
 
-#ifndef __SPLASHSCREEN_H__
-#define __SPLASHSCREEN_H__
+#include <QSplashScreen>
 
-class SplashScreen : public CDialog
+class SplashScreen : public QSplashScreen
 {
-	protected:
-		CRect m_rect;
-		CString m_loadString;
-		CFont m_font;
+public:
+	SplashScreen();
 
-	public:
-		SplashScreen();
-
-	public:
-		void setTextOutputLocation(const CRect& rect);
-		void outputText(UINT nIDString);
-
-	protected:
-		afx_msg void OnPaint();
-
-		DECLARE_MESSAGE_MAP()
+	/// Show a progress message on the splash (bottom left, like the original
+	/// IDD_LOADING text area) and keep the splash responsive.
+	void outputText(const QString &text);
 };
-
-#endif /* __SPLASHSCREEN_H__ */

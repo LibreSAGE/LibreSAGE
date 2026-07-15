@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,47 +18,34 @@
 */
 
 // RoadTool.h
-// Texture tiling tools for worldbuilder.
-// Author: John Ahlquist, June 2001
+// Road drawing tool for worldbuilder.
+// Author: John Ahlquist, April 2001
+//
+// Qt6 port note: only the snap helper is ported so far; the interactive road
+// drawing comes back with the object tools.  @todo
 
 #pragma once
 
-#ifndef RoadTool_H
-#define RoadTool_H
+#ifndef ROADTOOL_H
+#define ROADTOOL_H
 
 #include "Tool.h"
-#include "W3DDevice/GameClient/WorldHeightMap.h"
-class WorldHeightMapEdit;
+
 #define ROAD_SNAP_DISTANCE (1.0f)
+
 /*************************************************************************/
 /**                             RoadTool
-	 Does the Add a section of road tool operation. 
+	 Draws roads.
 ***************************************************************************/
-///  Road segment tool.
-class RoadTool : public Tool 
+class RoadTool : public Tool
 {
-protected:
-	enum {HYSTERESIS = 3,
-				MIN_LENGTH = 4};
-	MapObject *m_mapObj;
-
-private:
-	MapObject* RoadTool::findSegment(const Coord3D *pLoc, Coord3D *outLoc);
-
 public:
 	RoadTool(void);
 	~RoadTool(void);
 
 public:
-	static Bool snap(Coord3D *pLoc, Bool skipLast);
-
-public:
-	/// Perform tool on mouse down.
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void activate(); ///< Become the current tool.
+	/// Snap a location to nearby road segment endpoints.
+	static Bool snap(Coord3D *pLoc, Bool skipFirst);
 };
 
-
-#endif //TOOL_H
+#endif //ROADTOOL_H

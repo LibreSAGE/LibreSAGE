@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,79 +17,33 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QApplication>
+#include <QFont>
+#include <QPixmap>
 
-#include "StdAfx.h"
+// SplashScreen.cpp : Qt6 port of the MFC loading splash.  The original was
+// the IDD_LOADING popup dialog showing the IDB_WORLDBUILDERSPLASH bitmap with
+// a text output area near the bottom.
+
 #include "SplashScreen.h"
 
+
 //-------------------------------------------------------------------------------------------------
-SplashScreen::SplashScreen()
+SplashScreen::SplashScreen() :
+	QSplashScreen(QPixmap(":/WorldBuilder.bmp"))
 {
-	m_rect.left = 0;
-	m_rect.right = 0;
-	m_rect.top = 0;
-	m_rect.bottom = 0;
+	setWindowTitle("Loading Worldbuilder");
 
-	m_loadString = "Cock & Beer";
-
-
-	LOGFONT lf;
-	lf.lfHeight = 12;
-	lf.lfWidth = 0;
-	lf.lfEscapement = 0;
-	lf.lfOrientation = 0;
-	lf.lfWeight = FW_NORMAL;
-	lf.lfItalic = FALSE;
-	lf.lfUnderline = FALSE;
-	lf.lfStrikeOut = FALSE;
-	lf.lfCharSet = ANSI_CHARSET;
-	lf.lfOutPrecision = OUT_DEFAULT_PRECIS;
-	lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-	lf.lfQuality = DEFAULT_QUALITY;
-	lf.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
-	strcpy(lf.lfFaceName, "Arial");
-	
-	m_font.CreateFontIndirect(&lf);
+	QFont splashFont("Arial");
+	splashFont.setPixelSize(12);
+	setFont(splashFont);
 }
 
 //-------------------------------------------------------------------------------------------------
-void SplashScreen::setTextOutputLocation(const CRect& rect)
+void SplashScreen::outputText(const QString &text)
 {
-	m_rect = rect;
+	showMessage(text, Qt::AlignBottom | Qt::AlignLeft, Qt::black);
+	// The splash lives through the (blocking) engine bring-up, so pump the
+	// event loop to get the message painted.
+	QApplication::processEvents();
 }
-
-//-------------------------------------------------------------------------------------------------
-void SplashScreen::outputText(UINT nIDString)
-{
-	CString str;
-	if (!str.LoadString(nIDString)) {
-		return;
-	}
-
-	m_loadString = str;
-	
-	RedrawWindow(&m_rect, NULL);
-}
-
-//-------------------------------------------------------------------------------------------------
-void SplashScreen::OnPaint()
-{
-	// we're extending the default behavior
-	CDialog::OnPaint();
-
-	
-	CDC *dc = GetDC();
-	
-	// Save off the old font
-	CFont *oldFont = dc->SelectObject(&m_font);
-	COLORREF oldRef = dc->SetTextColor(0x00000000);
-	
-//	dc->DrawText(m_loadString, m_rect, DT_VCENTER | DT_LEFT);
-	
-	// restore the old font
-	dc->SelectObject(oldFont);
-	dc->SetTextColor(oldRef);
-}
-
-BEGIN_MESSAGE_MAP(SplashScreen, CDialog)
-	ON_WM_PAINT()
-END_MESSAGE_MAP()

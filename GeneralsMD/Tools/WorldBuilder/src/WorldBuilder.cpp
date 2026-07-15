@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,37 +17,43 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QDir>
+#include <QSettings>
+
 // WorldBuilder.cpp : Defines the class behaviors for the application.
 //
+// Qt6 port of the original MFC CWorldBuilderApp.  The engine bring-up mirrors
+// the original InitInstance/ExitInstance, with the Win32 device
+// implementations swapped for their SDL3 counterparts.
 
-#include "stdafx.h"
-#include <eh.h>
 #include "WorldBuilder.h"
-#include "EulaDialog.h"
 #include "MainFrm.h"
-#include "OpenMap.h"
 #include "SplashScreen.h"
-#include "Textureloader.h"
-#include "WorldBuilderDoc.h"
-#include "WorldBuilderView.h"
-#include "WBFrameWnd.h"
-#include "WbView3d.h"
-
-//#include <wsys/StdFileSystem.h>
-#include "W3DDevice/GameClient/W3DFileSystem.h"
-#include "common/GlobalData.h"
+#include "BrushTool.h"
+#include "FeatherTool.h"
+#include "HandScrollTool.h"
+#include "MoundTool.h"
+#include "PointerTool.h"
 #include "WHeightMapEdit.h"
-//#include "Common/GameFileSystem.h"
+#include "WorldBuilderDoc.h"
+
+#include "W3DDevice/GameClient/W3DFileSystem.h"
+#include "Common/GlobalData.h"
 #include "Common/FileSystem.h"
 #include "Common/ArchiveFileSystem.h"
 #include "Common/LocalFileSystem.h"
 #include "Common/CDManager.h"
+#include "Common/CriticalSection.h"
 #include "Common/Debug.h"
-#include "Common/StackDump.h"
 #include "Common/GameMemory.h"
+#include "Common/MapObject.h"
+#include "Common/NameKeyGenerator.h"
 #include "Common/Science.h"
+#include "Common/SubsystemInterface.h"
 #include "Common/ThingFactory.h"
 #include "Common/INI.h"
+#include "Common/INIParsers.h"
+#include "Common/CommandLine.h"
 #include "Common/GameAudio.h"
 #include "Common/SpecialPower.h"
 #include "Common/TerrainTypes.h"
@@ -64,7 +71,6 @@
 #include "GameLogic/RankInfo.h"
 #include "GameLogic/SidesList.h"
 #include "GameLogic/ScriptEngine.h"
-#include "GameLogic/ScriptActions.h"
 #include "GameClient/Anim2D.h"
 #include "GameClient/GameText.h"
 #include "GameClient/ParticleSys.h"
@@ -76,18 +82,32 @@
 
 #include "W3DDevice/Common/W3DModuleFactory.h"
 #include "W3DDevice/GameClient/W3DParticleSys.h"
+#include "SDL3Device/Common/SDL3LocalFileSystem.h"
+#include "SDL3Device/Common/SDL3BIGFileSystem.h"
+#if defined(SAGE_USE_MINIAUDIO)
+#include "MiniAudioDevice/MiniAudioManager.h"
+#elif defined(SAGE_USE_MILES)
 #include "MilesAudioDevice/MilesAudioManager.h"
-
-#include <io.h>
-#include "win32device/GameClient/Win32Mouse.h"
-#include "Win32Device/Common/Win32LocalFileSystem.h"
-#include "Win32Device/Common/Win32BIGFileSystem.h"
-
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
 #endif
+
+
+#include <SDL3/SDL.h>
+
+// ----------------------------------------------------------------------------
+// Globals the engine libraries expect the application to provide (the game
+// defines the same set in SDL3Main.cpp).
+// ----------------------------------------------------------------------------
+HINSTANCE ApplicationHInstance = NULL;
+HWND ApplicationHWnd = NULL;
+Bool ApplicationIsWindowed = true;
+SDL_Window *ApplicationWindow = NULL;
+class SDL3Mouse;
+SDL3Mouse *TheWin32Mouse = NULL;
+DWORD TheMessageTime = 0;
+
+const char *gAppPrefix = "wb_"; /// So WB can have a different debug log file name.
+const Char *g_strFile = "data\\Generals.str";
+const Char *g_csfFile = "data\\%s\\Generals.csf";
 
 static SubsystemInterfaceList TheSubsystemListRecord;
 
@@ -98,17 +118,8 @@ void initSubsystem(SUBSYSTEM*& sysref, SUBSYSTEM* sys, const char* path1 = NULL,
 	TheSubsystemListRecord.initSubsystem(sys, path1, path2, dirpath, NULL);
 }
 
-
-#define APP_SECTION "WorldbuilderApp"
-#define OPEN_FILE_DIR "OpenDirectory"
-
-Win32Mouse *TheWin32Mouse = NULL;
-char *gAppPrefix = "wb_"; /// So WB can have a different debug log file name.
-const Char *g_strFile = "data\\Generals.str";
-const Char *g_csfFile = "data\\%s\\Generals.csf";
-
 /////////////////////////////////////////////////////////////////////////////
-// WBGameFileClass - extends the file system a bit so we can get at some 
+// WBGameFileClass - extends the file system a bit so we can get at some
 // wb only data.  jba.
 
 class WBGameFileClass : public GameFileClass
@@ -139,7 +150,7 @@ char const * WBGameFileClass::Set_Name( char const *filename )
 
 
 /////////////////////////////////////////////////////////////////////////////
-// WB_W3DFileSystem - extends the file system a bit so we can get at some 
+// WB_W3DFileSystem - extends the file system a bit so we can get at some
 // wb only data.  jba.
 
 class	WB_W3DFileSystem : public W3DFileSystem {
@@ -159,131 +170,95 @@ FileClass * WB_W3DFileSystem::Get_File( char const *filename )
 }
 
 
-
-
 /////////////////////////////////////////////////////////////////////////////
-// The one and only CWorldBuilderApp object
+// WorldBuilderApp construction/destruction
 
-static CWorldBuilderApp theApp;
-HWND ApplicationHWnd = NULL;
-
-/**
-	* The ApplicationHInstance is needed for the WOL code,
-	* which needs it for the COM initialization of WOLAPI.DLL.
-	* Of course, the WOL code is in gameengine, while the
-	* HINSTANCE is only in the various projects' main files.
-	* So, we need to create the HINSTANCE, even if it always
-	* stays NULL.  Just to make COM happy.  Whee.
-	*/
-HINSTANCE ApplicationHInstance = NULL;
-
-/////////////////////////////////////////////////////////////////////////////
-// CWorldBuilderApp
-
-BEGIN_MESSAGE_MAP(CWorldBuilderApp, CWinApp)
-	//{{AFX_MSG_MAP(CWorldBuilderApp)
-	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-	ON_COMMAND(IDM_RESET_WINDOWS, OnResetWindows)
-	ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
-	ON_COMMAND(ID_TEXTURESIZING_MAPCLIFFTEXTURES, OnTexturesizingMapclifftextures)
-	ON_UPDATE_COMMAND_UI(ID_TEXTURESIZING_MAPCLIFFTEXTURES, OnUpdateTexturesizingMapclifftextures)
-	//}}AFX_MSG_MAP
-	// Standard file based document commands
-	ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
-	ON_COMMAND(ID_FILE_OPEN, CWinApp::OnFileOpen)
-	// Standard print setup command
-	ON_COMMAND(ID_FILE_PRINT_SETUP, CWinApp::OnFilePrintSetup)
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-static Int gFirstCP = 0;
-
-// CWorldBuilderApp construction
-
-CWorldBuilderApp::CWorldBuilderApp() :
+WorldBuilderApp::WorldBuilderApp(int &argc, char **argv) :
+	QApplication(argc, argv),
 	m_curTool(NULL),
 	m_selTool(NULL),
+	m_brushTool(NULL),
+	m_pointerTool(NULL),
+	m_handScrollTool(NULL),
 	m_lockCurTool(0),
-	m_3dtemplate(NULL),
-	m_pasteMapObjList(NULL)
+	m_document(NULL),
+	m_pasteMapObjList(NULL),
+	m_engineInited(false)
 {
+	setOrganizationName("WWVegas");
+	setApplicationName("WorldBuilder");
+
+	// Note: no QCommandLineParser here - the engine command line (-dir,
+	// -bigdir, ...) is parsed by CommandLine.cpp in initEngine().
 
 	for (Int i=0; i<NUM_VIEW_TOOLS; i++) {
 		m_tools[i] = NULL;
-
 	}
-	m_tools[0] = &m_brushTool;
-	m_tools[1] = &m_tileTool;
-	m_tools[2] = &m_featherTool;
-	m_tools[3] = &m_autoEdgeOutTool;
-	m_tools[4] = &m_bigTileTool;
-	m_tools[5] = &m_floodFillTool;
-	m_tools[6] = &m_moundTool;
-	m_tools[7] = &m_digTool;
-	m_tools[8] = &m_eyedropperTool;
-	m_tools[9] = &m_objectTool;
-	m_tools[10] = &m_pointerTool;
-	m_tools[11] = &m_blendEdgeTool;
-	m_tools[12] = &m_groveTool;
-	m_tools[13] = &m_meshMoldTool;	 
-	m_tools[14] = &m_roadTool;
-	m_tools[15] = &m_handScrollTool;
-	m_tools[16] = &m_waypointTool;
-	m_tools[17] = &m_polygonTool;
-	m_tools[18] = &m_buildListTool;
-	m_tools[19] = &m_fenceTool;
-	m_tools[20] = &m_waterTool;
-	m_tools[21] = &m_rampTool;
-	m_tools[22] = &m_scorchTool;
-	m_tools[23] = &m_borderTool;
-	m_tools[24] = &m_rulerTool;
+	/// @todo re-add the remaining tools as they get ported (see the original
+	/// MFC constructor for the full palette and initial mound/feather values).
+	m_brushTool = new BrushTool;
+	m_pointerTool = new PointerTool;
+	m_handScrollTool = new HandScrollTool;
+	MoundTool *moundTool = new MoundTool;
+	DigTool *digTool = new DigTool;
+	FeatherTool *featherTool = new FeatherTool;
+	m_tools[0] = m_brushTool;
+	m_tools[2] = featherTool;
+	m_tools[6] = moundTool;
+	m_tools[7] = digTool;
+	m_tools[10] = m_pointerTool;
+	m_tools[15] = m_handScrollTool;
 
 	// set up initial values.
-	m_brushTool.setHeight(16);
-	m_brushTool.setWidth(3);
-	m_brushTool.setFeather(3);
-	m_moundTool.setMoundHeight(3);
-	m_moundTool.setWidth(3);
-	m_moundTool.setFeather(3);
-	m_featherTool.setFeather(3);
-	m_featherTool.setRadius(1);
-	m_featherTool.setRate(2);
+	m_brushTool->setHeight(16);
+	m_brushTool->setWidth(3);
+	m_brushTool->setFeather(3);
+	MoundTool::setMoundHeight(3);
+	MoundTool::setWidth(3);
+	MoundTool::setFeather(3);
+	FeatherTool::setFeather(3);
+	FeatherTool::setRadius(1);
+	FeatherTool::setRate(2);
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// CWorldBuilderApp destructor
-
-CWorldBuilderApp::~CWorldBuilderApp()
+WorldBuilderApp::~WorldBuilderApp()
 {
 	m_curTool = NULL;
 	m_selTool = NULL;
 
 	for (Int i=0; i<NUM_VIEW_TOOLS; i++) {
 		if (m_tools[i]) {
+			delete m_tools[i];
 			m_tools[i] = NULL;
 		}
 	}
-	_exit(0);
+
+	shutdownEngine();
 }
 
+void WorldBuilderApp::deletePasteObjList(void)
+{
+	if (m_pasteMapObjList)
+		m_pasteMapObjList->deleteInstance();
+	m_pasteMapObjList = NULL;
+}
 
 /////////////////////////////////////////////////////////////////////////////
-// CWorldBuilderApp initialization
+// WorldBuilderApp engine bring-up (port of InitInstance)
 
-BOOL CWorldBuilderApp::InitInstance()
+bool WorldBuilderApp::initEngine(int argc, char **argv, SplashScreen *splash)
 {
-//#ifdef _RELEASE
-	EulaDialog eulaDialog;
-	if( eulaDialog.DoModal() == IDCANCEL )
-	{
-		return FALSE;
+	if (m_engineInited) {
+		return true;
 	}
-//#endif
+	m_engineInited = true;
 
-	ApplicationHWnd = GetDesktopWindow();
+	if (splash) {
+		splash->outputText("Loading...");
+	}
 
-	// initialization
-  _set_se_translator( DumpExceptionInfo ); // Hook that allows stack trace.
+	// DXVK renders through SDL3's window system integration.
+	setenv("DXVK_WSI_DRIVER", "SDL3", 1);
 
 	// start the log
 	DEBUG_INIT(DEBUG_FLAGS_DEFAULT);
@@ -302,85 +277,61 @@ BOOL CWorldBuilderApp::InitInstance()
 	DEBUG_LOG(("_DEBUG defined.\n"));
 #endif
 	initMemoryManager();
-#ifdef MEMORYPOOL_CHECKPOINTING
-	gFirstCP = TheMemoryPoolFactory->debugSetCheckpoint();
-#endif
-
-	SplashScreen loadWindow;
-	loadWindow.Create(IDD_LOADING, loadWindow.GetDesktopWindow());
-	loadWindow.SetWindowText("Loading Worldbuilder");
-	loadWindow.ShowWindow(SW_SHOW);
-	loadWindow.UpdateWindow();
-	
-	CRect rect(15, 315, 230, 333);
-	loadWindow.setTextOutputLocation(rect);
-	loadWindow.outputText(IDS_SPLASH_LOADING);
 
 	// not part of the subsystem list, because it should normally never be reset!
 	TheNameKeyGenerator = new NameKeyGenerator;
 	TheNameKeyGenerator->init();
 
-#ifdef _AFXDLL
-	Enable3dControls();			// Call this when using MFC in a shared DLL
-#else
-	Enable3dControlsStatic();	// Call this when linking to MFC statically
-#endif
-
-	// Set the current directory to the app directory.
-	char buf[_MAX_PATH];
-	GetModuleFileName(NULL, buf, sizeof(buf));
-	char *pEnd = buf + strlen(buf);
-	while (pEnd != buf) {
-		if (*pEnd == '\\') {
-			*pEnd = 0;
-			break;
+	// The engine expects the working directory to contain the game data.  The
+	// game directory is passed via -dir, like the game does (SDL3Main.cpp);
+	// without it, fall back to the executable's directory like the original
+	// tool did.
+	QDir::setCurrent(QCoreApplication::applicationDirPath());
+	for (int index = 1; index < argc; ++index) {
+		if (SDL_strcasecmp(argv[index], "-dir") == 0) {
+			if (index + 1 < argc) {
+				QDir::setCurrent(QString::fromUtf8(argv[index + 1]));
+			}
+			index += 1; // skip the next arg since we just used it
 		}
-		pEnd--;
 	}
-	::SetCurrentDirectory(buf);
+
+	registerINIBlockParsers();
 
 	TheFileSystem = new FileSystem;
 
-	initSubsystem(TheLocalFileSystem, (LocalFileSystem*)new Win32LocalFileSystem);
-	initSubsystem(TheArchiveFileSystem, (ArchiveFileSystem*)new Win32BIGFileSystem);
-
-	// Just for kicks, get the HINSTANCE that WOL would need
-	// if we were going to use it, which we aren't.
-	ApplicationHInstance = AfxGetInstanceHandle();
+	initSubsystem(TheLocalFileSystem, (LocalFileSystem*)new SDL3LocalFileSystem);
+	initSubsystem(TheArchiveFileSystem, (ArchiveFileSystem*)new SDL3BIGFileSystem);
 
 	INI ini;
 
 	initSubsystem(TheWritableGlobalData, new GlobalData(), "Data\\INI\\Default\\GameData.ini", "Data\\INI\\GameData.ini");
-	
+
 #if defined(_DEBUG) || defined(_INTERNAL)
 	ini.load( AsciiString( "Data\\INI\\GameDataDebug.ini" ), INI_LOAD_MULTIFILE, NULL );
 	TheWritableGlobalData->m_debugIgnoreAsserts = false;
 #endif
 
-#if defined(_INTERNAL)
-	// leave on asserts for a while. jba. [4/15/2003] TheWritableGlobalData->m_debugIgnoreAsserts = true;
-#endif
+	// special-case: parse command-line parameters after loading global data
+	parseCommandLine(argc, argv);
+	// Load any extra BIG directories specified on the command line (-bigdir)
+	for (const auto& bigDir : TheWritableGlobalData->m_bigDirs)
+	{
+		TheArchiveFileSystem->loadBigFilesFromDirectory(bigDir, "*.big");
+	}
+
 	DEBUG_LOG(("TheWritableGlobalData %x\n", TheWritableGlobalData));
-#if 1
-	// srj sez: put INI into our user data folder, not the ap dir
-	free((void*)m_pszProfileName);
-	strcpy(buf, TheGlobalData->getPath_UserData().str());
-	strcat(buf, "WorldBuilder.ini");
-#else
-	strcat(buf, "//");
-	strcat(buf, m_pszProfileName);
-	free((void*)m_pszProfileName);
-#endif
-	m_pszProfileName = (const char *)malloc(strlen(buf)+2);
-	strcpy((char*)m_pszProfileName, buf);
 
 	// ensure the user maps dir exists
-	sprintf(buf, "%sMaps\\", TheGlobalData->getPath_UserData().str());
-	CreateDirectory(buf, NULL);
+	QDir().mkpath(QString("%1Maps").arg(TheGlobalData->getPath_UserData().str()));
 
 	// read the water settings from INI (must do prior to initing GameClient, apparently)
 	ini.load( AsciiString( "Data\\INI\\Default\\Water.ini" ), INI_LOAD_OVERWRITE, NULL );
 	ini.load( AsciiString( "Data\\INI\\Water.ini" ), INI_LOAD_OVERWRITE, NULL );
+
+	if (splash) {
+		splash->outputText("Loading INI data...");
+	}
 
 	initSubsystem(TheGameText, CreateGameTextInterface());
 	initSubsystem(TheScienceStore, new ScienceStore(), "Data\\INI\\Default\\Science.ini", "Data\\INI\\Science.ini");
@@ -399,9 +350,11 @@ BOOL CWorldBuilderApp::InitInstance()
 
 	// need this before TheAudio in case we're running off of CD - TheAudio can try to open Music.big on the CD...
 	initSubsystem(TheCDManager, CreateCDManager(), NULL);
+#if defined(SAGE_USE_MINIAUDIO)
+	initSubsystem(TheAudio, (AudioManager*)new MiniAudioManager());
+#elif defined(SAGE_USE_MILES)
 	initSubsystem(TheAudio, (AudioManager*)new MilesAudioManager());
-	if (!TheAudio->isMusicAlreadyLoaded())
-		return FALSE;
+#endif
 
 	initSubsystem(TheVideoPlayer, (VideoPlayerInterface*)(new VideoPlayer()));
 	initSubsystem(TheModuleFactory, (ModuleFactory*)(new W3DModuleFactory()));
@@ -417,10 +370,18 @@ BOOL CWorldBuilderApp::InitInstance()
 	initSubsystem(TheLocomotorStore, new LocomotorStore(), NULL, "Data\\INI\\Locomotor.ini");
 	initSubsystem(TheDamageFXStore, new DamageFXStore(), NULL, "Data\\INI\\DamageFX.ini");
 	initSubsystem(TheArmorStore, new ArmorStore(), NULL, "Data\\INI\\Armor.ini");
+	if (splash) {
+		splash->outputText("Loading object definitions...");
+	}
+
 	initSubsystem(TheThingFactory, new ThingFactory(), "Data\\INI\\Default\\Object.ini", NULL, "Data\\INI\\Object");
 	initSubsystem(TheCrateSystem, new CrateSystem(), "Data\\INI\\Default\\Crate.ini", "Data\\INI\\Crate.ini");
 	initSubsystem(TheUpgradeCenter, new UpgradeCenter, "Data\\INI\\Default\\Upgrade.ini", "Data\\INI\\Upgrade.ini");
 	initSubsystem(TheAnim2DCollection, new Anim2DCollection ); //Init's itself.
+
+	if (splash) {
+		splash->outputText("Finalizing...");
+	}
 
 	TheSubsystemListRecord.postProcessLoadAll();
 
@@ -437,218 +398,31 @@ BOOL CWorldBuilderApp::InitInstance()
 
 	TheWritableGlobalData->m_isWorldBuilder = TRUE;
 
-	// Change the registry key under which our settings are stored.
-	// TODO: You should modify this string to be something appropriate
-	// such as the name of your company or organization.
-	//SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	m_document = new CWorldBuilderDoc(this);
 
-	LoadStdProfileSettings();  // Load standard INI file options (including MRU)
+	selectPointerTool();
 
-	// Register the application's document templates.  Document templates
-	//  serve as the connection between documents, frame windows and views.
- 
-	m_3dtemplate = new CSingleDocTemplate(
-		IDR_MAPDOC,
-		RUNTIME_CLASS(CWorldBuilderDoc),
-		RUNTIME_CLASS(CWB3dFrameWnd), 
-		RUNTIME_CLASS(WbView3d));
+	QSettings settings;
+	m_currentDirectory = AsciiString(settings.value("App/OpenDirectory").toString().toUtf8().constData());
 
-	AddDocTemplate(m_3dtemplate);
-
-#ifdef MDI
-	CMainFrame* pMainFrame = new CMainFrame; 
-	if (!pMainFrame->LoadFrame(IDR_MAPDOC)) 
-		return FALSE; 
-	m_pMainWnd = pMainFrame; 
-#endif
-
-	// Parse command line for standard shell commands, DDE, file open
-	CCommandLineInfo cmdInfo;
-	ParseCommandLine(cmdInfo);
-
-	// Dispatch commands specified on the command line
-	if (!ProcessShellCommand(cmdInfo))
-		return FALSE;
-
-	// The one and only window has been initialized, so show and update it.
-	m_pMainWnd->ShowWindow(SW_SHOW);
-	m_pMainWnd->UpdateWindow();
-
-	// Parse command line for standard shell commands, DDE, file open
-//	CCommandLineInfo cmdInfo;
-//	ParseCommandLine(cmdInfo);
-
-	// Dispatch commands specified on the command line
-//	if (!ProcessShellCommand(cmdInfo))
-//		return FALSE;
-
-	selectPointerTool();   
-
-	CString openDir = this->GetProfileString(APP_SECTION, OPEN_FILE_DIR);
-	m_currentDirectory = openDir;
-
-	return TRUE;
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CWorldBuilderApp message handlers
+// WorldBuilderApp engine shutdown (port of ExitInstance)
 
-BOOL CWorldBuilderApp::OnCmdMsg(UINT nID, int nCode, void* pExtra,
-							AFX_CMDHANDLERINFO* pHandlerInfo)
+void WorldBuilderApp::shutdownEngine()
 {
-	// If pHandlerInfo is NULL, then handle the message
-	if (pHandlerInfo == NULL)
-	{
-		for (Int i=0; i<NUM_VIEW_TOOLS; i++) {
-			Tool *pTool = m_tools[i];
-			if (pTool==NULL) continue;
-			if ((Int)nID == pTool->getToolID()) {
-				if (nCode == CN_COMMAND)
-				{
-					// Handle WM_COMMAND message
-					setActiveTool(pTool);
-				}
-				else if (nCode == CN_UPDATE_COMMAND_UI)
-				{
-					// Update UI element state
-					CCmdUI *pUI = (CCmdUI*)pExtra;
-					pUI->SetCheck(m_curTool == pTool?1:0);	
-					pUI->Enable(true);
-				}
-				return TRUE;
-			}
-		}
-	}
-
-	// If we didn't process the command, call the base class
-	// version of OnCmdMsg so the message-map can handle the message
-	return CWinApp::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
-}
-
-//=============================================================================
-// CWorldBuilderApp::selectPointerTool
-//=============================================================================
-/** Sets the active tool to the pointer, and clears the selection. */
-//=============================================================================
-void CWorldBuilderApp::selectPointerTool(void) 
-{
-	setActiveTool(&m_pointerTool);
-	// Clear selection.
-	m_pointerTool.clearSelection();
-}
-
-//=============================================================================
-// CWorldBuilderApp::setActiveTool
-//=============================================================================
-/** Sets the active tool, and activates it after deactivating the current tool. */
-//=============================================================================
-void CWorldBuilderApp::setActiveTool(Tool *pNewTool) 
-{
-	if (m_curTool == pNewTool) {
-		// same tool
+	if (!m_engineInited) {
 		return;
 	}
-	if (m_selTool && m_selTool != pNewTool) {
-		m_selTool->deactivate();
-	}
-	if (pNewTool) {
-		pNewTool->activate();
-	}
-	m_curTool = pNewTool;
-	m_selTool = pNewTool;
-}
+	m_engineInited = false;
 
-//=============================================================================
-// CWorldBuilderApp::updateCurTool
-//=============================================================================
-/** Checks to see if any key modifiers (ctrl or alt) are pressed.  If so, 
-selectes the appropriate tool, else uses the normal tool. */
-//=============================================================================
-void CWorldBuilderApp::updateCurTool(Bool forceHand)
-{
-	Tool *curTool = m_curTool;
-	DEBUG_ASSERTCRASH((m_lockCurTool>=0),("oops"));
-	if (!m_lockCurTool) {	 // don't change tools that are doing something.
-		if (forceHand || (0x8000 & ::GetAsyncKeyState(VK_SPACE))) {
-			// Space bar gives scroll hand.
-			m_curTool = &m_handScrollTool;
-		} else if (0x8000 & ::GetAsyncKeyState(VK_MENU)) {
-			// Alt key gives eyedropper.
-			m_curTool = &m_eyedropperTool;
-		} else if (0x8000 & ::GetAsyncKeyState(VK_CONTROL)) {
-			// Control key gives pointer.
-			m_curTool = &m_pointerTool;
-		} else {
-			// Else the tool selected in the tool palette.
-			m_curTool = m_selTool;
-		}
-	}
-	if (curTool != m_curTool) {
-		m_curTool->activate();
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// CAboutDlg dialog used for App About
-
-class CAboutDlg : public CDialog
-{
-public:
-	CAboutDlg();
-
-// Dialog Data
-	//{{AFX_DATA(CAboutDlg)
-	enum { IDD = IDD_ABOUTBOX };
-	//}}AFX_DATA
-
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CAboutDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
-
-// Implementation
-protected:
-	//{{AFX_MSG(CAboutDlg)
-		// No message handlers
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
-{
-	//{{AFX_DATA_INIT(CAboutDlg)
-	//}}AFX_DATA_INIT
-}
-
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CAboutDlg)
-	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
-	//{{AFX_MSG_MAP(CAboutDlg)
-		// No message handlers
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-// App command to run the dialog
-void CWorldBuilderApp::OnAppAbout()
-{
-	CAboutDlg aboutDlg;
-	aboutDlg.DoModal();
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// CWorldBuilderApp message handlers
-
-int CWorldBuilderApp::ExitInstance() 
-{
-
-	WriteProfileString(APP_SECTION, OPEN_FILE_DIR, m_currentDirectory.str());
+	QSettings settings;
+	settings.setValue("App/OpenDirectory", QString::fromUtf8(m_currentDirectory.str()));
 	m_currentDirectory.clear();
+
+	deletePasteObjList();
 
 	ScriptList::reset();
 
@@ -665,66 +439,119 @@ int CWorldBuilderApp::ExitInstance()
 	delete TheNameKeyGenerator;
 	TheNameKeyGenerator = NULL;
 
-#ifdef MEMORYPOOL_CHECKPOINTING
-	Int lastCP = TheMemoryPoolFactory->debugSetCheckpoint();
-#endif
-#ifdef MEMORYPOOL_CHECKPOINTING
-	TheMemoryPoolFactory->debugMemoryReport(REPORT_FACTORYINFO | REPORT_CP_LEAKS | REPORT_CP_STACKTRACE, gFirstCP, lastCP);
-#endif
-	#ifdef MEMORYPOOL_DEBUG
-		TheMemoryPoolFactory->debugMemoryReport(REPORT_POOLINFO | REPORT_POOL_OVERFLOW | REPORT_SIMPLE_LEAKS, 0, 0);
-	#endif
 	shutdownMemoryManager();
 	DEBUG_SHUTDOWN();
-
-	return CWinApp::ExitInstance();
 }
 
-void CWorldBuilderApp::OnResetWindows() 
+//=============================================================================
+// WorldBuilderApp::selectPointerTool
+//=============================================================================
+/** Sets the active tool to the pointer, and clears the selection. */
+//=============================================================================
+void WorldBuilderApp::selectPointerTool(void)
 {
-	if (CMainFrame::GetMainFrame()) {
-		CMainFrame::GetMainFrame()->ResetWindowPositions();
-	}
-	
+	setActiveTool(m_pointerTool);
+	// Clear selection.
+	PointerTool::clearSelection();
 }
 
-void CWorldBuilderApp::OnFileOpen() 
+//=============================================================================
+// WorldBuilderApp::findTool
+//=============================================================================
+Tool *WorldBuilderApp::findTool(Int toolID)
 {
-#ifdef DO_MAPS_IN_DIRECTORIES
-	TOpenMapInfo info;
-	OpenMap mapDlg(&info);
-	if (mapDlg.DoModal() == IDOK) {
-		if (!info.browse) {
-			OpenDocumentFile(info.filename);
-			return;
+	for (Int i=0; i<NUM_VIEW_TOOLS; i++) {
+		if (m_tools[i] && m_tools[i]->getToolID() == toolID) {
+			return m_tools[i];
 		}
-	}	else {
-		// cancelled so return.
+	}
+	return NULL;
+}
+
+//=============================================================================
+// WorldBuilderApp::setActiveTool
+//=============================================================================
+/** Sets the active tool, and activates it after deactivating the current tool. */
+//=============================================================================
+void WorldBuilderApp::setActiveTool(Tool *pNewTool)
+{
+	if (m_curTool == pNewTool) {
+		// same tool
 		return;
 	}
-#endif
+	if (m_selTool && m_selTool != pNewTool) {
+		m_selTool->deactivate();
+	}
+	if (pNewTool) {
+		pNewTool->activate();
+	}
+	m_curTool = pNewTool;
+	m_selTool = pNewTool;
+}
 
-	CFileStatus status;
-	if (m_currentDirectory != AsciiString("")) try {
-		if (CFile::GetStatus(m_currentDirectory.str(), status)) {
-			if (status.m_attribute & CFile::directory) {
-				::SetCurrentDirectory(m_currentDirectory.str());
-			}
+//=============================================================================
+// WorldBuilderApp::updateCurTool
+//=============================================================================
+/** Checks to see if any key modifiers (ctrl or alt) are pressed.  If so,
+selectes the appropriate tool, else uses the normal tool. */
+//=============================================================================
+void WorldBuilderApp::updateCurTool(Bool forceHand)
+{
+	DEBUG_ASSERTCRASH((m_lockCurTool>=0),("oops"));
+	if (!m_lockCurTool) {	 // don't change tools that are doing something.
+		Qt::KeyboardModifiers mods = QGuiApplication::queryKeyboardModifiers();
+		if (forceHand) {
+			// Space bar gives scroll hand.
+			m_curTool = m_handScrollTool;
+		} else if (mods & Qt::AltModifier) {
+			/// @todo alt gives the eyedropper once that tool is ported.
+			m_curTool = m_selTool;
+		} else if (mods & Qt::ControlModifier) {
+			// Control key gives pointer.
+			m_curTool = m_pointerTool;
+		} else {
+			// Else the tool selected in the tool palette.
+			m_curTool = m_selTool;
 		}
-	} catch(...) {}
-
-	CWinApp::OnFileOpen();
+	}
 }
 
-void CWorldBuilderApp::OnTexturesizingMapclifftextures() 
-{
-	setActiveTool(&m_floodFillTool);
-	m_floodFillTool.setAdjustCliffs(true);
-	
-}
+/////////////////////////////////////////////////////////////////////////////
+// main
 
-void CWorldBuilderApp::OnUpdateTexturesizingMapclifftextures(CCmdUI* pCmdUI) 
+int main(int argc, char **argv)
 {
-	// TODO: Add your command update UI handler code here
-	
+	// The engine's pooled operator new/delete is used from every thread Qt
+	// creates, so the allocator locks must be in place before the
+	// QApplication (and with it the Qt worker threads) comes up - same as
+	// SDL3Main.cpp does for the game.
+	static CriticalSection critSec1, critSec2, critSec3, critSec4, critSec5;
+	TheAsciiStringCriticalSection = &critSec1;
+	TheUnicodeStringCriticalSection = &critSec2;
+	TheDmaCriticalSection = &critSec3;
+	TheMemoryPoolCriticalSection = &critSec4;
+	TheDebugLogCriticalSection = &critSec5;
+
+	WorldBuilderApp app(argc, argv);
+
+	SplashScreen splash;
+	splash.show();
+
+	if (!app.initEngine(argc, argv, &splash)) {
+		return 1;
+	}
+
+	CMainFrame window;
+	window.show();
+	splash.finish(&window);
+
+	// Test hook: WB_TEST_OPEN=<path> loads a map right after startup.
+	if (qEnvironmentVariableIsSet("WB_TEST_OPEN")) {
+		app.getDocument()->openDocument(qgetenv("WB_TEST_OPEN").constData());
+	}
+
+	int ret = app.exec();
+
+	app.shutdownEngine();
+	return ret;
 }

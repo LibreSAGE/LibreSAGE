@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -30,7 +31,7 @@
                             HandScrollTool
 ***************************************************************************/
 ///  Scroll tool.
-class HandScrollTool : public Tool 
+class HandScrollTool : public Tool
 {
 public:
 	HandScrollTool(void);
@@ -38,18 +39,18 @@ public:
 
 protected:
 	enum {HYSTERESIS = 3};
-	CPoint	m_prevPt2d;
-	CPoint	m_downPt2d;
+	QPoint	m_prevPt2d;
+	QPoint	m_downPt2d;
 	Bool		m_scrolling;
-	UINT		m_mouseDownTime;		// if m_trackingMode != TRACK_NONE, tickcount when mouse went down
+	UnsignedInt	m_mouseDownTime;		// if m_trackingMode != TRACK_NONE, tickcount when mouse went down
 
 public:
 	/// Start scrolling.
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	/// Scroll.
-	virtual void mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	/// End scroll.
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	virtual void activate(); ///< Become the current tool.
 	virtual Bool followsTerrain(void) {return false;};
 };

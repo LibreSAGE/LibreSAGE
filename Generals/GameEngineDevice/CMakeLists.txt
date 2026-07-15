@@ -107,7 +107,7 @@ if(SAGE_USE_MILES)
 endif()
 
 if(SAGE_USE_BINK)
-  target_compile_definitions(g_gameenginedevice PRIVATE SAGE_USE_BINK)
+  target_compile_definitions(g_gameenginedevice PUBLIC SAGE_USE_BINK)
 endif()
 
 if(SAGE_USE_SDL3)
@@ -132,14 +132,14 @@ if(SAGE_USE_FFMPEG)
   find_package(FFMPEG REQUIRED)
   target_include_directories(g_gameenginedevice PRIVATE ${FFMPEG_INCLUDE_DIRS})
   target_link_libraries(g_gameenginedevice PRIVATE ${FFMPEG_LIBRARIES})
-  target_compile_definitions(g_gameenginedevice PRIVATE SAGE_USE_FFMPEG)
+  target_compile_definitions(g_gameenginedevice PUBLIC SAGE_USE_FFMPEG)
 endif()
 
 if(SAGE_USE_MINIAUDIO)
   target_sources(
     g_gameenginedevice PRIVATE Source/MiniAudioDevice/MiniAudioManager.cpp)
 
-  target_compile_definitions(g_gameenginedevice PRIVATE SAGE_USE_MINIAUDIO)
+  target_compile_definitions(g_gameenginedevice PUBLIC SAGE_USE_MINIAUDIO)
 endif()
 
 if(WIN32)

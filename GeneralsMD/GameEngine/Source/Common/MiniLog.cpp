@@ -33,6 +33,7 @@
 
 LogClass::LogClass(const char *fname)
 {
+#ifdef _WINDOWS
 	char buffer[ _MAX_PATH ];
 	GetModuleFileName( NULL, buffer, sizeof( buffer ) );
 	char *pEnd = buffer + strlen( buffer );
@@ -48,6 +49,9 @@ LogClass::LogClass(const char *fname)
 	AsciiString fullPath;
 	fullPath.format("%s\\%s", buffer, fname);
 	m_fp = fopen(fullPath.str(), "wt");
+#else
+	m_fp = fopen(fname, "wt");
+#endif
 }
 
 LogClass::~LogClass()
