@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,94 +18,79 @@
 */
 
 // FeatherTool.cpp
-// Texture tiling tool for worldbuilder.
+// Terrain smoothing tool for worldbuilder.
 // Author: John Ahlquist, April 2001
 
-#include "StdAfx.h" 
-#include "resource.h"
-
 #include "FeatherTool.h"
-#include "FeatherOptions.h"
 #include "CUndoable.h"
-#include "DrawObject.h"
+#include "FeatherOptions.h"
 #include "MainFrm.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
-#include "WorldBuilderView.h"
+#include "wbview.h"
 //
 // FeatherTool class.
+//
+
 Int FeatherTool::m_feather = 0;
 Int FeatherTool::m_rate = 0;
 Int FeatherTool::m_radius = 0;
 
-//
 /// Constructor
 FeatherTool::FeatherTool(void) :
-	Tool(ID_FEATHERTOOL, IDC_BRUSH_CROSS)
+	Tool(ID_FEATHER_TOOL, ":/cursors/cross.cur")
 {
 	m_htMapEditCopy = NULL;
 	m_htMapFeatherCopy = NULL;
 	m_htMapRateCopy = NULL;
 }
-	
-/// Destructor
-FeatherTool::~FeatherTool(void) 
+
+FeatherTool::~FeatherTool(void)
 {
 	REF_PTR_RELEASE(m_htMapEditCopy);
-	REF_PTR_RELEASE(m_htMapFeatherCopy); 
-	REF_PTR_RELEASE(m_htMapRateCopy); 
+	REF_PTR_RELEASE(m_htMapFeatherCopy);
+	REF_PTR_RELEASE(m_htMapRateCopy);
 }
 
 
 
-/// Shows the brush options panel.
-void FeatherTool::activate() 
+void FeatherTool::activate()
 {
-	CMainFrame::GetMainFrame()->showOptionsDialog(IDD_FEATHER_OPTIONS);
-	DrawObject::setDoBrushFeedback(true);
-	DrawObject::setBrushFeedbackParms(false, m_feather, 0);
+	if (CMainFrame::GetMainFrame())
+		CMainFrame::GetMainFrame()->showOptionsDialog(ID_FEATHER_TOOL);
+	/// @todo DrawObject brush feedback once DrawObject is ported.
 }
 
-/// Set the brush feather and notify the height options panel of the change.
-void FeatherTool::setFeather(Int feather) 
-{ 
+void FeatherTool::setFeather(Int feather)
+{
 	if (m_feather != feather) {
 		m_feather = feather;
-		// notify feather palette options panel
 		FeatherOptions::setFeather(m_feather);
-		DrawObject::setBrushFeedbackParms(false, m_feather, 0);
 	}
 };
 
-/// Set the brush feather and notify the height options panel of the change.
-void FeatherTool::setRate(Int rate) 
-{ 
+void FeatherTool::setRate(Int rate)
+{
 	if (m_rate != rate) {
 		m_rate = rate;
-		// notify feather palette options panel
 		FeatherOptions::setRate(rate);
 	}
 };
 
-/// Set the brush feather and notify the height options panel of the change.
-void FeatherTool::setRadius(Int radius) 
-{ 
+void FeatherTool::setRadius(Int radius)
+{
 	if (m_radius != radius) {
 		m_radius = radius;
-		// notify feather palette options panel
 		FeatherOptions::setRadius(radius);
 	}
 };
 
-/// Start tool.
 /** Setup the tool to start brushing - make a copy of the height map
 to edit, another copy because we need it :), and call mouseMovedDown. */
-void FeatherTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void FeatherTool::mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m != TRACK_L) return;
 
-//	WorldHeightMapEdit *pMap = pDoc->GetHeightMap();
-	// just in case, release it.
 	REF_PTR_RELEASE(m_htMapEditCopy);
 	m_htMapEditCopy = pDoc->GetHeightMap()->duplicate();
 	m_htMapFeatherCopy = pDoc->GetHeightMap()->duplicate();
@@ -120,10 +106,9 @@ void FeatherTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 	mouseMoved(m, viewPt, pView, pDoc);
 }
 
-/// End tool.
-/** Finish the tool operation - create a command, pass it to the 
+/** Finish the tool operation - create a command, pass it to the
 doc to execute, and cleanup ref'd objects. */
-void FeatherTool::mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void FeatherTool::mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m != TRACK_L) return;
 
@@ -135,45 +120,39 @@ void FeatherTool::mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldB
 	REF_PTR_RELEASE(m_htMapRateCopy);
 }
 
-/// Execute the tool.
 /** Smooth the height map at the current point. */
-void FeatherTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
+void FeatherTool::mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	Coord3D cpt;
 	pView->viewToDocCoords(viewPt, &cpt);
-	DrawObject::setFeedbackPos(cpt);
+	/// @todo DrawObject::setFeedbackPos(cpt); once DrawObject is ported.
 	if (m != TRACK_L) return;
 
 	int brushWidth = m_feather;
 
-	CPoint ndx;
+	QPoint ndx;
 	getCenterIndex(&cpt, m_feather, &ndx, pDoc);
 
-	//if (m_prevXIndex == ndx.x && m_prevYIndex == ndx.y) return;
 
-	m_prevXIndex = ndx.x;
-	m_prevYIndex = ndx.y;
+	m_prevXIndex = ndx.x();
+	m_prevYIndex = ndx.y();
 
 	int sub = brushWidth/2;
 	int add = brushWidth-sub;
 
-	// round brush
 	Int i, j;
 	Bool redoRate = false;
 
-	for (i= ndx.x-sub; i< ndx.x+add; i++) {
+	for (i= ndx.x()-sub; i< ndx.x()+add; i++) {
 		if (i<0 || i>=m_htMapEditCopy->getXExtent()) {
 			continue;
 		}
-		for (j=ndx.y-sub; j<ndx.y+add; j++) {					
+		for (j=ndx.y()-sub; j<ndx.y()+add; j++) {
 			if (j<0 || j>=m_htMapEditCopy->getYExtent()) {
 				continue;
 			}
 			Real blendFactor;
 			blendFactor = calcRoundBlendFactor(ndx, i, j, m_feather, 0);
-			// m_htMapEditCopy is the output.
-			// m_htMapFeatherCopy is the original input.
-			// m_htMapRateCopy is how much we use of the feathered data.
 			if (blendFactor > 0.0f) {
 				Int rate = m_htMapRateCopy->getHeight(i, j);
 				rate += blendFactor * m_rate*5;
@@ -222,15 +201,15 @@ void FeatherTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWor
 				total = floor(origHeight*(1.0f-rateF) + total*rateF + 0.5f);
 				m_htMapEditCopy->setHeight(i, j, total);
 				pDoc->invalCell(i, j);
-			} 
+			}
 		}
 	}
-	
+
 	IRegion2D partialRange;
-	partialRange.lo.x = ndx.x - brushWidth;
-	partialRange.hi.x = ndx.x + brushWidth;
-	partialRange.lo.y = ndx.y - brushWidth;
-	partialRange.hi.y = ndx.y + brushWidth;
+	partialRange.lo.x = ndx.x() - brushWidth;
+	partialRange.hi.x = ndx.x() + brushWidth;
+	partialRange.lo.y = ndx.y() - brushWidth;
+	partialRange.hi.y = ndx.y() + brushWidth;
 	pDoc->updateHeightMap(m_htMapEditCopy, true, partialRange);
 	if (redoRate) {
 		Int size = m_htMapRateCopy->getXExtent() * m_htMapRateCopy->getYExtent();

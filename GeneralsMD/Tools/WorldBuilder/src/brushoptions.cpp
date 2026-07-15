@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,268 +17,85 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// brushoptions.cpp : implementation file
-//
+#include <QFormLayout>
+#include <QSpinBox>
 
-#include "stdafx.h"
-#include "resource.h"
-#include "Lib\BaseType.h"
+// brushoptions.cpp : the height-brush options panel (Qt6 port of the
+// IDD_BRUSH_OPTIONS dialog: brush width, feather and height).
+
 #include "brushoptions.h"
-#include "WorldBuilderView.h"
+
 #include "BrushTool.h"
 
+
 BrushOptions *BrushOptions::m_staticThis = NULL;
-Int BrushOptions::m_currentWidth = 0;
-Int BrushOptions::m_currentHeight = 0;
-Int BrushOptions::m_currentFeather = 0;
-/////////////////////////////////////////////////////////////////////////////
-/// BrushOptions dialog trivial construstor - Create does the real work.
 
-
-BrushOptions::BrushOptions(CWnd* pParent /*=NULL*/)
+BrushOptions::BrushOptions(QWidget *parent) :
+	QWidget(parent),
+	m_updating(false)
 {
-	//{{AFX_DATA_INIT(BrushOptions) 
-		// NOTE: the ClassWizard will add member initialization here
-	//}}AFX_DATA_INIT
-}
+	QFormLayout *layout = new QFormLayout(this);
 
-/// Windows default stuff.
-void BrushOptions::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(BrushOptions)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
-	//}}AFX_DATA_MAP
-}
+	m_widthSpin = new QSpinBox(this);
+	m_widthSpin->setRange(MIN_BRUSH_SIZE, MAX_BRUSH_SIZE);
+	layout->addRow("Brush width:", m_widthSpin);
 
-/// Sets the feather value in the dialog.
-/** Update the value in the edit control and the slider. */
-void BrushOptions::setFeather(Int feather) 
-{ 
-	CString buf;
-	buf.Format("%d", feather);
-	m_currentFeather = feather;
-	if (m_staticThis && !m_staticThis->m_updating) {
-		CWnd *pEdit = m_staticThis->GetDlgItem(IDC_FEATHER_EDIT);
-		if (pEdit) pEdit->SetWindowText(buf);
-	}
-}
+	m_featherSpin = new QSpinBox(this);
+	m_featherSpin->setRange(MIN_FEATHER, MAX_FEATHER);
+	layout->addRow("Feather:", m_featherSpin);
 
-/// Sets the brush width value in the dialog.
-/** Update the value in the edit control and the slider. */
-void BrushOptions::setWidth(Int width) 
-{ 
-	CString buf;
-	buf.Format("%d", width);
-	m_currentWidth = width;
-	if (m_staticThis && !m_staticThis->m_updating) {
-		CWnd *pEdit = m_staticThis->GetDlgItem(IDC_SIZE_EDIT);
-		if (pEdit) pEdit->SetWindowText(buf);
-	}
-}
+	m_heightSpin = new QSpinBox(this);
+	m_heightSpin->setRange(MIN_HEIGHT, MAX_HEIGHT);
+	layout->addRow("Height:", m_heightSpin);
 
-void BrushOptions::setHeight(Int height) 
-{ 
-	char buffer[50];
-	sprintf(buffer, "%d", height);
-	m_currentHeight = height;
-	if (m_staticThis && !m_staticThis->m_updating) {
-		CWnd *pEdit = m_staticThis->GetDlgItem(IDC_HEIGHT_EDIT);
-		if (pEdit) pEdit->SetWindowText(buffer);
-	}
-}
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-// BrushOptions message handlers
-
-/// Dialog UI initialization.
-/** Creates the slider controls, and sets the initial values for 
-width and feather in the ui controls. */
-BOOL BrushOptions::OnInitDialog() 
-{
-	CDialog::OnInitDialog();
-	
-	m_updating = true;
-	m_brushWidthPopup.SetupPopSliderButton(this, IDC_SIZE_POPUP, this);
-	m_brushFeatherPopup.SetupPopSliderButton(this, IDC_FEATHER_POPUP, this);
-	m_brushHeightPopup.SetupPopSliderButton(this, IDC_HEIGHT_POPUP, this);
-
+	connect(m_widthSpin, &QSpinBox::valueChanged, this, [this](int value) {
+		if (!m_updating) BrushTool::setWidth(value);
+	});
+	connect(m_featherSpin, &QSpinBox::valueChanged, this, [this](int value) {
+		if (!m_updating) BrushTool::setFeather(value);
+	});
+	connect(m_heightSpin, &QSpinBox::valueChanged, this, [this](int value) {
+		if (!m_updating) BrushTool::setHeight(value);
+	});
 
 	m_staticThis = this;
-	m_updating = false;
-	setFeather(m_currentFeather);
-	setWidth(m_currentWidth);
-	setHeight(m_currentHeight);
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+
+	// Pick up the tool's current values.
+	setWidth(BrushTool::getWidth());
+	setFeather(BrushTool::getFeather());
+	setHeight(BrushTool::getHeight());
 }
 
-/// Handles feather edit ui messages.
-/** Gets the new edit control text, converts it to an int, then updates
-		the slider and brush tool. */
-void BrushOptions::OnChangeFeatherEdit() 
+BrushOptions::~BrushOptions()
 {
-		if (m_updating) return;
-		CWnd *pEdit = m_staticThis->GetDlgItem(IDC_FEATHER_EDIT);
-		char buffer[_MAX_PATH];
-		if (pEdit) {
-			pEdit->GetWindowText(buffer, sizeof(buffer));
-			Int feather;
-			m_updating = true;
-			if (1==sscanf(buffer, "%d", &feather)) {
-				m_currentFeather = feather;
-				BrushTool::setFeather(m_currentFeather);
-				sprintf(buffer, "%.1f FEET.", m_currentFeather*MAP_XY_FACTOR);
-				pEdit = m_staticThis->GetDlgItem(IDC_FEATHER_LABEL);
-				if (pEdit) pEdit->SetWindowText(buffer);
-			}
-			m_updating = false;
-		}
+	if (m_staticThis == this) {
+		m_staticThis = NULL;
+	}
 }
 
-/// Handles width edit ui messages.
-/** Gets the new edit control text, converts it to an int, then updates
-		the slider and brush tool. */
-void BrushOptions::OnChangeSizeEdit() 
+void BrushOptions::setWidth(Int width)
 {
-		if (m_updating) return;
-		CWnd *pEdit = m_staticThis->GetDlgItem(IDC_SIZE_EDIT);
-		char buffer[_MAX_PATH];
-		if (pEdit) {
-			pEdit->GetWindowText(buffer, sizeof(buffer));
-			Int width;
-			m_updating = true;
-			if (1==sscanf(buffer, "%d", &width)) {
-				m_currentWidth = width;
-				BrushTool::setWidth(m_currentWidth);
-				sprintf(buffer, "%.1f FEET.", m_currentWidth*MAP_XY_FACTOR);
-				pEdit = m_staticThis->GetDlgItem(IDC_WIDTH_LABEL);
-				if (pEdit) pEdit->SetWindowText(buffer);
-			}
-			m_updating = false;
-		}
+	if (m_staticThis) {
+		m_staticThis->m_updating = true;
+		m_staticThis->m_widthSpin->setValue(width);
+		m_staticThis->m_updating = false;
+	}
 }
 
-/// Handles width edit ui messages.
-/** Gets the new edit control text, converts it to an int, then updates
-		the slider and brush tool. */
-void BrushOptions::OnChangeHeightEdit() 
+void BrushOptions::setFeather(Int feather)
 {
-		if (m_updating) return;
-		CWnd *pEdit = m_staticThis->GetDlgItem(IDC_HEIGHT_EDIT);
-		char buffer[_MAX_PATH];
-		if (pEdit) {
-			pEdit->GetWindowText(buffer, sizeof(buffer));
-			Int height;
-			m_updating = true;
-			if (1==sscanf(buffer, "%d", &height)) {
-				m_currentHeight = height;
-				BrushTool::setHeight(m_currentHeight);
-				sprintf(buffer, "%.1f FEET.", m_currentHeight*MAP_HEIGHT_SCALE);
-				pEdit = m_staticThis->GetDlgItem(IDC_HEIGHT_LABEL);
-				if (pEdit) pEdit->SetWindowText(buffer);
-			}
-			m_updating = false;
-		}
+	if (m_staticThis) {
+		m_staticThis->m_updating = true;
+		m_staticThis->m_featherSpin->setValue(feather);
+		m_staticThis->m_updating = false;
+	}
 }
 
-void BrushOptions::GetPopSliderInfo(const long sliderID, long *pMin, long *pMax, long *pLineSize, long *pInitial)
+void BrushOptions::setHeight(Int height)
 {
-	switch (sliderID) {
-
-		case IDC_SIZE_POPUP:
-			*pMin = 1;
-			*pMax = 30;
-			*pInitial = m_currentWidth;
-			*pLineSize = 1;
-			break;
-
-		case IDC_HEIGHT_POPUP:
-			*pMin = 0;
-			*pMax = 255;
-			*pInitial = m_currentHeight;
-			*pLineSize = 1;
-			break;
-
-		case IDC_FEATHER_POPUP:
-			*pMin = 0;
-			*pMax = 20;
-			*pInitial = m_currentFeather;
-			*pLineSize = 1;
-			break;
-
-		default:
-			// uh-oh!
-			DEBUG_CRASH(("Slider message from unknown control"));
-			break;
-	}	// switch
+	if (m_staticThis) {
+		m_staticThis->m_updating = true;
+		m_staticThis->m_heightSpin->setValue(height);
+		m_staticThis->m_updating = false;
+	}
 }
-
-void BrushOptions::PopSliderChanged(const long sliderID, long theVal)
-{
-	CString str;
-	CWnd *pEdit;
-	switch (sliderID) {
-
-		case IDC_SIZE_POPUP:
-			m_currentWidth = theVal;
-			str.Format("%d",m_currentWidth);
-			pEdit = m_staticThis->GetDlgItem(IDC_SIZE_EDIT);
-			if (pEdit) pEdit->SetWindowText(str);
-			BrushTool::setWidth(m_currentWidth);
-			break;
-
-		case IDC_HEIGHT_POPUP:
-			m_currentHeight = theVal;
-			str.Format("%d",m_currentHeight);
-			pEdit = m_staticThis->GetDlgItem(IDC_HEIGHT_EDIT);
-			if (pEdit) pEdit->SetWindowText(str);
-			BrushTool::setHeight(m_currentHeight);
-			break;
-
-		case IDC_FEATHER_POPUP:
-			m_currentFeather = theVal;
-			str.Format("%d",m_currentFeather);
-			pEdit = m_staticThis->GetDlgItem(IDC_FEATHER_EDIT);
-			if (pEdit) pEdit->SetWindowText(str);
-			BrushTool::setFeather(m_currentFeather);
-			break;
-
-		default:
-			// uh-oh!
-			DEBUG_CRASH(("Slider message from unknown control"));
-			break;
-	}	// switch
-}
-
-void BrushOptions::PopSliderFinished(const long sliderID, long theVal)
-{
-	switch (sliderID) {
-		case IDC_SIZE_POPUP:
-			break;
-		case IDC_HEIGHT_POPUP:
-			break;
-		case IDC_FEATHER_POPUP:
-			break;
-
-		default:
-			// uh-oh!
-			DEBUG_CRASH(("Slider message from unknown control"));
-			break;
-	}	// switch
-
-}
-
-
-BEGIN_MESSAGE_MAP(BrushOptions, COptionsPanel)
-	//{{AFX_MSG_MAP(BrushOptions)
-	ON_EN_CHANGE(IDC_FEATHER_EDIT, OnChangeFeatherEdit)
-	ON_EN_CHANGE(IDC_SIZE_EDIT, OnChangeSizeEdit)
-	ON_EN_CHANGE(IDC_HEIGHT_EDIT, OnChangeHeightEdit)
-	ON_WM_HSCROLL()
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-

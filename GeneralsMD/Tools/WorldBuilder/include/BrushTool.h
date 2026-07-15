@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -29,10 +30,10 @@
 class WorldHeightMapEdit;
 /*************************************************************************/
 /**                             BrushTool
-	 Does the Height Brush tool operation. 
+	 Does the Height Brush tool operation.
 ***************************************************************************/
 ///  Height brush tool.
-class BrushTool : public Tool 
+class BrushTool : public Tool
 {
 protected:
 	WorldHeightMapEdit *m_htMapEditCopy; ///< ref counted.
@@ -56,9 +57,9 @@ public:
 	static void setHeight(Int height);
 
 public:
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	virtual WorldHeightMapEdit *getHeightMap(void) {return m_htMapEditCopy;};
 	virtual void activate(); ///< Become the current tool.
 	virtual Bool followsTerrain(void) {return false;};

@@ -16,12 +16,11 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QMessageBox>
+
 // CUndoable.cpp
 // Class to handle undo/redo.
 // Author: John Ahlquist, April 2001
-
-#include "StdAfx.h" 
-#include "Resource.h"
 
 #include "CUndoable.h"
 #include "PointerTool.h"
@@ -33,10 +32,8 @@
 #include "W3DDevice/GameClient/HeightMap.h"
 #include "Common/Debug.h"
 #include "mapobjectprops.h"
-#include "ObjectOptions.h"
-#include "BuildList.h"
-#include "WbView3D.h"
-#include "LayersList.h"
+#include "wbview3d.h"
+
 #include "Common/WellKnownKeys.h"
 #include "WorldBuilder.h"	// for MAX_OBJECTS_IN_MAP 
 #include "Common/UnicodeString.h"
@@ -262,7 +259,7 @@ void AddObjectUndoable::Do(void)
 		pCur->validate();
 		Dict *props = pCur->getProperties();
 		Bool dontCare;	
-		TheLayersList->addMapObjectToLayersList(pCur, props->getAsciiString(TheKey_objectLayer, &dontCare));
+		/// @todo layers panel not ported: TheLayersList->addMapObjectToLayersList(pCur, props->getAsciiString(TheKey_objectLayer, &dontCare));
 
 		m_pDoc->invalObject(pCur);
 		pCur = pCur->getNext();
@@ -282,9 +279,8 @@ void AddObjectUndoable::Do(void)
 	}
 
 	if (numObjects >= MAX_OBJECTS_IN_MAP) {
-		CString str, loadStr;
-		loadStr.Format(IDS_MAX_OBJECTS, MAX_OBJECTS_IN_MAP);
-		AfxMessageBox(loadStr, MB_APPLMODAL | MB_ICONEXCLAMATION | MB_OK);
+		QMessageBox::warning(NULL, "WorldBuilder",
+			QString("There are more than %1 objects in this map.").arg(MAX_OBJECTS_IN_MAP));
 	}
 }
 
@@ -314,7 +310,7 @@ void AddObjectUndoable::Undo(void)
 	while (pCur) {
 		m_pDoc->invalObject(pCur);	
 		// Note : This undoable can add multiple objects, and removes multiple objects.
-		TheLayersList->removeMapObjectFromLayersList(pCur);
+		/// @todo layers panel not ported: TheLayersList->removeMapObjectFromLayersList(pCur);
 		pCur = pCur->getNext();
 	}
 
@@ -734,9 +730,9 @@ void SidesListUndoable::Do(void)
 {
 	*TheSidesList = m_new;
 	MapObjectProps::update();	// ugh, hack to update panel
-	ObjectOptions::update();
+	/// @todo panel not ported: ObjectOptions::update();
 	// Sides list contains build list, so inval the build list.
-	BuildList::update();
+	/// @todo panel not ported: BuildList::update();
 	WbView3d *p3View = m_pDoc->GetActive3DView();
 	p3View->resetRenderObjects();
 	p3View->invalObjectInView(NULL);
@@ -746,9 +742,9 @@ void SidesListUndoable::Undo(void)
 {
 	*TheSidesList = m_old;
 	MapObjectProps::update();	// ugh, hack to update panel
-	ObjectOptions::update();
+	/// @todo panel not ported: ObjectOptions::update();
 	// Sides list contains build list, so inval the build list.
-	BuildList::update();
+	/// @todo panel not ported: BuildList::update();
 	WbView3d *p3View = m_pDoc->GetActive3DView();
 	p3View->resetRenderObjects();
 	p3View->invalObjectInView(NULL);
@@ -794,7 +790,7 @@ void DictItemUndoable::Do(void)
 			m_dictToModify[i]->copyPairFrom(m_newDictData, m_key);
 	}
 	MapObjectProps::update();	// ugh, hack to update panel
-  ObjectOptions::update();	// ditto
+  /// @todo panel not ported: ObjectOptions::update();	// ditto
 	if (m_inval && m_pDoc) {
 		WbView3d *p3View = m_pDoc->GetActive3DView();
 		p3View->resetRenderObjects();
@@ -811,7 +807,7 @@ void DictItemUndoable::Undo(void)
 			m_dictToModify[i]->copyPairFrom(m_oldDictData[i], m_key);
 	}
 	MapObjectProps::update();		// ugh, hack to update panel
-  ObjectOptions::update();	// ditto
+  /// @todo panel not ported: ObjectOptions::update();	// ditto
 	if (m_inval && m_pDoc) {
 		WbView3d *p3View = m_pDoc->GetActive3DView();
 		p3View->resetRenderObjects();
@@ -996,7 +992,7 @@ void DeleteObjectUndoable::Do(void)
 	DeleteInfo *pInvertedList = NULL;
 	while (pCur) {
 		// first, remove it from the Layers list. 
-		TheLayersList->removeMapObjectFromLayersList(pCur->m_objectToDelete);
+		/// @todo layers panel not ported: TheLayersList->removeMapObjectFromLayersList(pCur->m_objectToDelete);
 
 		DeleteInfo *tmp;
 		pCur->DoDelete(pMap);
@@ -1025,7 +1021,7 @@ void DeleteObjectUndoable::Undo(void)
 		// Re-Add it to the layers list
 		Dict* objDict = pCur->m_objectToDelete->getProperties();
 		Bool exists;
-		TheLayersList->addMapObjectToLayersList(pCur->m_objectToDelete, objDict->getAsciiString(TheKey_objectLayer, &exists));
+		/// @todo layers panel not ported: TheLayersList->addMapObjectToLayersList(pCur->m_objectToDelete, objDict->getAsciiString(TheKey_objectLayer, &exists));
 
 		DeleteInfo *tmp;
 		pCur->UndoDelete(pMap);
@@ -1069,7 +1065,7 @@ AddPolygonUndoable::AddPolygonUndoable(PolygonTrigger *pTrig):
 void AddPolygonUndoable::Do(void)
 {
 	// The call to LayersList must be done here because only the WorldBuilder knows about Layers.
-	TheLayersList->addPolygonTriggerToLayersList(m_trigger, m_trigger->getLayerName()); 
+	/// @todo layers panel not ported: TheLayersList->addPolygonTriggerToLayersList(m_trigger, m_trigger->getLayerName()); 
 	PolygonTrigger::addPolygonTrigger(m_trigger);
 	m_isTriggerInList = true;
 }
@@ -1080,7 +1076,7 @@ void AddPolygonUndoable::Do(void)
 void AddPolygonUndoable::Undo(void)
 {
 	// The call to LayersList must be done here because only the WorldBuilder knows about Layers.
-	TheLayersList->removePolygonTriggerFromLayersList(m_trigger);
+	/// @todo layers panel not ported: TheLayersList->removePolygonTriggerFromLayersList(m_trigger);
 	PolygonTrigger::removePolygonTrigger(m_trigger);
 	m_isTriggerInList = false;
 }
@@ -1340,7 +1336,7 @@ DeletePolygonUndoable::DeletePolygonUndoable(PolygonTrigger *pTrig):
 //
 void DeletePolygonUndoable::Do(void)
 {
-	TheLayersList->removePolygonTriggerFromLayersList(m_trigger);
+	/// @todo layers panel not ported: TheLayersList->removePolygonTriggerFromLayersList(m_trigger);
 	PolygonTrigger::removePolygonTrigger(m_trigger);
 	m_isTriggerInList = false;
 }
@@ -1351,7 +1347,7 @@ void DeletePolygonUndoable::Do(void)
 void DeletePolygonUndoable::Undo(void)
 {
 	PolygonTrigger::addPolygonTrigger(m_trigger);
-	TheLayersList->addPolygonTriggerToLayersList(m_trigger, m_trigger->getLayerName());
+	/// @todo layers panel not ported: TheLayersList->addPolygonTriggerToLayersList(m_trigger, m_trigger->getLayerName());
 	m_isTriggerInList = true;
 }
 

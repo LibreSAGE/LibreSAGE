@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -25,7 +26,10 @@
 #ifndef TOOL_H
 #define TOOL_H
 
-#include "Lib\BaseType.h"
+#include <QCursor>
+#include <QPoint>
+
+#include "Lib/BaseType.h"
 #include "Common/STLTypedefs.h"
 
 enum TTrackingMode {
@@ -35,8 +39,39 @@ enum TTrackingMode {
 	TRACK_R
 };
 
+// The tool ids used to be the MFC toolbar button resource ids; now they are
+// just unique identifiers connecting tools to their palette actions.
+enum ToolID {
+	ID_NO_TOOL = 0,
+	ID_BRUSH_TOOL,
+	ID_TILE_TOOL,
+	ID_BIG_TILE_TOOL,
+	ID_FEATHER_TOOL,
+	ID_AUTO_EDGE_OUT_TOOL,
+	ID_FLOOD_FILL_TOOL,
+	ID_MOUND_TOOL,
+	ID_DIG_TOOL,
+	ID_EYEDROPPER_TOOL,
+	ID_OBJECT_TOOL,
+	ID_POINTER_TOOL,
+	ID_BLEND_EDGE_TOOL,
+	ID_GROVE_TOOL,
+	ID_MESH_MOLD_TOOL,
+	ID_ROAD_TOOL,
+	ID_HAND_SCROLL_TOOL,
+	ID_WAYPOINT_TOOL,
+	ID_POLYGON_TOOL,
+	ID_BUILD_LIST_TOOL,
+	ID_FENCE_TOOL,
+	ID_WATER_TOOL,
+	ID_RAMP_TOOL,
+	ID_SCORCH_TOOL,
+	ID_BORDER_TOOL,
+	ID_RULER_TOOL
+};
+
 #include <vector>
-typedef std::vector<CPoint> VecHeightMapIndexes;
+typedef std::vector<QPoint> VecHeightMapIndexes;
 
 #define MAGIC_GROUND_Z (0)
 
@@ -53,39 +88,38 @@ class WbView;
 /*************************************************************************
 **                             Tool
 ***************************************************************************/
-class Tool  
+class Tool
 {
 protected:
-	Int	m_toolID;  //< Tool button ui id in resource.
-	Int	m_cursorID;  //< Tool button ui id in resource.
-	HCURSOR m_cursor;
+	Int	m_toolID;  //< Tool id (see ToolID).
+	QCursor m_cursor;  //< The tool's mouse cursor.
 
 	Int m_prevXIndex;
 	Int m_prevYIndex;
 public:
-	Tool(Int toolID, Int cursorID);
+	Tool(Int toolID, const char *cursorResource);
 	virtual ~Tool(void);
 
 public:
 	Int getToolID(void) {return m_toolID;}
-	virtual void setCursor(void);
+	virtual QCursor getCursor(void) {return m_cursor;}
 
 	virtual void activate(); ///< Become the current tool.
 	virtual void deactivate(){}; ///< Become not the current tool.
 
 	virtual Bool followsTerrain(void) {return true;};	 ///< True if the tool tracks the terrain, generally false if it modifies the terrain heights.
 
-	virtual void mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) {}
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) {}
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) {}
+	virtual void mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) {}
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) {}
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) {}
 	virtual WorldHeightMapEdit *getHeightMap(void) {return NULL;}
 
-	static Real calcRoundBlendFactor(CPoint center, Int x, Int y, Int brushWidth, Int featherWidth);
-	static Real calcSquareBlendFactor(CPoint center, Int x, Int y, Int brushWidth, Int featherWidth);
-	static void getCenterIndex(Coord3D *docLocP, Int brushWidth, CPoint *center, CWorldBuilderDoc *pDoc);
-	static void getAllIndexesIn(const Coord3D *bl, const Coord3D *br, 
-															const Coord3D *tl, const Coord3D *tr, 
-															Int widthOutside, CWorldBuilderDoc *pDoc, 
+	static Real calcRoundBlendFactor(QPoint center, Int x, Int y, Int brushWidth, Int featherWidth);
+	static Real calcSquareBlendFactor(QPoint center, Int x, Int y, Int brushWidth, Int featherWidth);
+	static void getCenterIndex(Coord3D *docLocP, Int brushWidth, QPoint *center, CWorldBuilderDoc *pDoc);
+	static void getAllIndexesIn(const Coord3D *bl, const Coord3D *br,
+															const Coord3D *tl, const Coord3D *tr,
+															Int widthOutside, CWorldBuilderDoc *pDoc,
 															VecHeightMapIndexes* allIndices);
 };
 

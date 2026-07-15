@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,12 +17,12 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QApplication>
+#include <QDateTime>
+
 // HandScrollTool.cpp
 // Scrolling tool for worldbuilder.
 // Author: John Ahlquist, April 2001
-
-#include "StdAfx.h" 
-#include "resource.h"
 
 #include "HandScrollTool.h"
 #include "CUndoable.h"
@@ -29,7 +30,9 @@
 #include "WHeightMapEdit.h"
 #include "WorldBuilder.h"
 #include "WorldBuilderDoc.h"
-#include "WorldBuilderView.h"
+#include "wbview.h"
+
+
 //
 // HandScrollTool class.
 //
@@ -39,35 +42,34 @@ static const Int MAX_SCROLL = 1000;
 
 /// Constructor
 HandScrollTool::HandScrollTool(void) :
-	Tool(ID_HAND_SCROLL_TOOL, IDC_HAND_SCROLL) 
+	Tool(ID_HAND_SCROLL_TOOL, ":/cursors/IDC_HAND_SCROLL.cur")
 {
 }
-	
+
 /// Shows the terrain materials options panel.
-void HandScrollTool::activate() 
+void HandScrollTool::activate()
 {
 	return; // Hand scroll tool intentionally doesn't change tool panel.
 }
 
 /// Destructor
-HandScrollTool::~HandScrollTool(void) 	  
+HandScrollTool::~HandScrollTool(void)
 {
 }
 
-void HandScrollTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void HandScrollTool::mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m != TRACK_L && m != TRACK_R && m != TRACK_M) return;
 
-//	pView->viewToDocCoords(viewPt, &m_prevPt);
 	m_prevPt2d = viewPt;
 	m_downPt2d = viewPt;
 	m_scrolling = false;
 	// Save the start point.
-	m_mouseDownTime = ::GetTickCount();
+	m_mouseDownTime = (UnsignedInt)QDateTime::currentMSecsSinceEpoch();
 }
 
 /// Left button move code.
-void HandScrollTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
+void HandScrollTool::mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m == TRACK_NONE)
 		return;
@@ -76,20 +78,15 @@ void HandScrollTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, C
 
 		// camera rotation
 		const Real factor = 0.01f;
-		Real rot = factor * (viewPt.x - m_prevPt2d.x);
-		/*
-		if (pView->isDoingPitch())
-			pView->pitchCamera(rot);
-		else
-		*/
-			pView->rotateCamera(rot);
+		Real rot = factor * (viewPt.x() - m_prevPt2d.x());
+		pView->rotateCamera(rot);
 		m_prevPt2d = viewPt;
 
 	} else if (m == TRACK_L || m == TRACK_R) {
 		if (!m_scrolling) {
 			// see if we moved enough to start scrolling.
-			if (abs(viewPt.x - m_downPt2d.x) > HYSTERESIS) m_scrolling = true;
-			if (abs(viewPt.y - m_downPt2d.y) > HYSTERESIS) m_scrolling = true;
+			if (abs(viewPt.x() - m_downPt2d.x()) > HYSTERESIS) m_scrolling = true;
+			if (abs(viewPt.y() - m_downPt2d.y()) > HYSTERESIS) m_scrolling = true;
 		}
 		if (!m_scrolling) {
 			return;
@@ -97,7 +94,7 @@ void HandScrollTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, C
 		// Scroll dynamically.
 		Coord3D prev, cur;
 		if (pView->viewToDocCoords(m_prevPt2d, &prev, false) &&
-					pView->viewToDocCoords(viewPt, &cur, false)) 
+					pView->viewToDocCoords(viewPt, &cur, false))
 		{
 
 			Real dx = cur.x - prev.x;
@@ -117,15 +114,15 @@ void HandScrollTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, C
 	}
 }
 
-void HandScrollTool::mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void HandScrollTool::mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m == TRACK_M) {
 		// if haven't moved, reset view
 		Bool moved = false;
-		if (abs(viewPt.x - m_downPt2d.x) > HYSTERESIS) moved = true;
-		if (abs(viewPt.y - m_downPt2d.y) > HYSTERESIS) moved = true;
+		if (abs(viewPt.x() - m_downPt2d.x()) > HYSTERESIS) moved = true;
+		if (abs(viewPt.y() - m_downPt2d.y()) > HYSTERESIS) moved = true;
 
-		if (!moved && GetTickCount() - m_mouseDownTime < ::GetDoubleClickTime())
+		if (!moved && QDateTime::currentMSecsSinceEpoch() - m_mouseDownTime < (UnsignedInt)QApplication::doubleClickInterval())
 		{
 			pView->setDefaultCamera();
 		}
@@ -139,4 +136,3 @@ void HandScrollTool::mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWor
 		}
 	}
 }
-

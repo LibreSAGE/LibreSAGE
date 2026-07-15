@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,519 +17,514 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// MainFrm.cpp : implementation of the CMainFrame class
+#include <QAction>
+#include <QActionGroup>
+#include <QApplication>
+#include <QCloseEvent>
+#include <QDockWidget>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QLabel>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QSettings>
+#include <QStackedWidget>
+#include <QStatusBar>
+#include <QTimer>
+#include <QToolBar>
+
+// MainFrm.cpp : implementation of the CMainFrame class (Qt6 port)
 //
 
-#include "stdafx.h"
 #include "MainFrm.h"
 
-#include "common/GlobalData.h"
+#include "Common/GlobalData.h"
 
-#include "DrawObject.h"
-#include "LayersList.h"
-#include "WHeightMapEdit.h"
-#include "WbView3d.h"
 #include "WorldBuilder.h"
 #include "WorldBuilderDoc.h"
-#include "WorldBuilderView.h"
+#include "brushoptions.h"
+#include "MoundOptions.h"
+#include "FeatherOptions.h"
+#include "mapobjectprops.h"
+#include "wbview3d.h"
 
-#include "ScriptDialog.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMainFrame
-
-IMPLEMENT_DYNAMIC(CMainFrame, CFrameWnd)
-
-BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
-	//{{AFX_MSG_MAP(CMainFrame)
-	ON_WM_CREATE()
-	ON_WM_MOVE()
-	ON_COMMAND(ID_VIEW_BRUSHFEEDBACK, OnViewBrushfeedback)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_BRUSHFEEDBACK, OnUpdateViewBrushfeedback)
-	ON_WM_DESTROY()
-	ON_WM_TIMER()
-	ON_WM_CANCELMODE()
-	ON_COMMAND(ID_EDIT_CAMERAOPTIONS, OnEditCameraoptions)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-static UINT indicators[] =
-{
-	ID_SEPARATOR,           // status line indicator
-	ID_INDICATOR_CAPS,
-	ID_INDICATOR_NUM,
-	ID_INDICATOR_SCRL,
-};
 
 CMainFrame *CMainFrame::TheMainFrame = NULL;
 
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame construction/destruction
 
-CMainFrame::CMainFrame()
+CMainFrame::CMainFrame(QWidget *parent) :
+	QMainWindow(parent),
+	m_optionsDock(NULL),
+	m_optionsStack(NULL),
+	m_curOptions(NULL),
+	m_noOptions(NULL),
+	m_brushOptions(NULL),
+	m_moundOptions(NULL),
+	m_featherOptions(NULL),
+	m_mapObjectProps(NULL),
+	m_3dView(NULL),
+	m_autoSaveTimer(NULL),
+	m_autoSaving(false)
 {
 	TheMainFrame = this;
-	m_curOptions = NULL;
-	m_hAutoSaveTimer = NULL;
-	m_autoSaving = false;
-	m_layersList = NULL;
-	m_scriptDialog = NULL;
+
+	setWindowTitle("WorldBuilder");
+
+	createMenus();
+	createToolBar();
+
+	// Options panels dock on the right; the individual tool panels register
+	// into m_optionsStack as they get ported.
+	m_optionsDock = new QDockWidget("Options", this);
+	m_optionsDock->setObjectName("OptionsDock");
+	m_optionsStack = new QStackedWidget(m_optionsDock);
+	m_noOptions = new QLabel("No options for this tool.", m_optionsStack);
+	m_optionsStack->addWidget(m_noOptions);
+	m_brushOptions = new BrushOptions(m_optionsStack);
+	m_optionsStack->addWidget(m_brushOptions);
+	m_moundOptions = new MoundOptions(m_optionsStack);
+	m_optionsStack->addWidget(m_moundOptions);
+	m_featherOptions = new FeatherOptions(m_optionsStack);
+	m_optionsStack->addWidget(m_featherOptions);
+	m_mapObjectProps = new MapObjectProps(m_optionsStack);
+	m_optionsStack->addWidget(m_mapObjectProps);
+	m_optionsDock->setWidget(m_optionsStack);
+	addDockWidget(Qt::RightDockWidgetArea, m_optionsDock);
+	// Keep the dock narrow like the original floating options panels; the 3d
+	// view gets all remaining space.
+	m_optionsStack->setMinimumWidth(220);
+	resizeDocks({m_optionsDock}, {260}, Qt::Horizontal);
+
+	// The 3d view is the central widget, attached to the (single) document.
+	m_3dView = new WbView3d(this);
+	m_3dView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	m_3dView->setMinimumSize(320, 240);
+	setCentralWidget(m_3dView);
+	if (WbApp()->getDocument()) {
+		WbApp()->getDocument()->attach3DView(m_3dView);
+	}
+
+	statusBar()->showMessage("Ready");
+
+	// Default: room for the 800x600 3d view plus the options dock; the saved
+	// geometry from the previous session wins when there is one.
+	resize(THREE_D_VIEW_WIDTH + 400, THREE_D_VIEW_HEIGHT + 100);
+	QSettings settings;
+	if (settings.contains(MAIN_FRAME_SECTION "/State2")) {
+		restoreGeometry(settings.value(MAIN_FRAME_SECTION "/Geometry").toByteArray());
+		restoreState(settings.value(MAIN_FRAME_SECTION "/State2").toByteArray());
+	}
+
+	m_autoSave = settings.value(MAIN_FRAME_SECTION "/AutoSave", true).toBool();
+	m_autoSaveInterval = settings.value(MAIN_FRAME_SECTION "/AutoSaveIntervalSeconds", 120).toInt();
+
+	m_autoSaveTimer = new QTimer(this);
+	connect(m_autoSaveTimer, &QTimer::timeout, this, &CMainFrame::OnAutoSaveTimer);
+	m_autoSaveTimer->start(m_autoSaveInterval * 1000);
+
+	/// @todo restore the brush feedback setting once DrawObject is ported:
+	/// DrawObject::enableFeedback()/disableFeedback() from the
+	/// "ShowBrushFeedback" setting.
+
+	// Start with a fresh default map (the original did this via the MFC
+	// document template on startup).
+	if (WbApp()->getDocument()) {
+		WbApp()->getDocument()->newDocument(100, 100, 16, 30);
+	}
 }
 
 CMainFrame::~CMainFrame()
 {
-	if (m_layersList) {
-		delete m_layersList;
-	}
+	QSettings settings;
+	settings.setValue(MAIN_FRAME_SECTION "/AutoSave", (bool)m_autoSave);
+	settings.setValue(MAIN_FRAME_SECTION "/AutoSaveIntervalSeconds", (int)m_autoSaveInterval);
 
-	if (m_scriptDialog) {
-		delete m_scriptDialog;
-		m_scriptDialog = NULL;
-	}
-
-	SaveBarState("MainFrame");
 	TheMainFrame = NULL;
-	::AfxGetApp()->WriteProfileInt(MAIN_FRAME_SECTION, "AutoSave", m_autoSave);
-	::AfxGetApp()->WriteProfileInt(MAIN_FRAME_SECTION, "AutoSaveIntervalSeconds", m_autoSaveInterval);
-    CoUninitialize();
 }
 
-int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
+/////////////////////////////////////////////////////////////////////////////
+// Menu / toolbar construction (port of the IDR_MAPDOC menu resource)
+
+// Menu entries whose backing subsystem has not been ported yet are created
+// through this helper: visible, but disabled until their feature returns.
+static QAction *addStubAction(QMenu *menu, const QString &text,
+							  const QKeySequence &shortcut = QKeySequence())
 {
-	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
-		return -1;
-	adjustWindowSize();
-	CRect frameRect;
-	GetWindowRect(&frameRect);
-
-	CWnd *pDesk = GetDesktopWindow();
-	CRect top;
-	pDesk->GetWindowRect(&top);
-	top.left += 10;
-	top.top += 10;
-	top.top = ::AfxGetApp()->GetProfileInt(MAIN_FRAME_SECTION, "Top", top.top);
-	top.left =::AfxGetApp()->GetProfileInt(MAIN_FRAME_SECTION, "Left", top.left);
-	SetWindowPos(NULL, top.left, top.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	GetWindowRect(&frameRect);
-	EnableDocking(CBRS_ALIGN_TOP);
-
-#if 0 // For a floating toolbar.
-#define WRAP(btn) m_floatingToolBar.SetButtonStyle( btn, m_floatingToolBar.GetButtonStyle( btn )|TBBS_WRAPPED)
-	if (!m_floatingToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_LEFT
-		| CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_FIXED ) ||
-		!m_floatingToolBar.LoadToolBar(IDR_TOOLBAR2))
-		WRAP(1);
-	WRAP(4);
-	WRAP(6);
-	WRAP(9);
-	WRAP(11);
-	WRAP(14);
-	WRAP(16);
-#undef WRAP
-	CPoint pos(frameRect.left,frameRect.top+60);
-	this->FloatControlBar(&m_floatingToolBar, pos, CBRS_ALIGN_LEFT);
-	m_floatingToolBar.EnableDocking(CBRS_ALIGN_TOP); 
-#endif
-
-	if (!m_wndStatusBar.Create(this) || !m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT)))
-	{
-		DEBUG_CRASH(("Failed to create status bar\n"));
-	}
-
-	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP
-		| CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_FIXED ) ||
-		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME))
-	{
-		TRACE0("Failed to create toolbar\n");
-		return -1;      // fail to create
-	}
- 	 m_wndToolBar.EnableDocking(CBRS_ALIGN_TOP);
-
-	frameRect.left = frameRect.right;
-	frameRect.top = ::AfxGetApp()->GetProfileInt(OPTIONS_PANEL_SECTION, "Top", frameRect.top);
-	frameRect.left =::AfxGetApp()->GetProfileInt(OPTIONS_PANEL_SECTION, "Left", frameRect.left);
-
-
-
-	m_brushOptions.Create(IDD_BRUSH_OPTIONS, this);
-	m_brushOptions.SetWindowPos(NULL, frameRect.left, frameRect.top,	0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_brushOptions.GetWindowRect(&frameRect);
-	m_optionsPanelWidth = frameRect.Width();
-	m_optionsPanelHeight = frameRect.Height();
-
-	m_featherOptions.Create(IDD_FEATHER_OPTIONS, this);
-	m_featherOptions.SetWindowPos(NULL, frameRect.left, frameRect.top,	0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_featherOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-
-	m_noOptions.Create(IDD_NO_OPTIONS, this);
-	m_noOptions.SetWindowPos(NULL, frameRect.left, frameRect.top,	0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_noOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-	
-	m_terrainMaterial.Create(IDD_TERRAIN_MATERIAL, this);
-	m_terrainMaterial.SetWindowPos(NULL, frameRect.left, frameRect.top,	0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_terrainMaterial.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_blendMaterial.Create(IDD_BLEND_MATERIAL, this);
-	m_blendMaterial.SetWindowPos(NULL, frameRect.left, frameRect.top,	0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_blendMaterial.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_moundOptions.Create(IDD_MOUND_OPTIONS, this);
-	m_moundOptions.SetWindowPos(NULL, frameRect.left, frameRect.top,	0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_moundOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_rulerOptions.Create(IDD_RULER_OPTIONS, this);
-	m_rulerOptions.SetWindowPos(NULL, frameRect.left, frameRect.top,	0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_rulerOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_objectOptions.Create(IDD_OBJECT_OPTIONS, this);
-	m_objectOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_objectOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_fenceOptions.Create(IDD_FENCE_OPTIONS, this);
-	m_fenceOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_fenceOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_mapObjectProps.Create(IDD_MAPOBJECT_PROPS, this);
-	m_mapObjectProps.makeMain();
-	m_mapObjectProps.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	m_mapObjectProps.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_roadOptions.Create(IDD_ROAD_OPTIONS, this);
-	m_roadOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_roadOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_waypointOptions.Create(IDD_WAYPOINT_OPTIONS, this);
-	m_waypointOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_waypointOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_waterOptions.Create(IDD_WATER_OPTIONS, this);
-	m_waterOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_waterOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_lightOptions.Create(IDD_LIGHT_OPTIONS, this);
-	m_lightOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_lightOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_meshMoldOptions.Create(IDD_MESHMOLD_OPTIONS, this);
-	m_meshMoldOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_meshMoldOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_buildListOptions.Create(IDD_BUILD_LIST_PANEL, this);
-	m_buildListOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_buildListOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_groveOptions.Create(IDD_GROVE_OPTIONS, this);
-	m_groveOptions.makeMain();
-	m_groveOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_groveOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_rampOptions.Create(IDD_RAMP_OPTIONS, this);
-	m_rampOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_rampOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	m_scorchOptions.Create(IDD_SCORCH_OPTIONS, this);
-	m_scorchOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_scorchOptions.GetWindowRect(&frameRect);
-	if (m_optionsPanelWidth < frameRect.Width()) m_optionsPanelWidth = frameRect.Width();
-	if (m_optionsPanelHeight < frameRect.Height()) m_optionsPanelHeight = frameRect.Height();
-
-	frameRect.top = ::AfxGetApp()->GetProfileInt(GLOBALLIGHT_OPTIONS_PANEL_SECTION, "Top", frameRect.top);
-	frameRect.left =::AfxGetApp()->GetProfileInt(GLOBALLIGHT_OPTIONS_PANEL_SECTION, "Left", frameRect.left);
-
-	m_globalLightOptions.Create(IDD_GLOBAL_LIGHT_OPTIONS, this);
-	m_globalLightOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_globalLightOptions.GetWindowRect(&frameRect);
-	m_globalLightOptionsWidth = frameRect.Width();
-	m_globalLightOptionsHeight = frameRect.Height();
-
-	frameRect.top = ::AfxGetApp()->GetProfileInt(CAMERA_OPTIONS_PANEL_SECTION, "Top", frameRect.top);
-	frameRect.left =::AfxGetApp()->GetProfileInt(CAMERA_OPTIONS_PANEL_SECTION, "Left", frameRect.left);
-
-	m_cameraOptions.Create(IDD_CAMERA_OPTIONS, this);
-	m_cameraOptions.SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_cameraOptions.GetWindowRect(&frameRect);
-	
-	// now, setup the Layers Panel
-	m_layersList = new LayersList(LayersList::IDD, this);
-	m_layersList->Create(LayersList::IDD, this);
-	m_layersList->ShowWindow(::AfxGetApp()->GetProfileInt(MAIN_FRAME_SECTION, "ShowLayersList", 0) ? SW_SHOW : SW_HIDE);
-	
-	CRect optionsRect;
-	m_globalLightOptions.GetWindowRect(&optionsRect);
-	m_layersList->SetWindowPos(NULL, optionsRect.left, optionsRect.bottom + 100, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
-  
-	Int sbf = ::AfxGetApp()->GetProfileInt(MAIN_FRAME_SECTION, "ShowBrushFeedback", 1);
-	if (sbf != 0) {
-		DrawObject::enableFeedback();
-	} else {
-		DrawObject::disableFeedback();
-	}
-	
-	Int autoSave = ::AfxGetApp()->GetProfileInt(MAIN_FRAME_SECTION, "AutoSave", 1);
-	m_autoSave = autoSave != 0;
-	autoSave = ::AfxGetApp()->GetProfileInt(MAIN_FRAME_SECTION, "AutoSaveIntervalSeconds", 120);
-	m_autoSaveInterval = autoSave;
-	m_hAutoSaveTimer = this->SetTimer(1, m_autoSaveInterval*1000, NULL);
-
-#if USE_STREAMING_AUDIO
-	StartMusic();
-#endif
-
-	return 0;
+	QAction *action = menu->addAction(text);
+	action->setShortcut(shortcut);
+	action->setEnabled(false);
+	return action;
 }
 
-void CMainFrame::adjustWindowSize(void)
+void CMainFrame::createMenus(void)
 {
-	HWND hDesk = ::GetDesktopWindow();
-	CRect top;
-	::GetWindowRect(hDesk, &top);
-	top.right -= 2*::GetSystemMetrics(SM_CYCAPTION);
-	top.bottom -= 3*::GetSystemMetrics(SM_CYCAPTION);
+	QMenuBar *bar = menuBar();
 
-	CRect client, window;
-	Int borderX = ::GetSystemMetrics(SM_CXEDGE);
-//	Int borderY = ::GetSystemMetrics(SM_CYEDGE);
-	Int viewWidth = ::AfxGetApp()->GetProfileInt(MAIN_FRAME_SECTION, "Width", THREE_D_VIEW_WIDTH);
-	Int viewHeight = ::AfxGetApp()->GetProfileInt(MAIN_FRAME_SECTION, "Height", THREE_D_VIEW_HEIGHT);
-	WbView3d * pView = CWorldBuilderDoc::GetActive3DView();	
-	if (pView) {
-		pView->GetClientRect(&client);
-	}	else {
-		GetClientRect(&client);
-		client.right -= 2*borderX;
+	// --- File ---------------------------------------------------------------
+	QMenu *fileMenu = bar->addMenu("&File");
+	fileMenu->addAction("&New", QKeySequence::New, this, &CMainFrame::OnFileNew);
+	fileMenu->addAction("&Open...", QKeySequence::Open, this, &CMainFrame::OnFileOpen);
+	fileMenu->addAction("&Save", QKeySequence::Save, this, &CMainFrame::OnFileSave);
+	fileMenu->addAction("Save &As...", QKeySequence::SaveAs, this, &CMainFrame::OnFileSaveAs);
+	addStubAction(fileMenu, "&Jump to Game", QKeySequence("Ctrl+J"));
+	fileMenu->addSeparator();
+	addStubAction(fileMenu, "Resize...");
+	addStubAction(fileMenu, "Dump Map To File");
+	fileMenu->addSeparator();
+	QAction *exitAction = fileMenu->addAction("E&xit", QKeySequence::Quit,
+											  qApp, &QApplication::closeAllWindows);
+	Q_UNUSED(exitAction);
+
+	// --- Edit ---------------------------------------------------------------
+	QMenu *editMenu = bar->addMenu("&Edit");
+	editMenu->addAction("&Undo", QKeySequence::Undo, this, &CMainFrame::OnEditUndo);
+	editMenu->addAction("&Redo", QKeySequence("Ctrl+Shift+Z"), this, &CMainFrame::OnEditRedo);
+	editMenu->addSeparator();
+	addStubAction(editMenu, "Cu&t", QKeySequence::Cut);
+	addStubAction(editMenu, "&Copy", QKeySequence::Copy);
+	addStubAction(editMenu, "&Paste", QKeySequence::Paste);
+	editMenu->addSeparator();
+	addStubAction(editMenu, "Delete", QKeySequence::Delete);
+	editMenu->addSeparator();
+	addStubAction(editMenu, "Select Duplicate Objects");
+	addStubAction(editMenu, "Select Objects w/bad teams");
+	addStubAction(editMenu, "Select Si&milar", QKeySequence("Ctrl+M"));
+	addStubAction(editMenu, "Select Macrotexture...");
+	addStubAction(editMenu, "Replace Selected...");
+	QMenu *pickMenu = editMenu->addMenu("Pick Constraint");
+	static const char *pickNames[] = {
+		"Anything", "Buildings", "Infantry", "Vehicles", "Shrubbery",
+		"Props", "Natural", "Debris", "Waypoints && Areas", "Roads", "Sounds"};
+	for (size_t i = 0; i < sizeof(pickNames)/sizeof(pickNames[0]); ++i) {
+		QKeySequence shortcut = (i <= 9) ? QKeySequence(QString("Ctrl+%1").arg(i)) : QKeySequence();
+		addStubAction(pickMenu, pickNames[i], shortcut);
 	}
-		int widthDelta = client.Width() - (viewWidth);
-		int heightDelta = client.Height() - (viewHeight);
-		this->GetWindowRect(window);
-		Int newWidth = window.Width()-widthDelta;
-		Int newHeight = window.Height()-heightDelta; 
-	this->SetWindowPos(NULL, 0,
-	0, newWidth, newHeight,
-	SWP_NOMOVE|SWP_NOZORDER); // MainFrm.cpp sets the top and left.
-	if (pView) {
-		pView->reset3dEngineDisplaySize(viewWidth, viewHeight);
-	}
-	m_3dViewWidth = viewWidth;
+	editMenu->addSeparator();
+	QAction *scriptsAction = editMenu->addAction("Scripts...");
+	connect(scriptsAction, &QAction::triggered, this, &CMainFrame::onEditScripts);
+	editMenu->addSeparator();
+	addStubAction(editMenu, "Global Light Options...");
+	addStubAction(editMenu, "Camera Options...");
+	addStubAction(editMenu, "Edit Shadows...");
+	addStubAction(editMenu, "Edit Map Settings...");
+	editMenu->addSeparator();
+	addStubAction(editMenu, "Edit Teams...");
+	addStubAction(editMenu, "Edit Player List...");
+
+	// --- View ---------------------------------------------------------------
+	QMenu *viewMenu = bar->addMenu("&View");
+	addStubAction(viewMenu, "Show Grid", QKeySequence("Ctrl+G"));
+	addStubAction(viewMenu, "Show Texture", QKeySequence("Ctrl+T"));
+	viewMenu->addSeparator();
+	addStubAction(viewMenu, "Show Terrain");
+	addStubAction(viewMenu, "Show Object Icons", QKeySequence("Ctrl+B"));
+	addStubAction(viewMenu, "Show Waypoints");
+	addStubAction(viewMenu, "Show Trigger Areas");
+	addStubAction(viewMenu, "Show Shadows");
+	addStubAction(viewMenu, "Show Labels");
+	addStubAction(viewMenu, "Show Objects");
+	addStubAction(viewMenu, "Show Bounding Boxes");
+	addStubAction(viewMenu, "Show Sight Ranges");
+	addStubAction(viewMenu, "Show Weapon Ranges");
+	addStubAction(viewMenu, "Show Garrisoned");
+	addStubAction(viewMenu, "Show Map Boundaries");
+	addStubAction(viewMenu, "Show Letterbox");
+	addStubAction(viewMenu, "Show Sound Flags");
+	addStubAction(viewMenu, "Show Sound Circles");
+	viewMenu->addSeparator();
+	addStubAction(viewMenu, "Highlight Test Art");
+	viewMenu->addSeparator();
+	addStubAction(viewMenu, "Show Impassable Areas", QKeySequence("Ctrl+I"));
+	addStubAction(viewMenu, "Impassable Area Options...");
+	viewMenu->addSeparator();
+	QAction *entireMapAction = viewMenu->addAction("Show All of 3d Map");
+	entireMapAction->setShortcut(QKeySequence("Ctrl+A"));
+	entireMapAction->setCheckable(true);
+	connect(entireMapAction, &QAction::triggered, this, [this](bool checked) {
+		m_3dView->setShowEntireMap(checked);
+	});
+	QMenu *partialMenu = viewMenu->addMenu("Partial Map Size");
+	addStubAction(partialMenu, "96x96 (Standard game size)");
+	addStubAction(partialMenu, "128x128");
+	addStubAction(partialMenu, "160x160");
+	addStubAction(partialMenu, "192x192");
+	viewMenu->addSeparator();
+	QAction *wireframeAction = viewMenu->addAction("Show Wireframe 3D View");
+	wireframeAction->setShortcut(QKeySequence("Ctrl+W"));
+	wireframeAction->setCheckable(true);
+	connect(wireframeAction, &QAction::triggered, this, [this](bool checked) {
+		m_3dView->setShowWireframe(checked);
+	});
+	QAction *topDownAction = viewMenu->addAction("Show From Top Down View");
+	topDownAction->setShortcut(QKeySequence("Ctrl+F"));
+	topDownAction->setCheckable(true);
+	connect(topDownAction, &QAction::triggered, this, [this](bool checked) {
+		m_3dView->setShowTopDownView(checked);
+	});
+	addStubAction(viewMenu, "Show 3-Way Blends in White");
+	addStubAction(viewMenu, "Show Clouds", QKeySequence("Ctrl+U"));
+	addStubAction(viewMenu, "Show Soft Water");
+	addStubAction(viewMenu, "Show Macrotexture");
+	viewMenu->addSeparator();
+	viewMenu->addAction("Change Time Of Day", QKeySequence("Ctrl+D"), this, [this]() {
+		m_3dView->stepTimeOfDay();
+	});
+	viewMenu->addSeparator();
+	viewMenu->addAction("Zoom In", QKeySequence::ZoomIn, this, [this]() {
+		m_3dView->zoomIn();
+	});
+	viewMenu->addAction("Zoom Out", QKeySequence::ZoomOut, this, [this]() {
+		m_3dView->zoomOut();
+	});
+	viewMenu->addAction("Reset Zoom", QKeySequence("Ctrl+0"), this, [this]() {
+		m_3dView->zoomReset();
+	});
+	viewMenu->addSeparator();
+	addStubAction(viewMenu, "Snap To Grid", QKeySequence("Ctrl+Shift+G"));
+	viewMenu->addSeparator();
+	QAction *brushFeedback = viewMenu->addAction("Show Brush Feedback");
+	brushFeedback->setCheckable(true);
+	connect(brushFeedback, &QAction::triggered, this, &CMainFrame::OnViewBrushfeedback);
+	brushFeedback->setEnabled(false); /// @todo enable once DrawObject is ported.
+	viewMenu->addSeparator();
+	addStubAction(viewMenu, "Reload Textures");
+	viewMenu->addSeparator();
+	QAction *layersAction = viewMenu->addAction("Layers List");
+	layersAction->setCheckable(true);
+	layersAction->setEnabled(false); /// @todo enable once the layers panel is ported.
+
+	// --- Window -------------------------------------------------------------
+	QMenu *windowMenu = bar->addMenu("&Window");
+	addStubAction(windowMenu, "640x480");
+	addStubAction(windowMenu, "800x600");
+	addStubAction(windowMenu, "1024x768");
+	windowMenu->addSeparator();
+	windowMenu->addAction("Reset Window Positions", this, &CMainFrame::ResetWindowPositions);
+
+	// --- Texture Sizing -----------------------------------------------------
+	QMenu *textureMenu = bar->addMenu("Texture Sizing");
+	addStubAction(textureMenu, "Map Cliff Textures");
+	addStubAction(textureMenu, "Remove Cliff Tex Mapping");
+	textureMenu->addSeparator();
+	addStubAction(textureMenu, "Optimize tiles and blend tiles.");
+	textureMenu->addSeparator();
+	addStubAction(textureMenu, "Remap Textures...");
+	textureMenu->addSeparator();
+	addStubAction(textureMenu, "Texture Sizing Info...");
+	textureMenu->addSeparator();
+	addStubAction(textureMenu, "Tile 4x4");
+	addStubAction(textureMenu, "Tile 6x6");
+	addStubAction(textureMenu, "Tile 8x8");
+
+	// --- Validation ---------------------------------------------------------
+	QMenu *validationMenu = bar->addMenu("Validation");
+	addStubAction(validationMenu, "Generate Report");
+	addStubAction(validationMenu, "Fix Teams");
+
+	// --- Help ---------------------------------------------------------------
+	QMenu *helpMenu = bar->addMenu("&Help");
+	helpMenu->addAction("&About World Builder...", this, [this]() {
+		QMessageBox::about(this, "About World Builder",
+						   "World Builder\nMap editor for Command & Conquer Generals Zero Hour");
+	});
 }
 
-BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
+void CMainFrame::createToolBar(void)
 {
-	if( !CFrameWnd::PreCreateWindow(cs) )
-		return FALSE;
-	return TRUE;
+	QToolBar *toolBar = addToolBar("Main");
+	toolBar->setObjectName("MainToolBar");
+
+	// Tool palette: one checkable action per ported tool.
+	/// @todo add the remaining tools as they get ported (original
+	/// IDR_MAINFRAME toolbar).
+	QActionGroup *toolGroup = new QActionGroup(this);
+	struct { const char *name; Int id; } toolActions[] = {
+		{ "Pointer", ID_POINTER_TOOL },
+		{ "Hand Scroll", ID_HAND_SCROLL_TOOL },
+		{ "Height Brush", ID_BRUSH_TOOL },
+		{ "Mound", ID_MOUND_TOOL },
+		{ "Dig", ID_DIG_TOOL },
+		{ "Smooth", ID_FEATHER_TOOL },
+	};
+	for (size_t i = 0; i < sizeof(toolActions)/sizeof(toolActions[0]); ++i) {
+		QAction *action = toolBar->addAction(toolActions[i].name);
+		action->setCheckable(true);
+		Int toolId = toolActions[i].id;
+		connect(action, &QAction::triggered, this, [toolId]() {
+			Tool *tool = WbApp()->findTool(toolId);
+			if (tool) {
+				WbApp()->setActiveTool(tool);
+			}
+		});
+		toolGroup->addAction(action);
+		if (toolId == ID_POINTER_TOOL) {
+			action->setChecked(true);
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// CMainFrame operations
+
+void CMainFrame::SetMessageText(const char *text)
+{
+	statusBar()->showMessage(QString::fromUtf8(text));
 }
 
 void CMainFrame::ResetWindowPositions(void)
 {
-	if (m_curOptions == NULL) {
-		m_curOptions = &m_brushOptions;
-	}
-	SetWindowPos(NULL, 20, 20, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
-	ShowWindow(SW_SHOW);
-	m_curOptions->SetWindowPos(NULL, 40, 40, 0, 0,  SWP_NOSIZE|SWP_NOZORDER);
-	m_curOptions->ShowWindow(SW_SHOW);
-	CView *pView = CWorldBuilderDoc::GetActive2DView();
-	if (pView) {
-		CWnd *pParent = pView->GetParentFrame();
-		if (pParent) {
-			pParent->SetWindowPos(NULL, 60, 60, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
-		}
-	}
-	CPoint pos(20,200);
-
-	this->FloatControlBar(&m_floatingToolBar, pos, CBRS_ALIGN_LEFT);
-	m_floatingToolBar.SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
-	m_floatingToolBar.ShowWindow(SW_SHOW);
+	move(20, 20);
+	resize(THREE_D_VIEW_WIDTH, THREE_D_VIEW_HEIGHT);
+	show();
+	/// @todo reset the options panel / floating toolbar positions once they
+	/// are ported.
 }
 
-void CMainFrame::showOptionsDialog(Int dialogID)
+void CMainFrame::showOptionsDialog(Int panelId)
 {
-	CWnd *newOptions = NULL;
-	switch(dialogID) {
-		case IDD_BRUSH_OPTIONS : newOptions = &m_brushOptions; break;
-		case IDD_TERRAIN_MATERIAL: newOptions = &m_terrainMaterial; break;
-		case IDD_BLEND_MATERIAL: newOptions = &m_blendMaterial; break;
-		case IDD_OBJECT_OPTIONS: newOptions = &m_objectOptions; break;
-		case IDD_FENCE_OPTIONS: newOptions = &m_fenceOptions; break;
-		case IDD_MAPOBJECT_PROPS: newOptions = &m_mapObjectProps; break;
-		case IDD_ROAD_OPTIONS:newOptions  = &m_roadOptions; break;
-		case IDD_MOUND_OPTIONS:newOptions  = &m_moundOptions; break;
-		case IDD_RULER_OPTIONS:newOptions  = &m_rulerOptions; break;
-		case IDD_FEATHER_OPTIONS:newOptions  = &m_featherOptions; break;
-		case IDD_MESHMOLD_OPTIONS:newOptions  = &m_meshMoldOptions; break;
-		case IDD_WAYPOINT_OPTIONS:newOptions  = &m_waypointOptions; break;
-		case IDD_WATER_OPTIONS:newOptions  = &m_waterOptions; break;
-		case IDD_LIGHT_OPTIONS:newOptions  = &m_lightOptions; break;		
-		case IDD_BUILD_LIST_PANEL:newOptions  = &m_buildListOptions; break;		
-		case IDD_GROVE_OPTIONS:newOptions = &m_groveOptions; break;
-		case IDD_RAMP_OPTIONS:newOptions = &m_rampOptions; break;
-		case IDD_SCORCH_OPTIONS:newOptions = &m_scorchOptions; break;
-		case IDD_NO_OPTIONS:newOptions  = &m_noOptions; break;
-		default : break;												 
-	}																						 
-	CRect frameRect;
-	if (newOptions && newOptions != m_curOptions) {
-		newOptions->GetWindowRect(&frameRect);
-		if (m_curOptions) {
-			m_curOptions->GetWindowRect(&frameRect);
-		}
-		newOptions->SetWindowPos(m_curOptions, frameRect.left, frameRect.top, 
-			m_optionsPanelWidth, m_optionsPanelHeight, 
-			SWP_NOZORDER | SWP_NOACTIVATE );
-		::AfxGetApp()->WriteProfileInt(OPTIONS_PANEL_SECTION, "Top", frameRect.top);
-		::AfxGetApp()->WriteProfileInt(OPTIONS_PANEL_SECTION, "Left", frameRect.left);
-		newOptions->ShowWindow(SW_SHOWNA);
-		if (m_curOptions) {
-			m_curOptions->ShowWindow(SW_HIDE);
-		}
-		m_curOptions = newOptions;
+	QWidget *newOptions = NULL;
+	switch (panelId) {
+		case ID_BRUSH_TOOL: newOptions = m_brushOptions; break;
+		case ID_MOUND_TOOL:
+		case ID_DIG_TOOL: newOptions = m_moundOptions; break;
+		case ID_FEATHER_TOOL: newOptions = m_featherOptions; break;
+		case ID_POINTER_TOOL: newOptions = m_mapObjectProps; break;
+		/// @todo route the remaining panels here as they get ported.
+		default: newOptions = m_noOptions; break;
+	}
+	if (m_optionsStack && newOptions) {
+		m_optionsStack->setCurrentWidget(newOptions);
 	}
 }
 
-void CMainFrame::OnEditGloballightoptions() 
+void CMainFrame::OnEditGloballightoptions()
 {
-	m_globalLightOptions.ShowWindow(SW_SHOWNA);
+	/// @todo show the GlobalLightOptions panel once it is ported.
 }
 
 void CMainFrame::onEditScripts()
 {
-	if (m_scriptDialog) {
-		// Delete the old one since it is no longer valid.
-		delete m_scriptDialog;
-	}
-
-	CRect frameRect;
-	GetWindowRect(&frameRect);
-
-	// Setup the Script Dialog.
-	// This needs to be recreated each time so that it will have the current data.
-	m_scriptDialog = new ScriptDialog(this);
-	m_scriptDialog->Create(IDD_ScriptDialog, this);
-	m_scriptDialog->SetWindowPos(NULL, frameRect.left, frameRect.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
- 	m_scriptDialog->GetWindowRect(&frameRect);
-	m_scriptDialog->ShowWindow(SW_SHOWNA);
+	/// @todo show the ScriptDialog once it is ported.
+	SetMessageText("The script editor has not been ported to Qt yet.");
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// CMainFrame diagnostics
-
-#ifdef _DEBUG
-void CMainFrame::AssertValid() const
+void CMainFrame::handleCameraChange(void)
 {
-	CFrameWnd::AssertValid();
+	/// @todo update the CameraOptions panel once it is ported.
 }
-
-void CMainFrame::Dump(CDumpContext& dc) const
-{
-	CFrameWnd::Dump(dc);
-}
-
-#endif //_DEBUG
 
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame message handlers
 
-
-#if DEAD
-	void CMainFrame::OnEditContouroptions() 
-	{
-		ContourOptions contourOptsDialog(this);	
-		contourOptsDialog.DoModal();
-	}
-#endif
-
-void CMainFrame::OnMove(int x, int y) 
+void CMainFrame::OnViewBrushfeedback()
 {
-	CFrameWnd::OnMove(x, y);
-	if (this->IsWindowVisible() && !this->IsIconic()) {
-		CRect frameRect;
-		GetWindowRect(&frameRect);
-		::AfxGetApp()->WriteProfileInt(MAIN_FRAME_SECTION, "Top", frameRect.top);
-		::AfxGetApp()->WriteProfileInt(MAIN_FRAME_SECTION, "Left", frameRect.left);
-	}
+	/// @todo toggle DrawObject::enableFeedback()/disableFeedback() and persist
+	/// the "ShowBrushFeedback" setting once DrawObject is ported.
 }
 
-void CMainFrame::OnViewBrushfeedback() 
-{
-	if (DrawObject::isFeedbackEnabled()) {
-		DrawObject::disableFeedback();
-		::AfxGetApp()->WriteProfileInt(MAIN_FRAME_SECTION, "ShowBrushFeedback", 0);
-	} else {
-		DrawObject::enableFeedback();
-		::AfxGetApp()->WriteProfileInt(MAIN_FRAME_SECTION, "ShowBrushFeedback", 1);
-	}
-}
-
-void CMainFrame::OnUpdateViewBrushfeedback(CCmdUI* pCmdUI) 
-{
-	pCmdUI->SetCheck(DrawObject::isFeedbackEnabled()?1:0);
-}
-
-void CMainFrame::OnDestroy() 
-{
-	if (m_hAutoSaveTimer) {
-		KillTimer(m_hAutoSaveTimer);
-	}
-	m_hAutoSaveTimer = NULL;
-	CFrameWnd::OnDestroy();
-}
-
-void CMainFrame::OnTimer(UINT nIDEvent) 
+void CMainFrame::OnAutoSaveTimer()
 {
 	CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
 	if (pDoc && pDoc->needAutoSave()) {
 		m_autoSaving = true;
-		HCURSOR old = SetCursor(::LoadCursor(0, IDC_WAIT));
 		SetMessageText("Auto Saving map...");
 		pDoc->autoSave();
-		if (old) SetCursor(old);
 		SetMessageText("Auto Save Complete.");
 		m_autoSaving = false;
 	}
 }
 
-void CMainFrame::OnEditCameraoptions() 
+/////////////////////////////////////////////////////////////////////////////
+// File & edit menu handlers
+
+void CMainFrame::OnFileNew()
 {
-	m_cameraOptions.ShowWindow(SW_SHOWNA);
+	CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
+	if (pDoc) {
+		/// @todo port the CNewHeightMap size dialog; using the saved defaults.
+		QSettings settings;
+		Int height = settings.value("GameOptions/DefaultMapHeight", 16).toInt();
+		Int xSize = settings.value("GameOptions/DefaultMapXSize", 100).toInt();
+		Int ySize = settings.value("GameOptions/DefaultMapYSize", 100).toInt();
+		Int border = settings.value("GameOptions/DefaultMapBorder", 30).toInt();
+		pDoc->newDocument(xSize, ySize, height, border);
+		setWindowTitle("WorldBuilder - Untitled");
+	}
 }
 
-void CMainFrame::handleCameraChange(void)
+void CMainFrame::OnFileOpen()
 {
-	m_cameraOptions.update();
+	CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
+	if (pDoc == NULL) {
+		return;
+	}
+	QString dir = QString::fromUtf8(WbApp()->getCurrentDirectory().str());
+	QString path = QFileDialog::getOpenFileName(this, "Open Map", dir, "Maps (*.map)");
+	if (path.isEmpty()) {
+		return;
+	}
+	WbApp()->setCurrentDirectory(AsciiString(QFileInfo(path).absolutePath().toUtf8().constData()));
+	if (pDoc->openDocument(path.toUtf8().constData())) {
+		setWindowTitle(QString("WorldBuilder - %1").arg(QFileInfo(path).fileName()));
+	}
 }
 
+void CMainFrame::OnFileSave()
+{
+	CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
+	if (pDoc == NULL) {
+		return;
+	}
+	if (pDoc->getFilePath().isEmpty()) {
+		OnFileSaveAs();
+		return;
+	}
+	pDoc->saveDocument(pDoc->getFilePath().str());
+}
+
+void CMainFrame::OnFileSaveAs()
+{
+	CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
+	if (pDoc == NULL) {
+		return;
+	}
+	QString dir = QString::fromUtf8(WbApp()->getCurrentDirectory().str());
+	QString path = QFileDialog::getSaveFileName(this, "Save Map", dir, "Maps (*.map)");
+	if (path.isEmpty()) {
+		return;
+	}
+	if (!path.endsWith(".map", Qt::CaseInsensitive)) {
+		path += ".map";
+	}
+	if (pDoc->saveDocument(path.toUtf8().constData())) {
+		setWindowTitle(QString("WorldBuilder - %1").arg(QFileInfo(path).fileName()));
+	}
+}
+
+void CMainFrame::OnEditUndo()
+{
+	CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
+	if (pDoc) {
+		pDoc->OnEditUndo();
+	}
+}
+
+void CMainFrame::OnEditRedo()
+{
+	CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
+	if (pDoc) {
+		pDoc->OnEditRedo();
+	}
+}
+
+void CMainFrame::closeEvent(QCloseEvent *event)
+{
+	QSettings settings;
+	settings.setValue(MAIN_FRAME_SECTION "/Geometry", saveGeometry());
+	settings.setValue(MAIN_FRAME_SECTION "/State2", saveState());
+	QMainWindow::closeEvent(event);
+}

@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,29 +18,32 @@
 */
 
 // PointerTool.h
-// Texture tiling tools for worldbuilder.
+// Select and move tool for worldbuilder.
 // Author: John Ahlquist, April 2001
+//
+// Qt6 port note: the polygon-trigger editing branch (PolygonTool base) is not
+// ported yet; selection, drag-select, move and rotate work.  @todo
 
 #pragma once
 
 #ifndef POINTER_TOOL_H
 #define POINTER_TOOL_H
 
-#include "PolygonTool.h"
-class WorldHeightMapEdit;
-#include "../../gameengine/include/common/MapObject.h"
+#include "Tool.h"
+#include "Common/MapObject.h"
 
 class ModifyObjectUndoable;
+class WorldHeightMapEdit;
+
 /*************************************************************************/
 /**                             PointerTool
-	 Does the select/move tool operation. 
+	 Does the select/move tool operation.
 ***************************************************************************/
-///  Blend edges out tool.
-class PointerTool : public PolygonTool
+class PointerTool : public Tool
 {
 protected:
 	enum {HYSTERESIS = 3};
-	CPoint m_downPt2d;
+	QPoint m_downPt2d;
 	Coord3D m_downPt3d;
 	MapObject *m_curObject;
 
@@ -47,14 +51,12 @@ protected:
 	Bool m_rotating; ///< True if we are rotating an object.
 	Bool m_dragSelect; ///< True if we are drag selecting.
 
-	Bool m_doPolyTool; ///< True if we are using the polygon tool to modify a polygon triggter.
-	
 	ModifyObjectUndoable *m_modifyUndoable;	 ///< The modify undoable that is in progress while we track the mouse.
 
 	Bool m_mouseUpRotate;///< True if we are over the "rotate" hotspot.
-	HCURSOR m_rotateCursor;
+	QCursor m_rotateCursor;
 	Bool m_mouseUpMove;///< True if we are over the "move" hotspot.
-	HCURSOR m_moveCursor;
+	QCursor m_moveCursor;
 
 protected:
 	void checkForPropertiesPanel(void);
@@ -68,14 +70,15 @@ public:
 	virtual void activate();
 	virtual void deactivate();
 
-	virtual void setCursor(void);
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual QCursor getCursor(void);
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 
 public:
 	static void clearSelection(void); ///< Clears the selected objects selected flags.
 	static Bool allowPick(MapObject* pMapObj, WbView* pView);
+	static Real calcAngle(Coord3D downPt, Coord3D curPt); ///< From ObjectTool; angle of curPt around downPt.
 };
 
 

@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,86 +17,45 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if !defined(AFX_BRUSHOPTIONS_H__6B56E20C_582E_4030_A251_879097C8853C__INCLUDED_)
-#define AFX_BRUSHOPTIONS_H__6B56E20C_582E_4030_A251_879097C8853C__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-// brushoptions.h : header file
+// brushoptions.h : the height-brush options panel (Qt6 port)
 //
 
-#include "WBPopupSlider.h"
-#include "OptionsPanel.h"
-/////////////////////////////////////////////////////////////////////////////
-/// BrushOptions modeless (floating) dialog - allows entry and display of brush width and feather.
+#pragma once
 
-class BrushOptions : public COptionsPanel	, public PopupSliderOwner
+#include <QWidget>
+
+#include "Lib/BaseType.h"
+
+class QSpinBox;
+
+/////////////////////////////////////////////////////////////////////////////
+/// BrushOptions panel - allows entry and display of brush width and feather.
+
+class BrushOptions : public QWidget
 {
-// Construction
+	Q_OBJECT
+
 public:
 	enum {MIN_BRUSH_SIZE=1,
 				MAX_BRUSH_SIZE=51,
-				FREQ_BRUSH_TICKS=10,
 				MIN_FEATHER=0,
-				FREQ_FEATHER_TICKS=4,
-				MAX_FEATHER=20};
+				MAX_FEATHER=20,
+				MIN_HEIGHT=0,
+				MAX_HEIGHT=255};
 
-	BrushOptions(CWnd* pParent = NULL);   // standard constructor
+	BrushOptions(QWidget *parent = NULL);
+	~BrushOptions() override;
 
-// Dialog Data
-	//{{AFX_DATA(BrushOptions)
-	enum { IDD = IDD_BRUSH_OPTIONS };
-		// NOTE: the ClassWizard will add data members here
-	//}}AFX_DATA
-
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(BrushOptions)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	virtual void OnOK(){return;};  //!< Modeless dialogs don't OK, so eat this for modeless.
-	virtual void OnCancel(){return;}; //!< Modeless dialogs don't close on ESC, so eat this for modeless.
-	//}}AFX_VIRTUAL
-
-// Implementation
-protected:
-
-	// Generated message map functions
-	//{{AFX_MSG(BrushOptions)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnChangeFeatherEdit();
-	afx_msg void OnChangeSizeEdit();
-	afx_msg void OnChangeHeightEdit();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-
-protected:
-	static BrushOptions *m_staticThis;  ///< Reference to the floating panel so SetWidth and SetFeather can be static.
-	static Int m_currentWidth;					///< current brush width in the ui.
-	static Int m_currentFeather;				///< current feather width in the ui.
-	static Int m_currentHeight;
-
-	Bool		m_updating; ///<true if the ui is updating itself.
-	WBPopupSliderButton m_brushWidthPopup;
-	WBPopupSliderButton m_brushFeatherPopup;
-	WBPopupSliderButton m_brushHeightPopup;
-
-public:
+	// The brush tool pushes its values into the (single) panel through these.
 	static void setWidth(Int width);
 	static void setFeather(Int feather);
 	static void setHeight(Int height);
 
-public:
+protected:
+	QSpinBox *m_widthSpin;
+	QSpinBox *m_featherSpin;
+	QSpinBox *m_heightSpin;
+	Bool m_updating;
 
-	virtual void GetPopSliderInfo(const long sliderID, long *pMin, long *pMax, long *pLineSize, long *pInitial);
-	virtual void PopSliderChanged(const long sliderID, long theVal);
-	virtual void PopSliderFinished(const long sliderID, long theVal);
-
+	static BrushOptions *m_staticThis;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_BRUSHOPTIONS_H__6B56E20C_582E_4030_A251_879097C8853C__INCLUDED_)
