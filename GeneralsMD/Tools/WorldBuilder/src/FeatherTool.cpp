@@ -23,6 +23,7 @@
 
 #include "FeatherTool.h"
 #include "CUndoable.h"
+#include "DrawObject.h"
 #include "FeatherOptions.h"
 #include "MainFrm.h"
 #include "WHeightMapEdit.h"
@@ -58,7 +59,8 @@ void FeatherTool::activate()
 {
 	if (CMainFrame::GetMainFrame())
 		CMainFrame::GetMainFrame()->showOptionsDialog(ID_FEATHER_TOOL);
-	/// @todo DrawObject brush feedback once DrawObject is ported.
+	DrawObject::setDoBrushFeedback(true);
+	DrawObject::setBrushFeedbackParms(false, m_feather, 0);
 }
 
 void FeatherTool::setFeather(Int feather)
@@ -66,6 +68,7 @@ void FeatherTool::setFeather(Int feather)
 	if (m_feather != feather) {
 		m_feather = feather;
 		FeatherOptions::setFeather(m_feather);
+		DrawObject::setBrushFeedbackParms(false, m_feather, 0);
 	}
 };
 
@@ -125,7 +128,7 @@ void FeatherTool::mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWor
 {
 	Coord3D cpt;
 	pView->viewToDocCoords(viewPt, &cpt);
-	/// @todo DrawObject::setFeedbackPos(cpt); once DrawObject is ported.
+	DrawObject::setFeedbackPos(cpt);
 	if (m != TRACK_L) return;
 
 	int brushWidth = m_feather;

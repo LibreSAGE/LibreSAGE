@@ -33,6 +33,7 @@
 #include "FeatherTool.h"
 #include "HandScrollTool.h"
 #include "MoundTool.h"
+#include "ObjectTool.h"
 #include "PointerTool.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
@@ -202,10 +203,12 @@ WorldBuilderApp::WorldBuilderApp(int &argc, char **argv) :
 	MoundTool *moundTool = new MoundTool;
 	DigTool *digTool = new DigTool;
 	FeatherTool *featherTool = new FeatherTool;
+	ObjectTool *objectTool = new ObjectTool;
 	m_tools[0] = m_brushTool;
 	m_tools[2] = featherTool;
 	m_tools[6] = moundTool;
 	m_tools[7] = digTool;
+	m_tools[9] = objectTool;
 	m_tools[10] = m_pointerTool;
 	m_tools[15] = m_handScrollTool;
 

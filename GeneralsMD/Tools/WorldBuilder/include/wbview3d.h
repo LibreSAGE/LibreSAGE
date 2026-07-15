@@ -33,6 +33,7 @@
 #include "rendobj.h"
 #include "refcount.h"
 #include "lightenvironment.h"
+#include "dx8wrapper.h"		// DX8_CleanupHook
 
 class WBHeightMap;
 class SkeletonSceneClass;
@@ -41,13 +42,14 @@ class LayerClass;
 class LightClass;
 class IntersectionClass;
 class W3DAssetManager;
+class DrawObject;
 class MapObject;
 class ThingTemplate;
 class QSdlWindow;
 class QTimer;
 struct SDL_Window;
 
-class WbView3d : public WbView
+class WbView3d : public WbView, public DX8_CleanupHook
 {
 	Q_OBJECT
 
@@ -94,6 +96,34 @@ public:
 	void setShowEntireMap(Bool show);
 	Bool getShowTopDownView(void) {return m_projection;}
 	void setShowTopDownView(Bool show);
+
+	// Feedback overlay (DrawObject) toggles -----------------------------------
+	const ICoord2D &getActualWinSize(void) const {return m_actualWinSize;}
+
+	Bool getShowObjects(void) {return m_showObjects;}
+	void setShowObjects(Bool show) {m_showObjects = show; redraw();}
+	Bool getShowWaypoints(void) {return m_showWaypoints;}
+	void setShowWaypoints(Bool show) {m_showWaypoints = show; redraw();}
+	Bool getShowBoundingBoxes(void) {return m_showBoundingBoxes;}
+	void setShowBoundingBoxes(Bool show) {m_showBoundingBoxes = show; redraw();}
+	Bool getShowSightRanges(void) {return m_showSightRanges;}
+	void setShowSightRanges(Bool show) {m_showSightRanges = show; redraw();}
+	Bool getShowWeaponRanges(void) {return m_showWeaponRanges;}
+	void setShowWeaponRanges(Bool show) {m_showWeaponRanges = show; redraw();}
+	Bool getShowSoundCircles(void) {return m_showSoundCircles;}
+	void setShowSoundCircles(Bool show) {m_showSoundCircles = show; redraw();}
+	Bool getHighlightTestArt(void) {return m_highlightTestArt;}
+	void setHighlightTestArt(Bool show) {m_highlightTestArt = show; redraw();}
+	Bool getShowLetterbox(void) {return m_showLetterbox;}
+	void setShowLetterbox(Bool show) {m_showLetterbox = show; redraw();}
+
+	/// Show/track the transparent placement-preview object for the object tool.
+	void setObjTracking(MapObject *pMapObj, Coord3D pos, Real angle, Bool show);
+
+	// DX8_CleanupHook: release/reacquire the overlay's default-pool D3D
+	// resources (and the terrain's) around a device reset, else reset fails.
+	void ReleaseResources(void) override;
+	void ReAcquireResources(void) override;
 
 protected:
 	void wheelEvent(QWheelEvent *event) override;
@@ -144,4 +174,20 @@ protected:
 	Bool				m_ww3dInited;
 	UnsignedInt			m_time;
 	Real				m_buildRedMultiplier;
+
+	// The feedback overlay (object markers, bounding boxes, ranges, etc.).
+	DrawObject			*m_drawObject;
+	Bool				m_showObjects;
+	Bool				m_showWaypoints;
+	Bool				m_showBoundingBoxes;
+	Bool				m_showSightRanges;
+	Bool				m_showWeaponRanges;
+	Bool				m_showSoundCircles;
+	Bool				m_highlightTestArt;
+	Bool				m_showLetterbox;
+
+	// The transparent placement preview driven by the object tool.
+	RenderObjClass		*m_objectToolTrackingObj;
+	Bool				m_showObjToolTrackingObj;
+	AsciiString			m_objectToolTrackingModelName;
 };

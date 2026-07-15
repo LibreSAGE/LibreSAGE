@@ -16,7 +16,17 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+// Qt6 port note: the mesh-mold, polygon-area, build-list and waypoint drawing
+// branches depend on tools (MeshMoldTool, PolygonTool, BuildListTool, the
+// layers panel) that have not been ported yet, so those blocks are compiled
+// out below with `#if 0` and a matching @todo.  Object markers (center
+// arrows), bounding boxes, sight/weapon/sound ranges, test-art highlighting and
+// the brush/ramp/boundary/letterbox feedback overlays are ported and active.
+
+// Qt headers must be parsed before the engine's GameMemory.h, which #defines
+// `newInstance` and would otherwise clobber QMetaObject::newInstance.
+#include <QPoint>
+#include <QWidget>
 
 #include "DrawObject.h"
 
@@ -30,27 +40,22 @@
 #include <coltest.h>
 #include <rinfo.h>
 #include <camera.h>
-#include "common/GlobalData.h"
+#include "Common/GlobalData.h"
 #include "W3DDevice/GameClient/WorldHeightMap.h"
 #include "W3DDevice/GameClient/TerrainTex.h"
 #include "W3DDevice/GameClient/HeightMap.h"
 #include "W3DDevice/GameClient/W3DAssetManager.h"
 #include "W3DDevice/GameClient/W3DWater.h"
-#include "WW3D2/DX8Wrapper.h"
-#include "WW3D2/Mesh.h"
-#include "WW3D2/MeshMdl.h"
-#include "WW3D2/Shader.h"
-#include "common/MapObject.h"
+#include "dx8wrapper.h"
+#include "mesh.h"
+#include "meshmdl.h"
+#include "shader.h"
+#include "Common/MapObject.h"
 #include "GameLogic/PolygonTrigger.h"
 #include "GameLogic/SidesList.h"
-#include "resource.h"
-#include "WBView3d.h"
+#include "wbview3d.h"
 #include "WorldBuilderDoc.h"
 #include "WHeightMapEdit.h"
-#include "MeshMoldOptions.h"
-#include "WaterTool.h"
-#include "BuildListTool.h"
-#include "LayersList.h"
 #include "Common/WellKnownKeys.h"
 #include "Common/BorderColors.h"
 #include "Common/ThingTemplate.h"
@@ -102,7 +107,7 @@ Bool	DrawObject::m_rampFeedback = false;
 Bool	DrawObject::m_boundaryFeedback = false;
 Bool	DrawObject::m_ambientSoundFeedback = false;
 Coord3D	DrawObject::m_feedbackPoint;
-CPoint DrawObject::m_cellCenter;
+QPoint DrawObject::m_cellCenter;
 
 Coord3D	DrawObject::m_rampStartPoint;
 Coord3D	DrawObject::m_rampEndPoint;
@@ -279,7 +284,7 @@ Int DrawObject::initData(void)
 	m_vertexMaterialClass=VertexMaterialClass::Get_Preset(VertexMaterialClass::PRELIT_DIFFUSE);
 
 	//use a multi-texture shader: (text1*diffuse)*text2.
-	m_shaderClass = ShaderClass::ShaderClass(SC_OPAQUE);//_PresetOpaque2DShader;//ShaderClass(SC_OPAQUE); //_PresetOpaqueShader;
+	m_shaderClass = ShaderClass(SC_OPAQUE);//_PresetOpaque2DShader;//ShaderClass(SC_OPAQUE); //_PresetOpaqueShader;
 
 	m_shaderClass = ShaderClass::_PresetOpaque2DShader;
 	updateForWater();			 
@@ -293,6 +298,10 @@ Int DrawObject::initData(void)
 
 void DrawObject::updateMeshVB(void)
 {
+	/// @todo mesh-mold feedback depends on the unported MeshMoldTool /
+	/// MeshMoldOptions panel; re-enable this body once that tool is ported.
+	/// m_meshFeedback is never set true until then, so this is unreachable.
+#if 0
 	const Int theAlpha = 64;
 
 	if (m_curMeshModelName != MeshMoldOptions::getModelName()) {
@@ -440,7 +449,7 @@ void DrawObject::updateMeshVB(void)
 	*curIb++ = m_feedbackVertexCount-3;
 	*curIb++ = m_feedbackVertexCount-2;
 	m_feedbackIndexCount+=12;
-
+#endif // mesh-mold feedback disabled until MeshMoldTool is ported
 }
 
 /** updateRampVB puts the ramps into a vertex buffer. */
@@ -849,8 +858,6 @@ void DrawObject::updateAmbientSoundVB(void)
 
 void DrawObject::updateWaypointVB(void)
 {
-//	const Int theAlpha = 64;
-
 	m_feedbackVertexCount = 0;
 	m_feedbackIndexCount = 0;
 	DX8IndexBufferClass::WriteLockClass lockIdxBuffer(m_indexFeedback, D3DLOCK_DISCARD);
@@ -903,12 +910,14 @@ void DrawObject::updateWaypointVB(void)
 					loc2 = *pWay2->getLocation();
 					AsciiString wayLayer;
 					wayLayer = pWay1->getProperties()->getAsciiString(TheKey_objectLayer, &exists);
-					if (exists && TheLayersList->isLayerHidden(wayLayer)) {
+					// The layers panel is not ported yet, so nothing is hidden.
+					if (false /* exists && TheLayersList->isLayerHidden(wayLayer) */) {
 						gotLocation = false;
 					}
 
 					wayLayer = pWay2->getProperties()->getAsciiString(TheKey_objectLayer, &exists);
-					if (exists && TheLayersList->isLayerHidden(wayLayer)) {
+					// The layers panel is not ported yet, so nothing is hidden.
+					if (false /* exists && TheLayersList->isLayerHidden(wayLayer) */) {
 						gotLocation = false;
 					}
 				}
@@ -1222,8 +1231,8 @@ void DrawObject::updateFeedbackVB(void)
 	if (radius > MAX_RADIUS) radius = MAX_RADIUS;
 	Real offset = 0;
 	if (m_brushWidth&1) offset = 0.5f;
-	Int minX = floor(m_cellCenter.x-radius+offset);
-	Int minY = floor(m_cellCenter.y-radius+offset);
+	Int minX = floor(m_cellCenter.x()-radius+offset);
+	Int minY = floor(m_cellCenter.y()-radius+offset);
 	Int maxX = minX+2*radius;
 	Int maxY = minY+2*radius;
 	maxX++; maxY++;
@@ -1247,8 +1256,8 @@ void DrawObject::updateFeedbackVB(void)
 			}
 			Real X, Y, theZ; 
 			if (doubleResolution) {
-				X = ADJUST_FROM_INDEX_TO_REAL(i)/2.0f + ADJUST_FROM_INDEX_TO_REAL(2*offset+m_cellCenter.x)  / 2.0; 
-				Y = ADJUST_FROM_INDEX_TO_REAL(j)/2.0f + ADJUST_FROM_INDEX_TO_REAL(2*offset+m_cellCenter.y)  / 2.0;
+				X = ADJUST_FROM_INDEX_TO_REAL(i)/2.0f + ADJUST_FROM_INDEX_TO_REAL(2*offset+m_cellCenter.x())  / 2.0;
+				Y = ADJUST_FROM_INDEX_TO_REAL(j)/2.0f + ADJUST_FROM_INDEX_TO_REAL(2*offset+m_cellCenter.y())  / 2.0;
 				theZ = TheTerrainRenderObject->getHeightMapHeight(X, Y, NULL);
 			} else {
 				X = ADJUST_FROM_INDEX_TO_REAL(i); 
@@ -2008,7 +2017,7 @@ bool DrawObject::worldToScreen(const Coord3D *w, ICoord2D *s, CameraClass* camer
 	// (1,1) top right ... we are turning that into (0,0) upper left
 	// coords now
 	//
-	W3DLogicalScreenToPixelScreen(screen.X, screen.Y, &s->x, &s->y, m_winSize.x, m_winSize.y);
+	W3DLogicalScreenToPixelScreen(screen.X, screen.Y, &s->x, &s->y, m_winSize.x(), m_winSize.y());
 
 	if ((screen.X > 2.0f) || (screen.Y > 2.0f) || (screen.X < -2.0f) || (screen.Y < -2.0f)) {
 		// Too far off the screen. 
@@ -2029,14 +2038,14 @@ void DrawObject::setFeedbackPos(Coord3D pos)
 	}
 	CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
 	if (!pDoc) return;
-	CPoint ndx;
+	QPoint ndx;
 	pDoc->getCellIndexFromCoord(pos, &ndx);
-	if (ndx.x != m_cellCenter.x || ndx.y != m_cellCenter.y) {
+	if (ndx != m_cellCenter) {
 		m_cellCenter = ndx;
 		if (m_toolWantsFeedback && !m_disableFeedback) {
-			WbView3d *pView = pDoc->Get3DView();		
+			WbView3d *pView = pDoc->Get3DView();
 			if (pView) {
-				pView->Invalidate(false);
+				pView->update();
 			}
 		}
 	}
@@ -2060,7 +2069,9 @@ void DrawObject::setRampFeedbackParms(const Coord3D *start, const Coord3D *end, 
 // So just shut it off for now.  The failure case was new doc, add a poly trigger.
 // Adding any other object fixed the problem.	jba
 
+#ifdef _MSC_VER
 #pragma optimize("", off)
+#endif
 
 bool _skip_drawobject_render = false;
 
@@ -2075,13 +2086,14 @@ if (_skip_drawobject_render) {
 	if (m_lineRenderer == NULL) {
 		// This can't be created in init because the doc hasn't been created yet.
 		m_lineRenderer = new Render2DClass();
-		ASSERT(m_lineRenderer);
+		DEBUG_ASSERTCRASH(m_lineRenderer, ("no line renderer"));
 		CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
-		ASSERT(pDoc);
-		WbView3d *pView = pDoc->Get3DView(); 
-		ASSERT(pView);
-		m_winSize = pView->getActualWinSize();
-		m_lineRenderer->Set_Coordinate_Range(RectClass(0, 0, m_winSize.x, m_winSize.y));
+		DEBUG_ASSERTCRASH(pDoc, ("no active doc"));
+		WbView3d *pView = pDoc->Get3DView();
+		DEBUG_ASSERTCRASH(pView, ("no 3d view"));
+		const ICoord2D &sz = pView->getActualWinSize();
+		m_winSize = QPoint(sz.x, sz.y);
+		m_lineRenderer->Set_Coordinate_Range(RectClass(0, 0, m_winSize.x(), m_winSize.y()));
 		m_lineRenderer->Reset();
 		m_lineRenderer->Enable_Texturing(FALSE);
 	}
@@ -2171,9 +2183,10 @@ if (pMapObj->isSelected()) {
 				if (!m_drawObjects) {
 					continue;
 				}
-				if (BuildListTool::isActive()) {
-					continue;
-				}
+				/// @todo re-enable the BuildListTool skip once that tool is ported.
+				//if (BuildListTool::isActive()) {
+				//	continue;
+				//}
 			}
 
 			if (count&1) {
@@ -2234,6 +2247,9 @@ if (pMapObj->isSelected()) {
 			count++;
 		}
 	}
+	/// @todo the polygon-area and build-list overlays depend on the unported
+	/// PolygonTool and BuildListTool; re-enable these two blocks once they land.
+#if 0
 	if (m_drawPolygonAreas) {
  		DX8Wrapper::Set_Vertex_Buffer(m_vertexBufferWater);
 		Int selected;
@@ -2337,14 +2353,15 @@ if (pMapObj->isSelected()) {
 				polyCountA -= NUM_ARROW_TRI+NUM_SELECT_TRI;
 			}
 
-#if 1	
+#if 1
 			DX8Wrapper::Set_Transform(D3DTS_WORLD,tmXX);
 			DX8Wrapper::Draw_Triangles(	0,polyCountA, 0,	(m_numTriangles*3));
 #endif
 
 		}
 	}
-	
+#endif // polygon-area / build-list overlays disabled until their tools are ported
+
 	DX8Wrapper::Set_Index_Buffer(m_indexBuffer,0);
  	DX8Wrapper::Set_Vertex_Buffer(m_vertexBufferWater);
 	Matrix3D tmReset(Transform);
@@ -2439,8 +2456,8 @@ if (pMapObj->isSelected()) {
 	}
 
 	if (m_drawLetterbox) {
-		int w = m_winSize.x;
-		int h = m_winSize.y;
+		int w = m_winSize.x();
+		int h = m_winSize.y();
 		int size = (int)((h - (9.0f / 16.0f * w)) * 0.5f);
 		RectClass rect(0, 0, w, size);
 		m_lineRenderer->Add_Quad(rect, 0xFF000000);
@@ -2457,7 +2474,9 @@ if (pMapObj->isSelected()) {
 		m_lineRenderer->Reset();
 	}
 }
+#ifdef _MSC_VER
 #pragma optimize("", on)
+#endif
 
 void BuildRectFromSegmentAndWidth(const Coord3D* start, const Coord3D* end, Real width, 
 																	Coord3D* outBL, Coord3D* outTL, Coord3D* outBR, Coord3D* outTR)

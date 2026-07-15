@@ -23,6 +23,7 @@
 
 #include "BrushTool.h"
 #include "CUndoable.h"
+#include "DrawObject.h"
 #include "MainFrm.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
@@ -76,7 +77,7 @@ void BrushTool::setWidth(Int width)
 		m_brushWidth = width;
 		// notify brush palette options panel
 		BrushOptions::setWidth(width);
-		/// @todo DrawObject::setBrushFeedbackParms once DrawObject is ported.
+		DrawObject::setBrushFeedbackParms(m_brushSquare, m_brushWidth, m_brushFeather);
 	}
 };
 
@@ -87,7 +88,7 @@ void BrushTool::setFeather(Int feather)
 		m_brushFeather = feather;
 		// notify height palette options panel
 		BrushOptions::setFeather(feather);
-		/// @todo DrawObject::setBrushFeedbackParms once DrawObject is ported.
+		DrawObject::setBrushFeedbackParms(m_brushSquare, m_brushWidth, m_brushFeather);
 	}
 };
 
@@ -96,7 +97,8 @@ void BrushTool::activate()
 {
 	if (CMainFrame::GetMainFrame())
 		CMainFrame::GetMainFrame()->showOptionsDialog(ID_BRUSH_TOOL);
-	/// @todo DrawObject brush feedback once DrawObject is ported.
+	DrawObject::setDoBrushFeedback(true);
+	DrawObject::setBrushFeedbackParms(m_brushSquare, m_brushWidth, m_brushFeather);
 }
 
 /// Start tool.
@@ -136,7 +138,7 @@ void BrushTool::mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorld
 {
 	Coord3D cpt;
 	pView->viewToDocCoords(viewPt, &cpt);
-	/// @todo DrawObject::setFeedbackPos(cpt); once DrawObject is ported.
+	DrawObject::setFeedbackPos(cpt);
 
 	if (m != TRACK_L) return;
 

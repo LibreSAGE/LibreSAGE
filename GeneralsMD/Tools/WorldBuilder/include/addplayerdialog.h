@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,60 +17,36 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if !defined(AFX_ADDPLAYERDIALOG_H__96179004_35C9_436A_A302_A777E77F8F04__INCLUDED_)
-#define AFX_ADDPLAYERDIALOG_H__96179004_35C9_436A_A302_A777E77F8F04__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-// addplayerdialog.h : header file
+// addplayerdialog.h : the "add a player to the map" dialog (Qt6 port)
 //
 
-#include "GameLogic/SidesList.h"
+#pragma once
+
+#include <QDialog>
+
+#include "Common/AsciiString.h"
+
+class QComboBox;
 
 /////////////////////////////////////////////////////////////////////////////
-// AddPlayerDialog dialog
+/// AddPlayerDialog - pick a player template (optionally filtered to a side)
+/// and add it to the map's sides list.
 
-class AddPlayerDialog : public CDialog
+class AddPlayerDialog : public QDialog
 {
+	Q_OBJECT
+
+public:
+	AddPlayerDialog(AsciiString side, QWidget *parent = NULL);
+
+	AsciiString getAddedSide() const { return m_addedSide; }
+
+protected:
+	void accept() override;
+	void reject() override;
+
 private:
 	AsciiString m_side;
 	AsciiString m_addedSide;
-
-// Construction
-public:
-	AddPlayerDialog(AsciiString side, CWnd* pParent = NULL);   // standard constructor
-
-	AsciiString getAddedSide() { return m_addedSide; }
-
-// Dialog Data
-	//{{AFX_DATA(AddPlayerDialog)
-	enum { IDD = IDD_ADDPLAYER };
-		// NOTE: the ClassWizard will add data members here
-	//}}AFX_DATA
-
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(AddPlayerDialog)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
-
-// Implementation
-protected:
-
-	// Generated message map functions
-	//{{AFX_MSG(AddPlayerDialog)
-	virtual void OnOK();
-	virtual void OnCancel();
-	virtual BOOL OnInitDialog();
-	afx_msg void OnEditchangeCombo1();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+	QComboBox  *m_factions;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_ADDPLAYERDIALOG_H__96179004_35C9_436A_A302_A777E77F8F04__INCLUDED_)

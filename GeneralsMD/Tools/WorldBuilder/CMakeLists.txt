@@ -10,14 +10,20 @@ set(CMAKE_AUTOUIC ON)
 
 qt_add_executable(
   z_worldbuilder
+  include/addplayerdialog.h
   include/BrushTool.h
   include/CUndoable.h
+  include/DrawObject.h
   include/FeatherOptions.h
   include/FeatherTool.h
   include/HandScrollTool.h
   include/MainFrm.h
+  include/MapSettings.h
   include/MoundOptions.h
   include/MoundTool.h
+  include/ObjectOptions.h
+  include/ObjectPreview.h
+  include/ObjectTool.h
   include/PointerTool.h
   include/RoadTool.h
   include/SplashScreen.h
@@ -30,14 +36,20 @@ qt_add_executable(
   include/mapobjectprops.h
   include/wbview.h
   include/wbview3d.h
+  src/addplayerdialog.cpp
   src/BrushTool.cpp
   src/CUndoable.cpp
+  src/DrawObject.cpp
   src/FeatherOptions.cpp
   src/FeatherTool.cpp
   src/HandScrollTool.cpp
   src/MainFrm.cpp
+  src/MapSettings.cpp
   src/MoundOptions.cpp
   src/MoundTool.cpp
+  src/ObjectOptions.cpp
+  src/ObjectPreview.cpp
+  src/ObjectTool.cpp
   src/PointerTool.cpp
   src/RoadTool.cpp
   src/SplashScreen.cpp

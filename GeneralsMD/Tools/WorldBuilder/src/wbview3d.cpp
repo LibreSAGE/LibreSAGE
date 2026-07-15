@@ -25,10 +25,12 @@
 
 // wbview3d.cpp : the 3d view (Qt6 port of the MFC WbView3d).  W3D renders
 // into an embedded SDL window (QSdlWindow) via DXVK, same pattern as W3DView.
-// Labels, letterbox and the DrawObject feedback overlay are not ported yet.
+// The DrawObject feedback overlay (object markers, bounding boxes, ranges,
+// brush feedback) is ported; the 2D text labels are not yet.
 
 #include "wbview3d.h"
 
+#include "DrawObject.h"
 #include "MainFrm.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilder.h"
@@ -151,7 +153,18 @@ WbView3d::WbView3d(QWidget *parent) :
 	m_showShadows(true),
 	m_ww3dInited(false),
 	m_time(0),
-	m_buildRedMultiplier(0)
+	m_buildRedMultiplier(0),
+	m_drawObject(NULL),
+	m_showObjects(true),
+	m_showWaypoints(true),
+	m_showBoundingBoxes(false),
+	m_showSightRanges(false),
+	m_showWeaponRanges(false),
+	m_showSoundCircles(false),
+	m_highlightTestArt(false),
+	m_showLetterbox(false),
+	m_objectToolTrackingObj(NULL),
+	m_showObjToolTrackingObj(false)
 {
 	WbInstallPlaceholderTacticalView();
 	m_cameraOffset.x = m_cameraOffset.y = m_cameraOffset.z = 1;
@@ -168,6 +181,12 @@ WbView3d::WbView3d(QWidget *parent) :
 	m_showWireframe = settings.value(MAIN_FRAME_SECTION "/ShowWireframe", false).toBool();
 	m_showEntireMap = settings.value(MAIN_FRAME_SECTION "/ShowEntireMap", true).toBool();
 	m_showShadows = settings.value(MAIN_FRAME_SECTION "/ShowShadows", true).toBool();
+	m_showBoundingBoxes = settings.value(MAIN_FRAME_SECTION "/ShowBoundingBoxes", false).toBool();
+	m_showSightRanges = settings.value(MAIN_FRAME_SECTION "/ShowSightRanges", false).toBool();
+	m_showWeaponRanges = settings.value(MAIN_FRAME_SECTION "/ShowWeaponRanges", false).toBool();
+	m_showSoundCircles = settings.value(MAIN_FRAME_SECTION "/ShowSoundCircles", false).toBool();
+	m_highlightTestArt = settings.value(MAIN_FRAME_SECTION "/HighlightTestArt", false).toBool();
+	m_showLetterbox = settings.value(MAIN_FRAME_SECTION "/ShowLetterbox", false).toBool();
 	TheWritableGlobalData->m_useShadowDecals = m_showShadows;
 	TheWritableGlobalData->m_useShadowVolumes = m_showShadows;
 	m_partialMapSize = settings.value("GameOptions/partialMapSize", 97).toInt();
@@ -200,6 +219,8 @@ WbView3d::~WbView3d()
 // ----------------------------------------------------------------------------
 void WbView3d::shutdownWW3D(void)
 {
+	// Stop owning the cleanup hook before we tear our resources down.
+	DX8Wrapper::SetCleanupHook(NULL);
 	if (m_renderTimer) {
 		m_renderTimer->stop();
 	}
@@ -231,6 +252,8 @@ void WbView3d::shutdownWW3D(void)
 			delete TheW3DShadowManager;
 			TheW3DShadowManager=NULL;
 		}
+		REF_PTR_RELEASE(m_objectToolTrackingObj);
+		REF_PTR_RELEASE(m_drawObject);
 		REF_PTR_RELEASE(m_transparentObjectsScene);
 		REF_PTR_RELEASE(m_overlayScene);
 		REF_PTR_RELEASE(m_baseBuildScene);
@@ -307,7 +330,12 @@ void WbView3d::initWW3D()
 		m_layer = new LayerClass( m_scene, m_camera );
 		m_buildLayer = new LayerClass( m_baseBuildScene, m_camera );
 		m_intersector = new IntersectionClass();
-		/// @todo create the DrawObject feedback overlay once DrawObject is ported.
+		// The feedback overlay draws object markers, bounding boxes and ranges
+		// on top of the scene.
+		if (m_overlayScene) {
+			m_drawObject = new DrawObject();
+			m_overlayScene->Add_Render_Object(m_drawObject);
+		}
 
 		TheWritableGlobalData->m_useShadowVolumes = true;
 		TheWritableGlobalData->m_useShadowDecals = true;
@@ -705,6 +733,60 @@ AsciiString WbView3d::getBestModelName(const ThingTemplate* tt, const ModelCondi
 }
 
 // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// DX8_CleanupHook: WW3D calls these around a device reset.  The overlay's
+// dynamic (default-pool) vertex/index buffers and the terrain's resources must
+// be freed before the reset and rebuilt afterwards, or the reset fails and the
+// device gets stuck resetting every frame.
+void WbView3d::ReleaseResources(void)
+{
+	if (m_heightMapRenderObj) {
+		m_heightMapRenderObj->ReleaseResources();
+	}
+	if (m_drawObject) {
+		m_drawObject->freeMapResources();
+	}
+}
+
+void WbView3d::ReAcquireResources(void)
+{
+	if (m_heightMapRenderObj) {
+		m_heightMapRenderObj->ReAcquireResources();
+	}
+	if (m_drawObject) {
+		m_drawObject->initData();
+	}
+}
+
+// ----------------------------------------------------------------------------
+// Show/track the transparent placement-preview object used by the object tool.
+void WbView3d::setObjTracking(MapObject *pMapObj, Coord3D pos, Real angle, Bool show)
+{
+	m_showObjToolTrackingObj = show;
+	if (!show) return;
+
+	Real scale;
+	AsciiString modelName = getModelNameAndScale(pMapObj, &scale, BODY_PRISTINE);
+	if (modelName != m_objectToolTrackingModelName) {
+		m_objectToolTrackingModelName = modelName;
+		REF_PTR_RELEASE(m_objectToolTrackingObj);
+		if (m_assetManager) {
+			m_objectToolTrackingObj = m_assetManager->Create_Render_Obj(modelName.str(), scale, 0);
+		}
+	}
+	if (m_objectToolTrackingObj == NULL) {
+		return;
+	}
+	if (m_heightMapRenderObj) {
+		pos.z += m_heightMapRenderObj->getHeightMapHeight(pos.x, pos.y, NULL);
+	}
+	Matrix3D renderObjPos(true);	// init to identity
+	renderObjPos.Translate(pos.x, pos.y, pos.z);
+	renderObjPos.Rotate_Z(angle);
+	m_objectToolTrackingObj->Set_Transform(renderObjPos);
+}
+
+// ----------------------------------------------------------------------------
 AsciiString WbView3d::getModelNameAndScale(MapObject *pMapObj, Real *scale, BodyDamageType curDamageState)
 {
 	ModelConditionFlags state;
@@ -1021,6 +1103,10 @@ void WbView3d::updateHeightMapInView(WorldHeightMap *htMap, Bool partial, const 
 	if (m_heightMapRenderObj == NULL) {
 		m_heightMapRenderObj = NEW_REF(WBHeightMap,());
 		m_scene->Add_Render_Object(m_heightMapRenderObj);
+		// The heightmap registers itself as the device-reset cleanup hook in its
+		// constructor; take it back so our overlay buffers get freed on the reset
+		// that its texture upload (below) triggers.
+		DX8Wrapper::SetCleanupHook(this);
 		partial = false;
 	}
 
@@ -1443,6 +1529,19 @@ void WbView3d::render()
 {
 	++m_updateCount;
 
+	// Own the device-reset cleanup hook: the heightmap claims it whenever it is
+	// (re)created, so re-assert it here or its reset would leak our buffers.
+	DX8Wrapper::SetCleanupHook(this);
+
+	// Push the current overlay toggles into the feedback object.  Waypoint and
+	// polygon-area drawing stay off until those tools are ported.
+	if (m_drawObject) {
+		m_drawObject->setDrawObjects(m_showObjects,
+			m_showWaypoints, false /*polygon areas*/,
+			m_showBoundingBoxes, m_showSightRanges, m_showWeaponRanges,
+			m_showSoundCircles, m_highlightTestArt, m_showLetterbox);
+	}
+
 	if (WW3D::Begin_Render(true,true,Vector3(0.5f,0.5f,0.5f), TheWaterTransparency->m_minWaterOpacity) == WW3D_ERROR_OK)
 	{
 		if (m_heightMapRenderObj) {
@@ -1473,6 +1572,14 @@ void WbView3d::render()
 				WW3D::Render(m_baseBuildScene,m_camera);
 				m_heightMapRenderObj->doTextures(true);
 			}
+		}
+
+		// Draw the transparent placement preview for the object tool.
+		if (m_showObjToolTrackingObj && m_objectToolTrackingObj && m_transparentObjectsScene) {
+			m_transparentObjectsScene->Add_Render_Object(m_objectToolTrackingObj);
+			m_transparentObjectsScene->Set_Ambient_Light(Vector3(1.0f,1.0f,1.0f));
+			WW3D::Render(m_transparentObjectsScene, m_camera);
+			m_transparentObjectsScene->Remove_Render_Object(m_objectToolTrackingObj);
 		}
 
 		// Draw the 3d obj icons on top of the rest of the data.

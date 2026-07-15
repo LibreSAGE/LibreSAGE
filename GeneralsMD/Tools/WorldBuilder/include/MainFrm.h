@@ -41,6 +41,7 @@ class BrushOptions;
 class MoundOptions;
 class FeatherOptions;
 class MapObjectProps;
+class ObjectOptions;
 
 class CMainFrame : public QMainWindow
 {
@@ -58,6 +59,7 @@ public:
 	WbView3d *get3DView(void) {return m_3dView;}
 
 	void OnEditGloballightoptions();
+	void OnEditMapSettings();
 	void ResetWindowPositions(void);
 	Bool isAutoSaving(void) {return m_autoSaving;};
 	void handleCameraChange(void);
@@ -91,6 +93,7 @@ protected:
 	MoundOptions			*m_moundOptions;
 	FeatherOptions			*m_featherOptions;
 	MapObjectProps			*m_mapObjectProps;
+	ObjectOptions			*m_objectOptions;
 	WbView3d				*m_3dView;
 
 	QTimer					*m_autoSaveTimer;  ///< Timer that triggers for autosave.

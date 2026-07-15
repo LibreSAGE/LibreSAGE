@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,54 +17,29 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if !defined(AFX_MAPSETTINGS_H__21749744_4DF4_462C_8DD4_FEEC1003DCFE__INCLUDED_)
-#define AFX_MAPSETTINGS_H__21749744_4DF4_462C_8DD4_FEEC1003DCFE__INCLUDED_
+// MapSettings.h : the map settings dialog (Qt6 port) - map title, time of day,
+// weather and the export compression.
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MapSettings.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// MapSettings dialog
+#include <QDialog>
 
-class MapSettings : public CDialog
+class QComboBox;
+class QLineEdit;
+
+class MapSettings : public QDialog
 {
-// Construction
+	Q_OBJECT
+
 public:
-	MapSettings(CWnd* pParent = NULL);   // standard constructor
+	MapSettings(QWidget *parent = NULL);
 
-// Dialog Data
-	//{{AFX_DATA(MapSettings)
-	enum { IDD = IDD_MAP_SETTINGS };
-		// NOTE: the ClassWizard will add data members here
-	//}}AFX_DATA
-
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(MapSettings)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
-
-// Implementation
 protected:
+	void accept() override;
 
-	// Generated message map functions
-	//{{AFX_MSG(MapSettings)
-	afx_msg void OnChangeMapTimeofday();
-	afx_msg void OnChangeMapWeather();
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	afx_msg void OnChangeMapTitle();
-	afx_msg void OnChangeMapCompression();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+private:
+	QLineEdit *m_mapTitle;
+	QComboBox *m_timeOfDay;
+	QComboBox *m_weather;
+	QComboBox *m_compression;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAPSETTINGS_H__21749744_4DF4_462C_8DD4_FEEC1003DCFE__INCLUDED_)
