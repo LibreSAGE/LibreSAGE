@@ -1,27 +1,27 @@
 
-# Command & Conquer Generals (inc. Zero Hour) Source Code
+# SAGE Engine Source Code
 
 [![Linux-64](https://github.com/feliwir/CnC_Generals_Zero_Hour/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/feliwir/CnC_Generals_Zero_Hour/actions/workflows/ubuntu.yml)
 [![codecov](https://codecov.io/gh/feliwir/CnC_Generals_Zero_Hour/graph/badge.svg?token=yOd513QpUq)](https://codecov.io/gh/feliwir/CnC_Generals_Zero_Hour)
 
-This repository includes source code for Command & Conquer Generals, and its expansion pack Zero Hour. 
+This repository includes source code for Command & Conquer Generals, and its expansion pack Zero Hour. The later SAGE gfames Battle for Middleearth and it's successors are being worked on.
 
 ## Dependencies
 
-If you wish to rebuild the source code and tools successfully you will need to find or write new replacements (or remove the code using them entirely) for the following libraries;
-
-- DirectX SDK (Version 9.0 or higher) (expected path `\Code\Libraries\DirectX\`)
-- STLport (4.5.3) - (expected path `\Code\Libraries\STLport-4.5.3`)
-- 3DSMax 4 SDK - (expected path `\Code\Libraries\Max4SDK\`)
-- NVASM - (expected path `\Code\Tools\NVASM\`)
-- BYTEmark - (expected path `\Code\Libraries\Source\Benchmark`)
-- RAD Miles Sound System SDK - (expected path `\Code\Libraries\Source\WWVegas\Miles6\`)
-- RAD Bink SDK - (expected path `\Code\GameEngineDevice\Include\VideoDevice\Bink`)
-- SafeDisk API - (expected path `\Code\GameEngine\Include\Common\SafeDisk` and `\Code\Tools\Launcher\SafeDisk\`)
-- Miles Sound System "Asimp3" - (expected path `\Code\Libraries\WPAudio\Asimp3`)
-- GameSpy SDK - (expected path `\Code\Libraries\Source\GameSpy\`)
-- ZLib (1.1.4) - (expected path `\Code\Libraries\Source\Compression\ZLib\`)
-- LZH-Light (1.0) - (expected path `\Code\Libraries\Source\Compression\LZHCompress\CompLibSource` and `CompLibHeader`)
+[![ffmpeg](https://img.shields.io/vcpkg/v/ffmpeg?label=ffmpeg)](https://vcpkg.io/en/package/ffmpeg)
+[![fontconfig](https://img.shields.io/vcpkg/v/fontconfig?label=fontconfig)](https://vcpkg.io/en/package/fontconfig)
+[![freetype](https://img.shields.io/vcpkg/v/freetype?label=freetype)](https://vcpkg.io/en/package/freetype)
+[![glm](https://img.shields.io/vcpkg/v/glm?label=glm)](https://vcpkg.io/en/package/glm)
+[![glslang](https://img.shields.io/vcpkg/v/glslang?label=glslang)](https://vcpkg.io/en/package/glslang)
+[![gtest](https://img.shields.io/vcpkg/v/gtest?label=gtest)](https://vcpkg.io/en/package/gtest)
+[![sdl3](https://img.shields.io/vcpkg/v/sdl3?label=sdl3)](https://vcpkg.io/en/package/sdl3)
+[![sdl3-image](https://img.shields.io/vcpkg/v/sdl3-image?label=sdl3-image)](https://vcpkg.io/en/package/sdl3-image)
+[![sdl3-net](https://img.shields.io/vcpkg/v/sdl3-net?label=sdl3-net)](https://vcpkg.io/en/package/sdl3-net)
+[![zlib](https://img.shields.io/vcpkg/v/zlib?label=zlib)](https://vcpkg.io/en/package/zlib)
+[![dxvk](https://img.shields.io/badge/dxvk-3.0.1-blue)](https://github.com/LibreSAGE/vcpkg-registry)
+[![icu](https://img.shields.io/vcpkg/v/icu?label=icu)](https://vcpkg.io/en/package/icu)
+[![miniaudio](https://img.shields.io/vcpkg/v/miniaudio?label=miniaudio)](https://vcpkg.io/en/package/miniaudio)
+[![lzo](https://img.shields.io/vcpkg/v/lzo?label=lzo)](https://vcpkg.io/en/package/lzo)
 
 ## License
 
