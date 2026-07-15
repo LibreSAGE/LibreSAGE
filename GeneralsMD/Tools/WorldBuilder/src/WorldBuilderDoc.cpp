@@ -41,6 +41,7 @@
 #include "Common/MapReaderWriterInfo.h"
 #include "Common/WellKnownKeys.h"
 #include "Common/NameKeyGenerator.h"
+#include "Compression.h"
 #include "GameClient/GameText.h"
 #include "GameLogic/PolygonTrigger.h"
 #include "GameLogic/SidesList.h"
@@ -62,6 +63,59 @@ public:
 	};
 protected:
 	FILE *m_file;
+};
+
+//-------------------------------------------------------------------------------------------------
+// Caches the whole map to memory and, on finalize(), compresses it with the
+// map's chosen compression (world dict TheKey_compression, falling back to the
+// preferred compression) before writing it out - port of the MFC
+// CompressedCachedMFCFileOutputStream.  Map loading auto-detects & decompresses.
+//-------------------------------------------------------------------------------------------------
+class CompressedCachedFileOutputStream : public OutputStream
+{
+public:
+	CompressedCachedFileOutputStream(FILE *pFile) : m_file(pFile) {}
+
+	virtual Int write(const void *pData, Int numBytes)
+	{
+		const UnsignedByte *src = (const UnsignedByte *)pData;
+		m_bytes.insert(m_bytes.end(), src, src + numBytes);
+		return numBytes;
+	}
+
+	/// Compress the cached data and write it to the file.  Call once, after all
+	/// chunks have been written and before closing the file.
+	void finalize(void)
+	{
+		if (m_file == NULL || m_bytes.empty())
+			return;
+
+		CompressionType compressionToUse = CompressionManager::getPreferredCompression();
+		Dict *worldDict = MapObject::getWorldDict();
+		if (worldDict)
+		{
+			Bool exists = FALSE;
+			CompressionType fromDict = (CompressionType)worldDict->getInt(TheKey_compression, &exists);
+			if (exists && fromDict >= COMPRESSION_MIN && fromDict <= COMPRESSION_MAX)
+				compressionToUse = fromDict;
+		}
+
+		Int srcLen = (Int)m_bytes.size();
+		Int maxLen = CompressionManager::getMaxCompressedSize(srcLen, compressionToUse);
+		UnsignedByte *dest = new UnsignedByte[maxLen];
+		Int compressedLen = CompressionManager::compressData(compressionToUse, &m_bytes[0], srcLen, dest, maxLen);
+		if (compressedLen > 0) {
+			fwrite(dest, 1, compressedLen, m_file);
+		} else {
+			// Compression failed (e.g. COMPRESSION_NONE) - write it uncompressed.
+			fwrite(&m_bytes[0], 1, srcLen, m_file);
+		}
+		delete[] dest;
+	}
+
+protected:
+	FILE *m_file;
+	std::vector<UnsignedByte> m_bytes;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -152,6 +206,13 @@ Bool CWorldBuilderDoc::newDocument(Int xExtent, Int yExtent, Int initialHeight, 
 								m_heightMap->getYExtent()/2-m_heightMap->getBorderSize());
 		p3View->setDefaultCamera();
 	}
+
+	// Make sure a new map has a compression setting so exports are compressed.
+	Dict *worldDict = MapObject::getWorldDict();
+	if (worldDict) {
+		worldDict->setInt(TheKey_compression, CompressionManager::getPreferredCompression());
+	}
+
 	SetModifiedFlag(false);
 	return true;
 }
@@ -272,7 +333,7 @@ Bool CWorldBuilderDoc::saveDocument(const char *path)
 		Int i;
 		/// @todo MapPreview generation once ported (original wrote a map preview).
 
-		StdioFileOutputStream theStream(fp);
+		CompressedCachedFileOutputStream theStream(fp);
 		DataChunkOutput *chunkWriter = new DataChunkOutput(&theStream);
 
 		m_heightMap->saveToFile(*chunkWriter);
@@ -286,6 +347,8 @@ Bool CWorldBuilderDoc::saveDocument(const char *path)
 		chunkWriter->closeDataChunk();
 
 		delete chunkWriter;
+		// All chunks are written and cached; compress and flush to disk.
+		theStream.finalize();
 	} catch(...) {
 		fclose(fp);
 		QMessageBox::warning(NULL, "WorldBuilder", "The height map file write failed.");
@@ -331,6 +394,20 @@ void CWorldBuilderDoc::getWaypointLink(Int ndx, Int *waypoint1, Int *waypoint2)
 {
 	*waypoint1 = m_waypointLinks[ndx].waypoint1;
 	*waypoint2 = m_waypointLinks[ndx].waypoint2;
+}
+
+/** Returns the waypoint map object with the given id, or NULL.  The MFC editor
+kept a lookup table; here we just scan the (small) map-object list. */
+MapObject *CWorldBuilderDoc::getWaypointByID(Int waypointID)
+{
+	if (waypointID <= 0)
+		return NULL;
+	for (MapObject *pObj = MapObject::getFirstMapObject(); pObj; pObj = pObj->getNext()) {
+		if (pObj->isWaypoint() && pObj->getWaypointID() == waypointID) {
+			return pObj;
+		}
+	}
+	return NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////

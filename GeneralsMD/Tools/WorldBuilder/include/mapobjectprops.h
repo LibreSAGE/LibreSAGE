@@ -19,10 +19,10 @@
 
 // mapobjectprops.h : the Object Properties panel (Qt6 port)
 //
-// Port of the core of the MFC IDD_MAPOBJECT_PROPS property page: name, team,
-// initial health, behavior flags and angle of the selected object.
-// @todo port the remaining pages (weather/time, veterancy, aggressiveness,
-// stopping distance, prebuilt upgrades, sound customization).
+// Port of the MFC IDD_MAPOBJECT_PROPS property page.  Laid out in the same
+// General / Logical / Visual / Sound / Pre-built-upgrades groups as the
+// original.  @todo: the pre-built-upgrades list and the attached-sound name
+// picker are display-only for now.
 
 #pragma once
 
@@ -31,10 +31,13 @@
 #include "Lib/BaseType.h"
 
 class MapObject;
-class QLineEdit;
-class QComboBox;
-class QSpinBox;
 class QCheckBox;
+class QComboBox;
+class QDoubleSpinBox;
+class QLabel;
+class QLineEdit;
+class QListWidget;
+class QSpinBox;
 
 extern const char* NEUTRAL_TEAM_UI_STR;
 extern const char* NEUTRAL_TEAM_INTERNAL_STR;
@@ -56,17 +59,49 @@ public:
 protected:
 	void refresh(void);
 	MapObject *m_selectedObject;
+	Bool m_updating;
 
+	// General ----------------------------------------------------------------
 	QLineEdit *m_nameEdit;
 	QComboBox *m_teamCombo;
-	QSpinBox *m_healthSpin;
+
+	// Logical ----------------------------------------------------------------
+	QSpinBox  *m_healthSpin;
+	QComboBox *m_maxHPCombo;
+	QComboBox *m_aggressivenessCombo;
+	QComboBox *m_veterancyCombo;
+	QLineEdit *m_stoppingEdit;
+	QLineEdit *m_targetingEdit;
+	QLineEdit *m_shroudEdit;
 	QCheckBox *m_enabledCheck;
-	QCheckBox *m_indestructibleCheck;
 	QCheckBox *m_unsellableCheck;
 	QCheckBox *m_targetableCheck;
+	QCheckBox *m_indestructibleCheck;
+	QCheckBox *m_aiRecruitableCheck;
 	QCheckBox *m_poweredCheck;
-	QSpinBox *m_angleSpin;
-	Bool m_updating;
+	QCheckBox *m_selectableCheck;
+
+	// Visual -----------------------------------------------------------------
+	QLineEdit      *m_xyPosEdit;
+	QLineEdit      *m_zEdit;
+	QComboBox      *m_weatherCombo;
+	QDoubleSpinBox *m_angleSpin;
+	QComboBox      *m_timeCombo;
+
+	// Sound ------------------------------------------------------------------
+	QComboBox *m_soundCombo;
+	QCheckBox *m_customizeCheck;
+	QCheckBox *m_soundEnabledCheck;
+	QCheckBox *m_loopingCheck;
+	QSpinBox  *m_loopCountSpin;
+	QComboBox *m_priorityCombo;
+	QSpinBox  *m_volumeSpin;
+	QSpinBox  *m_minVolumeSpin;
+	QSpinBox  *m_minRangeSpin;
+	QSpinBox  *m_maxRangeSpin;
+
+	// Pre-built upgrades -----------------------------------------------------
+	QListWidget *m_prebuiltList;
 
 	static MapObjectProps *m_staticThis;
 };

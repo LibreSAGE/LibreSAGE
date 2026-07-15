@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,305 +17,177 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// ObjectPreview.cpp : implementation file
+// ObjectPreview.cpp : W3D thumbnail of a thing template (Qt6 port).
 //
+// The MFC original borrowed the single WW3D device: it switched the render
+// target to an offscreen 128x128 texture, rendered the model with a fresh
+// camera, copied the render-target surface into a lockable system-memory
+// surface (render targets aren't directly lockable), read the pixels and
+// blitted them into the window.  This port does exactly the same and hands the
+// pixels to a QImage.
 
-#include <rinfo.h>
-#include <camera.h>
-#include <light.h>
-
-#include "stdafx.h"
-#include "resource.h"
-
-#include "Lib\BaseType.h"
+// Qt headers first: the engine's GameMemory.h #defines newInstance, which would
+// otherwise clobber QMetaObject::newInstance.
+#include <QImage>
+#include <QPainter>
+#include <QPaintEvent>
 
 #include "ObjectPreview.h"
+
 #include "WorldBuilderDoc.h"
-#include "WHeightMapEdit.h"
-#include "ObjectOptions.h"
-#include "AddPlayerDialog.h"
-#include "CUndoable.h"
-#include "WbView3d.h"
-#include "W3DDevice/GameClient/HeightMap.h"
-#include "Common/WellKnownKeys.h"
+#include "wbview3d.h"
 #include "Common/ThingTemplate.h"
-#include "Common/ThingFactory.h"
-#include "Common/ThingSort.h"
-#include "Common/PlayerTemplate.h"
-#include "Common/FileSystem.h"
-#include "GameLogic/SidesList.h"
-#include "GameClient/Color.h"
 
+#include "assetmgr.h"
+#include "camera.h"
+#include "dx8wrapper.h"
+#include "lightenvironment.h"
+#include "rinfo.h"
+#include "surfaceclass.h"
+#include "texture.h"
+#include "ww3d.h"
 #include "W3DDevice/GameClient/W3DAssetManager.h"
-#include "WW3D2/DX8Wrapper.h"
-#include "WWLib/targa.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// ObjectPreview
+#define PREVIEW_WIDTH 128
+#define PREVIEW_HEIGHT 128
 
-ObjectPreview::ObjectPreview()
+ObjectPreview::ObjectPreview(QWidget *parent) :
+	QWidget(parent),
+	m_tTempl(NULL)
 {
-	m_tTempl = NULL;
+	setMinimumSize(64, 64);
 }
 
 ObjectPreview::~ObjectPreview()
 {
 }
 
-void ObjectPreview::SetThingTemplate(const ThingTemplate *tTempl)
+QSize ObjectPreview::sizeHint(void) const
+{
+	return QSize(PREVIEW_WIDTH, PREVIEW_HEIGHT);
+}
+
+void ObjectPreview::setThingTemplate(const ThingTemplate *tTempl)
 {
 	m_tTempl = tTempl;
+	m_image = renderTemplate(tTempl);
+	update();
 }
 
-
-BEGIN_MESSAGE_MAP(ObjectPreview, CWnd)
-	//{{AFX_MSG_MAP(ObjectPreview)
-	ON_WM_PAINT()
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-#define SWATCH_OFFSET 20
-
-#define PREVIEW_WIDTH 128
-#define PREVIEW_HEIGHT 128
-
-static UnsignedByte * saveSurface(IDirect3DSurface8 *surface)
+// ----------------------------------------------------------------------------
+// Read a (non-lockable) render-target surface back into a QImage by copying it
+// into a system-memory image surface first, then locking that.
+static QImage readSurfaceToImage(IDirect3DSurface8 *surface)
 {
+	IDirect3DDevice8 *dev = DX8Wrapper::_Get_D3D_Device8();
+	if (dev == NULL || surface == NULL)
+		return QImage();
+
 	D3DSURFACE_DESC desc;
-	IDirect3DSurface8 *tempSurface;
+	if (FAILED(surface->GetDesc(&desc)))
+		return QImage();
 
-	surface->GetDesc(&desc);
+	IDirect3DSurface8 *sysSurface = NULL;
+	if (FAILED(dev->CreateImageSurface(desc.Width, desc.Height, desc.Format, &sysSurface)) || !sysSurface)
+		return QImage();
 
-	LPDIRECT3DDEVICE8 m_pDev=DX8Wrapper::_Get_D3D_Device8();
-
-	HRESULT hr=m_pDev->CreateImageSurface(  desc.Width,desc.Height,desc.Format, &tempSurface);
-
-	hr=m_pDev->CopyRects(surface,NULL,0,tempSurface,NULL);
- 
-	D3DLOCKED_RECT lrect;
-
-	DX8_ErrorCode(tempSurface->LockRect(&lrect,NULL,D3DLOCK_READONLY));
-
-	unsigned int x,y,index,index2,width,height;
-
-	width=desc.Width;
-	height=desc.Height;
-
-#ifdef CAPTURE_TO_TARGA
-	char image[3*PREVIEW_WIDTH*PREVIEW_HEIGHT];
-	//bytes are mixed in targa files, not rgb order.
-	for (y=0; y<height; y++)
+	QImage image;
+	if (SUCCEEDED(dev->CopyRects(surface, NULL, 0, sysSurface, NULL)))
 	{
-		for (x=0; x<width; x++)
+		D3DLOCKED_RECT lrect;
+		if (SUCCEEDED(sysSurface->LockRect(&lrect, NULL, D3DLOCK_READONLY)))
 		{
-			// index for image
-			index=3*(x+y*width);
-			// index for fb
-			index2=y*lrect.Pitch+4*x;
-
-			image[index]=*((char *) lrect.pBits + index2+2);
-			image[index+1]=*((char *) lrect.pBits + index2+1);
-			image[index+2]=*((char *) lrect.pBits + index2+0);
-		}
-	}
-
-	Targa targ;
-	memset(&targ.Header,0,sizeof(targ.Header));
-	targ.Header.Width=width;
-	targ.Header.Height=height;
-	targ.Header.PixelDepth=24;
-	targ.Header.ImageType=TGA_TRUECOLOR;
-	targ.SetImage(image);
-	targ.YFlip();
-
-	targ.Save("ObjectPreview.tga",TGAF_IMAGE,false);
-
-	return NULL;
-
-#else
-
-	static UnsignedByte bgraImage[3*PREVIEW_WIDTH*PREVIEW_HEIGHT];
-	//bmp is same byte order
-	for (y=0; y<height; y++)
-	{
-		for (x=0; x<width; x++)
-		{
-			// index for image
-			index=3*(x+y*width);
-			// index for fb
-			index2=y*lrect.Pitch+4*x;
-
-			bgraImage[index]=*((UnsignedByte *) lrect.pBits + index2+0);
-			bgraImage[index+1]=*((UnsignedByte *) lrect.pBits + index2+1);
-			bgraImage[index+2]=*((UnsignedByte *) lrect.pBits + index2+2);
-			//bgraImage[index+3]=0;
-		}
-	}
-
-	//Flip the image
-	UnsignedByte *ptr,*ptr1;
-	UnsignedByte  v,v1;
-
-	for (y = 0; y < (height >> 1); y++)
-	{
-		/* Compute address of lines to exchange. */
-		ptr = (bgraImage + ((width * y) * 3));
-		ptr1 = (bgraImage + ((width * (height - 1)) * 3));
-		ptr1 -= ((width * y) * 3);
-
-		/* Exchange all the pixels on this scan line. */
-		for (x = 0; x < (width * 3); x++)
-			{
-			v = *ptr;
-			v1 = *ptr1;
-			*ptr = v1;
-			*ptr1 = v;
-			ptr++;
-			ptr1++;
+			// A8R8G8B8 / X8R8G8B8 in memory is B,G,R,A - the same byte order as
+			// QImage::Format_RGB32, so rows copy straight across.
+			image = QImage(desc.Width, desc.Height, QImage::Format_RGB32);
+			const uchar *src = static_cast<const uchar*>(lrect.pBits);
+			for (unsigned int y = 0; y < desc.Height; y++) {
+				memcpy(image.scanLine(y), src + y * lrect.Pitch, desc.Width * 4);
 			}
+			sysSurface->UnlockRect();
+		}
 	}
 
-	tempSurface->Release();
-
-	return bgraImage;
-#endif
+	sysSurface->Release();
+	return image;
 }
 
-// return an array of BGRA pixels
-static UnsignedByte * generatePreview( const ThingTemplate *tt )
+// ----------------------------------------------------------------------------
+QImage ObjectPreview::renderTemplate(const ThingTemplate *tt)
 {
-	// find the default model to preview
-	RenderObjClass *model = NULL;
-	Real scale = 1.0f;
-	AsciiString modelName = "No Model Name";
-	if (tt)
+	if (tt == NULL)
+		return QImage();
+
+	// The shared WW3D device only exists once the 3d view has initialised it.
+	CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
+	WbView3d *p3View = pDoc ? pDoc->GetActive3DView() : NULL;
+	if (p3View == NULL || DX8Wrapper::_Get_D3D_Device8() == NULL)
+		return QImage();
+
+	ModelConditionFlags state;
+	state.clear();
+	AsciiString modelName = p3View->getBestModelName(tt, state);
+	if (modelName.isEmpty() || strncmp(modelName.str(), "No ", 3) == 0)
+		return QImage();
+
+	WW3DAssetManager *pMgr = W3DAssetManager::Get_Instance();
+	RenderObjClass *model = pMgr ? pMgr->Create_Render_Obj(modelName.str()) : NULL;
+	if (model == NULL)
+		return QImage();
+
+	QImage result;
+
+	TextureClass *objectTexture = DX8Wrapper::Create_Render_Target(PREVIEW_WIDTH, PREVIEW_HEIGHT);
+	if (objectTexture)
 	{
-		ModelConditionFlags state;
-		state.clear();
-		WbView3d *p3View = CWorldBuilderDoc::GetActiveDoc()->GetActive3DView();
-		modelName = p3View->getBestModelName(tt, state);
-		scale = tt->getAssetScale();
-	}
-	// set render object, or create if we need to
-	if( modelName.isEmpty() == FALSE &&
-			strncmp( modelName.str(), "No ", 3 ) )
-	{
-	 	WW3DAssetManager *pMgr = W3DAssetManager::Get_Instance();
-		model = pMgr->Create_Render_Obj(modelName.str());
-		if (model)
-		{
-			const AABoxClass bbox = model->Get_Bounding_Box();
-//			Real height = bbox.Extent.Z;
-			const SphereClass sphere = model->Get_Bounding_Sphere();
-			Real dist = sphere.Radius*0.5;
-			model->Set_Position(Vector3(-sphere.Center.X, -sphere.Center.Y, -sphere.Center.Z));
+		const SphereClass sphere = model->Get_Bounding_Sphere();
+		Real dist = sphere.Radius * 0.5f;
+		model->Set_Position(Vector3(-sphere.Center.X, -sphere.Center.Y, -sphere.Center.Z));
 
-			// Create reflection texture
-			TextureClass *objectTexture = DX8Wrapper::Create_Render_Target (PREVIEW_WIDTH, PREVIEW_HEIGHT);
-			if (!objectTexture)
-			{
-				model->Release_Ref();
-				return NULL;
-			}
+		DX8Wrapper::Set_Render_Target_With_Z(objectTexture);
 
-			// Set the render target
-			DX8Wrapper::Set_Render_Target_With_Z(objectTexture);
+		CameraClass *camera = NEW_REF(CameraClass, ());
+		Matrix3D camTran;
+		camTran.Look_At(Vector3(dist * 2, dist * 2, dist), Vector3(0.0f, 0.0f, 0.0f), 0);
+		camera->Set_Transform(camTran);
+		camera->Set_View_Plane(Vector2(-1, -1), Vector2(+1, +1));
+		camera->Set_Clip_Planes(0.995f, 600.0f);
 
-			// create the camera
-			Bool orthoCamera = false;
-			CameraClass *camera = NEW_REF( CameraClass, () );
-			Matrix3D camTran;
-			camTran.Look_At(Vector3(dist*2,dist*2,dist),Vector3(0.0f, 0.0f, 0.0f),0);
-			camera->Set_Transform( camTran);
+		WW3D::Begin_Render(true, true, Vector3(0.5f, 0.5f, 0.5f));
+		RenderInfoClass rinfo(*camera);
+		LightEnvironmentClass lightEnv;
+		rinfo.light_environment = &lightEnv;
+		lightEnv.Reset(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f));
+		WW3D::Render(*model, rinfo);
+		WW3D::End_Render(false);
 
-			Vector2 minVec = Vector2( -1, -1 );
-			Vector2 maxVec = Vector2( +1, +1 );
-			camera->Set_View_Plane( minVec, maxVec );		
-			camera->Set_Clip_Planes( 0.995f, 600.0f );
-			if (orthoCamera)
-				camera->Set_Projection_Type( CameraClass::ORTHO );
+		// Restore the main back buffer as the render target.
+		DX8Wrapper::Set_Render_Target((IDirect3DSurface8 *)NULL);
 
-			// Clear the backbuffer
-			WW3D::Begin_Render(true,true,Vector3(0.5f,0.5f,0.5f));
-			//WW3D::Begin_Render(true,true,Vector3(1.0f,1.0f,1.0f));
-
-			RenderInfoClass rinfo(*camera);
-			LightEnvironmentClass lightEnv;
-			rinfo.light_environment = &lightEnv;
-			lightEnv.Reset(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f));
-
-			WW3D::Render(*model, rinfo);
-
-			WW3D::End_Render(false);
-
-			// Change the rendertarget back to the main backbuffer
-			DX8Wrapper::Set_Render_Target((IDirect3DSurface8 *)NULL);
-
-			SurfaceClass *surface = objectTexture->Get_Surface_Level();
-			UnsignedByte *data = saveSurface(surface->Peek_D3D_Surface());
-
+		SurfaceClass *surface = objectTexture->Get_Surface_Level();
+		if (surface) {
+			result = readSurfaceToImage(surface->Peek_D3D_Surface());
 			REF_PTR_RELEASE(surface);
-
-			REF_PTR_RELEASE(objectTexture);
-			REF_PTR_RELEASE(camera);
-			return data;
 		}
+
+		REF_PTR_RELEASE(camera);
+		REF_PTR_RELEASE(objectTexture);
 	}
 
-	return NULL;
+	model->Release_Ref();
+	return result;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// ObjectPreview message handlers
-
-void ObjectPreview::OnPaint() 
+// ----------------------------------------------------------------------------
+void ObjectPreview::paintEvent(QPaintEvent * /*event*/)
 {
-	CPaintDC dc(this); // device context for painting
-	
-	CRect clientRect;
-	GetClientRect(&clientRect);
-
-	CRect previewRect;
-	previewRect = clientRect;
-
-	CBrush brush;
-	brush.CreateSolidBrush(RGB(0,0,0));
-
-	UnsignedByte *pData;
-	pData = generatePreview(m_tTempl);
-	if (pData) {
-		DrawMyTexture(&dc, previewRect.top, previewRect.left, previewRect.Width(), previewRect.Height(), pData);
+	QPainter painter(this);
+	QRect r = rect();
+	if (!m_image.isNull()) {
+		painter.drawImage(r, m_image);
 	} else {
-		dc.FillSolidRect(&previewRect, RGB(128,128,128));
+		painter.fillRect(r, QColor(128, 128, 128));
 	}
-	dc.FrameRect(&previewRect, &brush);
+	painter.setPen(QColor(0, 0, 0));
+	painter.drawRect(r.adjusted(0, 0, -1, -1));
 }
-
-void ObjectPreview::DrawMyTexture(CDC *pDc, int top, int left, Int width, Int height, UnsignedByte *rgbData)
-{
-	// Just blast about some dib bits.
-	
-	LPBITMAPINFO pBI;
-//	long bytes = sizeof(BITMAPINFO);
- 	pBI = new BITMAPINFO;
-	pBI->bmiHeader.biSize = sizeof(pBI->bmiHeader);
-	pBI->bmiHeader.biWidth = PREVIEW_WIDTH;
-	pBI->bmiHeader.biHeight = PREVIEW_HEIGHT; /* match display top left == 0,0 */
-	pBI->bmiHeader.biPlanes = 1;
-	pBI->bmiHeader.biBitCount = 24;
-	pBI->bmiHeader.biCompression = BI_RGB;
-	pBI->bmiHeader.biSizeImage = (PREVIEW_WIDTH*PREVIEW_HEIGHT)*(pBI->bmiHeader.biBitCount/8);
-	pBI->bmiHeader.biXPelsPerMeter = 1000;
-	pBI->bmiHeader.biYPelsPerMeter = 1000;
-	pBI->bmiHeader.biClrUsed = 0;
-	pBI->bmiHeader.biClrImportant = 0;
-
-	//::Sleep(10);
-	//int val=::StretchDIBits(pDc->m_hDC, left, top, width, height, 0, 0, PREVIEW_WIDTH, PREVIEW_HEIGHT, rgbData, pBI, 
-	//	DIB_RGB_COLORS, SRCCOPY);
-	/*int val=*/::StretchDIBits(pDc->m_hDC, left, top, width, height, PREVIEW_WIDTH/4, PREVIEW_HEIGHT/4, PREVIEW_WIDTH/2, PREVIEW_HEIGHT/2, rgbData, pBI, 
-		DIB_RGB_COLORS, SRCCOPY);
-	delete(pBI);
-}
-
-

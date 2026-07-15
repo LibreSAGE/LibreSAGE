@@ -83,6 +83,7 @@ public:
 
 	Int getNumWaypointLinks(void) {return m_numWaypointLinks;};
 	void getWaypointLink(Int ndx, Int *waypoint1, Int *waypointID2);
+	MapObject *getWaypointByID(Int waypointID);
 
 	// Boundary stuff
 	Int getNumBoundaries(void) const {return (Int)m_boundaries.size();}

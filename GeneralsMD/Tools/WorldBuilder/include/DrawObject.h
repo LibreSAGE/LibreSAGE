@@ -20,6 +20,8 @@
 #ifndef __DRAW_OBJECT_H_
 #define __DRAW_OBJECT_H_
 
+#include <QPoint>
+
 #include "always.h"
 #include "rendobj.h"
 #include "w3d_file.h"
@@ -145,7 +147,7 @@ protected:
 	MeshClass									*m_moldMesh;		///< W3D mesh model for the mold.
 	SphereClass								m_moldMeshBounds;				///< Bounding sphere for mold mesh.
 	Render2DClass							*m_lineRenderer;		//< Used to render 2D lines for bounding boxes.
-	CPoint										m_winSize;				//< Holds the size of the window.
+	QPoint										m_winSize;				//< Holds the size of the window.
 
 protected: // static state vars.
 	static Bool								m_squareFeedback;	///< True for square brush feedback, false for round.
@@ -154,7 +156,7 @@ protected: // static state vars.
 	static Bool								m_toolWantsFeedback; ///< True to display brush feedback.
 	static Bool								m_disableFeedback; ///< True to disable feedback.
 	static Coord3D						m_feedbackPoint;	///< Current brush feedback location.
-	static CPoint							m_cellCenter;		///< Cell to show feedback from.
+	static QPoint							m_cellCenter;		///< Cell to show feedback from.
 	static Bool								m_meshFeedback;
 	static Bool								m_rampFeedback;	///< should we be showing feedback for the ramp tool?
 	static Bool								m_boundaryFeedback;

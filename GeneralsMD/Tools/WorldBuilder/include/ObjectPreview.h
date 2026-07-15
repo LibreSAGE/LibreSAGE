@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,61 +17,40 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if !defined(AFX_OBJECTPREVIEW_H__2EC47AA6_06CA_43D1_9003_15472AE76CE7__INCLUDED_)
-#define AFX_OBJECTPREVIEW_H__2EC47AA6_06CA_43D1_9003_15472AE76CE7__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-// ObjectPreview.h : header file
+// ObjectPreview.h : a small W3D-rendered thumbnail of a thing template (Qt6
+// port).  Like the MFC original it borrows the single shared WW3D device,
+// renders the model into an offscreen render-target texture, reads the pixels
+// back to a QImage, and paints that.
 //
 
-#include "lib/BaseType.h"
-/////////////////////////////////////////////////////////////////////////////
-// ObjectPreview window
+#pragma once
+
+#include <QImage>
+#include <QWidget>
+
+#include "Lib/BaseType.h"
 
 class ThingTemplate;
 
-class ObjectPreview : public CWnd
+class ObjectPreview : public QWidget
 {
-// Construction
+	Q_OBJECT
+
 public:
-	ObjectPreview();
+	ObjectPreview(QWidget *parent = NULL);
+	~ObjectPreview() override;
 
-// Attributes
-public:
+	/// Set the template to preview (NULL clears it).  Regenerates the thumbnail.
+	void setThingTemplate(const ThingTemplate *tTempl);
 
-// Operations
-public:
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(ObjectPreview)
-	//}}AFX_VIRTUAL
-
-// Implementation
-public:
-	virtual ~ObjectPreview();
-
-	void SetThingTemplate(const ThingTemplate *tTempl);
-
-	// Generated message map functions
-protected:
-	//{{AFX_MSG(ObjectPreview)
-	afx_msg void OnPaint();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+	QSize sizeHint(void) const override;
 
 protected:
-	void DrawMyTexture(CDC *pDc, int top, int left, Int width, Int height, UnsignedByte *rgbData);
+	void paintEvent(QPaintEvent *event) override;
+
+private:
+	QImage renderTemplate(const ThingTemplate *tt);
 
 	const ThingTemplate *m_tTempl;
-
+	QImage				 m_image;	///< cached thumbnail for the current template.
 };
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_OBJECTPREVIEW_H__2EC47AA6_06CA_43D1_9003_15472AE76CE7__INCLUDED_)

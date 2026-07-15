@@ -25,6 +25,7 @@
 
 #include "MoundTool.h"
 #include "CUndoable.h"
+#include "DrawObject.h"
 #include "MainFrm.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
@@ -75,7 +76,7 @@ void MoundTool::setWidth(Int width)
 		m_brushWidth = width;
 		// notify brush palette options panel
 		MoundOptions::setWidth(width);
-		/// @todo DrawObject::setBrushFeedbackParms once DrawObject is ported.
+		DrawObject::setBrushFeedbackParms(false, m_brushWidth, m_brushFeather);
 	}
 };
 
@@ -86,7 +87,7 @@ void MoundTool::setFeather(Int feather)
 		m_brushFeather = feather;
 		// notify height palette options panel
 		MoundOptions::setFeather(feather);
-		/// @todo DrawObject::setBrushFeedbackParms once DrawObject is ported.
+		DrawObject::setBrushFeedbackParms(false, m_brushWidth, m_brushFeather);
 	}
 };
 
@@ -96,7 +97,8 @@ void MoundTool::activate()
 {
 	if (CMainFrame::GetMainFrame())
 		CMainFrame::GetMainFrame()->showOptionsDialog(ID_MOUND_TOOL);
-	/// @todo DrawObject brush feedback once DrawObject is ported.
+	DrawObject::setDoBrushFeedback(true);
+	DrawObject::setBrushFeedbackParms(false, m_brushWidth, m_brushFeather);
 }
 
 void MoundTool::mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
@@ -130,7 +132,7 @@ void MoundTool::mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorld
 {
 	Coord3D cpt;
 	pView->viewToDocCoords(viewPt, &cpt);
-	/// @todo DrawObject::setFeedbackPos(cpt); once DrawObject is ported.
+	DrawObject::setFeedbackPos(cpt);
 	if (m != TRACK_L) return;
 
 	Int curTime	= moundTickCount();

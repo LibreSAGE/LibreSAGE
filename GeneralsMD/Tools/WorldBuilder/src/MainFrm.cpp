@@ -47,6 +47,9 @@
 #include "MoundOptions.h"
 #include "FeatherOptions.h"
 #include "mapobjectprops.h"
+#include "MapSettings.h"
+#include "ObjectOptions.h"
+#include "DrawObject.h"
 #include "wbview3d.h"
 
 
@@ -66,6 +69,7 @@ CMainFrame::CMainFrame(QWidget *parent) :
 	m_moundOptions(NULL),
 	m_featherOptions(NULL),
 	m_mapObjectProps(NULL),
+	m_objectOptions(NULL),
 	m_3dView(NULL),
 	m_autoSaveTimer(NULL),
 	m_autoSaving(false)
@@ -92,8 +96,17 @@ CMainFrame::CMainFrame(QWidget *parent) :
 	m_optionsStack->addWidget(m_featherOptions);
 	m_mapObjectProps = new MapObjectProps(m_optionsStack);
 	m_optionsStack->addWidget(m_mapObjectProps);
+	m_objectOptions = new ObjectOptions(m_optionsStack);
+	m_optionsStack->addWidget(m_objectOptions);
 	m_optionsDock->setWidget(m_optionsStack);
+	// The original MFC options panel is a free-floating tool window: it may float
+	// anywhere but must not dock into the main window.  Disallowing every dock
+	// area (plus keeping only the Floatable feature) prevents re-docking, and
+	// setFloating() detaches it into its own window.
+	m_optionsDock->setAllowedAreas(Qt::NoDockWidgetArea);
+	m_optionsDock->setFeatures(QDockWidget::DockWidgetFloatable);
 	addDockWidget(Qt::RightDockWidgetArea, m_optionsDock);
+	m_optionsDock->setFloating(true);
 	// Keep the dock narrow like the original floating options panels; the 3d
 	// view gets all remaining space.
 	m_optionsStack->setMinimumWidth(220);
@@ -118,6 +131,9 @@ CMainFrame::CMainFrame(QWidget *parent) :
 		restoreGeometry(settings.value(MAIN_FRAME_SECTION "/Geometry").toByteArray());
 		restoreState(settings.value(MAIN_FRAME_SECTION "/State2").toByteArray());
 	}
+	// A saved state from a run where the dock could be closed/floated must not
+	// leave it hidden now that it is a fixed tool window.
+	m_optionsDock->setVisible(true);
 
 	m_autoSave = settings.value(MAIN_FRAME_SECTION "/AutoSave", true).toBool();
 	m_autoSaveInterval = settings.value(MAIN_FRAME_SECTION "/AutoSaveIntervalSeconds", 120).toInt();
@@ -126,9 +142,11 @@ CMainFrame::CMainFrame(QWidget *parent) :
 	connect(m_autoSaveTimer, &QTimer::timeout, this, &CMainFrame::OnAutoSaveTimer);
 	m_autoSaveTimer->start(m_autoSaveInterval * 1000);
 
-	/// @todo restore the brush feedback setting once DrawObject is ported:
-	/// DrawObject::enableFeedback()/disableFeedback() from the
-	/// "ShowBrushFeedback" setting.
+	// Restore the brush-feedback enable state from the saved setting.
+	if (settings.value(MAIN_FRAME_SECTION "/ShowBrushFeedback", true).toBool())
+		DrawObject::enableFeedback();
+	else
+		DrawObject::disableFeedback();
 
 	// Start with a fresh default map (the original did this via the MFC
 	// document template on startup).
@@ -210,33 +228,52 @@ void CMainFrame::createMenus(void)
 	addStubAction(editMenu, "Global Light Options...");
 	addStubAction(editMenu, "Camera Options...");
 	addStubAction(editMenu, "Edit Shadows...");
-	addStubAction(editMenu, "Edit Map Settings...");
+	editMenu->addAction("Edit Map Settings...", this, &CMainFrame::OnEditMapSettings);
 	editMenu->addSeparator();
 	addStubAction(editMenu, "Edit Teams...");
 	addStubAction(editMenu, "Edit Player List...");
 
 	// --- View ---------------------------------------------------------------
 	QMenu *viewMenu = bar->addMenu("&View");
+
+	// Adds a checkable View item bound to a WbView3d overlay flag.  The 3d view
+	// is created after the menus, so the lambda reads/writes the flag lazily and
+	// persists it under the same QSettings key the view restores from.
+	auto addViewToggle = [this, viewMenu](const QString &text, const QString &settingsKey,
+										  void (WbView3d::*setter)(Bool), bool def,
+										  const QKeySequence &shortcut = QKeySequence()) {
+		QAction *action = viewMenu->addAction(text);
+		if (!shortcut.isEmpty()) action->setShortcut(shortcut);
+		action->setCheckable(true);
+		QSettings settings;
+		action->setChecked(settings.value(QString(MAIN_FRAME_SECTION "/") + settingsKey, def).toBool());
+		connect(action, &QAction::triggered, this, [this, setter, settingsKey](bool checked) {
+			if (m_3dView) (m_3dView->*setter)(checked);
+			QSettings s;
+			s.setValue(QString(MAIN_FRAME_SECTION "/") + settingsKey, checked);
+		});
+	};
+
 	addStubAction(viewMenu, "Show Grid", QKeySequence("Ctrl+G"));
 	addStubAction(viewMenu, "Show Texture", QKeySequence("Ctrl+T"));
 	viewMenu->addSeparator();
 	addStubAction(viewMenu, "Show Terrain");
-	addStubAction(viewMenu, "Show Object Icons", QKeySequence("Ctrl+B"));
-	addStubAction(viewMenu, "Show Waypoints");
+	addViewToggle("Show Object Icons", "ShowObjectIcons", &WbView3d::setShowObjects, true, QKeySequence("Ctrl+B"));
+	addViewToggle("Show Waypoints", "ShowWaypoints", &WbView3d::setShowWaypoints, true);
 	addStubAction(viewMenu, "Show Trigger Areas");
 	addStubAction(viewMenu, "Show Shadows");
 	addStubAction(viewMenu, "Show Labels");
 	addStubAction(viewMenu, "Show Objects");
-	addStubAction(viewMenu, "Show Bounding Boxes");
-	addStubAction(viewMenu, "Show Sight Ranges");
-	addStubAction(viewMenu, "Show Weapon Ranges");
+	addViewToggle("Show Bounding Boxes", "ShowBoundingBoxes", &WbView3d::setShowBoundingBoxes, false);
+	addViewToggle("Show Sight Ranges", "ShowSightRanges", &WbView3d::setShowSightRanges, false);
+	addViewToggle("Show Weapon Ranges", "ShowWeaponRanges", &WbView3d::setShowWeaponRanges, false);
 	addStubAction(viewMenu, "Show Garrisoned");
 	addStubAction(viewMenu, "Show Map Boundaries");
-	addStubAction(viewMenu, "Show Letterbox");
+	addViewToggle("Show Letterbox", "ShowLetterbox", &WbView3d::setShowLetterbox, false);
 	addStubAction(viewMenu, "Show Sound Flags");
-	addStubAction(viewMenu, "Show Sound Circles");
+	addViewToggle("Show Sound Circles", "ShowSoundCircles", &WbView3d::setShowSoundCircles, false);
 	viewMenu->addSeparator();
-	addStubAction(viewMenu, "Highlight Test Art");
+	addViewToggle("Highlight Test Art", "HighlightTestArt", &WbView3d::setHighlightTestArt, false);
 	viewMenu->addSeparator();
 	addStubAction(viewMenu, "Show Impassable Areas", QKeySequence("Ctrl+I"));
 	addStubAction(viewMenu, "Impassable Area Options...");
@@ -288,8 +325,8 @@ void CMainFrame::createMenus(void)
 	viewMenu->addSeparator();
 	QAction *brushFeedback = viewMenu->addAction("Show Brush Feedback");
 	brushFeedback->setCheckable(true);
+	brushFeedback->setChecked(QSettings().value(MAIN_FRAME_SECTION "/ShowBrushFeedback", true).toBool());
 	connect(brushFeedback, &QAction::triggered, this, &CMainFrame::OnViewBrushfeedback);
-	brushFeedback->setEnabled(false); /// @todo enable once DrawObject is ported.
 	viewMenu->addSeparator();
 	addStubAction(viewMenu, "Reload Textures");
 	viewMenu->addSeparator();
@@ -345,6 +382,7 @@ void CMainFrame::createToolBar(void)
 	struct { const char *name; Int id; } toolActions[] = {
 		{ "Pointer", ID_POINTER_TOOL },
 		{ "Hand Scroll", ID_HAND_SCROLL_TOOL },
+		{ "Place Object", ID_OBJECT_TOOL },
 		{ "Height Brush", ID_BRUSH_TOOL },
 		{ "Mound", ID_MOUND_TOOL },
 		{ "Dig", ID_DIG_TOOL },
@@ -393,6 +431,7 @@ void CMainFrame::showOptionsDialog(Int panelId)
 		case ID_DIG_TOOL: newOptions = m_moundOptions; break;
 		case ID_FEATHER_TOOL: newOptions = m_featherOptions; break;
 		case ID_POINTER_TOOL: newOptions = m_mapObjectProps; break;
+		case ID_OBJECT_TOOL: newOptions = m_objectOptions; break;
 		/// @todo route the remaining panels here as they get ported.
 		default: newOptions = m_noOptions; break;
 	}
@@ -404,6 +443,12 @@ void CMainFrame::showOptionsDialog(Int panelId)
 void CMainFrame::OnEditGloballightoptions()
 {
 	/// @todo show the GlobalLightOptions panel once it is ported.
+}
+
+void CMainFrame::OnEditMapSettings()
+{
+	MapSettings dlg(this);
+	dlg.exec();
 }
 
 void CMainFrame::onEditScripts()
@@ -422,8 +467,14 @@ void CMainFrame::handleCameraChange(void)
 
 void CMainFrame::OnViewBrushfeedback()
 {
-	/// @todo toggle DrawObject::enableFeedback()/disableFeedback() and persist
-	/// the "ShowBrushFeedback" setting once DrawObject is ported.
+	// The checkable action has already toggled; flip DrawObject to match and
+	// persist the new state.
+	bool enabled = !DrawObject::isFeedbackEnabled();
+	if (enabled)
+		DrawObject::enableFeedback();
+	else
+		DrawObject::disableFeedback();
+	QSettings().setValue(MAIN_FRAME_SECTION "/ShowBrushFeedback", enabled);
 }
 
 void CMainFrame::OnAutoSaveTimer()
