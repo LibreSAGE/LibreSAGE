@@ -50,7 +50,13 @@ enum {SNAP_DISTANCE = 5};
 
 /// Constructor
 PolygonTool::PolygonTool(void) :
-	Tool(ID_POLYGON_TOOL, ":/cursors/cross.cur"),
+	PolygonTool(ID_POLYGON_TOOL, ":/cursors/cross.cur")
+{
+}
+
+/// Constructor for subclasses with their own tool id and cursor.
+PolygonTool::PolygonTool(Int toolID, const char *cursorResource) :
+	Tool(toolID, cursorResource),
 	m_poly_isDraggingPoint(false),
 	m_poly_justPicked(false),
 	m_poly_mouseUpPlus(false),

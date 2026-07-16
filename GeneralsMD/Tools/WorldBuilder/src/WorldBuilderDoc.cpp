@@ -30,7 +30,9 @@
 
 #include "CUndoable.h"
 #include "MainFrm.h"
+#include "ObjectOptions.h"
 #include "TerrainMaterial.h"
+#include "BlendMaterial.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilder.h"
 #include "wbview3d.h"
@@ -201,6 +203,7 @@ Bool CWorldBuilderDoc::newDocument(Int xExtent, Int yExtent, Int initialHeight, 
 	PolygonTrigger::addPolygonTrigger(pTrig);
 	SetHeightMap(m_heightMap, true);
 	TerrainMaterial::updateTextures(m_heightMap);
+	BlendMaterial::updateTextures();
 
 	if (p3View) {
 		p3View->setCenterInView(m_heightMap->getXExtent()/2-m_heightMap->getBorderSize(),
@@ -270,6 +273,11 @@ Bool CWorldBuilderDoc::openDocument(const char *path)
 		}
 		m_heightMap->optimizeTiles(); // force to optimize tileset
 		SetHeightMap(m_heightMap, true);
+		// Refresh the texture-picker panels for the newly opened map's tile
+		// set - without this they keep showing whatever map was loaded when
+		// the app started (this was also missing for TerrainMaterial).
+		TerrainMaterial::updateTextures(m_heightMap);
+		BlendMaterial::updateTextures();
 		Coord3D center;
 		center.x = MAP_XY_FACTOR*m_heightMap->getXExtent()/2;
 		center.y = MAP_XY_FACTOR*m_heightMap->getYExtent()/2;
@@ -285,7 +293,10 @@ Bool CWorldBuilderDoc::openDocument(const char *path)
 		MapObject *pMapObj = MapObject::getFirstMapObject();
 		while (pMapObj) {
 			/// @todo add objects & triggers to TheLayersList once the layers panel is ported.
-			/// @todo pMapObj->setColor from ObjectOptions once the objects panel is ported.
+			MapObject *pTemplateObj = ObjectOptions::getObjectNamed(pMapObj->getName());
+			if (pTemplateObj) {
+				pMapObj->setColor(pTemplateObj->getColor());
+			}
 			if (pMapObj->isWaypoint()) {
 				if (pMapObj->getWaypointID() >= m_curWaypointID) {
 					m_curWaypointID = pMapObj->getWaypointID();
@@ -684,5 +695,9 @@ Bool CWorldBuilderDoc::getAllIndexesInRect(const Coord3D* bl, const Coord3D* br,
 void CWorldBuilderDoc::validate(void)
 {
 	TheSidesList->validateSides();
-	/// @todo port the remaining validation (team fixups etc.) from the MFC doc.
+	/// @todo The original also fixed up missing ThingTemplates (prompting via
+	/// ReplaceUnitDialog, a modal dialog not yet ported) and migrated legacy
+	/// "Fundamentalist" faction/team/build-list references to "GLA". Deferred
+	/// until ReplaceUnitDialog is ported - low priority since it only matters
+	/// for loading very old maps.
 }

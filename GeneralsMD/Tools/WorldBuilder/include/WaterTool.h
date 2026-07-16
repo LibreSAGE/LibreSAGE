@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -32,16 +33,16 @@ class PolygonTrigger;
 class MovePolygonUndoable;
 /*************************************************************************/
 /**                             WaterTool
-	 Does the add/select water polygon operation. 
+	 Does the add/select water polygon operation.
 ***************************************************************************/
 ///  Select tile tool.
-class WaterTool : public PolygonTool 
+class WaterTool : public PolygonTool
 {
 public:
 	WaterTool(void);
 	~WaterTool(void);
 
-protected: 
+protected:
 	static Bool		m_water_isActive;
 
 	Real	m_currentZ;
@@ -51,15 +52,14 @@ public:
 
 public:
 	/// Perform tool on mouse down.
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void setCursor(void);
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	virtual void activate(); ///< Become the current tool.
 	virtual void deactivate(); ///< Become not the current tool.
 
 protected:
-	void fillTheArea(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	void fillTheArea(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	PolygonTrigger *adjustSpacing(PolygonTrigger *trigger, Real spacing);
 };
 

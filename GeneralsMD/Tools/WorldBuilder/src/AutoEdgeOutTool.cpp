@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -20,54 +21,52 @@
 // Texture tiling tool for worldbuilder.
 // Author: John Ahlquist, April 2001
 
-#include "StdAfx.h" 
-#include "resource.h"
-
 #include "AutoEdgeOutTool.h"
 #include "CUndoable.h"
 #include "MainFrm.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
-#include "WorldBuilderView.h"
+#include "BlendMaterial.h"
+#include "wbview.h"
 //
 // AutoEdgeOutTool class.
 //
 /// Constructor
 AutoEdgeOutTool::AutoEdgeOutTool(void) :
-	Tool(ID_AUTO_EDGE_OUT_TOOL, IDC_AUTO_EDGE_OUT) 
-{
-}
-	
-/// Destructor
-AutoEdgeOutTool::~AutoEdgeOutTool(void) 
+	Tool(ID_AUTO_EDGE_OUT_TOOL, ":/cursors/IDC_AUTO_EDGE_OUT.cur")
 {
 }
 
-/// Shows the brush options panel.
-void AutoEdgeOutTool::activate() 
+/// Destructor
+AutoEdgeOutTool::~AutoEdgeOutTool(void)
+{
+}
+
+/// Shows the blend material options panel.
+void AutoEdgeOutTool::activate()
 {
 	Tool::activate();
-	CMainFrame::GetMainFrame()->showOptionsDialog(IDD_BLEND_MATERIAL);
+	if (CMainFrame::GetMainFrame())
+		CMainFrame::GetMainFrame()->showOptionsDialog(ID_AUTO_EDGE_OUT_TOOL);
 }
 
 
 /** Execute the tool on mouse down - Create a copy of the height map
 * to edit, blend the edges, and give the undoable command to the doc. */
-void AutoEdgeOutTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void AutoEdgeOutTool::mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m != TRACK_L) return;
 
 	Coord3D cpt;
 	pView->viewToDocCoords(viewPt, &cpt);
 
-	CPoint ndx;
+	QPoint ndx;
 	if (!pDoc->getCellIndexFromCoord(cpt, &ndx)) {
 		return;
 	}
 
-//	WorldHeightMapEdit *pMap = pDoc->GetHeightMap();
 	WorldHeightMapEdit *htMapEditCopy = pDoc->GetHeightMap()->duplicate();
-	htMapEditCopy->autoBlendOut(ndx.x, ndx.y, BlendMaterial::getBlendTexClass());
+	htMapEditCopy->autoBlendOut(ndx.x(), ndx.y(), BlendMaterial::getBlendTexClass());
 	IRegion2D partialRange = {0,0,0,0};
 	pDoc->updateHeightMap(htMapEditCopy, false, partialRange);
 	WBDocUndoable *pUndo = new WBDocUndoable(pDoc, htMapEditCopy);

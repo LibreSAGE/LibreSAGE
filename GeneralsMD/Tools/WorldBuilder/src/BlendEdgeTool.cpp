@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -20,32 +21,29 @@
 // Texture tiling tool for worldbuilder.
 // Author: John Ahlquist, April 2001
 
-#include "StdAfx.h" 
-#include "resource.h"
-
 #include "BlendEdgeTool.h"
 #include "CUndoable.h"
-#include "MainFrm.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
-#include "WorldBuilderView.h"
+#include "TerrainMaterial.h"
+#include "wbview.h"
 //
 // BlendEdgeTool class.
 //
 /// Constructor
 BlendEdgeTool::BlendEdgeTool(void) :
-	Tool(ID_BLEND_EDGE_TOOL, IDC_BLEND_EDGE) 
+	Tool(ID_BLEND_EDGE_TOOL, ":/cursors/IDC_BLEND_EDGE.cur")
 {
 }
-	
+
 /// Destructor
-BlendEdgeTool::~BlendEdgeTool(void) 
+BlendEdgeTool::~BlendEdgeTool(void)
 {
 }
 
 
 /** Execute the tool on mouse down - Place an object. */
-void BlendEdgeTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void BlendEdgeTool::mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	Coord3D cpt;
 	pView->viewToDocCoords(viewPt, &cpt);
@@ -54,12 +52,12 @@ void BlendEdgeTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWo
 }
 
 /** Execute the tool on mouse up - Blend an edge.  Left mouse blends the from
-texture to the to texture based on your drag. Right mouse blends the 
-foreground texture in the texture panel on top of the destination tile for 
+texture to the to texture based on your drag. Right mouse blends the
+foreground texture in the texture panel on top of the destination tile for
 custom blends. */
-void BlendEdgeTool::mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void BlendEdgeTool::mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
-	CPoint from, to;
+	QPoint from, to;
 
 	Coord3D cpt;
 	// Don't constrain this tool.
@@ -69,17 +67,16 @@ void BlendEdgeTool::mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 		return;
 	}
 
-	if (from.x == to.x && from.y == to.y) {
+	if (from.x() == to.x() && from.y() == to.y()) {
 		return;
 	}
 
-//	WorldHeightMapEdit *pMap = pDoc->GetHeightMap();
 	WorldHeightMapEdit *htMapEditCopy = pDoc->GetHeightMap()->duplicate();
 	if (m == TRACK_L)
-		htMapEditCopy->blendTile(to.x, to.y, from.x, from.y, -1, -1);   // does all the work.
+		htMapEditCopy->blendTile(to.x(), to.y(), from.x(), from.y(), -1, -1);   // does all the work.
 	else
-		htMapEditCopy->blendTile(to.x, to.y, from.x, from.y, TerrainMaterial::getFgTexClass(), -1);   // does all the work.
-	IRegion2D partialRange = {to.x, to.y, to.x+1, to.y+1};
+		htMapEditCopy->blendTile(to.x(), to.y(), from.x(), from.y(), TerrainMaterial::getFgTexClass(), -1);   // does all the work.
+	IRegion2D partialRange = {to.x(), to.y(), to.x()+1, to.y()+1};
 	pDoc->updateHeightMap(htMapEditCopy, true, partialRange);	//update the render object with new tile and/or height data.
 	WBDocUndoable *pUndo = new WBDocUndoable(pDoc, htMapEditCopy);
 	pDoc->AddAndDoUndoable(pUndo);

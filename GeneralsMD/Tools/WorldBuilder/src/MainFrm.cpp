@@ -24,6 +24,7 @@
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QIcon>
 #include <QLabel>
 #include <QMenu>
 #include <QMenuBar>
@@ -31,6 +32,7 @@
 #include <QSettings>
 #include <QStackedWidget>
 #include <QStatusBar>
+#include <QStyle>
 #include <QTimer>
 #include <QToolBar>
 
@@ -47,9 +49,11 @@
 #include "MoundOptions.h"
 #include "FeatherOptions.h"
 #include "TerrainMaterial.h"
+#include "BlendMaterial.h"
 #include "mapobjectprops.h"
 #include "MapSettings.h"
 #include "ObjectOptions.h"
+#include "WaterOptions.h"
 #include "DrawObject.h"
 #include "wbview3d.h"
 
@@ -71,8 +75,13 @@ CMainFrame::CMainFrame(QWidget *parent) :
 	m_featherOptions(NULL),
 	m_mapObjectProps(NULL),
 	m_terrainMaterial(NULL),
+	m_blendMaterial(NULL),
 	m_objectOptions(NULL),
+	m_waterOptions(NULL),
 	m_3dView(NULL),
+	m_fileNewAction(NULL),
+	m_fileOpenAction(NULL),
+	m_fileSaveAction(NULL),
 	m_autoSaveTimer(NULL),
 	m_autoSaving(false)
 {
@@ -100,8 +109,24 @@ CMainFrame::CMainFrame(QWidget *parent) :
 	m_optionsStack->addWidget(m_mapObjectProps);
 	m_terrainMaterial = new TerrainMaterial(m_optionsStack);
 	m_optionsStack->addWidget(m_terrainMaterial);
+	m_blendMaterial = new BlendMaterial(m_optionsStack);
+	m_optionsStack->addWidget(m_blendMaterial);
 	m_objectOptions = new ObjectOptions(m_optionsStack);
 	m_optionsStack->addWidget(m_objectOptions);
+	m_waterOptions = new WaterOptions(m_optionsStack);
+	m_optionsStack->addWidget(m_waterOptions);
+
+	// WorldBuilderApp::selectPointerTool() runs once during engine init,
+	// before this frame (and its option panels) exist, so that first
+	// activate() call has nothing to show its panel on.  Later calls to
+	// selectPointerTool() (from newDocument()/openDocument()) are then
+	// no-ops because the tool hasn't actually changed - setActiveTool()
+	// only calls activate() again on a real tool switch.  Explicitly sync
+	// the panel to whatever tool ended up active now that it can be shown.
+	if (WbApp()->getCurTool()) {
+		showOptionsDialog(WbApp()->getCurTool()->getToolID());
+	}
+
 	m_optionsDock->setWidget(m_optionsStack);
 	// The original MFC options panel is a free-floating tool window: it may float
 	// anywhere but must not dock into the main window.  Disallowing every dock
@@ -188,9 +213,17 @@ void CMainFrame::createMenus(void)
 
 	// --- File ---------------------------------------------------------------
 	QMenu *fileMenu = bar->addMenu("&File");
-	fileMenu->addAction("&New", QKeySequence::New, this, &CMainFrame::OnFileNew);
-	fileMenu->addAction("&Open...", QKeySequence::Open, this, &CMainFrame::OnFileOpen);
-	fileMenu->addAction("&Save", QKeySequence::Save, this, &CMainFrame::OnFileSave);
+	// New/Open/Save are also on the toolbar (original IDR_MAINFRAME layout),
+	// so the actions are kept as members and shared between menu and toolbar.
+	// Qt has no pixel art of its own to match the original bitmap icons with,
+	// so these use the platform's standard icon set instead (same convention
+	// as the W3DView port).
+	m_fileNewAction = fileMenu->addAction("&New", QKeySequence::New, this, &CMainFrame::OnFileNew);
+	m_fileNewAction->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
+	m_fileOpenAction = fileMenu->addAction("&Open...", QKeySequence::Open, this, &CMainFrame::OnFileOpen);
+	m_fileOpenAction->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+	m_fileSaveAction = fileMenu->addAction("&Save", QKeySequence::Save, this, &CMainFrame::OnFileSave);
+	m_fileSaveAction->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
 	fileMenu->addAction("Save &As...", QKeySequence::SaveAs, this, &CMainFrame::OnFileSaveAs);
 	addStubAction(fileMenu, "&Jump to Game", QKeySequence("Ctrl+J"));
 	fileMenu->addSeparator();
@@ -379,26 +412,37 @@ void CMainFrame::createToolBar(void)
 	QToolBar *toolBar = addToolBar("Main");
 	toolBar->setObjectName("MainToolBar");
 
-	// Tool palette: one checkable action per ported tool.
-	/// @todo add the remaining tools as they get ported (original
-	/// IDR_MAINFRAME toolbar).
+	// File actions come first on the toolbar, same as the original
+	// IDR_MAINFRAME layout; these QActions are shared with the File menu.
+	toolBar->addAction(m_fileNewAction);
+	toolBar->addAction(m_fileOpenAction);
+	toolBar->addAction(m_fileSaveAction);
+	toolBar->addSeparator();
+
+	// Tool palette: one checkable action per ported tool.  Icons are sliced
+	// from the original IDR_MAINFRAME toolbar bitmap (res/Toolbar.bmp),
+	// converted to PNG with the classic button-face gray keyed to alpha.
 	QActionGroup *toolGroup = new QActionGroup(this);
-	struct { const char *name; Int id; } toolActions[] = {
-		{ "Pointer", ID_POINTER_TOOL },
-		{ "Hand Scroll", ID_HAND_SCROLL_TOOL },
-		{ "Place Object", ID_OBJECT_TOOL },
-		{ "Polygon Area", ID_POLYGON_TOOL },
-		{ "Height Brush", ID_BRUSH_TOOL },
-		{ "Paint Texture", ID_TILE_TOOL },
-		{ "Large Texture Brush", ID_BIG_TILE_TOOL },
-		{ "Flood Fill", ID_FLOOD_FILL_TOOL },
-		{ "Eyedropper", ID_EYEDROPPER_TOOL },
-		{ "Mound", ID_MOUND_TOOL },
-		{ "Dig", ID_DIG_TOOL },
-		{ "Smooth", ID_FEATHER_TOOL },
+	struct { const char *name; Int id; const char *icon; } toolActions[] = {
+		{ "Pointer", ID_POINTER_TOOL, "pointer_tool" },
+		{ "Hand Scroll", ID_HAND_SCROLL_TOOL, "handscroll_tool" },
+		{ "Place Object", ID_OBJECT_TOOL, "object_tool" },
+		{ "Polygon Area", ID_POLYGON_TOOL, "polygon_tool" },
+		{ "Height Brush", ID_BRUSH_TOOL, "brush_tool" },
+		{ "Water", ID_WATER_TOOL, "water_tool" },
+		{ "Paint Texture", ID_TILE_TOOL, "tile_tool" },
+		{ "Large Texture Brush", ID_BIG_TILE_TOOL, "bigtile_tool" },
+		{ "Flood Fill", ID_FLOOD_FILL_TOOL, "floodfill_tool" },
+		{ "Eyedropper", ID_EYEDROPPER_TOOL, "eyedropper_tool" },
+		{ "Blend Edge", ID_BLEND_EDGE_TOOL, "blendedge_tool" },
+		{ "Auto Edge Out", ID_AUTO_EDGE_OUT_TOOL, "autoedgeout_tool" },
+		{ "Mound", ID_MOUND_TOOL, "mound_tool" },
+		{ "Dig", ID_DIG_TOOL, "dig_tool" },
+		{ "Smooth", ID_FEATHER_TOOL, "feather_tool" },
 	};
 	for (size_t i = 0; i < sizeof(toolActions)/sizeof(toolActions[0]); ++i) {
-		QAction *action = toolBar->addAction(toolActions[i].name);
+		QAction *action = toolBar->addAction(
+			QIcon(QString(":/icons/%1.png").arg(toolActions[i].icon)), toolActions[i].name);
 		action->setCheckable(true);
 		Int toolId = toolActions[i].id;
 		connect(action, &QAction::triggered, this, [toolId]() {
@@ -444,7 +488,9 @@ void CMainFrame::showOptionsDialog(Int panelId)
 		case ID_BIG_TILE_TOOL:
 		case ID_FLOOD_FILL_TOOL:
 		case ID_EYEDROPPER_TOOL: newOptions = m_terrainMaterial; break;
+		case ID_AUTO_EDGE_OUT_TOOL: newOptions = m_blendMaterial; break;
 		case ID_OBJECT_TOOL: newOptions = m_objectOptions; break;
+		case ID_WATER_TOOL: newOptions = m_waterOptions; break;
 		/// @todo route the remaining panels here as they get ported.
 		default: newOptions = m_noOptions; break;
 	}

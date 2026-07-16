@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -29,10 +30,10 @@
 class WorldHeightMapEdit;
 /*************************************************************************/
 /**                             BlendEdgeTool
-	 Does the BlendEdgesOut tool operation. 
+	 Does the BlendEdgesOut tool operation.
 ***************************************************************************/
 ///  Blend edges out tool.
-class BlendEdgeTool : public Tool 
+class BlendEdgeTool : public Tool
 {
 protected:
 	Coord3D m_downPt;
@@ -43,8 +44,8 @@ public:
 
 public:
 	/// Perform tool on mouse down.
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 
 };
 
