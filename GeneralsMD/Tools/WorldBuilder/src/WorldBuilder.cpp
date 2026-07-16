@@ -30,6 +30,9 @@
 #include "MainFrm.h"
 #include "SplashScreen.h"
 #include "BrushTool.h"
+#include "EyedropperTool.h"
+#include "FloodFillTool.h"
+#include "TileTool.h"
 #include "FeatherTool.h"
 #include "HandScrollTool.h"
 #include "MoundTool.h"
@@ -206,7 +209,15 @@ WorldBuilderApp::WorldBuilderApp(int &argc, char **argv) :
 	FeatherTool *featherTool = new FeatherTool;
 	ObjectTool *objectTool = new ObjectTool;
 	PolygonTool *polygonTool = new PolygonTool;
+	TileTool *tileTool = new TileTool;
+	BigTileTool *bigTileTool = new BigTileTool;
+	FloodFillTool *floodFillTool = new FloodFillTool;
+	EyedropperTool *eyedropperTool = new EyedropperTool;
 	m_tools[0] = m_brushTool;
+	m_tools[1] = tileTool;
+	m_tools[4] = bigTileTool;
+	m_tools[5] = floodFillTool;
+	m_tools[8] = eyedropperTool;
 	m_tools[2] = featherTool;
 	m_tools[6] = moundTool;
 	m_tools[7] = digTool;
@@ -225,6 +236,7 @@ WorldBuilderApp::WorldBuilderApp(int &argc, char **argv) :
 	FeatherTool::setFeather(3);
 	FeatherTool::setRadius(1);
 	FeatherTool::setRate(2);
+	BigTileTool::setWidth(3);
 }
 
 WorldBuilderApp::~WorldBuilderApp()

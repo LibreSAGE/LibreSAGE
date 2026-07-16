@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,40 +18,36 @@
 */
 
 // FloodFillTool.h
-// Texture tiling tools for worldbuilder.
+// Texture flood fill tool for worldbuilder.
 // Author: John Ahlquist, April 2001
 
 #pragma once
 
-#ifndef FloodFillTool_H
-#define FloodFillTool_H
+#ifndef FLOODFILLTOOL_H
+#define FLOODFILLTOOL_H
 
 #include "Tool.h"
-class WorldHeightMapEdit;
-/**************************************************************************
-                            FloodFillTool
+
+/*************************************************************************
+**                             FloodFillTool
 ***************************************************************************/
-///  Fill area with texture tool.
-class FloodFillTool : public Tool 
+class FloodFillTool : public Tool
 {
+protected:
+	Int			m_textureClassToDraw;
+	QCursor		m_cliffCursor;
+	static Bool	m_adjustCliffTextures;
+
 public:
 	FloodFillTool(void);
 	~FloodFillTool(void);
 
-protected:
-	Int			m_textureClassToDraw; ///< The texture to fill with.  Foreground for mousedDown, background for mouseDownRt.
-	HCURSOR m_cliffCursor;
-	static Bool m_adjustCliffTextures;
+	static void setAdjustCliffs(Bool adjust) {m_adjustCliffTextures = adjust;}
 
 public:
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual QCursor getCursor(void);
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	virtual void activate(); ///< Become the current tool.
-	virtual void setCursor(void);
-
-	Bool getAdjustCliffs(void) {return m_adjustCliffTextures;}
-	void setAdjustCliffs(Bool val) {m_adjustCliffTextures = val;}
-
 };
 
-
-#endif //TOOL_H
+#endif //FLOODFILLTOOL_H

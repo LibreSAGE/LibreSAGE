@@ -46,6 +46,7 @@
 #include "brushoptions.h"
 #include "MoundOptions.h"
 #include "FeatherOptions.h"
+#include "TerrainMaterial.h"
 #include "mapobjectprops.h"
 #include "MapSettings.h"
 #include "ObjectOptions.h"
@@ -69,6 +70,7 @@ CMainFrame::CMainFrame(QWidget *parent) :
 	m_moundOptions(NULL),
 	m_featherOptions(NULL),
 	m_mapObjectProps(NULL),
+	m_terrainMaterial(NULL),
 	m_objectOptions(NULL),
 	m_3dView(NULL),
 	m_autoSaveTimer(NULL),
@@ -96,6 +98,8 @@ CMainFrame::CMainFrame(QWidget *parent) :
 	m_optionsStack->addWidget(m_featherOptions);
 	m_mapObjectProps = new MapObjectProps(m_optionsStack);
 	m_optionsStack->addWidget(m_mapObjectProps);
+	m_terrainMaterial = new TerrainMaterial(m_optionsStack);
+	m_optionsStack->addWidget(m_terrainMaterial);
 	m_objectOptions = new ObjectOptions(m_optionsStack);
 	m_optionsStack->addWidget(m_objectOptions);
 	m_optionsDock->setWidget(m_optionsStack);
@@ -385,6 +389,10 @@ void CMainFrame::createToolBar(void)
 		{ "Place Object", ID_OBJECT_TOOL },
 		{ "Polygon Area", ID_POLYGON_TOOL },
 		{ "Height Brush", ID_BRUSH_TOOL },
+		{ "Paint Texture", ID_TILE_TOOL },
+		{ "Large Texture Brush", ID_BIG_TILE_TOOL },
+		{ "Flood Fill", ID_FLOOD_FILL_TOOL },
+		{ "Eyedropper", ID_EYEDROPPER_TOOL },
 		{ "Mound", ID_MOUND_TOOL },
 		{ "Dig", ID_DIG_TOOL },
 		{ "Smooth", ID_FEATHER_TOOL },
@@ -432,6 +440,10 @@ void CMainFrame::showOptionsDialog(Int panelId)
 		case ID_DIG_TOOL: newOptions = m_moundOptions; break;
 		case ID_FEATHER_TOOL: newOptions = m_featherOptions; break;
 		case ID_POINTER_TOOL: newOptions = m_mapObjectProps; break;
+		case ID_TILE_TOOL:
+		case ID_BIG_TILE_TOOL:
+		case ID_FLOOD_FILL_TOOL:
+		case ID_EYEDROPPER_TOOL: newOptions = m_terrainMaterial; break;
 		case ID_OBJECT_TOOL: newOptions = m_objectOptions; break;
 		/// @todo route the remaining panels here as they get ported.
 		default: newOptions = m_noOptions; break;
