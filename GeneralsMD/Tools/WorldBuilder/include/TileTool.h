@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -30,21 +31,21 @@ class WorldHeightMapEdit;
 /*************************************************************************
 **                             TileTool
 ***************************************************************************/
-class TileTool : public Tool 
+class TileTool : public Tool
 {
 protected:
 	WorldHeightMapEdit *m_htMapEditCopy; //< ref counted.
 	Int									m_textureClassToDraw;
-	CPoint							m_prevViewPt;
+	QPoint							m_prevViewPt;
 
 public:
 	TileTool(void);
 	~TileTool(void);
 
 public:
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
-	virtual void mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	virtual WorldHeightMapEdit *getHeightMap(void) {return m_htMapEditCopy;};
 	virtual void activate(); ///< Become the current tool.
 	virtual Int getWidth(void) {return 1;};
@@ -53,7 +54,7 @@ public:
 /*************************************************************************
 **                             BigTileTool
 ***************************************************************************/
-class BigTileTool : public TileTool 
+class BigTileTool : public TileTool
 {
 
 protected:

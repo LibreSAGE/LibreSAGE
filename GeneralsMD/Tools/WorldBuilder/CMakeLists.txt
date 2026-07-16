@@ -14,9 +14,11 @@ qt_add_executable(
   include/BrushTool.h
   include/CUndoable.h
   include/DrawObject.h
+  include/EyedropperTool.h
   include/FeatherOptions.h
   include/FeatherTool.h
   include/HandScrollTool.h
+  include/FloodFillTool.h
   include/MainFrm.h
   include/MapSettings.h
   include/MoundOptions.h
@@ -28,6 +30,8 @@ qt_add_executable(
   include/PolygonTool.h
   include/RoadTool.h
   include/SplashScreen.h
+  include/TerrainMaterial.h
+  include/TileTool.h
   include/Tool.h
   include/WBHeightMap.h
   include/WHeightMapEdit.h
@@ -41,9 +45,11 @@ qt_add_executable(
   src/BrushTool.cpp
   src/CUndoable.cpp
   src/DrawObject.cpp
+  src/EyedropperTool.cpp
   src/FeatherOptions.cpp
   src/FeatherTool.cpp
   src/HandScrollTool.cpp
+  src/FloodFillTool.cpp
   src/MainFrm.cpp
   src/MapSettings.cpp
   src/MoundOptions.cpp
@@ -55,6 +61,8 @@ qt_add_executable(
   src/PolygonTool.cpp
   src/RoadTool.cpp
   src/SplashScreen.cpp
+  src/TerrainMaterial.cpp
+  src/TileTool.cpp
   src/Tool.cpp
   src/WBHeightMap.cpp
   src/WHeightMapEdit.cpp
@@ -74,9 +82,13 @@ qt_add_resources(z_worldbuilder "splash" PREFIX "/" BASE res FILES
 qt_add_resources(z_worldbuilder "cursors" PREFIX "/cursors" BASE res FILES
                  res/cross.cur
                  res/IDC_HAND_SCROLL.cur
+                 res/IDC_CLIFF.cur
+                 res/IDC_EYEDROPPER.cur
+                 res/IDC_FLOOD_FILL.cur
                  res/IDC_MOVE_POINTER.cur
                  res/IDC_POINTER.cur
                  res/IDC_ROTATE.cur
+                 res/TileTool.cur
                  res/IDC_ROAD.cur)
 
 set_target_properties(z_worldbuilder PROPERTIES OUTPUT_NAME "WorldBuilder")

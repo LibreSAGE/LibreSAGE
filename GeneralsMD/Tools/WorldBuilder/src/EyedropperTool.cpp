@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,58 +18,55 @@
 */
 
 // EyedropperTool.cpp
-// Texture tiling tool for worldbuilder.
+// Texture eyedropper tool for worldbuilder.
 // Author: John Ahlquist, April 2001
-
-#include "StdAfx.h" 
-#include "resource.h"
 
 #include "EyedropperTool.h"
 #include "TerrainMaterial.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
-#include "WorldBuilderView.h"
 #include "MainFrm.h"
 #include "DrawObject.h"
+#include "wbview.h"
 
 //
 // EyedropperTool class.
 //
 /// Constructor
 EyedropperTool::EyedropperTool(void) :
-	Tool(ID_EYEDROPPER_TOOL, IDC_EYEDROPPER) 
+	Tool(ID_EYEDROPPER_TOOL, ":/cursors/IDC_EYEDROPPER.cur")
 {
 }
-	
+
 /// Destructor
-EyedropperTool::~EyedropperTool(void) 
+EyedropperTool::~EyedropperTool(void)
 {
 }
 
 
 /// Shows the terrain materials options panel.
-void EyedropperTool::activate() 
+void EyedropperTool::activate()
 {
-	CMainFrame::GetMainFrame()->showOptionsDialog(IDD_TERRAIN_MATERIAL);
+	if (CMainFrame::GetMainFrame())
+		CMainFrame::GetMainFrame()->showOptionsDialog(ID_TILE_TOOL);
 	TerrainMaterial::setToolOptions(true);
 	DrawObject::setDoBrushFeedback(false);
 }
 
 /// Perform the tool behavior on mouse down.
 /** Finds the current texture class, and tells the terrain material panel to use it as fg. */
-void EyedropperTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void EyedropperTool::mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m != TRACK_L) return;
 
 	Coord3D cpt;
 	pView->viewToDocCoords(viewPt, &cpt);
 
-	CPoint ndx;
+	QPoint ndx;
 	if (!pDoc->getCellIndexFromCoord(cpt, &ndx))
 		return;
 
 	WorldHeightMapEdit *pMap = pDoc->GetHeightMap();
-	Int texClass = pMap->getTextureClass(ndx.x, ndx.y, true);
+	Int texClass = pMap->getTextureClass(ndx.x(), ndx.y(), true);
 	TerrainMaterial::setFgTexClass(texClass);
 }
-

@@ -30,6 +30,7 @@
 
 #include "CUndoable.h"
 #include "MainFrm.h"
+#include "TerrainMaterial.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilder.h"
 #include "wbview3d.h"
@@ -199,7 +200,7 @@ Bool CWorldBuilderDoc::newDocument(Int xExtent, Int yExtent, Int initialHeight, 
 	pTrig->addPoint(loc);
 	PolygonTrigger::addPolygonTrigger(pTrig);
 	SetHeightMap(m_heightMap, true);
-	/// @todo TerrainMaterial::updateTextures(m_heightMap) once the panel is ported.
+	TerrainMaterial::updateTextures(m_heightMap);
 
 	if (p3View) {
 		p3View->setCenterInView(m_heightMap->getXExtent()/2-m_heightMap->getBorderSize(),

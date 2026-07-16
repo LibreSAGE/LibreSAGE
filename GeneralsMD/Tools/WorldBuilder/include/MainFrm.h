@@ -41,6 +41,7 @@ class BrushOptions;
 class MoundOptions;
 class FeatherOptions;
 class MapObjectProps;
+class TerrainMaterial;
 class ObjectOptions;
 
 class CMainFrame : public QMainWindow
@@ -93,6 +94,7 @@ protected:
 	MoundOptions			*m_moundOptions;
 	FeatherOptions			*m_featherOptions;
 	MapObjectProps			*m_mapObjectProps;
+	TerrainMaterial			*m_terrainMaterial;
 	ObjectOptions			*m_objectOptions;
 	WbView3d				*m_3dView;
 

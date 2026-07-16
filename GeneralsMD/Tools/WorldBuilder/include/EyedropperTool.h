@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,7 +18,7 @@
 */
 
 // EyedropperTool.h
-// Texture selection tool for worldbuilder.
+// Texture eyedropper tool for worldbuilder.
 // Author: John Ahlquist, April 2001
 
 #pragma once
@@ -26,23 +27,19 @@
 #define EYEDROPPERTOOL_H
 
 #include "Tool.h"
-class WorldHeightMapEdit;
-/*************************************************************************/
-/**                             EyedropperTool
-	 Does the select tile from drawing window tool operation. 
+
+/*************************************************************************
+**                             EyedropperTool
 ***************************************************************************/
-///  Select tile tool.
-class EyedropperTool : public Tool 
+class EyedropperTool : public Tool
 {
 public:
 	EyedropperTool(void);
 	~EyedropperTool(void);
 
 public:
-	/// Perform tool on mouse down.
-	virtual void mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
+	virtual void mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc);
 	virtual void activate(); ///< Become the current tool.
 };
 
-
-#endif //TOOL_H
+#endif //EYEDROPPERTOOL_H
