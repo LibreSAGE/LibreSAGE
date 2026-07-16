@@ -32,6 +32,7 @@
 
 #include "DrawObject.h"
 #include "MainFrm.h"
+#include "PolygonTool.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilder.h"
 #include "WorldBuilderDoc.h"
@@ -1537,7 +1538,7 @@ void WbView3d::render()
 	// polygon-area drawing stay off until those tools are ported.
 	if (m_drawObject) {
 		m_drawObject->setDrawObjects(m_showObjects,
-			m_showWaypoints, false /*polygon areas*/,
+			m_showWaypoints, PolygonTool::isActive() /*polygon areas*/,
 			m_showBoundingBoxes, m_showSightRanges, m_showWeaponRanges,
 			m_showSoundCircles, m_highlightTestArt, m_showLetterbox);
 	}

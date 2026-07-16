@@ -383,6 +383,7 @@ void CMainFrame::createToolBar(void)
 		{ "Pointer", ID_POINTER_TOOL },
 		{ "Hand Scroll", ID_HAND_SCROLL_TOOL },
 		{ "Place Object", ID_OBJECT_TOOL },
+		{ "Polygon Area", ID_POLYGON_TOOL },
 		{ "Height Brush", ID_BRUSH_TOOL },
 		{ "Mound", ID_MOUND_TOOL },
 		{ "Dig", ID_DIG_TOOL },

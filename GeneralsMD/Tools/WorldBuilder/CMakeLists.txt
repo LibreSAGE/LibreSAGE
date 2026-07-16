@@ -25,6 +25,7 @@ qt_add_executable(
   include/ObjectPreview.h
   include/ObjectTool.h
   include/PointerTool.h
+  include/PolygonTool.h
   include/RoadTool.h
   include/SplashScreen.h
   include/Tool.h
@@ -51,6 +52,7 @@ qt_add_executable(
   src/ObjectPreview.cpp
   src/ObjectTool.cpp
   src/PointerTool.cpp
+  src/PolygonTool.cpp
   src/RoadTool.cpp
   src/SplashScreen.cpp
   src/Tool.cpp

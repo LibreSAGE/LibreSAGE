@@ -35,6 +35,7 @@
 #include "MoundTool.h"
 #include "ObjectTool.h"
 #include "PointerTool.h"
+#include "PolygonTool.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
 
@@ -204,12 +205,14 @@ WorldBuilderApp::WorldBuilderApp(int &argc, char **argv) :
 	DigTool *digTool = new DigTool;
 	FeatherTool *featherTool = new FeatherTool;
 	ObjectTool *objectTool = new ObjectTool;
+	PolygonTool *polygonTool = new PolygonTool;
 	m_tools[0] = m_brushTool;
 	m_tools[2] = featherTool;
 	m_tools[6] = moundTool;
 	m_tools[7] = digTool;
 	m_tools[9] = objectTool;
 	m_tools[10] = m_pointerTool;
+	m_tools[11] = polygonTool;
 	m_tools[15] = m_handScrollTool;
 
 	// set up initial values.
