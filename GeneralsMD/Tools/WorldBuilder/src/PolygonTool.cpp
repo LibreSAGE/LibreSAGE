@@ -17,21 +17,23 @@
 */
 
 // PolygonTool.cpp
-// Texture tiling tool for worldbuilder.
-// Author: John Ahlquist, April 2001
+// Polygon area trigger tool for worldbuilder (Qt6 port).
+// Author: John Ahlquist, Nov. 2001
+//
+// Qt6 port note: the water-tool filter and the waypoint/polygon options panel
+// are not ported yet, so WaterTool::isActive() is treated as false and the
+// WaypointOptions updates are dropped.  @todo
 
-#include "StdAfx.h" 
-#include "resource.h"
+#include <QCursor>
 
 #include "PolygonTool.h"
 #include "CUndoable.h"
 #include "PointerTool.h"
-#include "TerrainMaterial.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
-#include "WorldBuilderView.h"
 #include "MainFrm.h"
 #include "DrawObject.h"
+#include "wbview.h"
 #include "GameLogic/PolygonTrigger.h"
 #include "W3DDevice/GameClient/HeightMap.h"
 
@@ -48,23 +50,22 @@ enum {SNAP_DISTANCE = 5};
 
 /// Constructor
 PolygonTool::PolygonTool(void) :
-	Tool(ID_POLYGON_TOOL, IDC_POLYGON), 
-	m_poly_plusCursor(NULL),
-	m_poly_moveCursor(NULL)
+	Tool(ID_POLYGON_TOOL, ":/cursors/cross.cur"),
+	m_poly_isDraggingPoint(false),
+	m_poly_justPicked(false),
+	m_poly_mouseUpPlus(false),
+	m_poly_plusCursor(Qt::CrossCursor),
+	m_poly_mouseUpMove(false),
+	m_poly_moveCursor(Qt::SizeAllCursor),
+	m_poly_moveUndoable(NULL)
 {
 }
 
 
 
 /// Destructor
-PolygonTool::~PolygonTool(void) 
+PolygonTool::~PolygonTool(void)
 {
-	if (m_poly_plusCursor) {
-		::DestroyCursor(m_poly_plusCursor);
-	}
-	if (m_poly_moveCursor) {
-		::DestroyCursor(m_poly_moveCursor);
-	}
 }
 
 /// Clears it's is active flag.
@@ -81,11 +82,11 @@ void PolygonTool::deactivate()
 	m_poly_curSelectedPolygon = NULL;
 }
 
-/// Shows the terrain materials options panel.
-void PolygonTool::activate() 
+/// Shows the polygon (waypoint) options panel.
+void PolygonTool::activate()
 {
-	CMainFrame::GetMainFrame()->showOptionsDialog(IDD_WAYPOINT_OPTIONS);
-	WaypointOptions::update();
+	CMainFrame::GetMainFrame()->showOptionsDialog(ID_POLYGON_TOOL);
+	/// @todo WaypointOptions::update() once the waypoint/polygon panel is ported.
 	if (!m_poly_curSelectedPolygon) {
 		PointerTool::clearSelection();
 		DrawObject::setDoBrushFeedback(false);
@@ -126,20 +127,14 @@ Bool PolygonTool::poly_pickPoly(PolygonTrigger *pTrig, Coord3D loc, Int toleranc
 
 
 // Pick a polygon.
-PolygonTrigger *PolygonTool::pickPolygon(Coord3D loc, CPoint viewPt, WbView* pView) {
+PolygonTrigger *PolygonTool::pickPolygon(Coord3D loc, QPoint viewPt, WbView* pView) {
+	// @todo the water tool is not ported, so its water-only filter is disabled.
 	for (PolygonTrigger *pTrig=PolygonTrigger::getFirstPolygonTrigger(); pTrig; pTrig = pTrig->getNext()) {
-		// For water, only do water
-		if (WaterTool::isActive() && !pTrig->isWaterArea()) {
-			continue;
-		}
 		if (poly_pickPoly(pTrig, loc, SNAP_DISTANCE/2)) {
 			return pTrig;
 		}
 	}
-	for (pTrig=PolygonTrigger::getFirstPolygonTrigger(); pTrig; pTrig = pTrig->getNext()) {
-		if (WaterTool::isActive() && !pTrig->isWaterArea()) {
-			continue;
-		}
+	for (PolygonTrigger *pTrig=PolygonTrigger::getFirstPolygonTrigger(); pTrig; pTrig = pTrig->getNext()) {
 		Coord3D docPt = loc;
 		Int pt = poly_pickPoint(pTrig, viewPt, pView);
 		if (pt>=0) {
@@ -175,7 +170,7 @@ Bool PolygonTool::poly_snapToPoly(Coord3D *pLoc) {
 }
 
 // Pick a point.
-Int PolygonTool::poly_pickPoint(PolygonTrigger *pTrig, CPoint viewPt, WbView* pView) {
+Int PolygonTool::poly_pickPoint(PolygonTrigger *pTrig, QPoint viewPt, WbView* pView) {
 	if (pTrig==NULL) return -1;
 	Int i;
 	const Int PICK_PIXELS = pView->getPickPixels();
@@ -186,10 +181,10 @@ Int PolygonTool::poly_pickPoint(PolygonTrigger *pTrig, CPoint viewPt, WbView* pV
 		cpt.y = iLoc.y;
 		cpt.z = iLoc.z;
 		cpt.z = 0;
-		CPoint screenLoc; 
+		QPoint screenLoc;
 		pView->docToViewCoords(cpt, &screenLoc);
-		Int dx = screenLoc.x-viewPt.x;
-		Int dy = screenLoc.y - viewPt.y;
+		Int dx = screenLoc.x()-viewPt.x();
+		Int dy = screenLoc.y() - viewPt.y();
 		if (dy<0) dy = -dy;
 		if (dx<0) dx = -dx;
 		if (dx<=PICK_PIXELS && dy<= PICK_PIXELS) {
@@ -241,7 +236,7 @@ Int PolygonTool::poly_getInsertIndex(PolygonTrigger *pTrig, Coord3D loc) {
 }
 
 /** Do the pick on poly triggers. */
-void PolygonTool::poly_pickOnMouseDown(CPoint viewPt, WbView* pView) 
+void PolygonTool::poly_pickOnMouseDown(QPoint viewPt, WbView* pView)
 {						 
 	m_poly_dragPointNdx = -1;
 	if (m_poly_curSelectedPolygon) {
@@ -273,7 +268,7 @@ void PolygonTool::poly_pickOnMouseDown(CPoint viewPt, WbView* pView)
 
 
 /// Perform the tool behavior on mouse down.
-void PolygonTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void PolygonTool::mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m != TRACK_L) return;
 	Coord3D docPt;
@@ -288,8 +283,8 @@ void PolygonTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 }
 
 /// Perform the tool behavior on mouse down.
-void PolygonTool::startMouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
-{	
+void PolygonTool::startMouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
+{
 	// Clear any selected map objects.
 	if (!m_poly_curSelectedPolygon) PointerTool::clearSelection();
 
@@ -348,7 +343,7 @@ void PolygonTool::startMouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, 
 			REF_PTR_RELEASE(pUndo); // belongs to pDoc now.
 		}
 	}
-	WaypointOptions::update();
+	/// @todo WaypointOptions::update() once the panel is ported.
 }
 
 /// Delete the selected polygon or point.
@@ -385,32 +380,25 @@ Bool PolygonTool::deleteSelectedPolygon(void)
 		m_poly_curSelectedPolygon = NULL;
 		m_poly_dragPointNdx = -1;
 	}
-	WaypointOptions::update();
+	/// @todo WaypointOptions::update() once the panel is ported.
 	return true;
 }
 
-/** Set the cursor. */
-void PolygonTool::setCursor(void) 
+/** Return the cursor for the current hotspot. */
+QCursor PolygonTool::getCursor(void)
 {
 	if (m_poly_mouseUpPlus || (m_poly_isAdding && m_poly_curSelectedPolygon)) {
-		if (m_poly_plusCursor == NULL) {
-			m_poly_plusCursor = AfxGetApp()->LoadCursor(MAKEINTRESOURCE(IDC_POLYGON_PLUS));
-		}
-		::SetCursor(m_poly_plusCursor);
-	} else 	if (m_poly_mouseUpMove) {
-		if (m_poly_moveCursor == NULL) {
-			m_poly_moveCursor = AfxGetApp()->LoadCursor(MAKEINTRESOURCE(IDC_POLYGON_MOVE));
-		}
-		::SetCursor(m_poly_moveCursor);
-	} else {
-		Tool::setCursor();
+		return m_poly_plusCursor;
+	} else if (m_poly_mouseUpMove) {
+		return m_poly_moveCursor;
 	}
+	return Tool::getCursor();
 }
 
 
 
 /// Left button move code.
-void PolygonTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
+void PolygonTool::mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	Coord3D docPt;
 	pView->viewToDocCoords(viewPt, &docPt);
@@ -444,7 +432,7 @@ void PolygonTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWor
 		iDocPt.y = floor(docPt.y+0.5f-m_poly_mouseDownPt.y);
 		iDocPt.z = 0;
 		m_poly_moveUndoable->SetOffset(iDocPt);
-		pView->Invalidate();
+		pView->update();
 		return;
 	}
 	if (m_poly_dragPointNdx >= 0 && m_poly_curSelectedPolygon) {
@@ -456,12 +444,12 @@ void PolygonTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWor
 			iDocPt.z = m_poly_curSelectedPolygon->getPoint(m_poly_dragPointNdx)->z;
 		}
 		m_poly_curSelectedPolygon->setPoint(iDocPt, m_poly_dragPointNdx);
-		pView->Invalidate();
+		pView->update();
 	}
 }
 
 /** Mouse up - not much. */
-void PolygonTool::mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void PolygonTool::mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m != TRACK_L) return;
 	REF_PTR_RELEASE(m_poly_moveUndoable); // belongs to pDoc now.

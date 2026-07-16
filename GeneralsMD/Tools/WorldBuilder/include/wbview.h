@@ -108,6 +108,9 @@ public:
 	virtual TPickedStatus picked(MapObject *pObj, Coord3D docPt);
 	virtual MapObject *picked3dObjectInView(QPoint viewPt) {return NULL;};
 
+	/// Pixel tolerance for picking points/objects near the cursor.
+	virtual Int getPickPixels(void) {return 4;}
+
 	EditorSortingType GetPickConstraint(void) {return m_pickConstraint;}
 	void SetPickConstraint(EditorSortingType constraint) {m_pickConstraint = constraint;}
 	Bool isPolygonTriggerVisible(void) {return m_showPolygonTriggers;};

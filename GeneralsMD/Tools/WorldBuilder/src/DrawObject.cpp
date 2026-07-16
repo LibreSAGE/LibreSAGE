@@ -56,6 +56,7 @@
 #include "wbview3d.h"
 #include "WorldBuilderDoc.h"
 #include "WHeightMapEdit.h"
+#include "PolygonTool.h"
 #include "Common/WellKnownKeys.h"
 #include "Common/BorderColors.h"
 #include "Common/ThingTemplate.h"
@@ -2247,9 +2248,6 @@ if (pMapObj->isSelected()) {
 			count++;
 		}
 	}
-	/// @todo the polygon-area and build-list overlays depend on the unported
-	/// PolygonTool and BuildListTool; re-enable these two blocks once they land.
-#if 0
 	if (m_drawPolygonAreas) {
  		DX8Wrapper::Set_Vertex_Buffer(m_vertexBufferWater);
 		Int selected;
@@ -2316,6 +2314,9 @@ if (pMapObj->isSelected()) {
 	}
 
 
+	/// @todo the build-list overlay depends on the unported BuildListTool;
+	/// re-enable this block once that tool lands.
+#if 0
  	if (BuildListTool::isActive()) for (i=0; i<TheSidesList->getNumSides(); i++) {
 		SidesInfo *pSide = TheSidesList->getSideInfo(i); 
 		for (BuildListInfo *pBuild = pSide->getBuildList(); pBuild; pBuild = pBuild->getNext()) {
@@ -2360,7 +2361,7 @@ if (pMapObj->isSelected()) {
 
 		}
 	}
-#endif // polygon-area / build-list overlays disabled until their tools are ported
+#endif // build-list overlay disabled until BuildListTool is ported
 
 	DX8Wrapper::Set_Index_Buffer(m_indexBuffer,0);
  	DX8Wrapper::Set_Vertex_Buffer(m_vertexBufferWater);
