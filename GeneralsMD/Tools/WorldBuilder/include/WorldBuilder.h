@@ -31,6 +31,7 @@
 
 class BrushTool;
 class CWorldBuilderDoc;
+class EyedropperTool;
 class HandScrollTool;
 class MapObject;
 class PointerTool;
@@ -71,14 +72,13 @@ protected:
 
 	enum {NUM_VIEW_TOOLS=25};
 
-	/// @todo port the remaining tools (TileTool, FeatherTool, ...) and re-add
-	/// their members here; m_tools is populated as they come back.
 	Tool							*m_tools[NUM_VIEW_TOOLS]; ///< array of tool pointers.
 	Tool							*m_curTool;   ///< Currently active tool.
 	Tool							*m_selTool;   ///< Normal tool.  If we hit alt, curTool turns to eyedropper.
 	BrushTool					*m_brushTool;				///< Height brush tool.
 	PointerTool				*m_pointerTool;			///< Select and move/rotate tool.
 	HandScrollTool		*m_handScrollTool;	///< Scroll tool.
+	EyedropperTool		*m_eyedropperTool;	///< Eyedropper tool (activated by holding alt).
 
 	Int								m_lockCurTool;
 

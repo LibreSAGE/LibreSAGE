@@ -27,12 +27,10 @@
 
 #include "Lib/BaseType.h"
 
-/// @todo port the options panels (BrushOptions, TerrainMaterial, ...) as Qt
-/// widgets and re-add them to the options dock.
-
 #define TWO_D_WINDOW_SECTION "TwoDWindow"
 #define MAIN_FRAME_SECTION "MainFrame"
 
+class QAction;
 class QDockWidget;
 class QStackedWidget;
 class QTimer;
@@ -42,7 +40,9 @@ class MoundOptions;
 class FeatherOptions;
 class MapObjectProps;
 class TerrainMaterial;
+class BlendMaterial;
 class ObjectOptions;
+class WaterOptions;
 
 class CMainFrame : public QMainWindow
 {
@@ -95,8 +95,15 @@ protected:
 	FeatherOptions			*m_featherOptions;
 	MapObjectProps			*m_mapObjectProps;
 	TerrainMaterial			*m_terrainMaterial;
+	BlendMaterial			*m_blendMaterial;
 	ObjectOptions			*m_objectOptions;
+	WaterOptions			*m_waterOptions;
 	WbView3d				*m_3dView;
+
+	// Shared between the File menu and the toolbar.
+	QAction					*m_fileNewAction;
+	QAction					*m_fileOpenAction;
+	QAction					*m_fileSaveAction;
 
 	QTimer					*m_autoSaveTimer;  ///< Timer that triggers for autosave.
 	Bool					m_autoSaving;  ///< True if we are autosaving.

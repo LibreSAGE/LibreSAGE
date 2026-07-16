@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -16,272 +17,154 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// BlendMaterial.cpp : implementation file
-//
+// BlendMaterial.cpp : the auto-blend-edge texture chooser panel (Qt6 port of
+// the IDD_BLEND_MATERIAL dialog).  Only "blend edge" texture classes are
+// listed, plus a synthetic "Alpha Blend" entry (index -1) meaning "let
+// autoBlendOut() pick automatically" - the tool's default.
 
-#define DEFINE_TERRAIN_TYPE_NAMES
+#include <QTreeWidget>
+#include <QVBoxLayout>
 
-#include "stdafx.h"
-#include "resource.h"
-#include "Lib\BaseType.h"
 #include "BlendMaterial.h"
+
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
-#include "TileTool.h"
+
 #include "Common/TerrainTypes.h"
-#include "W3DDevice/GameClient/TerrainTex.h"	  
 
 BlendMaterial *BlendMaterial::m_staticThis = NULL;
+Int BlendMaterial::m_currentBlendTexture = -1;
 
-static Int defaultMaterialIndex = -1;
+static const Int ALPHA_BLEND_INDEX = -1;
 
-/////////////////////////////////////////////////////////////////////////////
-// BlendMaterial dialog
-
-Int BlendMaterial::m_currentBlendTexture(-1);
-
-BlendMaterial::BlendMaterial(CWnd* pParent /*=NULL*/) :
+//-------------------------------------------------------------------------------------------------
+BlendMaterial::BlendMaterial(QWidget *parent) :
+	QWidget(parent),
 	m_updating(false)
 {
-	//{{AFX_DATA_INIT(BlendMaterial)
-		// NOTE: the ClassWizard will add member initialization here
-	//}}AFX_DATA_INIT
-}
+	QVBoxLayout *layout = new QVBoxLayout(this);
 
+	m_terrainTree = new QTreeWidget(this);
+	m_terrainTree->setHeaderHidden(true);
+	layout->addWidget(m_terrainTree, 1);
 
-void BlendMaterial::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(BlendMaterial)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
-	//}}AFX_DATA_MAP
-}
-
-
-BEGIN_MESSAGE_MAP(BlendMaterial, COptionsPanel)
-	//{{AFX_MSG_MAP(BlendMaterial)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-// BlendMaterial data access method.
-
-/// Set foreground texture and invalidate swatches.
-void BlendMaterial::setBlendTexClass(Int texClass) 
-{
-	if (m_staticThis) {
-		m_staticThis->m_currentBlendTexture=texClass;
-		m_staticThis->setTerrainTreeViewSelection(TVI_ROOT, texClass);
-	}
-}
-
-
-
-/// Set the selected texture in the tree view.
-Bool BlendMaterial::setTerrainTreeViewSelection(HTREEITEM parent, Int selection)
-{
-	TVITEM item;
-	char buffer[_MAX_PATH];
-	::memset(&item, 0, sizeof(item));
-	HTREEITEM child = m_terrainTreeView.GetChildItem(parent);
-	while (child != NULL) {
-		item.mask = TVIF_HANDLE|TVIF_PARAM;
-		item.hItem = child;
-		item.pszText = buffer;
-		item.cchTextMax = sizeof(buffer)-2;				
-		m_terrainTreeView.GetItem(&item);
-		if (item.lParam == selection) {
-			m_terrainTreeView.SelectItem(child);
-			return(true);
-		}
-		if (setTerrainTreeViewSelection(child, selection)) {
-			return(true);
-		}
-		child = m_terrainTreeView.GetNextSiblingItem(child);
-	}
-	return(false);
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-// BlendMaterial message handlers
-
-/// Setup the controls in the dialog.
-BOOL BlendMaterial::OnInitDialog() 
-{
-	CDialog::OnInitDialog();
-
-	m_updating = true;
-	CWnd *pWnd = GetDlgItem(IDC_TERRAIN_TREEVIEW);
-	CRect rect;
-	pWnd->GetWindowRect(&rect);
-
-	ScreenToClient(&rect);
-	rect.DeflateRect(2,2,2,2);
-	m_terrainTreeView.Create(TVS_HASLINES|TVS_LINESATROOT|TVS_HASBUTTONS|
-		TVS_SHOWSELALWAYS|TVS_DISABLEDRAGDROP, rect, this, IDC_TERRAIN_TREEVIEW);
-	m_terrainTreeView.ShowWindow(SW_SHOW);
-
-	pWnd = GetDlgItem(IDC_TERRAIN_SWATCHES);
-	pWnd->GetWindowRect(&rect);
-	ScreenToClient(&rect);
-	rect.DeflateRect(2,2,2,2);
-	//m_terrainSwatches.Create(NULL, "", WS_CHILD, rect, this, IDC_TERRAIN_SWATCHES);
-	//m_terrainSwatches.ShowWindow(SW_SHOW);
+	connect(m_terrainTree, &QTreeWidget::currentItemChanged, this,
+			[this](QTreeWidgetItem *item, QTreeWidgetItem *) {
+		if (m_updating || item == NULL) return;
+		QVariant data = item->data(0, Qt::UserRole);
+		if (data.isNull()) return;
+		m_currentBlendTexture = data.toInt();
+	});
 
 	m_staticThis = this;
 	updateTextures();
-	m_updating = false;
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-/** Locate the child item in tree item parent with name pLabel.  If not
-found, add it.  Either way, return child. */
-HTREEITEM BlendMaterial::findOrAdd(HTREEITEM parent, char *pLabel)
+BlendMaterial::~BlendMaterial()
 {
-	TVINSERTSTRUCT ins;
-	char buffer[_MAX_PATH];
-	::memset(&ins, 0, sizeof(ins));
-	HTREEITEM child = m_terrainTreeView.GetChildItem(parent);
-	while (child != NULL) {
-		ins.item.mask = TVIF_HANDLE|TVIF_TEXT;
-		ins.item.hItem = child;
-		ins.item.pszText = buffer;
-		ins.item.cchTextMax = sizeof(buffer)-2;				
-		m_terrainTreeView.GetItem(&ins.item);
-		if (strcmp(buffer, pLabel) == 0) {
-			return(child);
-		}
-		child = m_terrainTreeView.GetNextSiblingItem(child);
+	if (m_staticThis == this) {
+		m_staticThis = NULL;
 	}
-
-	// not found, so add it.
-	::memset(&ins, 0, sizeof(ins));
-	ins.hParent = parent;
-	ins.hInsertAfter = TVI_LAST;
-	ins.item.mask = TVIF_PARAM|TVIF_TEXT;
-	ins.item.lParam = -1;
-	ins.item.pszText = pLabel;
-	ins.item.cchTextMax = strlen(pLabel);				
-	child = m_terrainTreeView.InsertItem(&ins);
-	return(child);
 }
 
-/** Add the terrain path to the tree view. */
-void BlendMaterial::addTerrain(const char *pPath, Int terrainNdx, HTREEITEM parent)
+//-------------------------------------------------------------------------------------------------
+QTreeWidgetItem *BlendMaterial::findOrAdd(QTreeWidgetItem *parent, const char *pLabel)
+{
+	QString label = QString::fromUtf8(pLabel);
+	if (parent) {
+		for (int i = 0; i < parent->childCount(); ++i) {
+			if (parent->child(i)->text(0) == label) {
+				return parent->child(i);
+			}
+		}
+		QTreeWidgetItem *item = new QTreeWidgetItem(parent, QStringList(label));
+		item->setData(0, Qt::UserRole, QVariant());
+		return item;
+	}
+	for (int i = 0; i < m_terrainTree->topLevelItemCount(); ++i) {
+		if (m_terrainTree->topLevelItem(i)->text(0) == label) {
+			return m_terrainTree->topLevelItem(i);
+		}
+	}
+	QTreeWidgetItem *item = new QTreeWidgetItem(m_terrainTree, QStringList(label));
+	item->setData(0, Qt::UserRole, QVariant());
+	return item;
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Add a blend-edge texture class to the tree (or the synthetic "Alpha
+Blend" entry when terrainNdx == -1); legacy eval blend-edge textures land in
+a "**EVAL**" leaf, same as the original. */
+void BlendMaterial::addTerrain(const char *pPath, Int terrainNdx)
 {
 	AsciiString className;
 	if (terrainNdx >= 0) {
 		className = WorldHeightMapEdit::getTexClassName( terrainNdx );
 	}
 	TerrainType *terrain = TheTerrainTypes->findTerrain( className );
-	Bool doAdd = FALSE;
-	char buffer[_MAX_PATH];
-	//
-	// if we have a 'terrain' entry, it means that our terrain index was properly defined
-	// in an INI file, otherwise it was from eval textures.  We will sort all of
-	// the eval texture entries in a tree leaf all their own while the others are
-	// sorted according to a field specified in INI
-	//
+	QTreeWidgetItem *parent = NULL;
+	QString label;
+	Bool doAdd = false;
+
 	if( terrain )
 	{
 		if (!terrain->isBlendEdge()) {
 			return;	 // Only do blend edges to the blend material list.
 		}
-
-		// set the name in the tree view to that of the entry
-		strcpy( buffer, terrain->getName().str() );
-
-		doAdd = TRUE;
-	} else if (terrainNdx==-1) {
-		strcpy(buffer, pPath);
+		label = QString::fromUtf8(terrain->getName().str());
+		doAdd = true;
+	} else if (terrainNdx == ALPHA_BLEND_INDEX) {
+		label = QString::fromUtf8(pPath);
 		doAdd = true;
 	} else if (WorldHeightMapEdit::getTexClassIsBlendEdge(terrainNdx)) {
-		parent = findOrAdd( parent, "**EVAL**" );
-		strcpy(buffer, pPath);
+		parent = findOrAdd( NULL, "**EVAL**" );
+		label = QString::fromUtf8(pPath);
 		doAdd = true;
-	}  // end if
-
-//	Int tilesPerRow = TEXTURE_WIDTH/(2*TILE_PIXEL_EXTENT+TILE_OFFSET);
-//	Int availableTiles = 4 * tilesPerRow * tilesPerRow;
-//	Int percent = (WorldHeightMapEdit::getTexClassNumTiles(terrainNdx)*100 + availableTiles/2) / availableTiles;
-
-	char label[_MAX_PATH];
-	sprintf(label, "%s", buffer);
-
-
-	if( doAdd )
-	{
-		TVINSERTSTRUCT ins;
-
-		::memset(&ins, 0, sizeof(ins));
-		ins.hParent = parent;
-		ins.hInsertAfter = TVI_LAST;
-		ins.item.mask = TVIF_PARAM|TVIF_TEXT;
-		ins.item.lParam = terrainNdx;
-		ins.item.pszText = label;
-		ins.item.cchTextMax = strlen(label)+2;				
-		m_terrainTreeView.InsertItem(&ins);
 	}
 
-}
-
-//* Create the tree view of textures from the textures in pMap. */
-void BlendMaterial::updateTextures(void)
-{
-	m_updating = true;
-	m_terrainTreeView.DeleteAllItems();
-	Int i;
-	CString label;
-	label.LoadString(IDS_ALPHA_BLEND);
-	addTerrain(label, -1, TVI_ROOT);
-	for (i=WorldHeightMapEdit::getNumTexClasses()-1; i>=0; i--) {
-		char path[_MAX_PATH];
-		AsciiString uiName = WorldHeightMapEdit::getTexClassUiName(i);
-		strncpy(path, uiName.str(), _MAX_PATH-2);
-		addTerrain(path, i, TVI_ROOT);
+	if (doAdd) {
+		QTreeWidgetItem *item = parent ? new QTreeWidgetItem(parent, QStringList(label))
+									   : new QTreeWidgetItem(m_terrainTree, QStringList(label));
+		item->setData(0, Qt::UserRole, terrainNdx);
 	}
-	m_updating = false;
-	m_currentBlendTexture = defaultMaterialIndex;
-	setTerrainTreeViewSelection(TVI_ROOT, m_currentBlendTexture);	
 }
 
-
-
-
-BOOL BlendMaterial::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult) 
+//-------------------------------------------------------------------------------------------------
+void BlendMaterial::selectTexClassInTree(Int texClass)
 {
-	NMTREEVIEW *pHdr = (NMTREEVIEW *)lParam;
-	if (pHdr->hdr.hwndFrom == m_terrainTreeView.m_hWnd) {
-		if (pHdr->hdr.code == TVN_SELCHANGED) {
-			HTREEITEM hItem = m_terrainTreeView.GetSelectedItem();
-			TVITEM item;
-			::memset(&item, 0, sizeof(item));
-			item.mask = TVIF_HANDLE|TVIF_PARAM;
-			item.hItem = hItem;
-			m_terrainTreeView.GetItem(&item);
-			if (item.lParam >= -1) {
-				Int texClass = item.lParam;
-				CWorldBuilderDoc *pDoc = CWorldBuilderDoc::GetActiveDoc();
-				if (!pDoc) return 0;
-
-				WorldHeightMapEdit *pMap = pDoc->GetHeightMap();
-				if (!pMap) return 0;
-				if (m_updating) return 0;
-				m_currentBlendTexture = texClass;
-			}	else if (!(item.state & TVIS_EXPANDEDONCE) ) {
-				HTREEITEM child = m_terrainTreeView.GetChildItem(hItem);
-				while (child != NULL) {
-					hItem = child;
-					child = m_terrainTreeView.GetChildItem(hItem);
-				}
-				if (hItem != m_terrainTreeView.GetSelectedItem()) {
-					m_terrainTreeView.SelectItem(hItem);
-				}
-			}
+	for (QTreeWidgetItemIterator it(m_terrainTree); *it; ++it) {
+		QVariant data = (*it)->data(0, Qt::UserRole);
+		if (!data.isNull() && data.toInt() == texClass) {
+			m_terrainTree->setCurrentItem(*it);
+			m_terrainTree->scrollToItem(*it);
+			return;
 		}
 	}
-	
-	return CDialog::OnNotify(wParam, lParam, pResult);
+}
+
+//-------------------------------------------------------------------------------------------------
+void BlendMaterial::updateTextures(void)
+{
+	if (m_staticThis == NULL) {
+		return;
+	}
+	m_staticThis->m_updating = true;
+	m_staticThis->m_terrainTree->clear();
+	m_staticThis->addTerrain("Alpha Blend", ALPHA_BLEND_INDEX);
+	for (Int i = WorldHeightMapEdit::getNumTexClasses() - 1; i >= 0; i--) {
+		AsciiString uiName = WorldHeightMapEdit::getTexClassUiName(i);
+		m_staticThis->addTerrain(uiName.str(), i);
+	}
+	m_staticThis->m_updating = false;
+	m_currentBlendTexture = ALPHA_BLEND_INDEX;
+	m_staticThis->selectTexClassInTree(m_currentBlendTexture);
+}
+
+//-------------------------------------------------------------------------------------------------
+void BlendMaterial::setBlendTexClass(Int texClass)
+{
+	m_currentBlendTexture = texClass;
+	if (m_staticThis) {
+		m_staticThis->selectTexClassInTree(texClass);
+	}
 }

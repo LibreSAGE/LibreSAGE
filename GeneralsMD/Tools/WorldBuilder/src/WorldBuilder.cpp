@@ -29,6 +29,8 @@
 #include "WorldBuilder.h"
 #include "MainFrm.h"
 #include "SplashScreen.h"
+#include "AutoEdgeOutTool.h"
+#include "BlendEdgeTool.h"
 #include "BrushTool.h"
 #include "EyedropperTool.h"
 #include "FloodFillTool.h"
@@ -39,6 +41,7 @@
 #include "ObjectTool.h"
 #include "PointerTool.h"
 #include "PolygonTool.h"
+#include "WaterTool.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
 
@@ -185,6 +188,7 @@ WorldBuilderApp::WorldBuilderApp(int &argc, char **argv) :
 	m_brushTool(NULL),
 	m_pointerTool(NULL),
 	m_handScrollTool(NULL),
+	m_eyedropperTool(NULL),
 	m_lockCurTool(0),
 	m_document(NULL),
 	m_pasteMapObjList(NULL),
@@ -199,8 +203,6 @@ WorldBuilderApp::WorldBuilderApp(int &argc, char **argv) :
 	for (Int i=0; i<NUM_VIEW_TOOLS; i++) {
 		m_tools[i] = NULL;
 	}
-	/// @todo re-add the remaining tools as they get ported (see the original
-	/// MFC constructor for the full palette and initial mound/feather values).
 	m_brushTool = new BrushTool;
 	m_pointerTool = new PointerTool;
 	m_handScrollTool = new HandScrollTool;
@@ -212,18 +214,24 @@ WorldBuilderApp::WorldBuilderApp(int &argc, char **argv) :
 	TileTool *tileTool = new TileTool;
 	BigTileTool *bigTileTool = new BigTileTool;
 	FloodFillTool *floodFillTool = new FloodFillTool;
-	EyedropperTool *eyedropperTool = new EyedropperTool;
+	m_eyedropperTool = new EyedropperTool;
+	BlendEdgeTool *blendEdgeTool = new BlendEdgeTool;
+	AutoEdgeOutTool *autoEdgeOutTool = new AutoEdgeOutTool;
+	WaterTool *waterTool = new WaterTool;
 	m_tools[0] = m_brushTool;
 	m_tools[1] = tileTool;
 	m_tools[4] = bigTileTool;
 	m_tools[5] = floodFillTool;
-	m_tools[8] = eyedropperTool;
+	m_tools[8] = m_eyedropperTool;
 	m_tools[2] = featherTool;
 	m_tools[6] = moundTool;
 	m_tools[7] = digTool;
 	m_tools[9] = objectTool;
 	m_tools[10] = m_pointerTool;
 	m_tools[11] = polygonTool;
+	m_tools[12] = blendEdgeTool;
+	m_tools[13] = autoEdgeOutTool;
+	m_tools[14] = waterTool;
 	m_tools[15] = m_handScrollTool;
 
 	// set up initial values.
@@ -522,8 +530,8 @@ void WorldBuilderApp::updateCurTool(Bool forceHand)
 			// Space bar gives scroll hand.
 			m_curTool = m_handScrollTool;
 		} else if (mods & Qt::AltModifier) {
-			/// @todo alt gives the eyedropper once that tool is ported.
-			m_curTool = m_selTool;
+			// Alt key gives eyedropper.
+			m_curTool = m_eyedropperTool;
 		} else if (mods & Qt::ControlModifier) {
 			// Control key gives pointer.
 			m_curTool = m_pointerTool;

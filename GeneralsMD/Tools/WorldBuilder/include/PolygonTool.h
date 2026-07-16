@@ -42,6 +42,10 @@ public:
 	~PolygonTool(void);
 
 protected:
+	/// For subclasses (e.g. WaterTool) that need their own tool id and cursor.
+	PolygonTool(Int toolID, const char *cursorResource);
+
+protected:
 	Coord3D m_poly_mouseDownPt;
 	Coord3D m_poly_unsnappedMouseDownPt;
 	Bool		m_poly_isDraggingPoint;

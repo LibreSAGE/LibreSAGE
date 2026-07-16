@@ -1,6 +1,7 @@
 /*
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
+**  Copyright 2026 Stephan Vedder
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -17,21 +18,18 @@
 */
 
 // WaterTool.cpp
-// Water area tool for worldbuilder.
+// Water area tool for worldbuilder (Qt6 port).
 // Author: John Ahlquist, April 2001
-
-#include "StdAfx.h" 
-#include "resource.h"
 
 #include "WaterTool.h"
 #include "CUndoable.h"
 #include "PointerTool.h"
-#include "TerrainMaterial.h"
+#include "WaterOptions.h"
 #include "WHeightMapEdit.h"
 #include "WorldBuilderDoc.h"
-#include "WorldBuilderView.h"
 #include "MainFrm.h"
 #include "DrawObject.h"
+#include "wbview.h"
 #include "GameLogic/PolygonTrigger.h"
 #include "Common/GlobalData.h"
 
@@ -41,41 +39,28 @@
 Bool WaterTool::m_water_isActive = false;
 
 /// Constructor
-WaterTool::WaterTool(void) 
+WaterTool::WaterTool(void) :
+	PolygonTool(ID_WATER_TOOL, ":/cursors/IDC_WATER.cur"),
+	m_currentZ(0)
 {
-	m_toolID = ID_WATER_TOOL; 
-	m_cursorID = IDC_WATER;
-
-	m_currentZ = 0;
-
 }
 
-
-
 /// Destructor
-WaterTool::~WaterTool(void) 
+WaterTool::~WaterTool(void)
 {
-	if (m_poly_plusCursor) {
-		::DestroyCursor(m_poly_plusCursor);
-	}
-	if (m_poly_moveCursor) {
-		::DestroyCursor(m_poly_moveCursor);
-	}
 }
 
 /// Clears it's is active flag.
-void WaterTool::deactivate() 
+void WaterTool::deactivate()
 {
 	PolygonTool::deactivate();
 	m_water_isActive = false;
 }
 
-static Bool doIt = false;
-
-/// Shows the no options panel.
-void WaterTool::activate() 
+/// Shows the water options panel.
+void WaterTool::activate()
 {
-	CMainFrame::GetMainFrame()->showOptionsDialog(IDD_WATER_OPTIONS);
+	CMainFrame::GetMainFrame()->showOptionsDialog(ID_WATER_TOOL);
 	m_water_isActive = true;
 	PointerTool::clearSelection();
 	DrawObject::setDoBrushFeedback(false);
@@ -84,15 +69,11 @@ void WaterTool::activate()
 	m_poly_mouseUpMove = false;
 	m_poly_mouseUpPlus = false;
 	m_currentZ = WaterOptions::getHeight();
-	doIt = true;
 }
 
 
-#define WATER_FILL
-#define INTENSE_DEBUG
-
 /// Perform the tool behavior on mouse down.
-void WaterTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void WaterTool::mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m != TRACK_L) return;
 	if (WaterOptions::getCreatingWaterAreas()) {
@@ -115,33 +96,11 @@ void WaterTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldB
 	}
 	startMouseDown(m, viewPt, pView, pDoc);
 	m_poly_curSelectedPolygon->setWaterArea(true);
-
 }
-
-
-
-/** Set the cursor. */
-void WaterTool::setCursor(void) 
-{
-	if (m_poly_mouseUpPlus || (m_poly_isAdding && m_poly_curSelectedPolygon)) {
-		if (m_poly_plusCursor == NULL) {
-			m_poly_plusCursor = AfxGetApp()->LoadCursor(MAKEINTRESOURCE(IDC_WATER_PLUS));
-		}
-		::SetCursor(m_poly_plusCursor);
-	} else 	if (m_poly_mouseUpMove) {
-		if (m_poly_moveCursor == NULL) {
-			m_poly_moveCursor = AfxGetApp()->LoadCursor(MAKEINTRESOURCE(IDC_WATER_MOVE));
-		}
-		::SetCursor(m_poly_moveCursor);
-	} else {
-		Tool::setCursor();
-	}
-}
-
 
 
 /// Left button move code.
-void WaterTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
+void WaterTool::mouseMoved(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	Coord3D docPt;
 	pView->viewToDocCoords(viewPt, &docPt);
@@ -161,7 +120,7 @@ void WaterTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorld
 		}
 		m_poly_curSelectedPolygon = pCur;
 		m_poly_dragPointNdx = curPt;
-		return;	// setCursor will use the value of m_mouseUpRotate.  jba.
+		return;	// getCursor will use the value of m_poly_mouseUpMove/Plus.  jba.
 	}
 
 	if (m != TRACK_L) return;
@@ -174,7 +133,7 @@ void WaterTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorld
 		iDocPt.y = floor(docPt.y+0.5f-m_poly_mouseDownPt.y);
 		iDocPt.z = 0;
 		m_poly_moveUndoable->SetOffset(iDocPt);
-		pView->Invalidate();
+		pView->update();
 		return;
 	}
 	if (m_poly_dragPointNdx >= 0 && m_poly_curSelectedPolygon) {
@@ -183,12 +142,12 @@ void WaterTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWorld
 		iDocPt.y = floor(docPt.y+0.5f);
 		iDocPt.z = m_currentZ;
 		m_poly_curSelectedPolygon->setPoint(iDocPt, m_poly_dragPointNdx);
-		pView->Invalidate();
+		pView->update();
 	}
 }
 
 /** Mouse up - not much. */
-void WaterTool::mouseUp(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void WaterTool::mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	if (m != TRACK_L) return;
 	REF_PTR_RELEASE(m_poly_moveUndoable); // belongs to pDoc now.
@@ -199,7 +158,7 @@ inline static Real mapZtoHeight(UnsignedByte mapZ) {
 }
 
 /// Perform the fill water area on mouse down.
-void WaterTool::fillTheArea(TTrackingMode m, CPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc) 
+void WaterTool::fillTheArea(TTrackingMode m, QPoint viewPt, WbView* pView, CWorldBuilderDoc *pDoc)
 {
 	Int waterHeight = m_currentZ;
 
@@ -213,14 +172,14 @@ void WaterTool::fillTheArea(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 	name.format("Water Area %d", pNew->getID());
 	pNew->setTriggerName(name);
 
-	CPoint ndx;
+	QPoint ndx;
 	Int width = 1;
 	getCenterIndex(&docPt, width, &ndx, pDoc);
 	Int i, j;
-	i = ndx.x;
-	j = ndx.y;
-	
-	WorldHeightMapEdit *pMap = pDoc->GetHeightMap(); 
+	i = ndx.x();
+	j = ndx.y();
+
+	WorldHeightMapEdit *pMap = pDoc->GetHeightMap();
 	if (i<0 || i>=pMap->getXExtent()-1) return;
 	if (j<0 || j>=pMap->getYExtent()-1) return;
 
@@ -232,7 +191,7 @@ void WaterTool::fillTheArea(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 	// Move left till we find an edge.
 	while (i>0) {
 		i--;
-		intMapHeight = pMap->getHeight(i, j);	
+		intMapHeight = pMap->getHeight(i, j);
 		if (waterHeight<mapZtoHeight(intMapHeight)) {
 			break;
 		}
@@ -258,17 +217,6 @@ void WaterTool::fillTheArea(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 		pt.y = j*MAP_XY_FACTOR;
 		pt.z = waterHeight;
 		intMapHeight = pMap->getHeight(i, j);
-#ifdef INTENSE_DEBUG
-		if (bottom) {
-			DEBUG_LOG(("Bottom %d,%d\n", i, j));
-		} else if (left) {
-			DEBUG_LOG(("Left %d,%d\n", i, j));
-		} else if (right) {
-			DEBUG_LOG(("Right %d,%d\n", i, j));
-		} else if (top) {
-			DEBUG_LOG(("Top %d,%d\n", i, j));
-		}
-#endif
 		if (bottom) {
 			bottom = false;
 			if (waterHeight<mapZtoHeight(intMapHeight)) {
@@ -456,12 +404,12 @@ void WaterTool::fillTheArea(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 				}
 				pt.x = (i+1)*MAP_XY_FACTOR;
 			}
-		} else { 
+		} else {
 			DEBUG_CRASH(("Logic error. jba.")); // shouldn't get here.
 		}
 		pt.x -= pMap->getBorderSize()*MAP_XY_FACTOR;
 		pt.y -= pMap->getBorderSize()*MAP_XY_FACTOR;
-		pNew->addPoint(pt);	
+		pNew->addPoint(pt);
 		curPoint++;
 		if (firstTime) {
 			startI = i;
@@ -470,7 +418,7 @@ void WaterTool::fillTheArea(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 		}
 
 	}
-	
+
 	if (pNew->getNumPoints()>2) {
 		PolygonTrigger *pBetter = adjustSpacing(pNew, WaterOptions::getSpacing());
 		pNew->deleteInstance();
@@ -492,7 +440,6 @@ void WaterTool::fillTheArea(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 PolygonTrigger * WaterTool::adjustSpacing(PolygonTrigger *trigger, Real spacing)
 {
 	PolygonTrigger *pNew = newInstance(PolygonTrigger)(trigger->getNumPoints());
-//	Real endLen=0;
 	Int i;
 	Real curSpacingLen = spacing;
 	ICoord3D pt = *trigger->getPoint(0);
