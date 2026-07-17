@@ -28,10 +28,14 @@
 //
 // In your own thread remember to check for "running" flag of the base class.
 // If the flag is false you must exit the asap. Stop() is the function that
-// will clear the flag and expect you to exit from the thread. If you are
-// not exiting in certain time (defined as a parameter to Stop()) it will
-// force-kill the thread to prevent the program from halting.
-// 
+// will clear the flag and expect you to exit from the thread.
+//
+// Shutdown is cooperative: Stop() clears the flag and waits for the thread to
+// return. It cannot force-kill a thread that ignores the flag -- there is no way
+// to do that safely -- so it warns and keeps waiting instead. A thread that
+// stalls Stop() is a bug in its Thread_Function; the usual cause is blocking on
+// something the caller of Stop() is holding.
+//
 // ****************************************************************************
 
 class ThreadClass
@@ -46,7 +50,8 @@ public:
 	// Thread priority 0 is normal, positive numbers are higher and normal and negative are lower.
 	void Set_Priority(int priority);
 
-	// Stop thread execution. Kill after ms milliseconds if not responding.
+	// Stop thread execution and wait for the thread to exit. ms is how long to wait quietly before
+	// reporting the thread as overdue; the wait itself is not bounded.
 	void Stop(unsigned ms=3000);
 
 	// Put current thread sleep for ms milliseconds (can be called from any thread, ThreadClass or other)
