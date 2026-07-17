@@ -756,7 +756,6 @@ target_link_libraries(z_gameengine PUBLIC SDL3_net::SDL3_net)
 # GameSpy
 include(FetchContent)
 set(GS_OPENSSL FALSE)
-set(GS_BUILD_TESTS TRUE)
 
 FetchContent_Declare(
   gamespy GIT_REPOSITORY https://github.com/feliwir/GamespySDK.git

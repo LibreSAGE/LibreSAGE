@@ -31,13 +31,11 @@ jobs:
       # Install latest CMake and Ninja.
       - uses: lukka/get-cmake@latest
 
-      - name: Cache vcpkg
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/vcpkg_cache
-          key: vcpkg-${{ matrix.preset }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'CMakePresets.json') }}
-
-      # Setup vcpkg: ensures vcpkg is downloaded and built.
+      # Setup vcpkg: ensures vcpkg is downloaded and built. This also configures
+      # vcpkg's binary caching via GitHub Actions' native cache (x-gha), which
+      # caches per-package (keyed on each package's own ABI hash) rather than
+      # one coarse directory blob, so a toolchain/compiler bump on the runner
+      # only invalidates the packages actually affected instead of everything.
       - name: Setup a new (or from cache) vcpkg (and does not build any package)
         uses: lukka/run-vcpkg@v11
 
@@ -49,8 +47,6 @@ jobs:
 
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
-        env:
-          VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg_cache,readwrite
         with:
           configurePreset: "${{ matrix.preset }}"
           buildPreset: "${{ matrix.preset }}"
