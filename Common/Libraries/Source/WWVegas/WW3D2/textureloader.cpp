@@ -338,9 +338,13 @@ void TextureLoader::Init()
 
 void TextureLoader::Deinit()
 {
-	FastCriticalSectionClass::LockClass lock(_BackgroundCriticalSection);
+	// Stop the loader thread before taking the lock, not while holding it: the thread takes
+	// _BackgroundCriticalSection itself whenever the background queue is non-empty, and it spins
+	// waiting for it. Holding the lock across Stop() would leave the thread spinning on a lock we
+	// only release once it has exited, so neither side could ever make progress.
 	_TextureLoadThread.Stop();
 
+	FastCriticalSectionClass::LockClass lock(_BackgroundCriticalSection);
 	ThumbnailManagerClass::Deinit();
 	TextureLoadTaskClass::Delete_Free_Pool();
 }

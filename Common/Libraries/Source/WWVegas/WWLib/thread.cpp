@@ -27,7 +27,6 @@
 #else
 #include <pthread.h>
 #include <sched.h>
-#include <signal.h>
 #endif
 #include "systimer.h"
 
@@ -52,13 +51,11 @@ ThreadClass::~ThreadClass()
 void __cdecl ThreadClass::Internal_Thread_Function(void* params)
 {
 	ThreadClass* tc=reinterpret_cast<ThreadClass*>(params);
-	tc->running=true;
 	tc->ThreadID = _Get_Current_Thread_ID();
 	tc->Thread_Function();
 #ifdef _UNIX
-	// Free the pthread_t that Execute() heap-allocated. Zero the handle first so that
-	// a concurrent Stop() sees the thread as finished and does not also delete it
-	// (Stop() only frees the handle on its timeout/kill path).
+	// Free the pthread_t that Execute() heap-allocated. Zero the handle first: that is what tells a
+	// waiting Stop() the thread has finished.
 	pthread_t* h = (pthread_t*)tc->handle;
 	tc->handle=0;
 	delete h;
@@ -71,20 +68,38 @@ void __cdecl ThreadClass::Internal_Thread_Function(void* params)
 void ThreadClass::Execute()
 {
 	WWASSERT(!handle);	// Only one thread at a time!
+
+	// Raise the flag here rather than from inside the thread. running is what Stop() clears to ask
+	// the thread to exit, so a thread that raises it on start-up can overwrite -- and silently
+	// discard -- a Stop() that got in first, leaving the thread looping over a request it never saw.
+	running=true;
+
 	#ifdef _UNIX
 		static auto pthread_wrapper = [](void* params) -> void* {
 			ThreadClass::Internal_Thread_Function(params);
 			return nullptr;
 		};
 
+		// handle must be published before the thread starts: the thread reads it to free it.
 		handle = new pthread_t;
 		int res = pthread_create((pthread_t*)handle, NULL, pthread_wrapper, this);
-		if (res == 0) {
-			pthread_detach(*(pthread_t*)handle);
-			pthread_setname_np(*(pthread_t*)handle, ThreadName);
+		if (res != 0) {
+			delete (pthread_t*)handle;
+			handle=0;
+			running=false;
+			WWDEBUG_SAY(("ThreadClass::Execute: Failed to start thread %s\n", ThreadName));
+			return;
 		}
+		pthread_detach(*(pthread_t*)handle);
+		pthread_setname_np(*(pthread_t*)handle, ThreadName);
 	#else
-		handle=_beginthread(&Internal_Thread_Function,0,this);
+		handle=(void*)_beginthread(&Internal_Thread_Function,0,this);
+		if (handle == (void*)-1) {
+			handle=0;
+			running=false;
+			WWDEBUG_SAY(("ThreadClass::Execute: Failed to start thread %s\n", ThreadName));
+			return;
+		}
 		SetThreadPriority((HANDLE)handle,THREAD_PRIORITY_NORMAL+thread_priority);
 		SetThreadDescription((HANDLE)handle, ThreadName);
 	#endif
@@ -106,18 +121,18 @@ void ThreadClass::Set_Priority(int priority)
 void ThreadClass::Stop(unsigned ms)
 {
 	running=false;
+
+	// Wait for Thread_Function() to notice and return; the thread clears handle on its way out.
+	// There is no force-kill: a thread cannot be terminated from the outside safely. SIGKILL is
+	// delivered to the whole process rather than to one thread, so it takes the game down with it,
+	// and TerminateThread abandons whatever locks the thread was holding. A Thread_Function() that
+	// keeps going once running is false is a bug in that thread, so report it and keep waiting.
 	unsigned time=TIMEGETTIME();
+	bool overdue=false;
 	while (handle) {
-		if ((TIMEGETTIME()-time)>ms) {
-			#ifdef _UNIX
-			int res = pthread_kill(*(pthread_t*)handle, SIGKILL);
-			WWASSERT(res == 0);	// Thread still not killed!
-			delete (pthread_t*)handle;
-			#else
-			int res=TerminateThread((HANDLE)handle,0);
-			WWASSERT(res);	// Thread still not killed!
-			#endif
-			handle=0;
+		if (!overdue && (TIMEGETTIME()-time)>ms) {
+			WWDEBUG_SAY(("ThreadClass::Stop: thread %s has not exited after %u ms, still waiting\n", ThreadName, ms));
+			overdue=true;
 		}
 		Sleep(0);
 	}
