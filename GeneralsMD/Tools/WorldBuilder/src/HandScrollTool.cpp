@@ -65,7 +65,7 @@ void HandScrollTool::mouseDown(TTrackingMode m, QPoint viewPt, WbView* pView, CW
 	m_downPt2d = viewPt;
 	m_scrolling = false;
 	// Save the start point.
-	m_mouseDownTime = (UnsignedInt)QDateTime::currentMSecsSinceEpoch();
+	m_mouseDownTime = (Int64)QDateTime::currentMSecsSinceEpoch();
 }
 
 /// Left button move code.
@@ -122,7 +122,7 @@ void HandScrollTool::mouseUp(TTrackingMode m, QPoint viewPt, WbView* pView, CWor
 		if (abs(viewPt.x() - m_downPt2d.x()) > HYSTERESIS) moved = true;
 		if (abs(viewPt.y() - m_downPt2d.y()) > HYSTERESIS) moved = true;
 
-		if (!moved && QDateTime::currentMSecsSinceEpoch() - m_mouseDownTime < (UnsignedInt)QApplication::doubleClickInterval())
+		if (!moved && QDateTime::currentMSecsSinceEpoch() - m_mouseDownTime < (Int64)QApplication::doubleClickInterval())
 		{
 			pView->setDefaultCamera();
 		}

@@ -1221,12 +1221,12 @@ void WorldHeightMapEdit::autoBlendOut(Int xIndex, Int yIndex, Int globalEdgeClas
 
 	Int i,j;
 	UnsignedByte *pProcessed = new UnsignedByte[m_dataSize];
-	for (i=0; i<m_dataSize; i++) {
-		pProcessed[i] = false;
-	}
 	if (pProcessed == NULL) {
 		QMessageBox::critical(NULL, "WorldBuilder", "Out of memory.");
 		return;
+	}
+	for (i=0; i<m_dataSize; i++) {
+		pProcessed[i] = false;
 	}
 
 	CProcessNode *pNodesToProcess = NULL;
@@ -2229,12 +2229,12 @@ Bool WorldHeightMapEdit::doCliffAdjustment(Int xIndex, Int yIndex)
 
 	Int i, j;
 	UnsignedByte *pProcessed = new UnsignedByte[m_dataSize];
-	for (i=0; i<m_dataSize; i++) {
-		pProcessed[i] = false;
-	}
 	if (pProcessed == NULL) {
 		QMessageBox::critical(NULL, "WorldBuilder", "Out of memory.");
 		return false;
+	}
+	for (i=0; i<m_dataSize; i++) {
+		pProcessed[i] = false;
 	}
 
 	CProcessNode *pNodesToProcess = NULL;

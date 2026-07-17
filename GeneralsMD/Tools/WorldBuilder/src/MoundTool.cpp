@@ -41,7 +41,10 @@ Int MoundTool::m_brushFeather;
 
 static Int moundTickCount()
 {
-	return (Int)QDateTime::currentMSecsSinceEpoch();
+	// Track elapsed ms since first call rather than the raw epoch value,
+	// so the truncation to a 32-bit Int doesn't overflow immediately.
+	static qint64 s_startMSecs = QDateTime::currentMSecsSinceEpoch();
+	return (Int)(QDateTime::currentMSecsSinceEpoch() - s_startMSecs);
 }
 
 /// Constructor

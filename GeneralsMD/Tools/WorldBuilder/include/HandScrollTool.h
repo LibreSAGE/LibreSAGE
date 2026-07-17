@@ -42,7 +42,7 @@ protected:
 	QPoint	m_prevPt2d;
 	QPoint	m_downPt2d;
 	Bool		m_scrolling;
-	UnsignedInt	m_mouseDownTime;		// if m_trackingMode != TRACK_NONE, tickcount when mouse went down
+	Int64	m_mouseDownTime;		// if m_trackingMode != TRACK_NONE, tickcount when mouse went down
 
 public:
 	/// Start scrolling.

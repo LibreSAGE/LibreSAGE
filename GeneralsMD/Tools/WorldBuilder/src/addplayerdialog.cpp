@@ -70,6 +70,12 @@ AddPlayerDialog::AddPlayerDialog(AsciiString side, QWidget *parent) :
 
 void AddPlayerDialog::accept()
 {
+	if (!ThePlayerTemplateStore)
+	{
+		QDialog::reject();
+		return;
+	}
+
 	AsciiString name(m_factions->currentText().toUtf8().constData());
 
 	const PlayerTemplate* pt = ThePlayerTemplateStore->findPlayerTemplate(NAMEKEY(name));
