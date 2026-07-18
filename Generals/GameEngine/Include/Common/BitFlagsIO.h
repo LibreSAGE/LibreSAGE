@@ -139,6 +139,18 @@ template <size_t NUMBITS, typename TAG>
 }
 
 //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+template <size_t NUMBITS, typename TAG>
+/*static*/ void BitFlags<NUMBITS, TAG>::parseSingleBitFromINI(INI* ini, void* /*instance*/, void *store, const void* /*userData*/)
+{
+	const char *token = ini->getNextToken();
+	Int bitIndex = INI::scanIndexList(token, s_bitNameList);	// this throws if the token is not found
+
+	Int *storeAsInt = (Int*)store;
+	*storeAsInt = bitIndex;
+}
+
+//-------------------------------------------------------------------------------------------------
 /** Xfer method
 	* Version Info:
 	* 1: Initial version */

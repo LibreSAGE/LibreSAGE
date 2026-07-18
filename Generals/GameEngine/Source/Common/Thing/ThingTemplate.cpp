@@ -291,7 +291,8 @@ void ModuleInfo::addModuleInfo(ThingTemplate *thingTemplate,
 															 const AsciiString& moduleTag, 
 															 const ModuleData* data, 
 															 Int interfaceMask, 
-															 Bool inheritable)
+															 Bool inheritable,
+                               Bool overrideableByLikeKind)
 {
 
 	//
@@ -357,7 +358,7 @@ void ModuleInfo::addModuleInfo(ThingTemplate *thingTemplate,
 
 #endif
 
-	m_info.push_back(Nugget(name, moduleTag, data, interfaceMask, inheritable));
+	m_info.push_back(Nugget(name, moduleTag, data, interfaceMask, inheritable, overrideableByLikeKind));
 
 }
 
@@ -388,22 +389,87 @@ Bool ModuleInfo::clearModuleDataWithTag(const AsciiString& tagToClear, AsciiStri
 }
 
 //-------------------------------------------------------------------------------------------------
-Bool ModuleInfo::clearCopiedFromDefaultEntries(Int interfaceMask) 
+//-------------------------------------------------------------------------------------------------
+UnsignedInt ThingTemplate::getMaxSimultaneousOfType() const
+{
+	// Zero Hour can override this from the lobby's superweapon restriction
+	// (m_maxSimultaneousDeterminedBySuperweaponRestriction); Generals has no such setting, so the
+	// template value is always authoritative here.
+	return m_maxSimultaneousOfType;
+}
+
+
+Bool ModuleInfo::clearCopiedFromDefaultEntries(Int interfaceMask, const AsciiString &newName, const ThingTemplate *fullTemplate ) 
 { 
-	Bool ret = false;
+  static KindOfMaskType ImmuneToGPSScramblerMask;
+  KindOfMaskType &m = ImmuneToGPSScramblerMask;
+  m.set(KINDOF_AIRCRAFT);// NO PLANES or helicopters
+  m.set(KINDOF_SHRUBBERY);// NO trees or bushes
+  m.set(KINDOF_OPTIMIZED_TREE);
+  m.set(KINDOF_STRUCTURE);// NO buildings
+  m.set(KINDOF_DRAWABLE_ONLY);
+  m.set(KINDOF_MOB_NEXUS);
+  m.set(KINDOF_IGNORED_IN_GUI);
+  m.set(KINDOF_CLEARED_BY_BUILD);
+  m.set(KINDOF_DEFENSIVE_WALL);
+  m.set(KINDOF_BALLISTIC_MISSILE);
+  m.set(KINDOF_SUPPLY_SOURCE);
+  m.set(KINDOF_BOAT);
+  m.set(KINDOF_INERT);
+  m.set(KINDOF_BRIDGE);
+  m.set(KINDOF_LANDMARK_BRIDGE);
+  m.set(KINDOF_BRIDGE_TOWER);
+  Bool disallowed =  fullTemplate->isAnyKindOf( ImmuneToGPSScramblerMask );
+
+  static KindOfMaskType CandidateForGPSScramblerMask;
+  CandidateForGPSScramblerMask.set(KINDOF_SCORE);
+  CandidateForGPSScramblerMask.set(KINDOF_VEHICLE);
+  CandidateForGPSScramblerMask.set(KINDOF_INFANTRY);
+  CandidateForGPSScramblerMask.set(KINDOF_PORTABLE_STRUCTURE);
+  Bool candidate =  fullTemplate->isAnyKindOf( CandidateForGPSScramblerMask );
+
+  Bool ret = false;
 
 	std::vector<Nugget>::iterator it = m_info.begin();
 	while( it != m_info.end() )
 	{
-		if( (it->interfaceMask & interfaceMask) != 0 && it->copiedFromDefault && !it->inheritable )
+		if( (it->interfaceMask & interfaceMask) != 0 && it->copiedFromDefault )
 		{
-			it = m_info.erase( it );
-			ret = true;
-		}
-		else
-		{
+      if ( it->inheritable )
+			{
+				if( it->m_moduleTag.compare("ModuleTag_DefaultAutoHealBehavior") == 0  && !fullTemplate->isTrainable() )
+				{
+					// Don't inherit this module if it is entirely useless to us.
+          it = m_info.erase( it );
+			    ret = true;
+				}
+				else
+				{
+					++it;//skip to the next nugget, 'cause we inherit this one
+				}
+			}
+      else if ( it->overrideableByLikeKind)
+      {
+        
+        AsciiString oldName = it->first;
+        if ( oldName == newName  //we will dump this instance, since the INI author requested a specific one of the same class
+             || disallowed  // or, we just do not Add these special overrideables to these kinds of templates, so just dump it
+             || candidate == FALSE )
+        {
+          it = m_info.erase( it );
+			    ret = true;
+        }
+        else
+			    ++it;//no match, preserve the default instnace of this Module for now
+      }
+      else // just dump this instance of this Module, since one of the same interface mask has been added by caller
+      {
+        it = m_info.erase( it );
+			  ret = true;
+      }
+    }
+    else
 			++it;
-		}
 	}
 	return ret;
 }
@@ -494,9 +560,9 @@ void ThingTemplate::parseModuleName(INI* ini, void *instance, void* store, const
 	}
 	else
 	{
-		self->m_behaviorModuleInfo.clearCopiedFromDefaultEntries(interfaceMask);
-		self->m_drawModuleInfo.clearCopiedFromDefaultEntries(interfaceMask);
-		self->m_clientUpdateModuleInfo.clearCopiedFromDefaultEntries(interfaceMask);
+		self->m_behaviorModuleInfo.clearCopiedFromDefaultEntries(interfaceMask, tokenStr, self );
+		self->m_drawModuleInfo.clearCopiedFromDefaultEntries(interfaceMask, tokenStr, self );
+		self->m_clientUpdateModuleInfo.clearCopiedFromDefaultEntries(interfaceMask, tokenStr, self );
 	}
 
 	if (self->m_moduleParsingMode == MODULEPARSE_ADD_REMOVE_REPLACE 

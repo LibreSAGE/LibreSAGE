@@ -28,7 +28,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
-#define DEFINE_DAMAGE_NAMES						// for DamageNames[]
 
 #include "Common/INI.h"
 #include "Common/ThingFactory.h"
@@ -163,7 +162,7 @@ static void parseCommonStuff(
 	}
 	else
 	{
-		damageFirst = (DamageType)INI::scanIndexList(damageName, TheDamageNames);
+		damageFirst = (DamageType)DamageTypeFlags::getSingleBitFromName(damageName);
 		damageLast = damageFirst;
 	}
 }

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -112,8 +113,6 @@ enum ThingTemplateAudioType
 	TTAUDIO_soundMoveStartDamaged,		///< Sound when unit starts moving and is damaged
 	TTAUDIO_soundMoveLoop,						///< Sound when unit is moving
 	TTAUDIO_soundMoveLoopDamaged,			///< Sound when unit is moving and is damaged
-	TTAUDIO_soundDie,									///< Sound when unit is dieing
-	TTAUDIO_soundCrush,								///< Sound when unit is crushed
 	TTAUDIO_soundAmbient,							///< Ambient sound for unit during normal status. Also the default sound
 	TTAUDIO_soundAmbientDamaged,			///< Ambient sound for unit if damaged. Corresponds to body info damage
 	TTAUDIO_soundAmbientReallyDamaged,///< Ambient sound for unit if badly damaged.
@@ -123,8 +122,6 @@ enum ThingTemplateAudioType
 	TTAUDIO_soundCreated,							///< Sound when unit is created
 	TTAUDIO_soundOnDamaged,           ///< Sound when unit enters damaged state
 	TTAUDIO_soundOnReallyDamaged,     ///< Sound when unit enters reallyd damaged state
-	TTAUDIO_soundDieFire,							///< Sound when unit dies by fire. NOTE: Replaces soundDie if present and unit dies by fire.
-	TTAUDIO_soundDieToxin,						///< Sound when unit dies by Toxin. NOTE: Replaces soundDie if present and unit dies by fire.
 	TTAUDIO_soundEnter,								///< Sound when another unit enters me.
 	TTAUDIO_soundExit,								///< Sound when another unit exits me.
 	TTAUDIO_soundPromotedVeteran,			///< Sound when unit gets promoted to Veteran level
@@ -140,6 +137,14 @@ enum ThingTemplateAudioType
 	TTAUDIO_voiceAttackSpecial,				///< Unit is ordered to use a special attack
 	TTAUDIO_voiceAttackAir,						///< Unit is ordered to attack an airborne unit
 	TTAUDIO_voiceGuard,								///< Unit is ordered to guard an area
+
+	// Generals-only. Zero Hour dropped these four, but Generals' code and its retail INI data
+	// (SoundDie/SoundCrush/SoundDieFire/SoundDieToxin) still use them, so they live at the end --
+	// appending keeps every Zero Hour audio index unchanged. Inert for Zero Hour.
+	TTAUDIO_soundDie,									///< Sound when unit is dieing
+	TTAUDIO_soundCrush,								///< Sound when unit is crushed
+	TTAUDIO_soundDieFire,							///< Sound when unit dies by fire. NOTE: Replaces soundDie if present and unit dies by fire.
+	TTAUDIO_soundDieToxin,						///< Sound when unit dies by Toxin. NOTE: Replaces soundDie if present and unit dies by fire.
 
 	TTAUDIO_COUNT   // keep last!
 };
@@ -218,8 +223,7 @@ static const char *BuildCompletionNames[] =
 };
 #endif  // end DEFINE_BUILD_COMPLETION_NAMES
 
-enum BuildableStatus : int
-{
+enum BuildableStatus : int {
 	// saved into savegames... do not change or remove values!
 	BSTATUS_YES = 0,
 	BSTATUS_IGNORE_PREREQUISITES,
@@ -245,7 +249,9 @@ enum ModuleParseMode
 {
 	MODULEPARSE_NORMAL,
 	MODULEPARSE_ADD_REMOVE_REPLACE,
-	MODULEPARSE_INHERITABLE
+	MODULEPARSE_INHERITABLE,
+  MODULEPARSE_OVERRIDEABLE_BY_LIKE_KIND,
+
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -260,14 +266,16 @@ private:
 		Int interfaceMask;
 		Bool copiedFromDefault;
 		Bool inheritable;
+    Bool overrideableByLikeKind;
 
-		Nugget(const AsciiString& n, const AsciiString& moduleTag, const ModuleData* d, Int i, Bool inh) 
+		Nugget(const AsciiString& n, const AsciiString& moduleTag, const ModuleData* d, Int i, Bool inh, Bool oblk) 
 		: first(n), 
 			m_moduleTag(moduleTag), 
 			second(d), 
 			interfaceMask(i), 
 			copiedFromDefault(false), 
-			inheritable(inh)
+			inheritable(inh),
+      overrideableByLikeKind(oblk)
 		{ 
 		}
 
@@ -278,7 +286,7 @@ public:
 
 	ModuleInfo() { }
 
-	void addModuleInfo(ThingTemplate *thingTemplate, const AsciiString& name, const AsciiString& moduleTag, const ModuleData* data, Int interfaceMask, Bool inheritable);
+	void addModuleInfo( ThingTemplate *thingTemplate, const AsciiString& name, const AsciiString& moduleTag, const ModuleData* data, Int interfaceMask, Bool inheritable, Bool overrideableByLikeKind = FALSE );
 	const ModuleInfo::Nugget *getNuggetWithTag( const AsciiString& tag ) const;
 
 	Int getCount() const 
@@ -338,7 +346,7 @@ public:
 	}
 
 	Bool clearModuleDataWithTag(const AsciiString& tagToClear, AsciiString& clearedModuleNameOut);
-	Bool clearCopiedFromDefaultEntries(Int interfaceMask);
+	Bool clearCopiedFromDefaultEntries(Int interfaceMask, const AsciiString &name, const ThingTemplate *fullTemplate );
 	Bool clearAiModuleInfo();
 };
 
@@ -426,8 +434,11 @@ public:
 	Bool isBridge() const { return m_isBridge; }  // return fence offset
 
 	// Only Object can ask this.  Everyone else should ask the Object.  In fact, you really should ask the Object everything.
-	Real friend_getVisionRange() const { return m_visionRange; }  ///< get vision range
-	Real friend_getShroudClearingRange() const { return m_shroudClearingRange; }  ///< get vision range for Shroud ONLY (Design requested split)
+	Real friend_calcVisionRange() const { return m_visionRange; }  ///< get vision range
+	Real friend_calcShroudClearingRange() const { return m_shroudClearingRange; }  ///< get vision range for Shroud ONLY (Design requested split)
+	
+	//This one is okay to check directly... because it doesn't get effected by bonuses.
+	Real getShroudRevealToAllRange() const { return m_shroudRevealToAllRange; }
 	
 	// This function is only for use by the AIUpdateModuleData::parseLocomotorSet function.
 	AIUpdateModuleData *friend_getAIModuleInfo(void);
@@ -456,6 +467,8 @@ public:
 	Int getExperienceValue(Int level) const { return m_experienceValues[level]; }
 	Int getExperienceRequired(Int level) const {return m_experienceRequired[level]; }
 	Bool isTrainable() const{return m_isTrainable; }
+	Bool isEnterGuard() const{return m_enterGuard; }
+	Bool isHijackGuard() const{return m_hijackGuard; }
 
 	const AudioEventRTS *getVoiceSelect() const								{ return getAudio(TTAUDIO_voiceSelect); }
 	const AudioEventRTS *getVoiceGroupSelect() const					{ return getAudio(TTAUDIO_voiceGroupSelect); }
@@ -483,6 +496,8 @@ public:
 	const AudioEventRTS *getSoundMoveLoopDamaged() const			{ return getAudio(TTAUDIO_soundMoveLoopDamaged); }
 	const AudioEventRTS *getSoundDie() const									{ return getAudio(TTAUDIO_soundDie); }
 	const AudioEventRTS *getSoundCrush() const								{ return getAudio(TTAUDIO_soundCrush); }
+	const AudioEventRTS *getSoundDieFire() const							{ return getAudio(TTAUDIO_soundDieFire); }
+	const AudioEventRTS *getSoundDieToxin() const							{ return getAudio(TTAUDIO_soundDieToxin); }
 	const AudioEventRTS *getSoundAmbient() const							{ return getAudio(TTAUDIO_soundAmbient); }
 	const AudioEventRTS *getSoundAmbientDamaged() const				{ return getAudio(TTAUDIO_soundAmbientDamaged); }
 	const AudioEventRTS *getSoundAmbientReallyDamaged() const	{ return getAudio(TTAUDIO_soundAmbientReallyDamaged); }
@@ -492,8 +507,6 @@ public:
 	const AudioEventRTS *getSoundCreated() const							{ return getAudio(TTAUDIO_soundCreated); }
 	const AudioEventRTS *getSoundOnDamaged() const						{ return getAudio(TTAUDIO_soundOnDamaged); }
 	const AudioEventRTS *getSoundOnReallyDamaged() const			{ return getAudio(TTAUDIO_soundOnReallyDamaged); }
-	const AudioEventRTS *getSoundDieFire() const							{ return getAudio(TTAUDIO_soundDieFire); }
-	const AudioEventRTS *getSoundDieToxin() const							{ return getAudio(TTAUDIO_soundDieToxin); }
 	const AudioEventRTS *getSoundEnter() const								{ return getAudio(TTAUDIO_soundEnter); }
 	const AudioEventRTS *getSoundExit() const									{ return getAudio(TTAUDIO_soundExit); }
 	const AudioEventRTS *getSoundPromotedVeteran() const			{ return getAudio(TTAUDIO_soundPromotedVeteran); }
@@ -501,11 +514,21 @@ public:
 	const AudioEventRTS *getSoundPromotedHero() const					{ return getAudio(TTAUDIO_soundPromotedHero); }
 	const AudioEventRTS *getSoundFalling() const							{ return getAudio(TTAUDIO_soundFalling); }
 
-	const AudioEventRTS *getPerUnitSound(const AsciiString& soundName) const;
+  Bool hasSoundAmbient() const                              { return hasAudio(TTAUDIO_soundAmbient); }
+
+  const AudioEventRTS *getPerUnitSound(const AsciiString& soundName) const;
 	const FXList* getPerUnitFX(const AsciiString& fxName) const;
 
 	UnsignedInt getThreatValue() const								{ return m_threatValue; }
-	UnsignedInt getMaxSimultaneousOfType() const			{ return m_maxSimultaneousOfType; }
+	
+  //-------------------------------------------------------------------------------------------------
+  /** If this is not NAMEKEY_INVALID, it indicates that all the templates which return the same name key
+    * should be counted as the same "type" when looking at getMaxSimultaneousOfType(). For instance, 
+    * a Scud Storm and a Scud Storm rebuild hole will return the same value, so that the player
+    * can't build another Scud Storm while waiting for the rebuild hole to start rebuilding */
+  //-------------------------------------------------------------------------------------------------
+  NameKeyType getMaxSimultaneousLinkKey() const { return m_maxSimultaneousLinkKey; }
+  UnsignedInt getMaxSimultaneousOfType() const;
 
 	void validate();
 
@@ -606,6 +629,8 @@ public:
 	
 	AsciiString getUpgradeCameoName( Int n)const{ return m_upgradeCameoUpgradeNames[n];	}
 
+	const WeaponTemplateSetVector& getWeaponTemplateSets(void) const {return m_weaponTemplateSets;}
+
 protected:
 
 	//
@@ -617,6 +642,7 @@ protected:
 	const PerUnitSoundMap* getAllPerUnitSounds( void ) const { return &m_perUnitSounds; }
 	void validateAudio();
 	const AudioEventRTS* getAudio(ThingTemplateAudioType t) const { return m_audioarray.m_audio[t] ? &m_audioarray.m_audio[t]->m_event : &s_audioEventNoSound; }
+  Bool hasAudio(ThingTemplateAudioType t) const { return m_audioarray.m_audio[t] != NULL; }
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/** Table for parsing the object fields */
@@ -635,6 +661,9 @@ protected:
 	static void parseRemoveModule(INI *ini, void *instance, void *store, const void *userData);
 	static void parseReplaceModule(INI *ini, void *instance, void *store, const void *userData);	
 	static void parseInheritableModule(INI *ini, void *instance, void *store, const void *userData);	
+  static void OverrideableByLikeKind(INI *ini, void *instance, void *store, const void *userData);
+
+  static void parseMaxSimultaneous(INI *ini, void *instance, void *store, const void *userData);
 
 	Bool removeModuleInfo(const AsciiString& moduleToRemove, AsciiString& clearedModuleNameOut);
 
@@ -698,6 +727,7 @@ private:
 	Real					m_fenceXOffset;							///< Fence X offset for fence type objects.
 	Real					m_visionRange;								///< object "sees" this far around itself
 	Real					m_shroudClearingRange;				///< Since So many things got added to "Seeing" functionality, we need to split this part out.
+	Real					m_shroudRevealToAllRange = -1.0f;			///< When > zero, the shroud gets revealed to all players.
 	Real					m_placementViewAngle;				///< when placing buildings this will be the angle of the building when "floating" at the mouse
 	Real					m_factoryExitWidth;					///< when placing buildings this will be the width of the reserved exit area on the right side.
 	Real					m_factoryExtraBibWidth;					///< when placing buildings this will be the width of the reserved exit area on the right side.
@@ -714,6 +744,7 @@ private:
 	Int						m_energyBonus;								///< how much extra Energy this produces due to the upgrade
 	Color					m_displayColor;								///< for the editor display color
 	UnsignedInt		m_occlusionDelay;							///< delay after object creation before building occlusion is allowed.
+  NameKeyType   m_maxSimultaneousLinkKey = NAMEKEY_INVALID;     ///< If this is not NAMEKEY_INVALID, it indicates that all the templates which have the same name key should be counted as the same "type" when looking at getMaxSimultaneousOfType().
 
 	// ---- Short-sized things
 	UnsignedShort		m_templateID;									///< id for net (etc.) transmission purposes
@@ -723,10 +754,13 @@ private:
 	UnsignedShort		m_maxSimultaneousOfType;			///< max simultaneous of this unit we can have (per player) at one time. (0 == unlimited)
 
 	// ---- Bool-sized things
+  Bool          m_maxSimultaneousDeterminedBySuperweaponRestriction = false; ///< If true, override value in m_maxSimultaneousOfType with value from GameInfo::getSuperweaponRestriction()
 	Bool					m_isPrerequisite;							///< Is this thing considered in a prerequisite for any other thing?
 	Bool					m_isBridge;										///< True if this model is a bridge.
  	Bool					m_isBuildFacility;						///< is this the build facility for something? (calculated based on other template's prereqs)
 	Bool					m_isTrainable;								///< Whether or not I can even gain experience
+	Bool          m_enterGuard = FALSE;									///< Whether or not I can enter objects when guarding
+	Bool          m_hijackGuard = FALSE;								///< Whether or not I can hijack objects when guarding
 	Bool					m_isForbidden;								///< useful when overriding in <mapfile>.ini
 	Bool					m_armorCopiedFromDefault;
 	Bool					m_weaponsCopiedFromDefault;

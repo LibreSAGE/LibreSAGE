@@ -26,7 +26,6 @@
 // Author: Kris Morness, September 2002
 // Desc:   Update module to handle building states and weapon firing of the particle uplink cannon.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#define DEFINE_DAMAGE_NAMES
 #define DEFINE_DEATH_NAMES
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +141,7 @@ ParticleUplinkCannonUpdateModuleData::ParticleUplinkCannonUpdateModuleData()
 
 		{ "DamagePerSecond",											INI::parseReal,									NULL, offsetof( ParticleUplinkCannonUpdateModuleData, m_damagePerSecond ) },
 		{ "TotalDamagePulses",										INI::parseUnsignedInt,					NULL, offsetof( ParticleUplinkCannonUpdateModuleData, m_totalDamagePulses ) },
-		{ "DamageType",														INI::parseIndexList,						TheDamageNames,	offsetof( ParticleUplinkCannonUpdateModuleData, m_damageType ) },		
+		{ "DamageType",														DamageTypeFlags::parseSingleBitFromINI,	NULL,	offsetof( ParticleUplinkCannonUpdateModuleData, m_damageType ) },		
 		{ "DeathType",														INI::parseIndexList,						TheDeathNames,	offsetof( ParticleUplinkCannonUpdateModuleData, m_deathType ) },		
 		{ "DamageRadiusScalar",										INI::parseReal,									NULL, offsetof( ParticleUplinkCannonUpdateModuleData, m_damageRadiusScalar ) },
 

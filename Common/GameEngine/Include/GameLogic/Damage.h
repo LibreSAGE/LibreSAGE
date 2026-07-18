@@ -1,4 +1,5 @@
 /*
+**	Command & Conquer Generals(tm)
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
@@ -86,6 +87,12 @@ enum DamageType : int {
 	DAMAGE_MICROWAVE							= 35, ///< Radiation that only affects infantry
 	DAMAGE_KILL_GARRISONED				= 36, ///< Kills Passengers up to the number specified in Damage
 	DAMAGE_STATUS									= 37, ///< Damage that gives a status condition, not that does hitpoint damage
+
+	// Generals-only. Zero Hour reused slot 31 (which was FLESHY_SNIPER in Generals) for
+	// DAMAGE_SUBDUAL_MISSILE, so this lives at the end instead: appending keeps every Zero Hour
+	// bit index unchanged while Generals' retail INI data can still name "FLESHY_SNIPER".
+	// Like DAMAGE_SNIPER, but (generally) does no damage to vehicles. Inert for Zero Hour.
+	DAMAGE_FLESHY_SNIPER					= 38,
 
 	// Please note: There is a string array DamageTypeFlags::s_bitNameList[]
 

@@ -28,7 +28,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
-#define DEFINE_DAMAGE_NAMES						// for DamageNames[]
 
 #include "Common/INI.h"
 #include "Common/ThingFactory.h"
@@ -93,7 +92,7 @@ Real ArmorTemplate::adjustDamage(DamageType t, Real damage) const
 		return;
 	}
 
-	DamageType dt = (DamageType)INI::scanIndexList(damageName, TheDamageNames);
+	DamageType dt = (DamageType)DamageTypeFlags::getSingleBitFromName(damageName);
 	self->m_damageCoefficient[dt] = pct;
 }
 

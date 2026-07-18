@@ -262,8 +262,8 @@ Object::Object( const ThingTemplate *tt, const ObjectStatusMaskType &objectStatu
 
 	m_constructionPercent = CONSTRUCTION_COMPLETE;  // complete by default
 
-	m_visionRange = tt->friend_getVisionRange();
-	m_shroudClearingRange = tt->friend_getShroudClearingRange();
+	m_visionRange = tt->friend_calcVisionRange();
+	m_shroudClearingRange = tt->friend_calcShroudClearingRange();
 	if( m_shroudClearingRange == -1.0f )
 		m_shroudClearingRange = m_visionRange;// Backwards compatible, and perfectly logical default to assign
 	m_shroudRange = 0.0f;
@@ -2684,10 +2684,13 @@ void Object::friend_bindToDrawable( Drawable *draw )
 		for (int i = 0; i < WEAPONSET_COUNT; ++i)
 		{
 			ModelConditionFlagType mcs = TheWeaponSetTypeToModelConditionTypeMap[i];
-			if (m_curWeaponSetFlags.test(i))
-				set.set(mcs);
-			else
-				clr.set(mcs);
+			if( mcs != MODELCONDITION_INVALID )
+			{
+				if (m_curWeaponSetFlags.test(i))
+					set.set(mcs);
+				else
+					clr.set(mcs);
+			}
 		}
 		if (TheGlobalData)
 		{

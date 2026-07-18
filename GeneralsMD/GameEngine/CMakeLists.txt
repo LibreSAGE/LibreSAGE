@@ -25,9 +25,7 @@ target_sources(
           Include/Common/CustomMatchPreferences.h
           Include/Common/DataChunk.h
           Include/Common/DrawModule.h
-          Include/Common/Energy.h
           Include/Common/GameLOD.h
-          Include/Common/Geometry.h
           Include/Common/MapReaderWriterInfo.h
           Include/Common/MessageStream.h
           Include/Common/MultiplayerSettings.h
@@ -39,7 +37,6 @@ target_sources(
           Include/Common/ScopedMutex.h
           Include/Common/SkirmishBattleHonors.h
           Include/Common/SkirmishPreferences.h
-          Include/Common/SparseMatchFinder.h
           Include/Common/SpecialPower.h
           Include/Common/SpecialPowerType.h
           Include/Common/StateMachine.h
@@ -47,7 +44,6 @@ target_sources(
           Include/Common/TerrainTypes.h
           Include/Common/ThingFactory.h
           Include/Common/ThingSort.h
-          Include/Common/ThingTemplate.h
           Include/Common/UnitTimings.h
           Include/Common/UserPreferences.h
           Include/Common/WellKnownKeys.h
@@ -76,7 +72,6 @@ target_sources(
           Include/GameLogic/AIPlayer.h
           Include/GameLogic/AISkirmishPlayer.h
           Include/GameLogic/AIStateMachine.h
-          Include/GameLogic/Damage.h
           Include/GameLogic/ExperienceTracker.h
           Include/GameLogic/FiringTracker.h
           Include/GameLogic/GameLogic.h
@@ -165,8 +160,6 @@ target_sources(
           Include/GameLogic/TerrainLogic.h
           Include/GameLogic/TurretAI.h
           Include/GameLogic/Weapon.h
-          Include/GameLogic/WeaponSet.h
-          Include/GameLogic/WeaponSetType.h
           Include/GameLogic/WeaponStatus.h
           Include/GameNetwork/GUIUtil.h
           Include/GameNetwork/GameInfo.h
@@ -242,7 +235,6 @@ target_sources(
           Source/Common/System/DataChunk.cpp
           Source/Common/System/DisabledTypes.cpp
           Source/Common/System/FunctionLexicon.cpp
-          Source/Common/System/Geometry.cpp
           Source/Common/System/MemoryInit.cpp
           Source/Common/System/Radar.cpp
           Source/Common/System/SaveGame/GameState.cpp

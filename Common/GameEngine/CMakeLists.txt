@@ -25,6 +25,9 @@ target_sources(c_gameengine
             Include/Common/Science.h
             Include/Common/DisabledTypes.h
             Include/GameLogic/ArmorSet.h
+            Include/GameLogic/Damage.h
+            Include/GameLogic/WeaponSet.h
+            Include/GameLogic/WeaponSetType.h
             Include/GameClient/TerrainRoads.h
             Include/Common/Module.h
             Source/GameNetwork/DownloadManager.cpp
@@ -339,6 +342,8 @@ target_sources(c_gameengine
     Include/Common/LocalFile.h
     Include/Common/LocalFileSystem.h
     Include/Common/MiscAudio.h
+    Include/Common/Energy.h
+    Include/Common/Geometry.h
     Include/Common/KindOf.h
     Include/Common/ModelState.h
     Include/Common/Upgrade.h
@@ -351,6 +356,8 @@ target_sources(c_gameengine
     Include/Common/QuotedPrintable.h
     Include/Common/RAMFile.h
     Include/Common/Registry.h
+    Include/Common/SparseMatchFinder.h
+    Include/Common/ThingTemplate.h
     Include/Common/Snapshot.h
     Include/Common/StackDump.h
     Include/Common/STLTypedefs.h
@@ -385,6 +392,7 @@ target_sources(c_gameengine
     Source/Common/System/FileSystem.cpp
     Source/Common/System/GameMemory.cpp
     Source/Common/System/GameType.cpp
+    Source/Common/System/Geometry.cpp
     Source/Common/System/KindOf.cpp
     Source/Common/System/List.cpp
     Source/Common/System/LocalFile.cpp

@@ -79,6 +79,7 @@ const char* DamageTypeFlags::s_bitNameList[] =
 	"MICROWAVE",
 	"KILL_GARRISONED",
 	"STATUS",
+	"FLESHY_SNIPER",
 
 	NULL
 };

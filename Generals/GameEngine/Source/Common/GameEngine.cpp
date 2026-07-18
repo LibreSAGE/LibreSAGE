@@ -498,6 +498,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 		initKindOfMasks();
 		initDisabledMasks();
+		initDamageTypeFlags();
 
 	}
 	catch (ErrorCode ec)
@@ -525,6 +526,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 	initKindOfMasks();
 	initDisabledMasks();
+	initDamageTypeFlags();
 
 	TheSubsystemList->resetAll();
 	HideControlBar();

@@ -35,6 +35,60 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<>
+const char* DamageTypeFlags::s_bitNameList[] =
+{
+	"EXPLOSION",			
+	"CRUSH",					
+	"ARMOR_PIERCING",
+	"SMALL_ARMS",		
+	"GATTLING",			
+	"RADIATION",			
+	"FLAME",					
+	"LASER",					
+	"SNIPER",				
+	"POISON",			
+	"HEALING",	
+	"UNRESISTABLE",	
+	"WATER",
+	"DEPLOY",	
+	"SURRENDER",	
+	"HACK",	
+	"KILL_PILOT",	
+	"PENALTY",	
+	"FALLING",	
+	"MELEE",	
+	"DISARM",	
+	"HAZARD_CLEANUP",	
+	"PARTICLE_BEAM",
+	"TOPPLING",
+	"INFANTRY_MISSILE",	
+	"AURORA_BOMB",	
+	"LAND_MINE",	
+	"JET_MISSILES",	
+	"STEALTHJET_MISSILES",	
+	"MOLOTOV_COCKTAIL",	
+	"COMANCHE_VULCAN",	
+	"SUBDUAL_MISSILE",
+	"SUBDUAL_VEHICLE",
+	"SUBDUAL_BUILDING",
+	"SUBDUAL_UNRESISTABLE",
+	"MICROWAVE",
+	"KILL_GARRISONED",
+	"STATUS",
+	"FLESHY_SNIPER",
+
+	NULL
+};
+
+DamageTypeFlags DAMAGE_TYPE_FLAGS_NONE; 	// inits to all zeroes
+DamageTypeFlags DAMAGE_TYPE_FLAGS_ALL;
+
+void initDamageTypeFlags()
+{
+	SET_ALL_DAMAGE_TYPE_BITS( DAMAGE_TYPE_FLAGS_ALL );
+}
+
 // ------------------------------------------------------------------------------------------------
 /** Xfer method
 	* Version Info:

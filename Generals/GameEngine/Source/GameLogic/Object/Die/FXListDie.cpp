@@ -29,7 +29,6 @@
 
 
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
-#define DEFINE_DAMAGE_NAMES
 #include "Common/INI.h"
 #include "Common/ThingTemplate.h"
 #include "Common/Xfer.h"

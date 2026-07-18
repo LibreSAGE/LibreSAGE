@@ -74,6 +74,14 @@ const char* WeaponSetFlags::s_bitNameList[] =
 	"VEHICLE_HIJACK",
 	"CARBOMB",
 	"MINE_CLEARING_DETAIL",
+	"WEAPON_RIDER1", //Kris: Added these for different combat-bike riders.
+	"WEAPON_RIDER2",
+	"WEAPON_RIDER3",
+	"WEAPON_RIDER4",
+	"WEAPON_RIDER5",
+	"WEAPON_RIDER6",
+	"WEAPON_RIDER7",
+	"WEAPON_RIDER8",
 
 	NULL
 };
@@ -175,8 +183,7 @@ WeaponSet::WeaponSet()
 	m_curWeaponTemplateSet = NULL;
 	m_filledWeaponSlotMask = 0;
 	m_totalAntiMask = 0;
-	m_totalDamageTypeMask = 0;
-	DEBUG_ASSERTCRASH(DAMAGE_NUM_TYPES <= 32, ("m_totalDamageTypeMask will need to be enlarged in WeaponSet"));
+	m_totalDamageTypeMask.clear();
 	m_hasPitchLimit = false;
 	m_hasDamageWeapon = false;
 	for (Int i = 0; i < WEAPONSLOT_COUNT; ++i)
@@ -273,7 +280,7 @@ void WeaponSet::xfer( Xfer *xfer )
 	xfer->xferUser(&m_curWeaponLockedStatus, sizeof(m_curWeaponLockedStatus));
 	xfer->xferUnsignedInt(&m_filledWeaponSlotMask);
 	xfer->xferInt(&m_totalAntiMask);
-	xfer->xferUnsignedInt(&m_totalDamageTypeMask);
+	m_totalDamageTypeMask.xfer(xfer);// BitSet has built in xfer
 	xfer->xferBool(&m_hasDamageWeapon);
 	xfer->xferBool(&m_hasDamageWeapon);
 
@@ -302,7 +309,7 @@ void WeaponSet::updateWeaponSet(const Object* obj)
 		}
 		m_filledWeaponSlotMask = 0;
 		m_totalAntiMask = 0;
-		m_totalDamageTypeMask = 0;
+		m_totalDamageTypeMask.clear();
 		m_hasPitchLimit = false;
 		m_hasDamageWeapon = false;
 		for (Int i = WEAPONSLOT_COUNT - 1; i >= PRIMARY_WEAPON ; --i)
@@ -319,7 +326,7 @@ void WeaponSet::updateWeaponSet(const Object* obj)
 				m_weapons[i]->loadAmmoNow(obj);	// start 'em all with full clips.
 				m_filledWeaponSlotMask |= (1 << i);
 				m_totalAntiMask |= m_weapons[i]->getAntiMask();
-				m_totalDamageTypeMask |= (1 << m_weapons[i]->getDamageType());
+				m_totalDamageTypeMask.set(m_weapons[i]->getDamageType());
 				if (m_weapons[i]->isPitchLimited())
 					m_hasPitchLimit = true;
 				if (m_weapons[i]->isDamageWeapon())
@@ -423,7 +430,7 @@ Bool WeaponSet::isAnyWithinTargetPitch(const Object* obj, const Object* victim) 
 }
 
 //-------------------------------------------------------------------------------------------------
-CanAttackResult WeaponSet::getAbleToAttackSpecificObject( AbleToAttackType attackType, const Object* source, const Object* victim, CommandSourceType commandSource ) const
+CanAttackResult WeaponSet::getAbleToAttackSpecificObject( AbleToAttackType attackType, const Object* source, const Object* victim, CommandSourceType commandSource, WeaponSlotType specificSlot ) const
 {
   static NameKeyType key_StealthUpdate = NAMEKEY( "StealthUpdate" );
 
@@ -583,7 +590,7 @@ CanAttackResult WeaponSet::getAbleToAttackSpecificObject( AbleToAttackType attac
 //This is formerly the 2nd half of getAbleToAttackSpecificObject
 //This function is responsible for determining if our object is physically capable of attacking the target and it
 //supports both victim or position.
-CanAttackResult WeaponSet::getAbleToUseWeaponAgainstTarget( AbleToAttackType attackType, const Object *source, const Object *victim, const Coord3D *pos, CommandSourceType commandSource ) const
+CanAttackResult WeaponSet::getAbleToUseWeaponAgainstTarget( AbleToAttackType attackType, const Object *source, const Object *victim, const Coord3D *pos, CommandSourceType commandSource, WeaponSlotType specificSlot ) const
 {
 
 	//First determine if we are attacking an object or the ground and get the 
