@@ -339,6 +339,10 @@ target_sources(c_gameengine
     Include/Common/LocalFile.h
     Include/Common/LocalFileSystem.h
     Include/Common/MiscAudio.h
+    Include/Common/KindOf.h
+    Include/Common/ModelState.h
+    Include/Common/Upgrade.h
+    Include/Common/Xfer.h
     Include/Common/Money.h
     Include/Common/NameKeyGenerator.h
     Include/Common/Overridable.h
@@ -381,6 +385,7 @@ target_sources(c_gameengine
     Source/Common/System/FileSystem.cpp
     Source/Common/System/GameMemory.cpp
     Source/Common/System/GameType.cpp
+    Source/Common/System/KindOf.cpp
     Source/Common/System/List.cpp
     Source/Common/System/LocalFile.cpp
     Source/Common/System/LocalFileSystem.cpp

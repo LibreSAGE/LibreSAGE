@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -164,6 +165,7 @@ public:
 	virtual void xferRGBAColorInt( RGBAColorInt *rgbaColorInt );
 	virtual void xferObjectID( ObjectID *objectID );
 	virtual void xferDrawableID( DrawableID *drawableID );
+	virtual void xferSTLObjectIDVector( std::vector<ObjectID> *objectIDVectorData );
 	virtual void xferSTLObjectIDList( std::list< ObjectID > *objectIDListData );
 	virtual void xferSTLIntList( std::list< Int > *intListData );
 	virtual void xferScienceType( ScienceType *science );

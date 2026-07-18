@@ -143,6 +143,32 @@ const char* ModelConditionFlags::s_bitNameList[] =
 
 	"PREORDER",
 
+	"CENTER_TO_LEFT",
+	"LEFT_TO_CENTER",
+	"CENTER_TO_RIGHT",
+	"RIGHT_TO_CENTER",
+
+	"RIDER1",	//Kris: Added these for different combat-bike riders, but feel free to use these for anything.
+	"RIDER2",
+	"RIDER3",
+	"RIDER4",
+	"RIDER5",
+	"RIDER6",
+	"RIDER7",
+	"RIDER8",
+
+  "STUNNED_FLAILING", // Daniel Teh's idea, added by Lorenzen, 5/28/03
+	"STUNNED",
+	"SECOND_LIFE",
+	"JAMMED",
+	"ARMORSET_CRATEUPGRADE_ONE",
+	"ARMORSET_CRATEUPGRADE_TWO",
+
+	"USER_1",
+	"USER_2",
+
+	"DISGUISED",
+
 	NULL
 };
  

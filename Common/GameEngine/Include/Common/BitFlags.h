@@ -49,7 +49,12 @@ class AsciiString;
 	So we wrap to correct this, but leave the bitset "exposed" so that we can use all the non-ctor
 	functions on it directly (since it doesn't overload operator= to do the "wrong" thing, strangley enough)
 */
-template <size_t NUMBITS>
+// TAG exists solely to keep distinct flag families distinct types. Without it, BitFlags is keyed
+// only on NUMBITS, so any two unrelated flag enums that happen to have the same number of bits
+// (e.g. ModelConditionFlags and KindOfMaskType) collapse into the same type -- which then has two
+// conflicting definitions of the static s_bitNameList, and the link fails. Give every named mask
+// typedef its own tag; the default keeps ad-hoc BitFlags<N> uses working unchanged.
+template <size_t NUMBITS, typename TAG = void>
 class BitFlags
 {
 private:

@@ -96,7 +96,8 @@ enum ObjectStatusTypes
 
 };
 
-typedef BitFlags<OBJECT_STATUS_COUNT>	ObjectStatusMaskType;
+struct ObjectStatusMaskTag;
+typedef BitFlags<OBJECT_STATUS_COUNT, ObjectStatusMaskTag>	ObjectStatusMaskType;
 
 #define MAKE_OBJECT_STATUS_MASK(k) ObjectStatusMaskType(ObjectStatusMaskType::kInit, (k))
 #define MAKE_OBJECT_STATUS_MASK2(k,a) ObjectStatusMaskType(ObjectStatusMaskType::kInit, (k), (a))

@@ -33,6 +33,7 @@
 
 #include "GameLogic/WeaponSetType.h"
 
-typedef BitFlags<WEAPONSET_COUNT> WeaponSetFlags;
+struct WeaponSetFlagsTag;
+typedef BitFlags<WEAPONSET_COUNT, WeaponSetFlagsTag> WeaponSetFlags;
 
 #endif /* __WEAPONSETFLAGS_H__ */

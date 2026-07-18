@@ -496,6 +496,7 @@ void GameEngine::init( int argc, char *argv[] )
 		if(!TheGlobalData->m_playIntro)
 			TheWritableGlobalData->m_afterIntro = TRUE;
 
+		initKindOfMasks();
 		initDisabledMasks();
 
 	}
@@ -522,6 +523,7 @@ void GameEngine::init( int argc, char *argv[] )
 	if(!TheGlobalData->m_playIntro)
 		TheWritableGlobalData->m_afterIntro = TRUE;
 
+	initKindOfMasks();
 	initDisabledMasks();
 
 	TheSubsystemList->resetAll();

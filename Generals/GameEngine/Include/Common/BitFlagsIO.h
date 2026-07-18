@@ -39,8 +39,8 @@
 //-------------------------------------------------------------------------------------------------
 
 /*
-template <size_t NUMBITS>
-void BitFlags<NUMBITS>::buildDescription( AsciiString* str ) const
+template <size_t NUMBITS, typename TAG>
+void BitFlags<NUMBITS, TAG>::buildDescription( AsciiString* str ) const
 {
 	if ( str == NULL )
 		return;//sanity
@@ -59,8 +59,8 @@ void BitFlags<NUMBITS>::buildDescription( AsciiString* str ) const
 */
 
 //-------------------------------------------------------------------------------------------------
-template <size_t NUMBITS>
-void BitFlags<NUMBITS>::parse(INI* ini, AsciiString* str)
+template <size_t NUMBITS, typename TAG>
+void BitFlags<NUMBITS, TAG>::parse(INI* ini, AsciiString* str)
 {
 //	m_bits.reset();
 	if (str)
@@ -132,8 +132,8 @@ void BitFlags<NUMBITS>::parse(INI* ini, AsciiString* str)
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
-template <size_t NUMBITS>
-/*static*/ void BitFlags<NUMBITS>::parseFromINI(INI* ini, void* /*instance*/, void *store, const void* /*userData*/)
+template <size_t NUMBITS, typename TAG>
+/*static*/ void BitFlags<NUMBITS, TAG>::parseFromINI(INI* ini, void* /*instance*/, void *store, const void* /*userData*/)
 {
 	((BitFlags*)store)->parse(ini, NULL);
 }
@@ -143,8 +143,8 @@ template <size_t NUMBITS>
 	* Version Info:
 	* 1: Initial version */
 //-------------------------------------------------------------------------------------------------
-template <size_t NUMBITS>
-void BitFlags<NUMBITS>::xfer(Xfer* xfer)
+template <size_t NUMBITS, typename TAG>
+void BitFlags<NUMBITS, TAG>::xfer(Xfer* xfer)
 {
 	// this deserves a version number
 	XferVersion currentVersion = 1;

@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -83,12 +84,13 @@
 
 */
 
+#define NUM_MODELCONDITION_DOOR_STATES 4
+
 //-------------------------------------------------------------------------------------------------
 // IMPORTANT NOTE: you should endeavor to set up states such that the most "normal"
 // state is defined by the bit being off. That is, the typical "normal" condition
 // has all condition flags set to zero.
-enum ModelConditionFlagType
-{
+enum ModelConditionFlagType : int {
 	MODELCONDITION_INVALID = -1,
 
 	MODELCONDITION_FIRST = 0,
@@ -115,7 +117,7 @@ enum ModelConditionFlagType
 	MODELCONDITION_WEAPONSET_CRATEUPGRADE_ONE,
 	MODELCONDITION_WEAPONSET_CRATEUPGRADE_TWO,
 	MODELCONDITION_WEAPONSET_PLAYER_UPGRADE,
-	MODELCONDITION_DOOR_1_OPENING,
+	MODELCONDITION_DOOR_1_OPENING, 
 	MODELCONDITION_DOOR_1_CLOSING,
 	MODELCONDITION_DOOR_1_WAITING_OPEN,
 	MODELCONDITION_DOOR_1_WAITING_TO_CLOSE,
@@ -209,6 +211,31 @@ enum ModelConditionFlagType
 
 	MODELCONDITION_PREORDER,
 
+	MODELCONDITION_CENTER_TO_LEFT,
+	MODELCONDITION_LEFT_TO_CENTER,
+	MODELCONDITION_CENTER_TO_RIGHT,
+	MODELCONDITION_RIGHT_TO_CENTER,
+
+	MODELCONDITION_RIDER1,	//Added these for different riders
+	MODELCONDITION_RIDER2,
+	MODELCONDITION_RIDER3,
+	MODELCONDITION_RIDER4,
+	MODELCONDITION_RIDER5,
+	MODELCONDITION_RIDER6,
+	MODELCONDITION_RIDER7,
+	MODELCONDITION_RIDER8,
+
+	MODELCONDITION_STUNNED_FLAILING, // Daniel Teh's idea, added by Lorenzen, 5/28/03
+	MODELCONDITION_STUNNED,
+	MODELCONDITION_SECOND_LIFE,
+	MODELCONDITION_JAMMED,	///< Jammed as in missile jammed by ECM
+	MODELCONDITION_ARMORSET_CRATEUPGRADE_ONE,
+	MODELCONDITION_ARMORSET_CRATEUPGRADE_TWO,
+
+	MODELCONDITION_USER_1,		///< Wildcard flag to use with upgrade modules or other random little things
+	MODELCONDITION_USER_2,
+
+	MODELCONDITION_DISGUISED,
 //
 // Note: these values are saved in save files, so you MUST NOT REMOVE OR CHANGE
 // existing values!
@@ -219,7 +246,8 @@ enum ModelConditionFlagType
 
 //-------------------------------------------------------------------------------------------------
 
-typedef BitFlags<MODELCONDITION_COUNT> ModelConditionFlags;
+struct ModelConditionFlagsTag;
+typedef BitFlags<MODELCONDITION_COUNT, ModelConditionFlagsTag> ModelConditionFlags;
 
 #define MAKE_MODELCONDITION_MASK(k) ModelConditionFlags(ModelConditionFlags::kInit, (k))
 #define MAKE_MODELCONDITION_MASK2(k,a) ModelConditionFlags(ModelConditionFlags::kInit, (k), (a))

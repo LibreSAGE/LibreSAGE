@@ -1,4 +1,5 @@
 /*
+**	Command & Conquer Generals(tm)
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
@@ -155,6 +156,8 @@ const char* KindOfMaskType::s_bitNameList[] =
 	"DEMOTRAP",
 	"CONSERVATIVE_BUILDING",
 	"IGNORE_DOCKING_BONES",
+
+	"AIRFIELD",
 
 	NULL
 };

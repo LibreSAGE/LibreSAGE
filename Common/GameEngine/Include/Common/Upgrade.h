@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -43,20 +44,21 @@ class Player;
 class UpgradeTemplate;
 enum NameKeyType : int;
 class Image;
+enum AcademyClassificationType : int;
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
-enum UpgradeStatusType : int
-{
+enum UpgradeStatusType : int {
 	UPGRADE_STATUS_INVALID = 0,
 	UPGRADE_STATUS_IN_PRODUCTION,
 	UPGRADE_STATUS_COMPLETE
 };
 
-//The maximum number of upgrades.
+//The maximum number of upgrades. 
 #define UPGRADE_MAX_COUNT 128
 
-typedef BitFlags<UPGRADE_MAX_COUNT>	UpgradeMaskType;
+struct UpgradeMaskTag;
+typedef BitFlags<UPGRADE_MAX_COUNT, UpgradeMaskTag>	UpgradeMaskType;
 
 #define MAKE_UPGRADE_MASK(k) UpgradeMaskType(UpgradeMaskType::kInit, (k))
 #define MAKE_UPGRADE_MASK2(k,a) UpgradeMaskType(UpgradeMaskType::kInit, (k), (a))
@@ -64,13 +66,13 @@ typedef BitFlags<UPGRADE_MAX_COUNT>	UpgradeMaskType;
 #define MAKE_UPGRADE_MASK4(k,a,b,c) UpgradeMaskType(UpgradeMaskType::kInit, (k), (a), (b), (c))
 #define MAKE_UPGRADE_MASK5(k,a,b,c,d) UpgradeMaskType(UpgradeMaskType::kInit, (k), (a), (b), (c), (d))
 
-inline Bool TEST_UPGRADE_MASK( const UpgradeMaskType& m, Int index )
-{
-	return m.test( index );
+inline Bool TEST_UPGRADE_MASK( const UpgradeMaskType& m, Int index ) 
+{ 
+	return m.test( index ); 
 }
 
-inline Bool TEST_UPGRADE_MASK_ANY( const UpgradeMaskType& m, const UpgradeMaskType& mask )
-{
+inline Bool TEST_UPGRADE_MASK_ANY( const UpgradeMaskType& m, const UpgradeMaskType& mask ) 
+{ 
 	return m.anyIntersectionWith( mask );
 }
 
@@ -79,14 +81,14 @@ inline Bool TEST_UPGRADE_MASK_MULTI( const UpgradeMaskType& m, const UpgradeMask
 	return m.testSetAndClear( mustBeSet, mustBeClear );
 }
 
-inline Bool UPGRADE_MASK_ANY_SET( const UpgradeMaskType& m)
-{
-	return m.any();
+inline Bool UPGRADE_MASK_ANY_SET( const UpgradeMaskType& m) 
+{ 
+	return m.any(); 
 }
 
-inline void CLEAR_UPGRADE_MASK( UpgradeMaskType& m )
-{
-	m.clear();
+inline void CLEAR_UPGRADE_MASK( UpgradeMaskType& m ) 
+{ 
+	m.clear(); 
 }
 
 inline void SET_ALL_UPGRADE_MASK_BITS( UpgradeMaskType& m )
@@ -151,14 +153,7 @@ enum UpgradeType
 
 	NUM_UPGRADE_TYPES,		// keep this last
 };
-#ifdef DEFINE_UPGRADE_TYPE_NAMES
-static const Char *UpgradeTypeNames[] = 
-{
-	"PLAYER",
-	"OBJECT",
-	NULL
-};
-#endif  // end DEFINE_UPGRADE_TYPE_NAMES
+extern const char *TheUpgradeTypeNames[]; //Change above, change this!
 
 //-------------------------------------------------------------------------------------------------
 /** A single upgrade template definition */
@@ -186,6 +181,7 @@ public:
 	UpgradeType getUpgradeType( void ) const { return m_type; }
 	const AudioEventRTS* getResearchCompleteSound() const { return &m_researchSound; }
 	const AudioEventRTS* getUnitSpecificSound() const { return &m_unitSpecificSound; }
+	AcademyClassificationType getAcademyClassificationType() const { return m_academyClassificationType; }
 
 	/// inventory pictures
 	void cacheButtonImage();
@@ -215,6 +211,9 @@ protected:
 	UpgradeMaskType m_upgradeMask;			///< Unique bitmask for this upgrade template
 	AudioEventRTS	m_researchSound;			///< Sound played when upgrade researched.
 	AudioEventRTS	m_unitSpecificSound;	///< Secondary sound played when upgrade researched.
+	// The academy is Zero Hour-only; Generals never reads this, so default it here (ACT_NONE == 0)
+	// rather than relying on each game's constructor to initialize it.
+	AcademyClassificationType m_academyClassificationType = (AcademyClassificationType)0; ///< A value used by the academy to evaluate advice based on what players do.
 
 	UpgradeTemplate *m_next;						///< next
 	UpgradeTemplate *m_prev;						///< prev

@@ -95,7 +95,8 @@ enum DamageType : int {
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 
-typedef BitFlags<DAMAGE_NUM_TYPES> DamageTypeFlags;
+struct DamageTypeFlagsTag;
+typedef BitFlags<DAMAGE_NUM_TYPES, DamageTypeFlagsTag> DamageTypeFlags;
 
 inline Bool getDamageTypeFlag(DamageTypeFlags flags, DamageType dt)
 {

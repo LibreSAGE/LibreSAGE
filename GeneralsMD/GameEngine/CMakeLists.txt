@@ -28,10 +28,8 @@ target_sources(
           Include/Common/Energy.h
           Include/Common/GameLOD.h
           Include/Common/Geometry.h
-          Include/Common/KindOf.h
           Include/Common/MapReaderWriterInfo.h
           Include/Common/MessageStream.h
-          Include/Common/ModelState.h
           Include/Common/MultiplayerSettings.h
           Include/Common/PerfTimer.h
           Include/Common/Player.h
@@ -51,10 +49,8 @@ target_sources(
           Include/Common/ThingSort.h
           Include/Common/ThingTemplate.h
           Include/Common/UnitTimings.h
-          Include/Common/Upgrade.h
           Include/Common/UserPreferences.h
           Include/Common/WellKnownKeys.h
-          Include/Common/Xfer.h
           Include/GameClient/AnimateWindowManager.h
           Include/GameClient/CampaignManager.h
           Include/GameClient/CommandXlat.h
@@ -247,7 +243,6 @@ target_sources(
           Source/Common/System/DisabledTypes.cpp
           Source/Common/System/FunctionLexicon.cpp
           Source/Common/System/Geometry.cpp
-          Source/Common/System/KindOf.cpp
           Source/Common/System/MemoryInit.cpp
           Source/Common/System/Radar.cpp
           Source/Common/System/SaveGame/GameState.cpp

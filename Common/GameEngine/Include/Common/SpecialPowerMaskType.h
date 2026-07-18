@@ -35,6 +35,7 @@
 #include "Common/BitFlagsIO.h"
 #include "Common/SpecialPowerType.h"
 
-typedef BitFlags<SPECIALPOWER_COUNT>	SpecialPowerMaskType;
+struct SpecialPowerMaskTag;
+typedef BitFlags<SPECIALPOWER_COUNT, SpecialPowerMaskTag>	SpecialPowerMaskType;
 
 #endif /* __SPECIALPOWERMASKTYPE_H__ */

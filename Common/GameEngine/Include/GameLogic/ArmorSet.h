@@ -59,7 +59,8 @@ enum ArmorSetType : int {
 };
 
 //-------------------------------------------------------------------------------------------------
-typedef BitFlags<ARMORSET_COUNT> ArmorSetFlags;
+struct ArmorSetFlagsTag;
+typedef BitFlags<ARMORSET_COUNT, ArmorSetFlagsTag> ArmorSetFlags;
 
 //-------------------------------------------------------------------------------------------------
 class ArmorTemplateSet
