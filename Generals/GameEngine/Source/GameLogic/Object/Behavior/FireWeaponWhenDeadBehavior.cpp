@@ -91,14 +91,14 @@ void FireWeaponWhenDeadBehavior::onDie( const DamageInfo *damageInfo )
 		return;
 
 	
-	Int64 activation, conflicting;
+	UpgradeMaskType activation, conflicting;
 	getUpgradeActivationMasks( activation, conflicting );
 	
-	if( getObject()->getObjectCompletedUpgradeMask() & conflicting )
+	if( getObject()->getObjectCompletedUpgradeMask().testForAny( conflicting ) )
 	{
 		return;
 	}
-	if( getObject()->getControllingPlayer()->getCompletedUpgradeMask() & conflicting )
+	if( getObject()->getControllingPlayer()->getCompletedUpgradeMask().testForAny( conflicting ) )
 	{
 		return;
 	}

@@ -261,7 +261,6 @@ Object::Object( const ThingTemplate *tt, const ObjectStatusMaskType &objectStatu
 	m_group = NULL;
 
 	m_constructionPercent = CONSTRUCTION_COMPLETE;  // complete by default
-	m_objectUpgradesCompleted = 0;
 
 	m_visionRange = tt->friend_getVisionRange();
 	m_shroudClearingRange = tt->friend_getShroudClearingRange();
@@ -2152,9 +2151,10 @@ Bool Object::isSalvageCrate() const
  */
 void Object::updateUpgradeModules()
 {
-	Int64 playerMask = getControllingPlayer()->getCompletedUpgradeMask();
-	Int64 objectMask = getObjectCompletedUpgradeMask();
-	Int64 maskToCheck = playerMask | objectMask;
+	UpgradeMaskType playerMask = getControllingPlayer()->getCompletedUpgradeMask();
+	UpgradeMaskType objectMask = getObjectCompletedUpgradeMask();
+	UpgradeMaskType maskToCheck = playerMask;
+	maskToCheck.set( objectMask );
 	// We need to add in all of the already owned upgrades to handle "AND" requiring upgrades.
 	// We combine all the masks in case someone has a Object AND Player combination
 
@@ -3889,7 +3889,11 @@ void Object::loadPostProcess()
 //-------------------------------------------------------------------------------------------------
 Bool Object::hasUpgrade( const UpgradeTemplate *upgradeT ) const 
 {
-	return BitTest( m_objectUpgradesCompleted, upgradeT->getUpgradeMask() );
+	if( m_objectUpgradesCompleted.testForAll( upgradeT->getUpgradeMask() ) )
+	{
+		return TRUE;
+	}
+	return FALSE;
 }  // end hasUpgrade
 
 //-------------------------------------------------------------------------------------------------
@@ -3897,9 +3901,12 @@ Bool Object::hasUpgrade( const UpgradeTemplate *upgradeT ) const
 //-------------------------------------------------------------------------------------------------
 Bool Object::affectedByUpgrade( const UpgradeTemplate *upgradeT ) const 
 {
-	Int64 objectMask = getObjectCompletedUpgradeMask();
-	Int64 playerMask = getControllingPlayer()->getCompletedUpgradeMask();
-	Int64 maskToCheck = playerMask | objectMask | upgradeT->getUpgradeMask();
+	UpgradeMaskType objectMask = getObjectCompletedUpgradeMask();
+	UpgradeMaskType playerMask = getControllingPlayer()->getCompletedUpgradeMask();
+	UpgradeMaskType maskToCheck = playerMask;
+	maskToCheck.set( objectMask );
+	maskToCheck.set( upgradeT->getUpgradeMask() );
+
 	// We need to add in all of the already owned upgrades to handle "AND" requiring upgrades.
 	// We combine all the masks in case someone has a Object AND Player combination
 
@@ -3926,7 +3933,7 @@ void Object::giveUpgrade( const UpgradeTemplate *upgradeT )
 {
 	if (upgradeT)
 	{
-		BitSet( m_objectUpgradesCompleted, upgradeT->getUpgradeMask() );
+		m_objectUpgradesCompleted.set( upgradeT->getUpgradeMask() );
 
 		//
 		// iterate through all the upgrade modules of this object and call the method to
@@ -3941,7 +3948,7 @@ void Object::giveUpgrade( const UpgradeTemplate *upgradeT )
 //-------------------------------------------------------------------------------------------------
 void Object::removeUpgrade( const UpgradeTemplate *upgradeT )
 {
-	BitClear( m_objectUpgradesCompleted, upgradeT->getUpgradeMask() );
+	m_objectUpgradesCompleted.clear( upgradeT->getUpgradeMask() );
 	for (BehaviorModule** module = m_behaviors; *module; ++module)
 	{
 		UpgradeModuleInterface* upgrade = (*module)->getUpgrade();

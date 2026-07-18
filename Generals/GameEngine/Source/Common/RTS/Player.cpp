@@ -319,8 +319,8 @@ Player::Player( Int playerIndex )
 	m_bombardBattlePlans = 0;
 	m_holdTheLineBattlePlans = 0;
 	m_searchAndDestroyBattlePlans = 0;
-	m_upgradesInProgress = 0;
-	m_upgradesCompleted = 0;
+	m_upgradesInProgress.clear();
+	m_upgradesCompleted.clear();
 	m_tunnelSystem = NULL;
 	m_playerTemplate = NULL;
 	m_visionSpiedMask = PLAYERMASK_NONE;
@@ -2535,8 +2535,8 @@ void Player::deleteUpgradeList( void )
 	}  // end while
 
 	// This doesn't call removeUpgrade, so clear these ourselves.
-	m_upgradesInProgress = 0;
-	m_upgradesCompleted = 0;
+	m_upgradesInProgress.clear();
+	m_upgradesCompleted.clear();
 
 }  // end deleteUpgradeList
 
@@ -2560,7 +2560,7 @@ Upgrade *Player::findUpgrade( const UpgradeTemplate *upgradeTemplate )
 //=================================================================================================
 Bool Player::hasUpgradeComplete( const UpgradeTemplate *upgradeTemplate )
 {
-	Int64 testMask = upgradeTemplate->getUpgradeMask();
+	UpgradeMaskType testMask = upgradeTemplate->getUpgradeMask();
 	return hasUpgradeComplete( testMask );
 } 
 
@@ -2569,9 +2569,9 @@ Bool Player::hasUpgradeComplete( const UpgradeTemplate *upgradeTemplate )
 	Does the player have this completed upgrade.  This form is exposed so Objects can do quick lookups.
 */
 //=================================================================================================
-Bool Player::hasUpgradeComplete( Int64 testMask )
+Bool Player::hasUpgradeComplete( UpgradeMaskType testMask )
 {
-	return BitTest( m_upgradesCompleted, testMask );
+	return m_upgradesCompleted.testForAll( testMask );
 }
 
 //=================================================================================================
@@ -2579,8 +2579,8 @@ Bool Player::hasUpgradeComplete( Int64 testMask )
 //=================================================================================================
 Bool Player::hasUpgradeInProduction( const UpgradeTemplate *upgradeTemplate )
 {
-	Int64 testMask = upgradeTemplate->getUpgradeMask();
-	return BitTest( m_upgradesInProgress, testMask );
+	UpgradeMaskType testMask = upgradeTemplate->getUpgradeMask();
+	return m_upgradesInProgress.testForAll( testMask );
 }
 
 //=================================================================================================
@@ -2610,15 +2610,15 @@ Upgrade *Player::addUpgrade( const UpgradeTemplate *upgradeTemplate, UpgradeStat
 	u->setStatus( status );
 
 	// Update our Bitmasks
-	Int64 newMask = upgradeTemplate->getUpgradeMask();
+	UpgradeMaskType newMask = upgradeTemplate->getUpgradeMask();
 	if( status == UPGRADE_STATUS_IN_PRODUCTION )
 	{
-		BitSet( m_upgradesInProgress, newMask );
+		m_upgradesInProgress.set( newMask );
 	}
 	else if( status == UPGRADE_STATUS_COMPLETE )
 	{
-		BitClear( m_upgradesInProgress, newMask );
-		BitSet( m_upgradesCompleted, newMask );
+		m_upgradesInProgress.clear( newMask );
+		m_upgradesCompleted.set( newMask );
 		onUpgradeCompleted( upgradeTemplate );
 	}
 
@@ -2676,9 +2676,9 @@ void Player::removeUpgrade( const UpgradeTemplate *upgradeTemplate )
 			m_upgradeList = upgrade->friend_getNext();
 
 		// Clear this upgrade's bits from our mind
-		Int64 oldMask = upgradeTemplate->getUpgradeMask();
-		BitClear( m_upgradesInProgress, oldMask );
-		BitClear( m_upgradesCompleted, oldMask );
+		UpgradeMaskType oldMask = upgradeTemplate->getUpgradeMask();
+		m_upgradesInProgress.clear( oldMask );
+		m_upgradesCompleted.clear( oldMask );
 
 		if( upgrade->getStatus() == UPGRADE_STATUS_COMPLETE )
 			onUpgradeRemoved();
