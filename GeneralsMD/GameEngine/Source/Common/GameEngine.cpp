@@ -804,9 +804,7 @@ void GameEngine::execute( void )
 {
 	
 	DWORD prevTime = timeGetTime();
-#if defined(_DEBUG) || defined(_INTERNAL)
 	DWORD startTime = timeGetTime() / 1000;
-#endif
 
 	// pretty basic for now
 	while( !m_quitting )
@@ -820,6 +818,26 @@ void GameEngine::execute( void )
 		}
 
 		{
+			// Quit automatically after m_autoExitSec seconds, regardless of
+			// build type -- used by headless/CI smoke tests so they get a
+			// real process exit instead of relying on the test harness's own
+			// timeout to kill a still-running-and-healthy process.
+			if (TheGlobalData->m_autoExitSec > 0)
+			{
+				DWORD currentTime = timeGetTime() / 1000;
+				if (TheGlobalData->m_autoExitSec < currentTime - startTime)
+				{
+					if (TheGameLogic->isInGame())
+					{
+						if (TheRecorder->getMode() == RECORDERMODETYPE_RECORD)
+						{
+							TheRecorder->stopRecording();
+						}
+						TheGameLogic->clearGameData();
+					}
+					TheGameEngine->setQuitting(TRUE);
+				}
+			}
 
 #if defined(_DEBUG) || defined(_INTERNAL)
 			{

@@ -596,6 +596,7 @@ GlobalData::GlobalData()
 	m_extraLogging = FALSE;
 #endif
 
+	m_autoExitSec = -1;
 	m_playStats = -1;
 	m_incrementalAGPBuf = FALSE;
 	m_mapName.clear();

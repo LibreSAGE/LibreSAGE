@@ -20,7 +20,6 @@ target_sources(
     Include/GameClient/Display.h
     Include/Common/ActionManager.h
     Include/Common/BattleHonors.h
-    Include/Common/BitFlagsIO.h
     Include/Common/BuildAssistant.h
     Include/Common/CustomMatchPreferences.h
     Include/Common/DataChunk.h
@@ -53,7 +52,6 @@ target_sources(
     Include/GameClient/CommandXlat.h
     Include/GameClient/ControlBar.h
     Include/GameClient/ControlBarScheme.h
-    Include/GameClient/Drawable.h
     Include/GameClient/Eva.h
     Include/GameClient/GUICallbacks.h
     Include/GameClient/Gadget.h

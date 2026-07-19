@@ -507,6 +507,13 @@ public:
 	Bool m_extraLogging;					///< More expensive debug logging to catch crashes.
 #endif
 
+	// Unlike m_benchmarkTimer (above, debug/internal only, and tied to
+	// benchmark/stats-collection semantics), this quits the game cleanly
+	// after N seconds regardless of build type -- used by headless/CI smoke
+	// tests to get a real exit instead of relying on the test harness's own
+	// timeout to kill a still-running-and-healthy process. -1 means disabled.
+	Int m_autoExitSec;
+
 	Bool				m_isBreakableMovie;							///< if we enter a breakable movie, set this flag
 	Bool				m_breakTheMovie;								///< The user has hit escape!
 	AsciiString m_modDir;

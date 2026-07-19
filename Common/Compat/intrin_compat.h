@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 
+#undef _lrotl
 static inline uint32_t _lrotl(uint32_t value, int shift)
 {
 #if defined(__has_builtin) && __has_builtin(__builtin_rotateleft32)

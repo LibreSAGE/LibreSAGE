@@ -26,6 +26,7 @@
 #include "Common/ArchiveFileSystem.h"
 #include "Common/CommandLine.h"
 #include "Common/CRCDebug.h"
+#include "Common/Debug.h"
 #include "Common/GlobalData.h"
 #include "Common/LocalFileSystem.h"
 #include "Common/Version.h"
@@ -949,16 +950,29 @@ Int parseBenchmark(char *args[], int num)
 }
 #endif
 
-#if defined(_DEBUG) || defined(_INTERNAL)
 Int parseIgnoreAsserts(char *args[], int num)
 {
+	// Suppresses the SDL/zenity message boxes Debug.cpp shows for asserts and
+	// unhandled crashes -- useful for headless/CI launches where nothing is
+	// present to dismiss them.
+	DebugIgnoreAsserts = true;
+#if defined(_DEBUG) || defined(_INTERNAL)
 	if (TheWritableGlobalData && num > 0)
 	{
 		TheWritableGlobalData->m_debugIgnoreAsserts = true;
 	}
+#endif
 	return 1;
 }
-#endif
+
+Int parseAutoExit(char *args[], int num)
+{
+	if (TheWritableGlobalData && num > 1)
+	{
+		TheWritableGlobalData->m_autoExitSec = atoi(args[1]);
+	}
+	return 2;
+}
 
 #if defined(_DEBUG) || defined(_INTERNAL)
 Int parseIgnoreStackTrace(char *args[], int num)
@@ -1105,6 +1119,8 @@ static CommandLineParam params[] =
 	{ "-scriptDebug", parseScriptDebug },
 	{ "-playStats", parsePlayStats },
 	{ "-mod", parseMod },
+	{ "-ignoreAsserts", parseIgnoreAsserts },
+	{ "-autoexit", parseAutoExit },
 #if !defined(_PLAYTEST) || (defined(_DEBUG) || defined(_INTERNAL))
 	{ "-noaudio", parseNoAudio },
 	{ "-map", parseMapName },
@@ -1160,7 +1176,6 @@ static CommandLineParam params[] =
 	{ "-netMinPlayers", parseNetMinPlayers },
 	{ "-DemoLoadScreen", parseDemoLoadScreen },
 	{ "-cameraDebug", parseCameraDebug },
-	{ "-ignoreAsserts", parseIgnoreAsserts },
 	{ "-ignoreStackTrace", parseIgnoreStackTrace },
 	{ "-logToCon", parseLogToConsole },
 	{ "-vTune", parseVTune },

@@ -11,7 +11,7 @@ add_executable(g_gameenginedevicetest
 # archives reference each other, so wrap them in a RESCAN link group.
 target_link_libraries(g_gameenginedevicetest
     "$<LINK_GROUP:RESCAN,g_gameenginedevice,g_gameengine>"
-    GTest::gtest GTest::gtest_main SDL3::SDL3)
+    GTest::gtest GTest::gtest_main SDL3::SDL3 sage_test_support)
 target_compile_definitions(g_gameenginedevicetest PRIVATE 
     SAGE_MOD_SUPPORT_DIR="${SAGE_MOD_SUPPORT_DIR}"
     SAGE_TEST_DATA_DIR="${SAGE_TEST_DATA_DIR}"

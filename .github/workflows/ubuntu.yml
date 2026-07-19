@@ -8,14 +8,26 @@ on:
 jobs:
   testing:
     name: Ubuntu 64-bit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
+    env:
+      # Retail game data lives in a private S3 bucket because it is not
+      # redistributable. Lifted into env so the steps below can test for its
+      # presence -- `secrets` is not available in step-level `if:` expressions.
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ vars.SAGE_DATA_AWS_REGION || 'eu-north-1' }}
+      SAGE_DATA_S3_BUCKET: ${{ vars.SAGE_DATA_S3_BUCKET || 'sage-game-files' }}
+      # Bump this repository variable to invalidate the cached download after
+      # re-uploading the archives.
+      SAGE_DATA_VERSION: ${{ vars.SAGE_DATA_VERSION || 'v1' }}
+      VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg-bincache,readwrite"
     strategy:
       matrix:
         preset: [linux-x64-coverage, linux-x64-release]
     steps:
       - name: Install deps
         run: |
-          sudo apt update && sudo apt install -y nasm autoconf automake libtool autoconf-archive \
+          sudo apt update && sudo apt install -y unzip nasm autoconf automake libtool autoconf-archive \
             pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
             libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
             libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
@@ -31,13 +43,100 @@ jobs:
       # Install latest CMake and Ninja.
       - uses: lukka/get-cmake@latest
 
-      # Setup vcpkg: ensures vcpkg is downloaded and built. This also configures
-      # vcpkg's binary caching via GitHub Actions' native cache (x-gha), which
-      # caches per-package (keyed on each package's own ABI hash) rather than
-      # one coarse directory blob, so a toolchain/compiler bump on the runner
-      # only invalidates the packages actually affected instead of everything.
+      # run-vcpkg's binaryCachePath input validates that the path already
+      # exists (it doesn't create it), so it must be created before that step
+      # on a fresh checkout -- actions/cache's restore (below) won't help
+      # either, since a cache miss also leaves the path missing.
+      - name: Create vcpkg binary cache directory
+        run: mkdir -p "${{ github.workspace }}/.vcpkg-bincache"
+
       - name: Setup a new (or from cache) vcpkg (and does not build any package)
         uses: lukka/run-vcpkg@v11
+        with:
+          binaryCachePath: ${{ github.workspace }}/.vcpkg-bincache
+
+      - name: Cache vcpkg binary packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.vcpkg-bincache
+          key: vcpkg-bincache-${{ matrix.preset }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}-${{ github.run_id }}
+          restore-keys: |
+            vcpkg-bincache-${{ matrix.preset }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}-
+            vcpkg-bincache-${{ matrix.preset }}-
+
+      # Retail game data, fetched only for the coverage preset. The retail tests
+      # are not preset-specific, so running them in both matrix legs would just
+      # double the S3 egress -- and, because the legs run in parallel and share
+      # one cache key, they would both miss and download on every cold cache.
+      #
+      # Pull requests from forks do not receive repository secrets, so all of
+      # this is skipped there and the tests that need game files skip themselves
+      # (see Common/Tests/Include/TestSupport/RetailData.h).
+      - name: Cache game files
+        if: >-
+          matrix.preset == 'linux-x64-coverage'
+          && env.SAGE_DATA_S3_BUCKET != '' && env.AWS_ACCESS_KEY_ID != ''
+        id: gamefiles-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/gamefiles
+          key: gamefiles-${{ env.SAGE_DATA_VERSION }}
+
+      # The GitHub-hosted runner images ship the AWS CLI, but install it if that
+      # ever changes (or if this job runs on a self-hosted runner).
+      - name: Install AWS CLI
+        if: >-
+          matrix.preset == 'linux-x64-coverage'
+          && env.SAGE_DATA_S3_BUCKET != '' && env.AWS_ACCESS_KEY_ID != ''
+          && steps.gamefiles-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          if command -v aws >/dev/null 2>&1; then
+            aws --version
+            exit 0
+          fi
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" \
+            -o "$RUNNER_TEMP/awscliv2.zip"
+          unzip -q "$RUNNER_TEMP/awscliv2.zip" -d "$RUNNER_TEMP"
+          sudo "$RUNNER_TEMP/aws/install"
+          aws --version
+
+      - name: Download game files from S3
+        if: >-
+          matrix.preset == 'linux-x64-coverage'
+          && env.SAGE_DATA_S3_BUCKET != '' && env.AWS_ACCESS_KEY_ID != ''
+          && steps.gamefiles-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          # Fail loudly on bad credentials rather than on a confusing s3 error.
+          aws sts get-caller-identity >/dev/null
+          # The bucket holds two full game installs as loose files. The whole
+          # install is fetched (not just the .big archives) so the RTS smoke
+          # test below has the full asset/config layout a real install has.
+          sync_game() {
+            aws s3 sync "s3://$SAGE_DATA_S3_BUCKET/$1/" "$GITHUB_WORKSPACE/gamefiles/$2/" \
+              --no-progress
+          }
+          sync_game "Command and Conquer Generals" "Generals"
+          sync_game "Command and Conquer Generals Zero Hour" "GeneralsMD"
+
+      - name: Point tests at the game files
+        if: >-
+          matrix.preset == 'linux-x64-coverage'
+          && env.SAGE_DATA_S3_BUCKET != '' && env.AWS_ACCESS_KEY_ID != ''
+        run: |
+          set -euo pipefail
+          for game in Generals GeneralsMD; do
+            dir="$GITHUB_WORKSPACE/gamefiles/$game"
+            # Guard against a stale or half-populated cache silently turning
+            # into "all retail tests skipped".
+            if [ -z "$(find "$dir" -iname '*.big' -print -quit)" ]; then
+              echo "::error::No .big files found under $dir"
+              exit 1
+            fi
+          done
+          echo "SAGE_RETAIL_DATA_DIR_GENERALS=$GITHUB_WORKSPACE/gamefiles/Generals" >> "$GITHUB_ENV"
+          echo "SAGE_RETAIL_DATA_DIR_GENERALSMD=$GITHUB_WORKSPACE/gamefiles/GeneralsMD" >> "$GITHUB_ENV"
 
       # The virtual display is needed for running tests that require a display (e.g. WW3D testss).
       - name: Start virtual display

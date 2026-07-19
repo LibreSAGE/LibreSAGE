@@ -20,7 +20,7 @@ add_executable(g_gameenginetest
 # so the linker re-scans until the cycle is satisfied.
 target_link_libraries(g_gameenginetest
     "$<LINK_GROUP:RESCAN,g_gameenginedevice,g_gameengine>"
-    GTest::gtest GTest::gtest_main SDL3::SDL3)
+    GTest::gtest GTest::gtest_main SDL3::SDL3 sage_test_support)
 target_compile_definitions(g_gameenginetest PRIVATE 
     SAGE_MOD_SUPPORT_DIR="${SAGE_MOD_SUPPORT_DIR}"
     SAGE_TEST_DATA_DIR="${SAGE_TEST_DATA_DIR}"

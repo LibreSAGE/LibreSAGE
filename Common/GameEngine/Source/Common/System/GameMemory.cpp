@@ -199,8 +199,25 @@ static Bool theMainInitFlag = false;
 // PRIVATE PROTOTYPES 
 // ----------------------------------------------------------------------------
 
-/// @todo srj -- make this work for 8
-#define MEM_BOUND_ALIGNMENT 4
+// Must be at least alignof(std::max_align_t) (16 on x86-64): operator new is
+// required to return memory suitably aligned for any type, including SSE
+// vector types, and this pool backs the global operator new/delete override
+// (see below) -- so it hands out memory to every allocation in the process,
+// not just our own engine types. A too-small value here doesn't just risk
+// misaligning our own objects: it can misalign third-party allocations too
+// (anything routed through this pool via the global operator new override),
+// and a compiler that assumes standard alignment when auto-vectorizing a
+// constructor (e.g. an aligned SSE store) will fault on the result.
+#define MEM_BOUND_ALIGNMENT 16
+
+// Sanity-check divisor for a blob's block count (see MemoryPool::createBlob)
+// -- an entirely separate concern from MEM_BOUND_ALIGNMENT's byte-alignment
+// guarantee above, despite both historically sharing that one #define. Pool
+// configs (see MemoryInit.cpp's default DMA table) pick "nice round number"
+// block counts against this value; it doesn't need to track the alignment
+// requirement, and several existing pool counts (e.g. dmaPool_256's overflow
+// count of 5000) are divisible by 4 but not by 16.
+#define POOL_BLOCKCOUNT_ALIGNMENT 4
 
 static Int roundUpMemBound(Int i);
 static void *sysAllocateDoNotZero(Int numBytes);
@@ -527,16 +544,28 @@ inline void **BlockCheckpointInfo::getStacktraceInfo() { return m_stacktrace; }
 
 // ----------------------------------------------------------------------------
 /**
+	offset from a block's `this` pointer to its user-data area (the header,
+	plus the leading bounding wall if enabled), rounded up to MEM_BOUND_ALIGNMENT.
+	Rounding here (rather than just trusting sizeof(MemoryPoolSingleBlock)+WALLSIZE
+	to already be aligned) is what makes the alignment guarantee robust against
+	future changes to this class's layout -- see calcRawBlockSize.
+*/
+static inline Int userDataOffset()
+{
+	Int off = sizeof(MemoryPoolSingleBlock);
+	#ifdef MEMORYPOOL_BOUNDINGWALL
+	off += WALLSIZE;
+	#endif
+	return ::roundUpMemBound(off);
+}
+
+/**
 	return a ptr to the user-data area of the block (ie, the part the enduser can deal with).
 	this call does NO debug verification and is for internal use of class MemoryPoolSingleBlock only.
 */
 inline void* MemoryPoolSingleBlock::getUserDataNoDbg()
 {
-	char* p = ((char*)this) + sizeof(MemoryPoolSingleBlock);
-	#ifdef MEMORYPOOL_BOUNDINGWALL
-	p += WALLSIZE;
-	#endif
-	return (void*)p;
+	return (void*)(((char*)this) + userDataOffset());
 }
 
 /**
@@ -556,13 +585,20 @@ inline void* MemoryPoolSingleBlock::getUserData()
 	given a desired logical block size, calculate the physical size needed for each
 	MemoryPoolSingleBlock (including overhead, etc.)
 */
-inline /*static*/ Int MemoryPoolSingleBlock::calcRawBlockSize(Int logicalSize) 
-{ 
-	Int s = ::roundUpMemBound(logicalSize) + sizeof(MemoryPoolSingleBlock);
+inline /*static*/ Int MemoryPoolSingleBlock::calcRawBlockSize(Int logicalSize)
+{
+	// userDataOffset() covers the header and leading wall (already rounded);
+	// only the trailing wall (if any) still needs accounting for below.
+	Int s = ::userDataOffset() + ::roundUpMemBound(logicalSize);
 	#ifdef MEMORYPOOL_BOUNDINGWALL
-	s += WALLSIZE*2;
+	s += WALLSIZE;
 	#endif
-	return s;
+	// This is also the stride between consecutive blocks in a blob (see
+	// MemoryPoolBlob), so leaving the trailing wall unrounded isn't enough:
+	// it can leave the total short of an alignment boundary, which would
+	// misalign every block in the blob after the first. Round the whole
+	// thing so the stride itself preserves alignment across the entire blob.
+	return ::roundUpMemBound(s);
 }
 
 /**
@@ -904,10 +940,7 @@ void MemoryPoolSingleBlock::initBlock(Int logicalSize, MemoryPoolBlob *owningBlo
 	DEBUG_ASSERTCRASH(pUserData, ("null pUserData"));
 	if (!pUserData)
 		return NULL;
-	char* p = ((char*)pUserData) - sizeof(MemoryPoolSingleBlock);
-	#ifdef MEMORYPOOL_BOUNDINGWALL
-	p -= WALLSIZE;
-	#endif
+	char* p = ((char*)pUserData) - userDataOffset();
 	MemoryPoolSingleBlock *block = (MemoryPoolSingleBlock *)p;
 // yes, verify the block in this case for plain debug mode (not intense-verify mode)
 #ifdef MEMORYPOOL_DEBUG
@@ -1563,7 +1596,7 @@ MemoryPool::~MemoryPool()
 */
 MemoryPoolBlob* MemoryPool::createBlob(Int allocationCount)
 {
-	DEBUG_ASSERTCRASH(allocationCount > 0 && allocationCount%MEM_BOUND_ALIGNMENT==0, ("bad allocationCount (must be >0 and evenly divisible by %d)",MEM_BOUND_ALIGNMENT));
+	DEBUG_ASSERTCRASH(allocationCount > 0 && allocationCount%POOL_BLOCKCOUNT_ALIGNMENT==0, ("bad allocationCount (must be >0 and evenly divisible by %d)",POOL_BLOCKCOUNT_ALIGNMENT));
 
 	MemoryPoolBlob* blob = new (::sysAllocateDoNotZero(sizeof(MemoryPoolBlob))) MemoryPoolBlob;	// will throw on failure
 

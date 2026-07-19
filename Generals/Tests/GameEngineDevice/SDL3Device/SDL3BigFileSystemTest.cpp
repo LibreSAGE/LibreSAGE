@@ -3,6 +3,7 @@
 #include "Common/File.h"
 #include "SDL3Device/Common/SDL3BIGFileSystem.h"
 #include "SDL3Device/Common/SDL3LocalFileSystem.h"
+#include "TestSupport/RetailData.h"
 
 #define SAGE_TEST_BIG_DATA_DIR SAGE_TEST_DATA_DIR "/big"
 
@@ -101,4 +102,23 @@ TEST(SDL3BIGFileSystem, GetArchiveNameForFileExistent)
 
     archiveName = fs.getArchiveFilenameForFile("data\\d.txt");
     EXPECT_STREQ(archiveName.str(), (SAGE_TEST_BIG_DATA_DIR "/b.big")) << "Unexpected archive name for d.txt";
+}
+
+// Smoke test over a real game install: the archives are far larger and far more
+// numerous than the hand-made fixtures above, so this catches parsing problems
+// the fixtures cannot reach. Skipped unless a retail data directory is configured.
+TEST(SDL3BIGFileSystem, LoadRetailArchives)
+{
+    SAGE_REQUIRE_RETAIL_DATA(retailDir, SAGE_RETAIL_DATA_ENV_GENERALS);
+
+    SDL3LocalFileSystem local_fs;
+    TheLocalFileSystem = &local_fs;
+    SDL3BIGFileSystem fs;
+
+    ASSERT_TRUE(fs.loadBigFilesFromDirectory(retailDir, "*.big", true))
+        << "Failed to load retail .big archives from " << retailDir;
+
+    FilenameList fileList;
+    fs.getFileListInDirectory("data", "", "*.ini", fileList, true);
+    EXPECT_FALSE(fileList.empty()) << "Retail archives contain no .ini files under data/";
 }

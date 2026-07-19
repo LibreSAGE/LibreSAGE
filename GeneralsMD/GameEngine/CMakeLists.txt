@@ -20,7 +20,6 @@ target_sources(
     Include/GameClient/Display.h
           Include/Common/ActionManager.h
           Include/Common/BattleHonors.h
-          Include/Common/BitFlagsIO.h
           Include/Common/BuildAssistant.h
           Include/Common/CustomMatchPreferences.h
           Include/Common/DataChunk.h

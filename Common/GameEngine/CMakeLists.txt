@@ -345,6 +345,7 @@ target_sources(c_gameengine
     Include/Common/Energy.h
     Include/Common/Geometry.h
     Include/Common/KindOf.h
+    Include/Common/BitFlagsIO.h
     Include/Common/ModelState.h
     Include/Common/Upgrade.h
     Include/Common/Xfer.h

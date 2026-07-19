@@ -134,11 +134,7 @@ static void doStackDump();
 // ----------------------------------------------------------------------------
 inline Bool ignoringAsserts()
 {
-#if defined(_DEBUG) || defined(_INTERNAL)
 	return !DX8Wrapper_IsWindowed || DebugIgnoreAsserts;
-#else
-	return !DX8Wrapper_IsWindowed;
-#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -398,7 +394,7 @@ void DebugLog(const char *format, ...)
 	ScopedCriticalSection scopedCriticalSection(TheDebugLogCriticalSection);
 #endif
 
-	if (theDebugFlags == 0)
+	if (theDebugFlags == 0 && !ignoringAsserts())
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "DebugLog - Debug not inited properly", "", ApplicationWindow);
 
 	format = prepBuffer(format, theBuffer, sizeof(theBuffer));
@@ -408,7 +404,7 @@ void DebugLog(const char *format, ...)
   vsnprintf(theBuffer + strlen(theBuffer), sizeof(theBuffer) - strlen(theBuffer), format, arg);
   va_end(arg);
 
-	if (strlen(theBuffer) >= sizeof(theBuffer))
+	if (strlen(theBuffer) >= sizeof(theBuffer) && !ignoringAsserts())
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "String too long for debug buffer", "", ApplicationWindow);
 
 	whackFunnyCharacters(theBuffer);
@@ -433,7 +429,7 @@ void DebugCrash(const char *format, ...)
 	// make it not static so that it'll be thread-safe.
 	// make it big to avoid weird overflow bugs in debug mode
 	char theCrashBuffer[ LARGE_BUFFER ];	
-	if (theDebugFlags == 0)
+	if (theDebugFlags == 0 && !ignoringAsserts())
 	{
 		if (!DX8Wrapper_IsWindowed) {
 			if (ApplicationWindow) {
@@ -451,7 +447,7 @@ void DebugCrash(const char *format, ...)
   vsnprintf(theCrashBuffer + strlen(theCrashBuffer), sizeof(theCrashBuffer) - strlen(theCrashBuffer), format, arg);
   va_end(arg);
 
-	if (strlen(theCrashBuffer) >= sizeof(theCrashBuffer))
+	if (strlen(theCrashBuffer) >= sizeof(theCrashBuffer) && !ignoringAsserts())
 	{
 		if (!DX8Wrapper_IsWindowed) {
 			if (ApplicationWindow) {
@@ -722,25 +718,27 @@ void ReleaseCrash(const char *reason)
 		}
 	}
 
+	if (!ignoringAsserts())
+	{
 #if defined(_DEBUG) || defined(_INTERNAL)
-	/* static */ char buff[8192]; // not so static so we can be threadsafe
-	_snprintf(buff, 8192, "Sorry, a serious error occurred. (%s)", reason);
-	buff[8191] = 0;
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Technical Difficulties...", buff, ApplicationWindow);
+		/* static */ char buff[8192]; // not so static so we can be threadsafe
+		_snprintf(buff, 8192, "Sorry, a serious error occurred. (%s)", reason);
+		buff[8191] = 0;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Technical Difficulties...", buff, ApplicationWindow);
 #else
-// crash error messaged changed 3/6/03 BGC
-//	::MessageBox(NULL, "Sorry, a serious error occurred.", "Technical Difficulties...", MB_OK|MB_TASKMODAL|MB_ICONERROR);
+	// crash error messaged changed 3/6/03 BGC
+	//	::MessageBox(NULL, "Sorry, a serious error occurred.", "Technical Difficulties...", MB_OK|MB_TASKMODAL|MB_ICONERROR);
 
-	if (!GetRegistryLanguage().compareNoCase("german2") || !GetRegistryLanguage().compareNoCase("german") )
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fehler...", u8"Es ist ein gravierender Fehler aufgetreten. Solche Fehler können durch viele verschiedene Dinge wie Viren, Überhitzte Hardware und Hardware, die den Mindestanforderungen des Spiels nicht entspricht, ausgelöst werden. Tipps zur Vorgehensweise findest du in den Foren unter www.generals.ea.com, Informationen zum Technischen Kundendienst im Handbuch zum Spiel.", ApplicationWindow);
-	}
-	else
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Technical Difficulties...", "You have encountered a serious error.  Serious errors can be caused by many things including viruses, overheated hardware and hardware that does not meet the minimum specifications for the game. Please visit the forums at www.generals.ea.com for suggested courses of action or consult your manual for Technical Support contact information.", ApplicationWindow);
-	}
-
+		if (!GetRegistryLanguage().compareNoCase("german2") || !GetRegistryLanguage().compareNoCase("german") )
+		{
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fehler...", u8"Es ist ein gravierender Fehler aufgetreten. Solche Fehler können durch viele verschiedene Dinge wie Viren, Überhitzte Hardware und Hardware, die den Mindestanforderungen des Spiels nicht entspricht, ausgelöst werden. Tipps zur Vorgehensweise findest du in den Foren unter www.generals.ea.com, Informationen zum Technischen Kundendienst im Handbuch zum Spiel.", ApplicationWindow);
+		}
+		else
+		{
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Technical Difficulties...", "You have encountered a serious error.  Serious errors can be caused by many things including viruses, overheated hardware and hardware that does not meet the minimum specifications for the game. Please visit the forums at www.generals.ea.com for suggested courses of action or consult your manual for Technical Support contact information.", ApplicationWindow);
+		}
 #endif
+	}
 
 	_exit(1);
 }
