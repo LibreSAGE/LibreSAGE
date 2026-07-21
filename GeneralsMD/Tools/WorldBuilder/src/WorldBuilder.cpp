@@ -19,6 +19,7 @@
 
 #include <QDir>
 #include <QSettings>
+#include <QTimer>
 
 // WorldBuilder.cpp : Defines the class behaviors for the application.
 //
@@ -572,12 +573,24 @@ int main(int argc, char **argv)
 	splash.finish(&window);
 
 	// Test hook: WB_TEST_OPEN=<path> loads a map right after startup.
+	bool testOpenFailed = false;
 	if (qEnvironmentVariableIsSet("WB_TEST_OPEN")) {
-		app.getDocument()->openDocument(qgetenv("WB_TEST_OPEN").constData());
+		if (!app.getDocument()->openDocument(qgetenv("WB_TEST_OPEN").constData())) {
+			testOpenFailed = true;
+		}
+	}
+
+	// Test hook: WB_TEST_AUTOEXIT=<seconds> quits the app automatically, giving
+	// ctest a real process exit (a PASS) instead of relying on ctest's own
+	// TIMEOUT to kill a still-running-and-healthy process (which ctest can
+	// only ever report as a failure) - mirrors the RTS smoke test's -autoexit.
+	if (qEnvironmentVariableIsSet("WB_TEST_AUTOEXIT")) {
+		int seconds = qgetenv("WB_TEST_AUTOEXIT").toInt();
+		QTimer::singleShot(seconds * 1000, &app, &QApplication::quit);
 	}
 
 	int ret = app.exec();
 
 	app.shutdownEngine();
-	return ret;
+	return testOpenFailed ? 1 : ret;
 }
