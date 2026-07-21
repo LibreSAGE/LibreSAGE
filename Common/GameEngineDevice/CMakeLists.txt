@@ -44,6 +44,10 @@ target_sources(
             Include/W3DDevice/GameClient/W3DBibBuffer.h
             Include/W3DDevice/GameClient/W3DAssetManagerExposed.h
             Include/W3DDevice/GameClient/TileData.h
+            Include/W3DDevice/GameClient/WorldHeightMap.h
+            Include/W3DDevice/GameClient/HeightMap.h
+            Include/W3DDevice/GameClient/BaseHeightMap.h
+            Include/W3DDevice/GameClient/FlatHeightMap.h
             Include/W3DDevice/GameClient/Module/W3DTruckDraw.h
             Include/W3DDevice/GameClient/Module/W3DTracerDraw.h
             Include/W3DDevice/GameClient/Module/W3DTankTruckDraw.h
@@ -71,7 +75,12 @@ target_sources(
           Include/W3DDevice/GameClient/W3DWebBrowser.h
           Source/W3DDevice/Common/W3DConvert.cpp
           Source/W3DDevice/GameClient/W3DDynamicLight.cpp
-          Source/W3DDevice/GameClient/W3DVideoBuffer.cpp)
+          Source/W3DDevice/GameClient/W3DVideoBuffer.cpp
+          Source/W3DDevice/GameClient/TileData.cpp
+          Source/W3DDevice/GameClient/WorldHeightMap.cpp
+          Source/W3DDevice/GameClient/HeightMap.cpp
+          Source/W3DDevice/GameClient/BaseHeightMap.cpp
+          Source/W3DDevice/GameClient/FlatHeightMap.cpp)
 
 if(SAGE_USE_SDL3)
   target_sources(

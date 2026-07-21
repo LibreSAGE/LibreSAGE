@@ -1,8 +1,8 @@
 
 # SAGE Engine Source Code
 
-[![Linux-64](https://github.com/feliwir/CnC_Generals_Zero_Hour/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/feliwir/CnC_Generals_Zero_Hour/actions/workflows/ubuntu.yml)
-[![codecov](https://codecov.io/gh/feliwir/CnC_Generals_Zero_Hour/graph/badge.svg?token=yOd513QpUq)](https://codecov.io/gh/feliwir/CnC_Generals_Zero_Hour)
+[![Linux-64](https://github.com/LibreSAGE/LibreSAGE/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/LibreSAGE/LibreSAGE/actions/workflows/ubuntu.yml)
+[![codecov](https://codecov.io/gh/LibreSAGE/LibreSAGE/graph/badge.svg?token=yOd513QpUq)](https://codecov.io/gh/LibreSAGE/LibreSAGE)
 
 This repository includes source code for Command & Conquer Generals, and its expansion pack Zero Hour. The later SAGE gfames Battle for Middleearth and it's successors are being worked on.
 

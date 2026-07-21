@@ -6,7 +6,6 @@ target_sources(
   PRIVATE
     Source/W3DDevice/GameClient/W3DDebugDisplay.cpp
           Include/W3DDevice/Common/W3DRadar.h
-          Include/W3DDevice/GameClient/HeightMap.h
           Include/W3DDevice/GameClient/Module/W3DLaserDraw.h
           Include/W3DDevice/GameClient/Module/W3DModelDraw.h
           Include/W3DDevice/GameClient/TerrainTex.h
@@ -20,7 +19,6 @@ target_sources(
           Include/W3DDevice/GameClient/W3DTerrainVisual.h
           Include/W3DDevice/GameClient/W3DView.h
           Include/W3DDevice/GameClient/W3DWaypointBuffer.h
-          Include/W3DDevice/GameClient/WorldHeightMap.h
           Source/W3DDevice/Common/System/W3DFunctionLexicon.cpp
           Source/W3DDevice/Common/System/W3DRadar.cpp
           Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp
@@ -57,14 +55,10 @@ target_sources(
           Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DMOTD.cpp
           Source/W3DDevice/GameClient/GUI/W3DGameWindow.cpp
           Source/W3DDevice/GameClient/GUI/W3DGameWindowManager.cpp
-          Source/W3DDevice/GameClient/BaseHeightMap.cpp
-          Source/W3DDevice/GameClient/FlatHeightMap.cpp
-          Source/W3DDevice/GameClient/HeightMap.cpp
           Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp
           Source/W3DDevice/GameClient/Shadow/W3DShadow.cpp
           Source/W3DDevice/GameClient/Shadow/W3DVolumetricShadow.cpp
           Source/W3DDevice/GameClient/TerrainTex.cpp
-          Source/W3DDevice/GameClient/TileData.cpp
           Source/W3DDevice/GameClient/W3DAssetManager.cpp
           Source/W3DDevice/GameClient/W3DBibBuffer.cpp
           Source/W3DDevice/GameClient/W3DBridgeBuffer.cpp
@@ -95,7 +89,6 @@ target_sources(
           Source/W3DDevice/GameClient/W3DWebBrowser.cpp
           Source/W3DDevice/GameClient/Water/W3DWater.cpp
           Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp
-          Source/W3DDevice/GameClient/WorldHeightMap.cpp
           Source/W3DDevice/GameLogic/W3DGhostObject.cpp
           Source/W3DDevice/GameLogic/W3DTerrainLogic.cpp)
 

@@ -267,7 +267,7 @@ const ThingTemplate *ThingFactory::findByTemplateID( UnsignedShort id )
 //-------------------------------------------------------------------------------------------------
 /** Return the template with the matching database name */
 //-------------------------------------------------------------------------------------------------
-ThingTemplate *ThingFactory::findTemplateInternal( const AsciiString& name )
+ThingTemplate *ThingFactory::findTemplateInternal( const AsciiString& name, Bool check )
 {
 	ThingTemplateHashMapIt tIt = m_templateHashMap.find(name);
 
@@ -293,8 +293,11 @@ ThingTemplate *ThingFactory::findTemplateInternal( const AsciiString& name )
 	}
 	
 #endif
-	
-	//DEBUG_LOG(("*** Object template %s not found\n",name.str()));
+
+	if( check && name.isNotEmpty() )
+	{
+		DEBUG_CRASH( ("Failed to find thing template %s (case sensitive) This issue has a chance of crashing after you ignore it!", name.str() ) );
+	}
 	return NULL;
 
 }  // end getTemplate

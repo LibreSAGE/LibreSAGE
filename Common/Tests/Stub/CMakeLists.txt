@@ -30,7 +30,12 @@ set(SAGE_STUB_UNCOMMONIZED_SOURCES
     Common/GameEngine/Source/GameLogic/Object/Behavior/TechBuildingBehavior.cpp
     Common/GameEngine/Source/GameLogic/Object/Collide/FireWeaponCollide.cpp
     Common/GameEngine/Source/GameLogic/Object/Die/DieModule.cpp
-    Common/GameEngine/Source/GameLogic/Object/Upgrade/StatusBitsUpgrade.cpp)
+    Common/GameEngine/Source/GameLogic/Object/Upgrade/StatusBitsUpgrade.cpp
+    Common/GameEngineDevice/Source/W3DDevice/GameClient/WorldHeightMap.cpp
+    Common/GameEngineDevice/Source/W3DDevice/GameClient/HeightMap.cpp
+    Common/GameEngineDevice/Source/W3DDevice/GameClient/BaseHeightMap.cpp
+    Common/GameEngineDevice/Source/W3DDevice/GameClient/FlatHeightMap.cpp
+    Common/GameEngineDevice/Source/W3DDevice/GameClient/TileData.cpp)
 
 list(TRANSFORM SAGE_STUB_UNCOMMONIZED_SOURCES PREPEND "${CMAKE_SOURCE_DIR}/")
 set_source_files_properties(
