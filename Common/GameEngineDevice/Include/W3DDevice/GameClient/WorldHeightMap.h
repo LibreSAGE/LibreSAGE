@@ -1,4 +1,5 @@
 /*
+**	Command & Conquer Generals(tm)
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
@@ -37,7 +38,7 @@
 #include "WWMath/vector3.h"
 #include "W3DDevice/GameClient/TileData.h"
 #include "Common/MapObject.h"
-#include "TerrainTex.h"
+#include "W3DDevice/GameClient/TerrainTex.h"
 
 #include "Common/STLTypedefs.h"
 typedef std::vector<ICoord2D> VecICoord2D;
