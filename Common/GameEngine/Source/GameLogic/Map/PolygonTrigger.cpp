@@ -54,9 +54,13 @@ m_selected(false),
 //Added By Sadullah Nader
 //Initializations inserted
 m_isRiver(FALSE),
-m_riverStart(0)
+m_riverStart(0),
+m_useAdditiveBlending(FALSE),
+m_riverAlpha(1.0f)
 //
 {
+	m_riverColor.red = m_riverColor.green = m_riverColor.blue = 0.0f;
+	m_uvScrollSpeed.x = m_uvScrollSpeed.y = 0.0f;
 	if (initialAllocation < 2) initialAllocation = 2;
 	m_points = NEW ICoord3D[initialAllocation];		// pool[]ify
 	m_sizePoints = initialAllocation;
@@ -135,7 +139,7 @@ PolygonTrigger *PolygonTrigger::getPolygonTriggerByID(Int triggerID)
 */
 Bool PolygonTrigger::ParsePolygonTriggersDataChunk(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
-	DEBUG_ASSERTCRASH(info->version <= K_TRIGGERS_VERSION_4, ("PolygonTriggers chunk version newer than supported."));
+	DEBUG_ASSERTCRASH(info->version <= K_TRIGGERS_VERSION_5, ("PolygonTriggers chunk version newer than supported."));
 	Int count;
 	Int numPoints;
 	Int triggerID;
@@ -145,6 +149,11 @@ Bool PolygonTrigger::ParsePolygonTriggersDataChunk(DataChunkInput &file, DataChu
 	Int riverStart;
 	AsciiString triggerName;
 	AsciiString layerName;
+	AsciiString riverTexture, noiseTexture, alphaEdgeTexture, sparkleTexture, bumpMapTexture, skyTexture;
+	Bool useAdditiveBlending;
+	RGBColor riverColor;
+	Coord2D uvScrollSpeed;
+	Real riverAlpha;
 	// Remove any existing polygon triggers, if any.
 	PolygonTrigger::deleteTriggers(); // just in case.
 	PolygonTrigger *pPrevTrig = NULL;
@@ -168,8 +177,29 @@ Bool PolygonTrigger::ParsePolygonTriggersDataChunk(DataChunkInput &file, DataChu
 			riverStart = file.readInt();
 		}
 
-		numPoints = file.readInt(); 
-		PolygonTrigger *pTrig = newInstance(PolygonTrigger)(numPoints+1);	
+		useAdditiveBlending = false;
+		riverColor.red = riverColor.green = riverColor.blue = 0.0f;
+		uvScrollSpeed.x = uvScrollSpeed.y = 0.0f;
+		riverAlpha = 1.0f;
+		if (info->version >= K_TRIGGERS_VERSION_5) {
+			riverTexture = file.readAsciiString();
+			noiseTexture = file.readAsciiString();
+			alphaEdgeTexture = file.readAsciiString();
+			sparkleTexture = file.readAsciiString();
+			bumpMapTexture = file.readAsciiString();
+			skyTexture = file.readAsciiString();
+			useAdditiveBlending = file.readByte();
+			riverColor.red = file.readByte() / 255.0f;
+			riverColor.green = file.readByte() / 255.0f;
+			riverColor.blue = file.readByte() / 255.0f;
+			file.readByte(); // Unknown - always 0.
+			uvScrollSpeed.x = file.readReal();
+			uvScrollSpeed.y = file.readReal();
+			riverAlpha = file.readReal();
+		}
+
+		numPoints = file.readInt();
+		PolygonTrigger *pTrig = newInstance(PolygonTrigger)(numPoints+1);
 		pTrig->setTriggerName(triggerName);
 		if (info->version >= K_TRIGGERS_VERSION_4) {
 			pTrig->setLayerName(layerName);
@@ -177,6 +207,18 @@ Bool PolygonTrigger::ParsePolygonTriggersDataChunk(DataChunkInput &file, DataChu
 		pTrig->setWaterArea(isWater);
 		pTrig->setRiver(isRiver);
 		pTrig->setRiverStart(riverStart);
+		if (info->version >= K_TRIGGERS_VERSION_5) {
+			pTrig->setRiverTexture(riverTexture);
+			pTrig->setNoiseTexture(noiseTexture);
+			pTrig->setAlphaEdgeTexture(alphaEdgeTexture);
+			pTrig->setSparkleTexture(sparkleTexture);
+			pTrig->setBumpMapTexture(bumpMapTexture);
+			pTrig->setSkyTexture(skyTexture);
+			pTrig->setUseAdditiveBlending(useAdditiveBlending);
+			pTrig->setRiverColor(riverColor);
+			pTrig->setUVScrollSpeed(uvScrollSpeed);
+			pTrig->setRiverAlpha(riverAlpha);
+		}
 		pTrig->m_triggerID = triggerID;
 		if (triggerID > maxTriggerId) {
 			maxTriggerId = triggerID;

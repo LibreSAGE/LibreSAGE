@@ -21,6 +21,10 @@
 #include <QSettings>
 #include <QTimer>
 
+#include <chrono>
+#include <cstdlib>
+#include <thread>
+
 // WorldBuilder.cpp : Defines the class behaviors for the application.
 //
 // Qt6 port of the original MFC CWorldBuilderApp.  The engine bring-up mirrors
@@ -586,7 +590,31 @@ int main(int argc, char **argv)
 	// only ever report as a failure) - mirrors the RTS smoke test's -autoexit.
 	if (qEnvironmentVariableIsSet("WB_TEST_AUTOEXIT")) {
 		int seconds = qgetenv("WB_TEST_AUTOEXIT").toInt();
+
+		// Preferred path: ask Qt to quit cleanly after <seconds>, which returns
+		// from app.exec() below and runs shutdownEngine() normally.
 		QTimer::singleShot(seconds * 1000, &app, &QApplication::quit);
+
+		// Backstop: the clean quit above is not reliable here.  WbView3d drives
+		// rendering from a 100ms QTimer, and drawing a heavy map (thousands of
+		// object-feedback markers via DrawObject::Render) makes each frame
+		// overrun that interval, so the event loop stays busy servicing the
+		// render timer and the queued quit is starved and never delivered -
+		// intermittently the process runs at 100% CPU past the deadline and
+		// ctest kills it as a timeout.  A watchdog thread guarantees a real
+		// process exit regardless of what the Qt event loop is doing.  It fires
+		// a few seconds after the clean-quit deadline so the normal shutdown
+		// path still wins whenever it can; when it can't, we hard-exit with the
+		// map-load result as the status code.  _Exit() is deliberate: it skips
+		// static destructors and the engine shutdown that would otherwise be
+		// what hangs.
+		const int watchdogExitCode = testOpenFailed ? 1 : 0;
+		const int watchdogSeconds = (seconds > 0 ? seconds : 0) + 5;
+		std::thread([watchdogSeconds, watchdogExitCode]() {
+			std::this_thread::sleep_for(std::chrono::seconds(watchdogSeconds));
+			std::fflush(nullptr);
+			std::_Exit(watchdogExitCode);
+		}).detach();
 	}
 
 	int ret = app.exec();

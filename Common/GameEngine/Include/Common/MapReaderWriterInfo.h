@@ -55,6 +55,7 @@
 #define K_TRIGGERS_VERSION_2 2		// Added m_isWaterArea
 #define K_TRIGGERS_VERSION_3 3		// Added m_isRiver & m_riverStart
 #define K_TRIGGERS_VERSION_4 4		// Added layer name.
+#define K_TRIGGERS_VERSION_5 5		// Added BFME+ river rendering properties.
 #define K_LIGHTING_VERSION_1	1
 #define K_LIGHTING_VERSION_2	2	// Added 2 additional global lights for objects.
 #define K_LIGHTING_VERSION_3	3	// Added 2 additional global lights for terrain.

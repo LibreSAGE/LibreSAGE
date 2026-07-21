@@ -89,6 +89,18 @@ protected:
 	Bool				m_shouldRender;
 	Bool				m_selected;
 
+	// BFME+ river rendering properties (see K_TRIGGERS_VERSION_5).
+	AsciiString			m_riverTexture;
+	AsciiString			m_noiseTexture;
+	AsciiString			m_alphaEdgeTexture;
+	AsciiString			m_sparkleTexture;
+	AsciiString			m_bumpMapTexture;
+	AsciiString			m_skyTexture;
+	Bool				m_useAdditiveBlending;
+	RGBColor			m_riverColor;
+	Coord2D				m_uvScrollSpeed;
+	Real				m_riverAlpha;
+
 	static PolygonTrigger* ThePolygonTriggerListPtr;
 	static Int s_currentID; ///< Current id for new triggers.
 
@@ -149,8 +161,30 @@ public:
 	void setWaterArea(Bool val) {m_isWaterArea = val;} 
 	Bool isRiver(void) const {return m_isRiver;} 
 	void setRiver(Bool val) {m_isRiver = val;} 
-	Int getRiverStart(void) const {return m_riverStart;} 
-	void setRiverStart(Int val) {m_riverStart = val;} 
+	Int getRiverStart(void) const {return m_riverStart;}
+	void setRiverStart(Int val) {m_riverStart = val;}
+
+	AsciiString getRiverTexture(void) const {return m_riverTexture;}
+	void setRiverTexture(AsciiString val) {m_riverTexture = val;}
+	AsciiString getNoiseTexture(void) const {return m_noiseTexture;}
+	void setNoiseTexture(AsciiString val) {m_noiseTexture = val;}
+	AsciiString getAlphaEdgeTexture(void) const {return m_alphaEdgeTexture;}
+	void setAlphaEdgeTexture(AsciiString val) {m_alphaEdgeTexture = val;}
+	AsciiString getSparkleTexture(void) const {return m_sparkleTexture;}
+	void setSparkleTexture(AsciiString val) {m_sparkleTexture = val;}
+	AsciiString getBumpMapTexture(void) const {return m_bumpMapTexture;}
+	void setBumpMapTexture(AsciiString val) {m_bumpMapTexture = val;}
+	AsciiString getSkyTexture(void) const {return m_skyTexture;}
+	void setSkyTexture(AsciiString val) {m_skyTexture = val;}
+	Bool getUseAdditiveBlending(void) const {return m_useAdditiveBlending;}
+	void setUseAdditiveBlending(Bool val) {m_useAdditiveBlending = val;}
+	const RGBColor& getRiverColor(void) const {return m_riverColor;}
+	void setRiverColor(const RGBColor &val) {m_riverColor = val;}
+	const Coord2D& getUVScrollSpeed(void) const {return m_uvScrollSpeed;}
+	void setUVScrollSpeed(const Coord2D &val) {m_uvScrollSpeed = val;}
+	Real getRiverAlpha(void) const {return m_riverAlpha;}
+	void setRiverAlpha(Real val) {m_riverAlpha = val;}
+
 	const WaterHandle* getWaterHandle(void) const;
 	Bool isValid(void) const;
 };
