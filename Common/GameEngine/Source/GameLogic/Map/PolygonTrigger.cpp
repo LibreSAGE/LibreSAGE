@@ -1,4 +1,5 @@
 /*
+**	Command & Conquer Generals(tm)
 **	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
@@ -134,6 +135,7 @@ PolygonTrigger *PolygonTrigger::getPolygonTriggerByID(Int triggerID)
 */
 Bool PolygonTrigger::ParsePolygonTriggersDataChunk(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
+	DEBUG_ASSERTCRASH(info->version <= K_TRIGGERS_VERSION_4, ("PolygonTriggers chunk version newer than supported."));
 	Int count;
 	Int numPoints;
 	Int triggerID;
@@ -239,18 +241,24 @@ Bool PolygonTrigger::ParsePolygonTriggersDataChunk(DataChunkInput &file, DataChu
 */
 void PolygonTrigger::WritePolygonTriggersDataChunk(DataChunkOutput &chunkWriter)
 {
+#ifdef RTS_GAME_ZH
 	chunkWriter.openDataChunk("PolygonTriggers", 	K_TRIGGERS_VERSION_4);
-		
+#else
+	chunkWriter.openDataChunk("PolygonTriggers", 	K_TRIGGERS_VERSION_3);
+#endif
+
 		PolygonTrigger *pTrig;
 		Int count = 0;
 		for (pTrig=PolygonTrigger::getFirstPolygonTrigger(); pTrig; pTrig = pTrig->getNext()) {
 			count++;
 		}
-		chunkWriter.writeInt(count); 
+		chunkWriter.writeInt(count);
 		for (pTrig=PolygonTrigger::getFirstPolygonTrigger(); pTrig; pTrig = pTrig->getNext()) {
-			chunkWriter.writeAsciiString(pTrig->getTriggerName());	
-			chunkWriter.writeAsciiString(pTrig->getLayerName());	
-			chunkWriter.writeInt(pTrig->getID()); 
+			chunkWriter.writeAsciiString(pTrig->getTriggerName());
+#ifdef RTS_GAME_ZH
+			chunkWriter.writeAsciiString(pTrig->getLayerName());
+#endif
+			chunkWriter.writeInt(pTrig->getID());
 			chunkWriter.writeByte(pTrig->isWaterArea());
 			chunkWriter.writeByte(pTrig->isRiver());
 			chunkWriter.writeInt(pTrig->getRiverStart());

@@ -26,7 +26,6 @@ target_sources(
     Include/Common/DrawModule.h
     Include/Common/GameLOD.h
     # Include/Common/GameSpeech.h
-    Include/Common/MapReaderWriterInfo.h
     Include/Common/MessageStream.h
     Include/Common/MultiplayerSettings.h
     Include/Common/PerfTimer.h
@@ -154,7 +153,6 @@ target_sources(
     Include/GameLogic/Object.h
     Include/GameLogic/ObjectCreationList.h
     Include/GameLogic/PartitionManager.h
-    Include/GameLogic/PolygonTrigger.h
     Include/GameLogic/ScriptActions.h
     Include/GameLogic/ScriptEngine.h
     Include/GameLogic/Scripts.h
@@ -393,8 +391,6 @@ target_sources(
     Source/GameLogic/AI/AITNGuard.cpp
     Source/GameLogic/AI/Squad.cpp
     Source/GameLogic/AI/TurretAI.cpp
-    Source/GameLogic/Map/PolygonTrigger.cpp
-    Source/GameLogic/Map/SidesList.cpp
     Source/GameLogic/Map/TerrainLogic.cpp
     Source/GameLogic/Object/Armor.cpp
     Source/GameLogic/Object/Behavior/AutoHealBehavior.cpp

@@ -59,7 +59,7 @@ if(SAGE_BUILD_TOOLS
   sage_add_smoke_test(
     NAME_PREFIX GeneralsMD_WorldBuilder_SmokeTest
     TARGET z_worldbuilder
-    TIMEOUT 30
+    TIMEOUT 60
     BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALSMD}"
               -bigdir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}"
               -win

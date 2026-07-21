@@ -61,6 +61,7 @@ target_sources(c_gameengine
             Include/Common/SpecialPowerMaskType.h
             Include/Common/MiniLog.h
             Include/Common/MapObject.h
+            Include/Common/MapReaderWriterInfo.h
             Include/Common/DiscreteCircle.h
             Include/GameNetwork/udp.h
             Include/GameNetwork/User.h
@@ -95,6 +96,9 @@ target_sources(c_gameengine
             Include/GameLogic/VictoryConditions.h
             Include/GameLogic/Squad.h
             Include/GameLogic/SidesList.h
+            Source/GameLogic/Map/SidesList.cpp
+            Include/GameLogic/PolygonTrigger.h
+            Source/GameLogic/Map/PolygonTrigger.cpp
             Include/GameLogic/RankInfo.h
             Include/GameLogic/Powers.h
             Include/GameLogic/ObjectTypes.h

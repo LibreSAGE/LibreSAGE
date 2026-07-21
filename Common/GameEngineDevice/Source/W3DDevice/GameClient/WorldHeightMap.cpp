@@ -763,6 +763,7 @@ void WorldHeightMap::setCliffState(Int xIndex, Int yIndex, Bool state)
 
 Bool WorldHeightMap::ParseWorldDictDataChunk(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
+	DEBUG_ASSERTCRASH(info->version <= K_WORLDDICT_VERSION_1, ("WorldDict chunk version newer than supported."));
 	Dict d = file.readDict();
 	*MapObject::getWorldDict() = d;
 	Bool exists;
@@ -782,6 +783,7 @@ Bool WorldHeightMap::ParseWorldDictDataChunk(DataChunkInput &file, DataChunkInfo
 */
 Bool WorldHeightMap::ParseLightingDataChunk(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
+		DEBUG_ASSERTCRASH(info->version <= K_LIGHTING_VERSION_3, ("Lighting chunk version newer than supported."));
 		TheWritableGlobalData->m_timeOfDay = (TimeOfDay)file.readInt();
 		Int i;
 		GlobalData::TerrainLighting	initLightValues	= { { 0,0,0},{0,0,0},{0,0,-1.0f}};
@@ -890,6 +892,7 @@ Bool WorldHeightMap::ParseHeightMapDataChunk(DataChunkInput &file, DataChunkInfo
 */
 Bool WorldHeightMap::ParseHeightMapData(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
+	DEBUG_ASSERTCRASH(info->version <= K_HEIGHT_MAP_VERSION_5, ("HeightMap chunk version newer than supported."));
 	m_width = file.readInt();
 	m_height = file.readInt();
 	if (info->version >= K_HEIGHT_MAP_VERSION_3) {
@@ -926,8 +929,20 @@ Bool WorldHeightMap::ParseHeightMapData(DataChunkInput &file, DataChunkInfo *inf
   fillSeismicZVelocities( 0 );
 
 
-	file.readArrayOfBytes((char *)m_data, m_dataSize);
-	// Resize me. 
+	// TheSuperHackers @info feliwir In BFME upwards the heightmap is stored as 16-bit
+	if (info->version >= K_HEIGHT_MAP_VERSION_5) {
+		UnsignedShort* tempData = new UnsignedShort[m_dataSize];
+		file.readArrayOfBytes((char*)tempData, m_dataSize * 2);
+		// Rescale to UnsignedByte
+		for (Int i = 0; i < m_dataSize; ++i) {
+			m_data[i] = (UnsignedByte)(tempData[i] >> 8);
+		}
+		delete[] tempData;
+	}
+	else {
+		file.readArrayOfBytes((char*)m_data, m_dataSize);
+	}
+	// Resize me.
 	if (info->version == K_HEIGHT_MAP_VERSION_1) {
 		Int newWidth = (m_width+1)/2;
 		Int newHeight = (m_height+1)/2;
@@ -964,6 +979,7 @@ Bool WorldHeightMap::ParseSizeOnlyInChunk(DataChunkInput &file, DataChunkInfo *i
 */
 Bool WorldHeightMap::ParseSizeOnly(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
+	DEBUG_ASSERTCRASH(info->version <= K_HEIGHT_MAP_VERSION_5, ("HeightMap chunk version newer than supported."));
 	m_width = file.readInt();
 	m_height = file.readInt();
 	if (info->version >= K_HEIGHT_MAP_VERSION_3) {
@@ -990,8 +1006,20 @@ Bool WorldHeightMap::ParseSizeOnly(DataChunkInput &file, DataChunkInfo *info, vo
 	if (m_dataSize <= 0 || (m_dataSize != (m_width*m_height))) {
 		throw ERROR_CORRUPT_FILE_FORMAT	;
 	}
-	file.readArrayOfBytes((char *)m_data, m_dataSize);
-	// Resize me. 
+	// TheSuperHackers @info feliwir In BFME upwards the heightmap is stored as 16-bit
+	if (info->version >= K_HEIGHT_MAP_VERSION_5) {
+		UnsignedShort* tempData = new UnsignedShort[m_dataSize];
+		file.readArrayOfBytes((char*)tempData, m_dataSize * 2);
+		// Rescale to UnsignedByte
+		for (Int i = 0; i < m_dataSize; ++i) {
+			m_data[i] = (UnsignedByte)(tempData[i] >> 8);
+		}
+		delete[] tempData;
+	}
+	else {
+		file.readArrayOfBytes((char*)m_data, m_dataSize);
+	}
+	// Resize me.
 	if (info->version == K_HEIGHT_MAP_VERSION_1) {
 		Int newWidth = (m_width+1)/2;
 		Int newHeight = (m_height+1)/2;
@@ -1071,6 +1099,7 @@ void WorldHeightMap::readTexClass(TXTextureClass *texClass, TileData **tileData)
 */
 Bool WorldHeightMap::ParseBlendTileData(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
+	DEBUG_ASSERTCRASH(info->version <= K_BLEND_TILE_VERSION_8, ("BlendTile chunk version newer than supported."));
 	int i, j;
 	Int len = file.readInt();
 	if (m_dataSize != len) {
@@ -1251,6 +1280,7 @@ Bool WorldHeightMap::ParseObjectDataChunk(DataChunkInput &file, DataChunkInfo *i
 */
 Bool WorldHeightMap::ParseObjectData(DataChunkInput &file, DataChunkInfo *info, void *userData, Bool readDict)
 {
+	DEBUG_ASSERTCRASH(info->version <= K_OBJECTS_VERSION_3, ("Objects chunk version newer than supported."));
 	MapObject *pPrevious = (MapObject *)file.m_currentObject;
 
 	Coord3D loc;

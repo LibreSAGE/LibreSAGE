@@ -240,15 +240,18 @@ Bool CWorldBuilderDoc::openDocument(const char *path)
 		return false;
 	}
 	try {
+		DEBUG_LOG(("openDocument: selectPointerTool\n"));
 		WbApp()->selectPointerTool();
 		PolygonTrigger::deleteTriggers();
 		ChunkInputStream *pStrm = &theInputStream;
 
 		// Read the logical data (map objects, waypoints, etc.)
+		DEBUG_LOG(("openDocument: reading logical WorldHeightMap\n"));
 		WorldHeightMap *terrainHeightMap = new WorldHeightMap(pStrm, true);
 		REF_PTR_RELEASE(terrainHeightMap);
 		pStrm->absoluteSeek(0);
 		// Read & keep the graphical data.
+		DEBUG_LOG(("openDocument: reading WorldHeightMapEdit\n"));
 		m_heightMap = NEW_REF(WorldHeightMapEdit, (pStrm));
 		pStrm->absoluteSeek(0);
 		try {
@@ -265,18 +268,24 @@ Bool CWorldBuilderDoc::openDocument(const char *path)
 		}
 		theInputStream.close();
 
+		DEBUG_LOG(("openDocument: validate\n"));
 		validate();
 
 		WbView3d *p3View = Get3DView();
 		if (p3View) {
+			DEBUG_LOG(("openDocument: resetRenderObjects\n"));
 			p3View->resetRenderObjects();
 		}
+		DEBUG_LOG(("openDocument: optimizeTiles\n"));
 		m_heightMap->optimizeTiles(); // force to optimize tileset
+		DEBUG_LOG(("openDocument: SetHeightMap\n"));
 		SetHeightMap(m_heightMap, true);
 		// Refresh the texture-picker panels for the newly opened map's tile
 		// set - without this they keep showing whatever map was loaded when
 		// the app started (this was also missing for TerrainMaterial).
+		DEBUG_LOG(("openDocument: TerrainMaterial::updateTextures\n"));
 		TerrainMaterial::updateTextures(m_heightMap);
+		DEBUG_LOG(("openDocument: BlendMaterial::updateTextures\n"));
 		BlendMaterial::updateTextures();
 		Coord3D center;
 		center.x = MAP_XY_FACTOR*m_heightMap->getXExtent()/2;
@@ -288,8 +297,10 @@ Bool CWorldBuilderDoc::openDocument(const char *path)
 
 		// always assign unique IDs. The things will still live in the correct layers, so this isn't
 		// an especially big deal.
+		DEBUG_LOG(("openDocument: fastAssignAllUniqueIDs\n"));
 		MapObject::fastAssignAllUniqueIDs();
 
+		DEBUG_LOG(("openDocument: map object loop start\n"));
 		MapObject *pMapObj = MapObject::getFirstMapObject();
 		while (pMapObj) {
 			/// @todo add objects & triggers to TheLayersList once the layers panel is ported.
@@ -307,16 +318,20 @@ Bool CWorldBuilderDoc::openDocument(const char *path)
 			}
 			pMapObj = pMapObj->getNext();
 		}
+		DEBUG_LOG(("openDocument: map object loop done\n"));
 
 		REF_PTR_RELEASE(m_undoList);
 		m_curRedo = 0;
 		if (p3View) {
+			DEBUG_LOG(("openDocument: setCenterInView\n"));
 			p3View->setCenterInView(center.x/MAP_XY_FACTOR, center.y/MAP_XY_FACTOR);
 		}
 		REF_PTR_RELEASE(pOldHeightMap);
 		if (p3View) {
+			DEBUG_LOG(("openDocument: setDefaultCamera\n"));
 			p3View->setDefaultCamera();
 		}
+		DEBUG_LOG(("openDocument: done\n"));
 	} catch(...) {
 		m_heightMap = pOldHeightMap;
 		QMessageBox::warning(NULL, "WorldBuilder",

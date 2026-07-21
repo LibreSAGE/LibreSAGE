@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -54,6 +55,9 @@
 static const Int K_SIDES_DATA_VERSION_1 = 1;
 static const Int K_SIDES_DATA_VERSION_2 = 2;	// includes Team list.
 static const Int K_SIDES_DATA_VERSION_3 = 3;	// includes Team list.
+static const Int K_SIDES_DATA_VERSION_4 = 4;
+static const Int K_SIDES_DATA_VERSION_5 = 5;	// teams and scripts are separate now
+static const Int K_SIDES_DATA_VERSION_6 = 6;
 
 /* ********* SidesInfo class ****************************/
 /**
@@ -239,11 +243,17 @@ void SidesList::clear(void)
 */
 Bool SidesList::ParseSidesDataChunk(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
+	DEBUG_ASSERTCRASH(info->version <= K_SIDES_DATA_VERSION_6, ("Sides chunk version newer than supported."));
 	DEBUG_ASSERTCRASH(TheSidesList, ("TheSidesList is null"));
 
-	if (TheSidesList==NULL) 
+	if (TheSidesList==NULL)
 		return false;
 
+	// TheSuperHackers @info feliwir 21/4/2025 this is a boolean we don't know about, added in BFME
+	if (info->version >= K_SIDES_DATA_VERSION_6)
+	{
+		file.readByte();
+	}
 	TheSidesList->clear();
 	Int count = file.readInt();
 	Int i, j;
@@ -268,6 +278,11 @@ Bool SidesList::ParseSidesDataChunk(DataChunkInput &file, DataChunkInfo *info, v
 			pBuildList->setLocation(loc);
 			pBuildList->setAngle(file.readReal());
 			pBuildList->setInitiallyBuilt(file.readByte());
+			// TheSuperHackers @info feliwir 21/4/2025 this is a boolean we don't know about, added in BFME
+			if (info->version >= K_SIDES_DATA_VERSION_6)
+			{
+				file.readByte();
+			}
 			pBuildList->setNumRebuilds(file.readInt());
 			if (info->version >= K_SIDES_DATA_VERSION_3)
 			{
@@ -279,7 +294,12 @@ Bool SidesList::ParseSidesDataChunk(DataChunkInput &file, DataChunkInfo *info, v
 			}
 			TheSidesList->getSideInfo(i)->addToBuildList(pBuildList, j);
 		}
-	}	
+	}
+	if (info->version >= K_SIDES_DATA_VERSION_5)
+	{
+		return true;
+	}
+
 	if (info->version >= K_SIDES_DATA_VERSION_2)
 	{
 		count = file.readInt();
@@ -425,13 +445,23 @@ static AsciiString static_readPlayerNames[MAX_PLAYER_COUNT];
 *	Input: DataChunkInput 
 *		
 */
+#define K_PLAYERS_NAMES_FOR_SCRIPTS_VERSION_1 1
+#define K_PLAYERS_NAMES_FOR_SCRIPTS_VERSION_2 2
+
 static Bool ParsePlayersDataChunk(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
+	Int readDicts = 0;
+	if (info->version >= K_PLAYERS_NAMES_FOR_SCRIPTS_VERSION_2) {
+		readDicts = file.readInt();
+	}
 	Int numNames = file.readInt();
 	Int i;
 	for (i=0; i<numNames; i++) {
 		if (i>=MAX_PLAYER_COUNT) break;
 		static_readPlayerNames[i] = file.readAsciiString();
+		if (readDicts) {
+			Dict sideDict = file.readDict();
+		}
 	}
 	DEBUG_ASSERTCRASH(file.atEndOfChunk(), ("Unexpected data left over."));
 	return true;
@@ -1117,7 +1147,7 @@ void TeamsInfoRec::addTeam(const Dict* d)
 		TEAM_ALLOC_CHUNK = 8	///< how many teams to alloc at a time
 	};
 
-	DEBUG_ASSERTCRASH(m_numTeams < 1024, ("hmm, seems like an awful lot of teams..."));
+	DEBUG_ASSERTCRASH(m_numTeams < 2048, ("%d teams have been allocated (so far). This seems excessive.", m_numTeams ));
 	if (m_numTeams >= m_numTeamsAllocated)
 	{
 	// pool[]ify
