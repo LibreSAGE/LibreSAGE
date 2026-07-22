@@ -214,6 +214,7 @@ public:
 
 	TerrainLighting	m_terrainLighting[TIME_OF_DAY_COUNT][MAX_GLOBAL_LIGHTS];
 	TerrainLighting	m_terrainObjectsLighting[TIME_OF_DAY_COUNT][MAX_GLOBAL_LIGHTS];
+	TerrainLighting	m_terrainInfantryLighting[TIME_OF_DAY_COUNT][MAX_GLOBAL_LIGHTS];	///< BFME+ (K_LIGHTING_VERSION_7): separate sun+2 accent lights for infantry, distinct from m_terrainObjectsLighting.
 
 	//Settings for each global light
 	RGBColor m_terrainAmbient[MAX_GLOBAL_LIGHTS];
