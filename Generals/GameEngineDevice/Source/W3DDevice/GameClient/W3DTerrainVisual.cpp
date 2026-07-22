@@ -578,6 +578,18 @@ void W3DTerrainVisual::setRawMapHeight(const ICoord2D *gridPos, Int height)
 
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
+Int W3DTerrainVisual::getRawMapHeight(const ICoord2D *gridPos)
+{
+	if (m_terrainHeightMap) {
+		Int x = gridPos->x+m_terrainHeightMap->getBorderSize();
+		Int y = gridPos->y+m_terrainHeightMap->getBorderSize();
+		return m_terrainHeightMap->getHeight(x,y);
+	}
+	return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 void W3DTerrainVisual::addFactionBibDrawable(Drawable *factionBuilding, Bool highlight, Real extra)
 {
 	if (m_terrainHeightMap) {

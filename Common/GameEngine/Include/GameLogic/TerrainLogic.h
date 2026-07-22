@@ -1,5 +1,6 @@
 /*
 **	Command & Conquer Generals(tm)
+**	Command & Conquer Generals Zero Hour(tm)
 **	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
@@ -52,8 +53,7 @@ class Matrix3D;
 class WaterHandle;
 class Xfer;
 
-enum WaypointID : int
-{
+enum WaypointID : int {
 	INVALID_WAYPOINT_ID = 0x7FFFFFFF
 };
 
@@ -315,6 +315,7 @@ public:
 	void setActiveBoundary(Int newActiveBoundary);
 
   void flattenTerrain(Object *obj);  ///< Flatten the terrain under a building.
+  void createCraterInTerrain(Object *obj);  ///< Flatten the terrain under a building.
 
 protected:
 
