@@ -416,6 +416,22 @@ WorldHeightMap::~WorldHeightMap(void)
 	{	delete (m_cellCliffState);
 		m_cellCliffState = NULL;
 	}
+	if (m_cellImpassableToPlayersState)
+	{	delete (m_cellImpassableToPlayersState);
+		m_cellImpassableToPlayersState = NULL;
+	}
+	if (m_cellPassageWidthState)
+	{	delete (m_cellPassageWidthState);
+		m_cellPassageWidthState = NULL;
+	}
+	if (m_cellTaintableState)
+	{	delete (m_cellTaintableState);
+		m_cellTaintableState = NULL;
+	}
+	if (m_cellExtraPassableState)
+	{	delete (m_cellExtraPassableState);
+		m_cellExtraPassableState = NULL;
+	}
 	int i;
 	for (i=0; i<NUM_SOURCE_TILES; i++) {
 		REF_PTR_RELEASE(m_sourceTiles[i]);
@@ -452,6 +468,8 @@ WorldHeightMap::WorldHeightMap():
 	m_drawWidthX(NORMAL_DRAW_WIDTH), m_drawHeightY(NORMAL_DRAW_HEIGHT), 
 	m_tileNdxes(NULL), m_blendTileNdxes(NULL), m_extraBlendTileNdxes(NULL), m_cliffInfoNdxes(NULL),
 	m_terrainTexHeight(1), m_alphaTexHeight(1),	m_cellCliffState(NULL),
+	m_cellImpassableToPlayersState(NULL), m_cellPassageWidthState(NULL),
+	m_cellTaintableState(NULL), m_cellExtraPassableState(NULL),
 #ifdef EVAL_TILING_MODES
 	m_tileMode(TILE_4x4),
 #endif
@@ -491,6 +509,8 @@ WorldHeightMap::WorldHeightMap(ChunkInputStream *pStrm, Bool logicalDataOnly):
 	m_drawWidthX(NORMAL_DRAW_WIDTH), m_drawHeightY(NORMAL_DRAW_HEIGHT), 
 	m_tileNdxes(NULL), m_blendTileNdxes(NULL), m_extraBlendTileNdxes(NULL), m_cliffInfoNdxes(NULL),
 	m_terrainTexHeight(1), m_alphaTexHeight(1),
+	m_cellImpassableToPlayersState(NULL), m_cellPassageWidthState(NULL),
+	m_cellTaintableState(NULL), m_cellExtraPassableState(NULL),
 #ifdef EVAL_TILING_MODES
 	m_tileMode(TILE_4x4),
 #endif
@@ -1097,18 +1117,36 @@ void WorldHeightMap::readTexClass(TXTextureClass *texClass, TileData **tileData)
 *	Input: DataChunkInput 
 *		
 */
+// BFME+ (version >= K_BLEND_TILE_VERSION_14) widens the blend/three-way-blend/cliff-texture
+// index arrays on disk from 16 to 32 bits. We store them as Int unconditionally, widening
+// (sign-extending) the legacy 16-bit values from older versions on read.
+static void readBlendNdxArray(DataChunkInput &file, Int *dest, Int count, Bool wideFormat)
+{
+	if (wideFormat) {
+		file.readArrayOfBytes((char*)dest, count*sizeof(Int));
+		return;
+	}
+	Short *temp = NEW Short[count];
+	file.readArrayOfBytes((char*)temp, count*sizeof(Short));
+	for (Int i=0; i<count; i++) {
+		dest[i] = temp[i];
+	}
+	delete [] temp;
+}
+
 Bool WorldHeightMap::ParseBlendTileData(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
-	DEBUG_ASSERTCRASH(info->version <= K_BLEND_TILE_VERSION_8, ("BlendTile chunk version newer than supported."));
+	DEBUG_ASSERTCRASH(info->version <= K_BLEND_TILE_VERSION_15, ("BlendTile chunk version newer than supported."));
+	Bool wideNdxFormat = info->version >= K_BLEND_TILE_VERSION_14;
 	int i, j;
 	Int len = file.readInt();
 	if (m_dataSize != len) {
 		throw ERROR_CORRUPT_FILE_FORMAT	;
 	}
 	m_tileNdxes = MSGNEW("WorldHeightMap_ParseBlendTileData") Short[m_dataSize];
-	m_cliffInfoNdxes = MSGNEW("WorldHeightMap_ParseBlendTileData") Short[m_dataSize]; 
-	m_blendTileNdxes = MSGNEW("WorldHeightMap_ParseBlendTileData") Short[m_dataSize];
-	m_extraBlendTileNdxes = MSGNEW("WorldHeightMap_ParseBlendTileData") Short[m_dataSize];
+	m_cliffInfoNdxes = MSGNEW("WorldHeightMap_ParseBlendTileData") Int[m_dataSize];
+	m_blendTileNdxes = MSGNEW("WorldHeightMap_ParseBlendTileData") Int[m_dataSize];
+	m_extraBlendTileNdxes = MSGNEW("WorldHeightMap_ParseBlendTileData") Int[m_dataSize];
 	// Note - we have one less cell than the width & height. But for paranoia, allocate
 	// extra row. jba.
 	// 
@@ -1123,17 +1161,17 @@ Bool WorldHeightMap::ParseBlendTileData(DataChunkInput &file, DataChunkInfo *inf
 	memset(m_cellCliffState,0,numBytesX*numBytesY);	//clear all flags
 
 	file.readArrayOfBytes((char*)m_tileNdxes, m_dataSize*sizeof(Short));
-	file.readArrayOfBytes((char*)m_blendTileNdxes, m_dataSize*sizeof(Short));
+	readBlendNdxArray(file, m_blendTileNdxes, m_dataSize, wideNdxFormat);
 	if (info->version >= K_BLEND_TILE_VERSION_6) {
-		file.readArrayOfBytes((char*)m_extraBlendTileNdxes, m_dataSize*sizeof(Short));
+		readBlendNdxArray(file, m_extraBlendTileNdxes, m_dataSize, wideNdxFormat);
 		//Allow clearing of extra blend tiles via ini and resaving of map.
 		//Useful for flushing out initial maps made with buggy 3-way blending.
 		if (!TheGlobalData->m_use3WayTerrainBlends)
-			memset(m_extraBlendTileNdxes,0,m_dataSize*sizeof(Short));		
-	} 
+			memset(m_extraBlendTileNdxes,0,m_dataSize*sizeof(Int));
+	}
 	if (info->version >= K_BLEND_TILE_VERSION_5) {
-		file.readArrayOfBytes((char*)m_cliffInfoNdxes, m_dataSize*sizeof(Short));
-	} 
+		readBlendNdxArray(file, m_cliffInfoNdxes, m_dataSize, wideNdxFormat);
+	}
 	if (info->version >= K_BLEND_TILE_VERSION_7) {
 		if (info->version==K_BLEND_TILE_VERSION_7) {
 			Int byteWidth = (m_width+1)/8; // previous incorrect length that got used to save the file.  jba. [4/3/2003]
@@ -1149,6 +1187,22 @@ Bool WorldHeightMap::ParseBlendTileData(DataChunkInput &file, DataChunkInfo *inf
 		}
 	} else {
 		initCliffFlagsFromHeights();
+	}
+	if (info->version >= K_BLEND_TILE_VERSION_10) {
+		m_cellImpassableToPlayersState = MSGNEW("WorldHeightMap_ParseBlendTileData") UnsignedByte[numBytesX*numBytesY];
+		file.readArrayOfBytes((char*)m_cellImpassableToPlayersState, m_height*m_flipStateWidth);
+	}
+	if (info->version >= K_BLEND_TILE_VERSION_11) {
+		m_cellPassageWidthState = MSGNEW("WorldHeightMap_ParseBlendTileData") UnsignedByte[numBytesX*numBytesY];
+		file.readArrayOfBytes((char*)m_cellPassageWidthState, m_height*m_flipStateWidth);
+	}
+	if (info->version >= K_BLEND_TILE_VERSION_14) {
+		m_cellTaintableState = MSGNEW("WorldHeightMap_ParseBlendTileData") UnsignedByte[numBytesX*numBytesY];
+		file.readArrayOfBytes((char*)m_cellTaintableState, m_height*m_flipStateWidth);
+	}
+	if (info->version >= K_BLEND_TILE_VERSION_15) {
+		m_cellExtraPassableState = MSGNEW("WorldHeightMap_ParseBlendTileData") UnsignedByte[numBytesX*numBytesY];
+		file.readArrayOfBytes((char*)m_cellExtraPassableState, m_height*m_flipStateWidth);
 	}
 	m_numBitmapTiles = file.readInt();
 	DEBUG_ASSERTCRASH(m_numBitmapTiles>0 && m_numBitmapTiles<2048, ("Unlikely numBitmapTiles."));
@@ -2015,7 +2069,7 @@ Bool WorldHeightMap::getExtraAlphaUVData(Int xIndex, Int yIndex, float U[4], flo
 	*cliff = FALSE;
 
 	if ( (ndx>=0) && (ndx<m_dataSize) && m_tileNdxes) {
-		Short blendNdx = m_extraBlendTileNdxes[ndx];
+		Int blendNdx = m_extraBlendTileNdxes[ndx];
 		if (blendNdx == 0) {
 			return FALSE;
 		} else {
@@ -2104,7 +2158,7 @@ void WorldHeightMap::getAlphaUVData(Int xIndex, Int yIndex, float U[4], float V[
 	Bool needFlip = false;
 
 	if ((ndx<m_dataSize) && m_tileNdxes) {
-		Short blendNdx = m_blendTileNdxes[ndx];
+		Int blendNdx = m_blendTileNdxes[ndx];
 		if (fullTile) blendNdx = 0;
 		if (blendNdx == 0) {
 			stretchedForCliff = getUVForTileIndex(ndx, m_tileNdxes[ndx], U, V, fullTile);		
@@ -2451,7 +2505,7 @@ UnsignedByte * WorldHeightMap::getPointerToTileData(Int xIndex, Int yIndex, Int 
 	TBlendTileInfo *pBlend = NULL;  
 	Short tileNdx = m_tileNdxes[ndx];
 	if (getRawTileData(tileNdx, width, s_buffer, DATA_LEN_BYTES)) {
-		Short blendTileNdx = m_blendTileNdxes[ndx];
+		Int blendTileNdx = m_blendTileNdxes[ndx];
 		if (blendTileNdx>0 && blendTileNdx < NUM_BLEND_TILES) {
 			pBlend = &m_blendedTiles[blendTileNdx];
 			if (getRawTileData(pBlend->blendNdx, width, s_blendBuffer, DATA_LEN_BYTES)) {

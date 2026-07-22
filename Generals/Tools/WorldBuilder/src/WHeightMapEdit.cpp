@@ -110,9 +110,9 @@ WorldHeightMapEdit::WorldHeightMapEdit(Int width, Int height, UnsignedByte initi
 	m_height = height;
 	m_borderSize = border;
 	m_tileNdxes = new Short[m_dataSize];
-	m_blendTileNdxes = new Short[m_dataSize];
-	m_extraBlendTileNdxes = new Short[m_dataSize];
-	m_cliffInfoNdxes = new Short[m_dataSize];
+	m_blendTileNdxes = new Int[m_dataSize];
+	m_extraBlendTileNdxes = new Int[m_dataSize];
+	m_cliffInfoNdxes = new Int[m_dataSize];
 	m_data = new UnsignedByte[m_dataSize + m_width+1];
 	m_numBitmapTiles = 0;
 	m_numBlendedTiles = 1;
@@ -203,9 +203,9 @@ m_warnTooManyBlend(false)
 		m_edgeTextureClasses[i] = pThis->m_edgeTextureClasses[i];
 	}
 	m_tileNdxes = new Short[m_dataSize];
-	m_blendTileNdxes = new Short[m_dataSize];
-	m_extraBlendTileNdxes = new Short[m_dataSize];
-	m_cliffInfoNdxes = new Short[m_dataSize];
+	m_blendTileNdxes = new Int[m_dataSize];
+	m_extraBlendTileNdxes = new Int[m_dataSize];
+	m_cliffInfoNdxes = new Int[m_dataSize];
 	// Note - we have one less cell than the width & height. But for paranoia, allocate
 	// extra row. jba.
 	// 
@@ -606,6 +606,19 @@ void WorldHeightMapEdit::getTexClassNeighbors(Int xIndex, Int yIndex, Int textur
 //		
 //		
 //
+// m_blendTileNdxes/m_extraBlendTileNdxes/m_cliffInfoNdxes are stored as Int (to hold BFME+'s
+// 32-bit on-disk indexes), but this writer still emits the legacy K_BLEND_TILE_VERSION_7
+// 16-bit format, so narrow on the way out.
+static void writeBlendNdxArray(DataChunkOutput &chunkWriter, const Int *src, Int count)
+{
+	Short *temp = new Short[count];
+	for (Int i=0; i<count; i++) {
+		temp[i] = (Short)src[i];
+	}
+	chunkWriter.writeArrayOfBytes((char*)temp, count*sizeof(Short));
+	delete [] temp;
+}
+
 void WorldHeightMapEdit::saveToFile(DataChunkOutput &chunkWriter)
 {
 	// This is the chunk writer stuff.  
@@ -639,9 +652,9 @@ void WorldHeightMapEdit::saveToFile(DataChunkOutput &chunkWriter)
 	chunkWriter.openDataChunk("BlendTileData", K_BLEND_TILE_VERSION_7);
 		chunkWriter.writeInt(m_dataSize);
 		chunkWriter.writeArrayOfBytes((char*)m_tileNdxes, m_dataSize*sizeof(Short));
-		chunkWriter.writeArrayOfBytes((char*)m_blendTileNdxes, m_dataSize*sizeof(Short));
-		chunkWriter.writeArrayOfBytes((char*)m_extraBlendTileNdxes, m_dataSize*sizeof(Short));
-		chunkWriter.writeArrayOfBytes((char*)m_cliffInfoNdxes, m_dataSize*sizeof(Short));
+		writeBlendNdxArray(chunkWriter, m_blendTileNdxes, m_dataSize);
+		writeBlendNdxArray(chunkWriter, m_extraBlendTileNdxes, m_dataSize);
+		writeBlendNdxArray(chunkWriter, m_cliffInfoNdxes, m_dataSize);
 		chunkWriter.writeArrayOfBytes((char*)m_cellCliffState, m_height*m_flipStateWidth);
 		chunkWriter.writeInt(m_numBitmapTiles);
 		chunkWriter.writeInt(m_numBlendedTiles);
@@ -1685,7 +1698,9 @@ Bool WorldHeightMapEdit::optimizeTiles(void)
 	}
 
 	// Run through all the blend tiles changing tile index to class.
-	TBlendTileInfo blendInfo[NUM_BLEND_TILES];
+	// Heap-allocated: NUM_BLEND_TILES is large enough (BFME+ headroom) that this would
+	// overflow the stack if declared as a local array.
+	TBlendTileInfo *blendInfo = new TBlendTileInfo[NUM_BLEND_TILES];
 	for (i=1; i<m_numBlendedTiles; i++) {
 		blendInfo[i] = m_blendedTiles[i];
 		blendInfo[i].blendNdx = getTextureClassFromNdx(blendInfo[i].blendNdx);
@@ -1775,13 +1790,15 @@ Bool WorldHeightMapEdit::optimizeTiles(void)
 		m_cliffInfo[i].tileIndex = getTileNdxForClass(x,y,texClass);
 	}
 
+	delete [] blendInfo;
+
 	REF_PTR_RELEASE(m_terrainTex);
 	REF_PTR_RELEASE(m_terrainTex);
 	REF_PTR_RELEASE(m_alphaEdgeTex);
 	return(true);
 }
 
- 
+
 
 /** ****************************************************************
 	resize
@@ -1827,10 +1844,10 @@ Bool WorldHeightMapEdit::resize(Int newXSize, Int newYSize, Int newHeight, Int n
 
 
 	Short *tileNdxes = new Short[newDataSize];
-	Short *blendTileNdxes = new Short[newDataSize];
-	Short *extraBlendTileNdxes = new Short[newDataSize];
+	Int *blendTileNdxes = new Int[newDataSize];
+	Int *extraBlendTileNdxes = new Int[newDataSize];
 	UnsignedByte *data = new UnsignedByte[newDataSize];
-	Short  *cliffInfoNdxes = new Short[newDataSize];  	
+	Int  *cliffInfoNdxes = new Int[newDataSize];
 	
 	Int i, j;
 	for (i=0; i<newXSize; i++) {
