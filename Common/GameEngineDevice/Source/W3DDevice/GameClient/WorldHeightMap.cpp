@@ -803,7 +803,7 @@ Bool WorldHeightMap::ParseWorldDictDataChunk(DataChunkInput &file, DataChunkInfo
 */
 Bool WorldHeightMap::ParseLightingDataChunk(DataChunkInput &file, DataChunkInfo *info, void *userData)
 {
-		DEBUG_ASSERTCRASH(info->version <= K_LIGHTING_VERSION_3, ("Lighting chunk version newer than supported."));
+		DEBUG_ASSERTCRASH(info->version <= K_LIGHTING_VERSION_7, ("Lighting chunk version newer than supported."));
 		TheWritableGlobalData->m_timeOfDay = (TimeOfDay)file.readInt();
 		Int i;
 		GlobalData::TerrainLighting	initLightValues	= { { 0,0,0},{0,0,0},{0,0,-1.0f}};
@@ -813,6 +813,7 @@ Bool WorldHeightMap::ParseLightingDataChunk(DataChunkInput &file, DataChunkInfo 
 			for (Int j=0;j<MAX_GLOBAL_LIGHTS; j++) {
 				TheWritableGlobalData->m_terrainObjectsLighting[i+TIME_OF_DAY_FIRST][j]=initLightValues;
 				TheWritableGlobalData->m_terrainLighting[i+TIME_OF_DAY_FIRST][j]=initLightValues;
+				TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j]=initLightValues;
 			}
 		}
 
@@ -865,12 +866,34 @@ Bool WorldHeightMap::ParseLightingDataChunk(DataChunkInput &file, DataChunkInfo 
 					TheWritableGlobalData->m_terrainLighting[i+TIME_OF_DAY_FIRST][j].lightPos.z = file.readReal();
 				}
 			}
+			if (info->version >= K_LIGHTING_VERSION_7) {
+				// BFME+ infantry lights: a sun + 2 accent lights, distinct from the object
+				// lights above, read immediately after them for each time of day.
+				for (Int j=0; j<3; j++)
+				{
+					TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j].ambient.red = file.readReal();
+					TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j].ambient.green = file.readReal();
+					TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j].ambient.blue = file.readReal();
+					TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j].diffuse.red = file.readReal();
+					TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j].diffuse.green = file.readReal();
+					TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j].diffuse.blue = file.readReal();
+					TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j].lightPos.x = file.readReal();
+					TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j].lightPos.y = file.readReal();
+					TheWritableGlobalData->m_terrainInfantryLighting[i+TIME_OF_DAY_FIRST][j].lightPos.z = file.readReal();
+				}
+			}
 		}
 		if (!file.atEndOfChunk()) {
 			UnsignedInt shadowColor = file.readInt();
 			if (TheW3DShadowManager) {
 				TheW3DShadowManager->setShadowColor(shadowColor);
 			}
+		}
+		if (info->version >= K_LIGHTING_VERSION_7) {
+			// BFME+ reserved/unknown data immediately following the shadow color; purpose
+			// not identified, just consume it to stay aligned with the rest of the chunk.
+			UnsignedByte reserved[44];
+			file.readArrayOfBytes((char*)reserved, sizeof(reserved));
 		}
 	DEBUG_ASSERTCRASH(file.atEndOfChunk(), ("Unexpected data left over."));
 	return true;

@@ -45,11 +45,11 @@
 #define K_BLEND_TILE_VERSION_6	6	// Added extra blend layer for 3 textures in cell.
 #define K_BLEND_TILE_VERSION_7	7	// Added flag for painting passable/impassable to cells.
 #define K_BLEND_TILE_VERSION_8	8	// Added flag for painting passable/impassable to cells.
-#define K_BLEND_TILE_VERSION_9	9	// BFME+. No format change.
+#define K_BLEND_TILE_VERSION_9	9	// BFME+. Can't tell which version added what.
 #define K_BLEND_TILE_VERSION_10	10	// BFME+. Added impassable-to-players cell flags.
 #define K_BLEND_TILE_VERSION_11	11	// BFME+. Added passage-width cell flags.
-#define K_BLEND_TILE_VERSION_12	12	// BFME+. No format change.
-#define K_BLEND_TILE_VERSION_13	13	// BFME+. No format change.
+#define K_BLEND_TILE_VERSION_12	12	// BFME+. Can't tell which version added what.
+#define K_BLEND_TILE_VERSION_13	13	// BFME+. Can't tell which version added what.
 #define K_BLEND_TILE_VERSION_14	14	// BFME+. Widened blend/three-way-blend/cliff-texture indexes to 32 bits; added taintable cell flags.
 #define K_BLEND_TILE_VERSION_15	15	// BFME+. Added extra-passable cell flags.
 #define K_OBJECTS_VERSION_1			1	// no dict
@@ -66,6 +66,10 @@
 #define K_LIGHTING_VERSION_1	1
 #define K_LIGHTING_VERSION_2	2	// Added 2 additional global lights for objects.
 #define K_LIGHTING_VERSION_3	3	// Added 2 additional global lights for terrain.
+#define K_LIGHTING_VERSION_4	4	// BFME+. Can't tell which version added what.
+#define K_LIGHTING_VERSION_5	5	// BFME+. Can't tell which version added what.
+#define K_LIGHTING_VERSION_6	6	// BFME+. Can't tell which version added what.
+#define K_LIGHTING_VERSION_7	7	// BFME+. Added a 3rd (infantry) light set per time-of-day, and 44 bytes of reserved/unknown data after the shadow color.
 #define K_WORLDDICT_VERSION_1 1
 #define K_MAPPREVIEW_VERSION_1 1
 /** Virtual helper class, so that we can write map data using FILE* or CFile. */
