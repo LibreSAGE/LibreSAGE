@@ -716,7 +716,15 @@ void GameEngine::init( int argc, char *argv[] )
 	// Must run after resetAll() -- see the .map comment above.
 	if (TheGlobalData->m_initialFile.endsWithNoCase(".rep"))
 	{
-		TheRecorder->playbackFile(TheGlobalData->m_initialFile);
+		if (!TheRecorder->playbackFile(TheGlobalData->m_initialFile))
+		{
+			// Unbuffered stderr so headless/CI runs always capture this even if
+			// the process dies before stdout flushes. Quit instead of silently
+			// idling in the shell as if the replay were playing.
+			fprintf(stderr, "ERROR: Failed to start replay playback: %s%s\n",
+				TheRecorder->getReplayDir().str(), TheGlobalData->m_initialFile.str());
+			m_quitting = TRUE;
+		}
 	}
 
 	HideControlBar();

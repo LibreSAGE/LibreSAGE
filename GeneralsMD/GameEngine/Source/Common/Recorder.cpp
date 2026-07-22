@@ -447,6 +447,12 @@ void RecorderClass::updatePlayback() {
 		// This is reached if there are no more commands to be executed.
 		return;
 	}
+	if (m_file == NULL) {
+		// Never fread from a closed/never-opened playback file.
+		DEBUG_LOG(("RecorderClass::updatePlayback - in playback mode with no open file\n"));
+		m_nextFrame = -1;
+		return;
+	}
 	UnsignedInt curFrame = TheGameLogic->getFrame();
 	if (m_doingAnalysis)
 		curFrame = m_nextFrame;
@@ -1073,6 +1079,9 @@ Bool RecorderClass::playbackFile(AsciiString filename)
 	Bool success = readReplayHeader( header );
 	if (!success)
 	{
+		// Leaving m_mode at PLAYBACK with no open file would make the next
+		// updatePlayback() fread from a NULL FILE* and crash.
+		m_mode = RECORDERMODETYPE_NONE;
 		return FALSE;
 	}
 #ifdef DEBUG_LOGGING
