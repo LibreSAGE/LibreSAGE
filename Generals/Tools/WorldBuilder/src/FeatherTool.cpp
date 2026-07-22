@@ -110,7 +110,7 @@ void FeatherTool::mouseDown(TTrackingMode m, CPoint viewPt, WbView* pView, CWorl
 	m_htMapFeatherCopy = pDoc->GetHeightMap()->duplicate();
 	m_htMapRateCopy = pDoc->GetHeightMap()->duplicate();
 	Int size = m_htMapRateCopy->getXExtent() * m_htMapRateCopy->getYExtent();
-	UnsignedByte *pData = m_htMapRateCopy->getDataPtr();
+	UnsignedShort *pData = m_htMapRateCopy->getDataPtr();
 	Int i;
 	for (i=0; i<size; i++) {
 		*pData++ = 0;
@@ -234,9 +234,9 @@ void FeatherTool::mouseMoved(TTrackingMode m, CPoint viewPt, WbView* pView, CWor
 	pDoc->updateHeightMap(m_htMapEditCopy, true, partialRange);
 	if (redoRate) {
 		Int size = m_htMapRateCopy->getXExtent() * m_htMapRateCopy->getYExtent();
-		UnsignedByte *pData = m_htMapRateCopy->getDataPtr();
-		UnsignedByte *pFeather = m_htMapFeatherCopy->getDataPtr();
-		UnsignedByte *pEdit = m_htMapEditCopy->getDataPtr();
+		UnsignedShort *pData = m_htMapRateCopy->getDataPtr();
+		UnsignedShort *pFeather = m_htMapFeatherCopy->getDataPtr();
+		UnsignedShort *pEdit = m_htMapEditCopy->getDataPtr();
 		Int i;
 		for (i=0; i<size; i++) {
 			*pData++ = 0;

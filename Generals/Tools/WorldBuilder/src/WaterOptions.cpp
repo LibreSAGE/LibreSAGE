@@ -31,6 +31,7 @@
 #include "PolygonTool.h"
 #include "WaypointTool.h"
 #include "GameLogic/PolygonTrigger.h"
+#include "W3DDevice/GameClient/WorldHeightMap.h"
 #include "Common/WellKnownKeys.h"
 #include "LayersList.h"
 
@@ -351,7 +352,7 @@ void WaterOptions::GetPopSliderInfo(const long sliderID, long *pMin, long *pMax,
 
 		case IDC_HEIGHT_POPUP:
 			*pMin = 0;
-			*pMax = 255*MAP_HEIGHT_SCALE;
+			*pMax = WorldHeightMap::getMaxHeightValue()*MAP_HEIGHT_SCALE;
 			*pInitial = m_waterHeight;
 			*pLineSize = 1;
 			break;

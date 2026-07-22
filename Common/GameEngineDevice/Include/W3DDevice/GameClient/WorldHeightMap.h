@@ -48,7 +48,11 @@ typedef std::vector<ICoord2D> VecICoord2D;
 Not ref counted.  Do not store pointers to this class.  */
 
 #define K_MIN_HEIGHT  0
-#define K_MAX_HEIGHT  255
+// BFME+ (K_HEIGHT_MAP_VERSION_5) stores elevation as 16-bit; we rescale raw 16-bit samples by
+// /16 on ingest (see WorldHeightMap::ParseHeightMapData) rather than threading a second,
+// format-dependent MAP_HEIGHT_SCALE through every consumer, since 0.625/0.0390625 == 16 exactly.
+// 4095 = floor(65535/16), the true max representable elevation after that rescale.
+#define K_MAX_HEIGHT  4095
 
 #define NUM_SOURCE_TILES 1024
 // BFME+ maps can reference far more distinct blend/cliff-texture table entries than
@@ -128,7 +132,7 @@ protected:
 	Int m_borderSize;		///< Non-playable border area.
 	VecICoord2D m_boundaries;	///< the in-game boundaries
 	Int m_dataSize;			///< size of m_data.
-	UnsignedByte *m_data;	///< array of z(height) values in the height map.
+	UnsignedShort *m_data;	///< array of z(height) values in the height map. BFME+ (K_HEIGHT_MAP_VERSION_5) needs more than 8 bits; legacy 8-bit maps just use a subset of the range.
 	
   UnsignedByte *m_seismicUpdateFlag;  ///< array of bits to prevent ovelapping physics-update regions from doubling effects on shared cells
   UnsignedInt   m_seismicUpdateWidth; ///< width of the array holding SeismicUpdateFlags
@@ -242,7 +246,7 @@ public:  // height map info.
 	static Int getMinHeightValue(void) {return K_MIN_HEIGHT;}
 	static Int getMaxHeightValue(void) {return K_MAX_HEIGHT;}
 
-	UnsignedByte *getDataPtr(void) {return m_data;}
+	UnsignedShort *getDataPtr(void) {return m_data;}
 
 	
 	Int getXExtent(void) {return m_width;}	///<number of vertices in x
@@ -258,10 +262,10 @@ public:  // height map info.
 	virtual Int getBorderSize(void) {return m_borderSize;}
   inline Int getBorderSizeInline(void) const { return m_borderSize; }
 	/// Get height with the offset that HeightMapRenderObjClass uses built in.
-	inline UnsignedByte getDisplayHeight(Int x, Int y) { return m_data[x+m_drawOriginX+m_width*(y+m_drawOriginY)];}
+	inline UnsignedShort getDisplayHeight(Int x, Int y) { return m_data[x+m_drawOriginX+m_width*(y+m_drawOriginY)];}
 
 	/// Get height in normal coordinates.
-	inline UnsignedByte getHeight(Int xIndex, Int yIndex) 
+	inline UnsignedShort getHeight(Int xIndex, Int yIndex)
 	{ 
 		Int ndx = (yIndex*m_width)+xIndex;
 		if ((ndx>=0) && (ndx<m_dataSize) && m_data) 
@@ -324,7 +328,7 @@ public:  // Flat tile texture info.
 	UnsignedByte *getRGBAlphaDataForWidth(Int width, TBlendTileInfo *pBlend);
 
 public:  // modify height value
-	void setRawHeight(Int xIndex, Int yIndex, UnsignedByte height) { 
+	void setRawHeight(Int xIndex, Int yIndex, UnsignedShort height) {
 		Int ndx = (yIndex*m_width)+xIndex;
 		if ((ndx>=0) && (ndx<m_dataSize) && m_data) m_data[ndx]=height;
 	};

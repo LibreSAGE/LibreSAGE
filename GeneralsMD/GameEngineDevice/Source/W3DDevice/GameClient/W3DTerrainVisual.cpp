@@ -1254,7 +1254,10 @@ void W3DTerrainVisual::xfer( Xfer *xfer )
 
 	// Write out the terrain height data.
 	if (version >= 2) {
-		UnsignedByte *data = m_logicHeightMap->getDataPtr();
+		// m_logicHeightMap's storage is UnsignedShort (BFME+ needs more than 8 bits), but this
+		// xfer format is unversioned/save-game-compatible at 1 byte per cell, so keep xferring
+		// through a narrowed/clamped temp buffer rather than changing the wire size.
+		UnsignedShort *data = m_logicHeightMap->getDataPtr();
 		Int len = m_logicHeightMap->getXExtent()*m_logicHeightMap->getYExtent();
 		Int xferLen = len;
 		xfer->xferInt(&xferLen);
@@ -1264,12 +1267,22 @@ void W3DTerrainVisual::xfer( Xfer *xfer )
 				len = xferLen;
 			}
 		}
-		xfer->xferUser(data, len);	
-		if (xfer->getXferMode() == XFER_LOAD)	
-    {	
+		UnsignedByte *narrowData = NEW UnsignedByte[len];
+		if (xfer->getXferMode() == XFER_SAVE) {
+			for (Int i = 0; i < len; ++i) {
+				narrowData[i] = (data[i] > 255) ? 255 : (UnsignedByte)data[i];
+			}
+		}
+		xfer->xferUser(narrowData, len);
+		if (xfer->getXferMode() == XFER_LOAD)
+    {
+			for (Int i = 0; i < len; ++i) {
+				data[i] = narrowData[i];
+			}
 			// Update the display height map.
 			m_terrainRenderObject->staticLightingChanged();
 		}
+		delete [] narrowData;
 	}
 
 	if (version >= 3) {

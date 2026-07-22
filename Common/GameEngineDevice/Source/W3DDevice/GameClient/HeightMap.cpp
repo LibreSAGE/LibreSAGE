@@ -2273,7 +2273,7 @@ void HeightMapRenderObjClass::renderExtraBlendTiles(void)
 
 		if (!vb || !ib) return;
 
-		const UnsignedByte* data = m_map->getDataPtr();
+		const UnsignedShort* data = m_map->getDataPtr();
 
 		//Loop over visible terrain and extract all the tiles that need extra blend
 		Int drawEdgeY=m_map->getDrawOrgY()+m_map->getDrawHeight()-1;

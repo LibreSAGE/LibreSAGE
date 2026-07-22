@@ -121,7 +121,7 @@ public: // Editing methods.
 	void blendTile(Int xIndex, Int yIndex, Int srcXIndex, Int srcYIndex, Int srcClass, Int edgeClass);
 	void autoBlendOut(Int xIndex, Int yIndex, Int edgeIndex = -1);
 	Int getTextureClass(Int xIndex, Int yIndex, Bool baseClass=false);
-	void setHeight(Int xIndex, Int yIndex, UnsignedByte height);
+	void setHeight(Int xIndex, Int yIndex, UnsignedShort height);
 	void setCliff(Int xIndex, Int yIndex, Bool impassable) {setCliffState(xIndex, yIndex, impassable);}
 	Bool setTileNdx(Int xIndex, Int yIndex, Int textureClass, Bool singleTile);
 	Bool floodFill(Int xIndex, Int yIndex, Int textureClass, Bool doReplace);

@@ -42,7 +42,7 @@
 #include "WorldHeightMap.h"
 
 #define MAX_ENABLED_DYNAMIC_LIGHTS 20
-typedef UnsignedByte HeightSampleType;	//type of data to store in heightmap
+typedef UnsignedShort HeightSampleType;	//type of data to store in heightmap. Must track WorldHeightMap::m_data's element type.
 class W3DTreeBuffer;
 class W3DBibBuffer;
 class W3DRoadBuffer;
@@ -138,7 +138,7 @@ public:
   }
 
 
-	inline UnsignedByte getClipHeight(Int x, Int y) const
+	inline UnsignedShort getClipHeight(Int x, Int y) const
 	{
 		Int xextent = m_map->getXExtent() - 1;
 		Int yextent = m_map->getYExtent() - 1;

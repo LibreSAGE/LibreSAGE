@@ -113,7 +113,7 @@ WorldHeightMapEdit::WorldHeightMapEdit(Int width, Int height, UnsignedByte initi
 	m_blendTileNdxes = new Int[m_dataSize];
 	m_extraBlendTileNdxes = new Int[m_dataSize];
 	m_cliffInfoNdxes = new Int[m_dataSize];
-	m_data = new UnsignedByte[m_dataSize + m_width+1];
+	m_data = new UnsignedShort[m_dataSize + m_width+1];
 	m_numBitmapTiles = 0;
 	m_numBlendedTiles = 1;
 	m_numCliffInfo = 1;
@@ -218,7 +218,7 @@ m_warnTooManyBlend(false)
 	m_cellCliffState	= new UnsignedByte[numBytesX*numBytesY];
 	memset(m_cellFlipState,0,numBytesX*numBytesY);	//clear all flags
 	memset(m_cellCliffState,0,numBytesX*numBytesY);	//clear all flags
-	m_data = new UnsignedByte[m_dataSize + m_width+1];
+	m_data = new UnsignedShort[m_dataSize + m_width+1];
 	if (m_data == NULL) {
 		AfxMessageBox(IDS_OUT_OF_MEMORY);
 		m_dataSize = 0;
@@ -619,6 +619,18 @@ static void writeBlendNdxArray(DataChunkOutput &chunkWriter, const Int *src, Int
 	delete [] temp;
 }
 
+// m_data is stored as UnsignedShort (to hold BFME+'s 16-bit elevation range), but this writer
+// still emits the legacy K_HEIGHT_MAP_VERSION_4 8-bit format, so clamp-and-narrow on the way out.
+static void writeHeightDataArray(DataChunkOutput &chunkWriter, const UnsignedShort *src, Int count)
+{
+	UnsignedByte *temp = new UnsignedByte[count];
+	for (Int i=0; i<count; i++) {
+		temp[i] = (src[i] > 255) ? 255 : (UnsignedByte)src[i];
+	}
+	chunkWriter.writeArrayOfBytes((char*)temp, count);
+	delete [] temp;
+}
+
 void WorldHeightMapEdit::saveToFile(DataChunkOutput &chunkWriter)
 {
 	// This is the chunk writer stuff.  
@@ -636,7 +648,7 @@ void WorldHeightMapEdit::saveToFile(DataChunkOutput &chunkWriter)
 			chunkWriter.writeInt(m_boundaries[i].y);
 		}
 		chunkWriter.writeInt(m_dataSize);
-		chunkWriter.writeArrayOfBytes((char *)m_data, m_dataSize);
+		writeHeightDataArray(chunkWriter, m_data, m_dataSize);
 
 	/*
 		chunkWriter.writeInt(m_width);
@@ -1670,7 +1682,7 @@ void WorldHeightMapEdit::showTileStatusInfo(void)
 	setHeight
 		This sets the height, and adjusts the cliff flag for the cells affected.
 */
-void WorldHeightMapEdit::setHeight(Int xIndex, Int yIndex, UnsignedByte height) { 
+void WorldHeightMapEdit::setHeight(Int xIndex, Int yIndex, UnsignedShort height) {
 		Int ndx = (yIndex*m_width)+xIndex;
 		if ((ndx>=0) && (ndx<m_dataSize) && m_data) m_data[ndx]=height;
 		setCellCliffFlagFromHeights(xIndex, yIndex);
@@ -1846,7 +1858,7 @@ Bool WorldHeightMapEdit::resize(Int newXSize, Int newYSize, Int newHeight, Int n
 	Short *tileNdxes = new Short[newDataSize];
 	Int *blendTileNdxes = new Int[newDataSize];
 	Int *extraBlendTileNdxes = new Int[newDataSize];
-	UnsignedByte *data = new UnsignedByte[newDataSize];
+	UnsignedShort *data = new UnsignedShort[newDataSize];
 	Int  *cliffInfoNdxes = new Int[newDataSize];
 	
 	Int i, j;
