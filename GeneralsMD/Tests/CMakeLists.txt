@@ -70,7 +70,6 @@ sage_add_smoke_test(
   SCENARIOS
     "default:-quickstart -file alpine_assault_excal_spl.rep -autoexit 45"
 )
-
 # Smoke test: launch WorldBuilder, load a real map from cnc_mod_support, then
 # quit. WorldBuilder has no -autoexit/-quickstart, so WB_TEST_OPEN /
 # WB_TEST_AUTOEXIT (WorldBuilder.cpp's main()) drive the same behavior. Still

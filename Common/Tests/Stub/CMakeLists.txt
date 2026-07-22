@@ -34,6 +34,8 @@ set(SAGE_STUB_UNCOMMONIZED_SOURCES
     Common/GameEngine/Source/GameLogic/Map/SidesList.cpp
     Common/GameEngine/Source/GameLogic/Map/PolygonTrigger.cpp
     Common/GameEngine/Source/GameLogic/Map/TerrainLogic.cpp
+    Common/GameEngine/Source/GameNetwork/NetPacket.cpp
+    Common/GameEngine/Source/GameNetwork/NetworkUtil.cpp
     Common/GameEngineDevice/Source/W3DDevice/GameClient/WorldHeightMap.cpp
     Common/GameEngineDevice/Source/W3DDevice/GameClient/HeightMap.cpp
     Common/GameEngineDevice/Source/W3DDevice/GameClient/BaseHeightMap.cpp

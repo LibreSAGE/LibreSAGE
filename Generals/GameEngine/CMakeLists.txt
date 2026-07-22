@@ -178,9 +178,6 @@ target_sources(
     Include/GameNetwork/GameSpyThread.h
     Include/GameNetwork/IPEnumeration.h
     Include/GameNetwork/LANAPI.h
-    Include/GameNetwork/NetPacket.h
-    Include/GameNetwork/NetworkDefs.h
-    Include/GameNetwork/NetworkUtil.h
     Source/Common/Audio/AudioEventRTS.cpp
     Source/Common/Audio/GameAudio.cpp
     Source/Common/Audio/GameSounds.cpp
@@ -636,9 +633,7 @@ target_sources(
     Source/GameNetwork/NetCommandRef.cpp
     Source/GameNetwork/NetCommandWrapperList.cpp
     Source/GameNetwork/NetMessageStream.cpp
-    Source/GameNetwork/NetPacket.cpp
     Source/GameNetwork/Network.cpp
-    Source/GameNetwork/NetworkUtil.cpp
     Source/GameNetwork/Transport.cpp
     Source/GameNetwork/User.cpp
     Source/GameNetwork/udp.cpp
