@@ -51,8 +51,14 @@ Not ref counted.  Do not store pointers to this class.  */
 #define K_MAX_HEIGHT  255
 
 #define NUM_SOURCE_TILES 1024
-#define NUM_BLEND_TILES 16192
-#define NUM_CLIFF_INFO 32384
+// BFME+ maps can reference far more distinct blend/cliff-texture table entries than
+// Generals/ZH ever did (see K_BLEND_TILE_VERSION_14's 32-bit index widening). These were
+// 16192/32384 pre-BFME; bumped 8x for headroom. Kept as fixed-size tables (not dynamically
+// sized like OpenSAGE's map reader) to avoid touching every consumer of m_blendedTiles/
+// m_cliffInfo; if BFME content still overflows this, consider switching to heap-allocated,
+// map-sized arrays instead of raising the constant further.
+#define NUM_BLEND_TILES 131072
+#define NUM_CLIFF_INFO 262144
 #define FLAG_VAL 0x7ADA0000
 
 // For backwards compatiblity.
@@ -132,12 +138,20 @@ protected:
 	Int m_flipStateWidth;			///< with of the array holding cellFlipState
 	UnsignedByte *m_cellCliffState;	///< array of bits to indicate the cliff state of each cell.
 
+	// BFME+ per-cell flag arrays (see K_BLEND_TILE_VERSION_10/11/14/15). Packed one bit per
+	// cell, same layout as m_cellCliffState. Parsed for forward compatibility; not yet
+	// consumed by any Generals/ZH game logic.
+	UnsignedByte *m_cellImpassableToPlayersState;	///< array of bits: cell is impassable to players.
+	UnsignedByte *m_cellPassageWidthState;	///< array of bits: cell passage-width flag.
+	UnsignedByte *m_cellTaintableState;	///< array of bits: cell can be tainted.
+	UnsignedByte *m_cellExtraPassableState;	///< array of bits: cell extra-passable flag.
+
 
 	/// Texture indices.
-	Short  *m_tileNdxes;  ///< matches m_Data, indexes into m_SourceTiles.
-	Short  *m_blendTileNdxes;  ///< matches m_Data, indexes into m_blendedTiles.  0 means no blend info.	
-	Short  *m_cliffInfoNdxes;  ///< matches m_Data, indexes into m_cliffInfo.	 0 means no cliff info.
-	Short  *m_extraBlendTileNdxes;  ///< matches m_Data, indexes into m_extraBlendedTiles.  0 means no blend info.	
+	Short  *m_tileNdxes;  ///< matches m_Data, indexes into m_SourceTiles. Always 16-bit on disk, even for BFME+.
+	Int  *m_blendTileNdxes;  ///< matches m_Data, indexes into m_blendedTiles.  0 means no blend info. 32-bit on disk from K_BLEND_TILE_VERSION_14 (BFME+), widened from 16-bit for older versions.
+	Int  *m_cliffInfoNdxes;  ///< matches m_Data, indexes into m_cliffInfo.	 0 means no cliff info. Same widening as m_blendTileNdxes.
+	Int  *m_extraBlendTileNdxes;  ///< matches m_Data, indexes into m_extraBlendedTiles.  0 means no blend info. Same widening as m_blendTileNdxes.
 
 	
 	Int m_numBitmapTiles;	// Number of tiles initialized from bitmaps in m_SourceTiles.
