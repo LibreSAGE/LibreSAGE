@@ -278,7 +278,7 @@ Bool SidesList::ParseSidesDataChunk(DataChunkInput &file, DataChunkInfo *info, v
 			pBuildList->setLocation(loc);
 			pBuildList->setAngle(file.readReal());
 			pBuildList->setInitiallyBuilt(file.readByte());
-			// TheSuperHackers @info feliwir 21/4/2025 this is a boolean we don't know about, added in BFME
+			// TODO: This is a boolean we don't know about, added in BFME
 			if (info->version >= K_SIDES_DATA_VERSION_6)
 			{
 				file.readByte();

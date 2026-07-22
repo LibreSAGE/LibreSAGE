@@ -165,8 +165,7 @@ void RampTool::applyRamp(CWorldBuilderDoc* pDoc)
 		
 		ShortestDistancePointToSegment2D(&start, &end, &pt2D, NULL, NULL, &uVal);
 		Real height = mStartPoint.z + uVal * (mEndPoint.z - mStartPoint.z);
-		
-		worldHeightDup->setHeight(indices[i].x, indices[i].y, (UnsignedByte) (height / MAP_HEIGHT_SCALE));
+		worldHeightDup->setHeight(indices[i].x, indices[i].y, (UnsignedShort)(height / MAP_HEIGHT_SCALE));
 	}
 
 	IRegion2D partialRange = {0,0,0,0};

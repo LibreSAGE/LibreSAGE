@@ -41,13 +41,14 @@
 #include "wbview3d.h"
 #include "GameLogic/PolygonTrigger.h"
 #include "Common/MapObject.h"
+#include "W3DDevice/GameClient/WorldHeightMap.h"
 
 WaterOptions *WaterOptions::m_staticThis = NULL;
 Int WaterOptions::m_waterHeight = 7;
 Int WaterOptions::m_waterPointSpacing = 2*MAP_XY_FACTOR;
 Bool WaterOptions::m_creatingWaterAreas = false;
 
-enum {MAX_WATER_HEIGHT = (Int)(255*MAP_HEIGHT_SCALE)};
+static const Int MAX_WATER_HEIGHT = (Int)(WorldHeightMap::getMaxHeightValue()*MAP_HEIGHT_SCALE);
 
 WaterOptions::WaterOptions(QWidget *parent) :
 	QWidget(parent),

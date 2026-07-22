@@ -263,7 +263,7 @@ BaseHeightMapRenderObjClass::BaseHeightMapRenderObjClass(void)
 	m_updating = false;
 	//Set height to the maximum value that can be stored.
 	//We should refine this with actual value.
-	m_maxHeight=(pow(256.0, sizeof(HeightSampleType))-1.0)*MAP_HEIGHT_SCALE;
+	m_maxHeight=WorldHeightMap::getMaxHeightValue()*MAP_HEIGHT_SCALE;
 	m_minHeight=0;
 	m_shoreLineTilePositions=NULL;
 	m_numShoreLineTiles=0;
@@ -926,17 +926,17 @@ Real BaseHeightMapRenderObjClass::getHeightMapHeight(Real x, Real y, Coord3D* no
 		return getClipHeight(ix, iy) * MAP_HEIGHT_SCALE;
 	}
 
-	const UnsignedByte* data = logicHeightMap->getDataPtr();
+	const UnsignedShort* data = logicHeightMap->getDataPtr();
 	int idx = ix + iy*xExtent;
 	float p0 = data[idx];
 	float p2 = data[idx + xExtent + 1];
 	if (fy > fx) // test if we are in the upper triangle
-	{	
+	{
 		float p3 = data[idx + xExtent];
 		height = (p3 + (1.0f-fy)*(p0-p3) + fx*(p2-p3)) * MAP_HEIGHT_SCALE;
 	}
 	else
-	{	
+	{
 		// we are in the lower triangle
 		float p1 = data[idx + 1];
 		height = (p1 + fy*(p2-p1) + (1.0f-fx)*(p0-p1)) * MAP_HEIGHT_SCALE;
@@ -959,7 +959,7 @@ Real BaseHeightMapRenderObjClass::getHeightMapHeight(Real x, Real y, Coord3D* no
  		int idx0 = ix + iy*xExtent;
  		int idx3 = ix + iy*xExtent+xExtent;
 		int idx9 = ix + (iy+2)*xExtent;
-		UnsignedByte d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11;
+		UnsignedShort d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11;
 		d0 = data[idx0];
 		d1 = data[idx0+1];
 		d2 = data[idx3+1];
@@ -1088,7 +1088,7 @@ Bool BaseHeightMapRenderObjClass::isClearLineOfSight(const Coord3D& pos, const C
 	Real zinc = dz * nsInv;
 
 	Bool result = true;
-	const UnsignedByte* data = logicHeightMap->getDataPtr();
+	const UnsignedShort* data = logicHeightMap->getDataPtr();
 	Int xExtent = logicHeightMap->getXExtent();
 	Int yExtent = logicHeightMap->getYExtent();
 	for (Int curpixel = 0; curpixel < numpixels; curpixel++)
@@ -1235,7 +1235,7 @@ Real BaseHeightMapRenderObjClass::getMaxCellHeight(Real x, Real y) const
 	if (iY >= (logicHeightMap->getYExtent()-1)) {
 		iY = logicHeightMap->getYExtent()-2;
 	}
-	UnsignedByte *data = logicHeightMap->getDataPtr();
+	UnsignedShort *data = logicHeightMap->getDataPtr();
 	p0=data[iX+iY*logicHeightMap->getXExtent()]*MAP_HEIGHT_SCALE;
 	p1=data[(iX+offset)+iY*logicHeightMap->getXExtent()]*MAP_HEIGHT_SCALE;
 	p2=data[(iX+offset)+(iY+offset)*logicHeightMap->getXExtent()]*MAP_HEIGHT_SCALE;

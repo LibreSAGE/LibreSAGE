@@ -958,13 +958,13 @@ Bool WorldHeightMap::ParseHeightMapData(DataChunkInput &file, DataChunkInfo *inf
 	}
 
 	m_dataSize = file.readInt();
-	m_data = MSGNEW("WorldHeightMap_ParseHeightMapData") UnsignedByte[m_dataSize];
+	m_data = MSGNEW("WorldHeightMap_ParseHeightMapData") UnsignedShort[m_dataSize];
 	if (m_dataSize <= 0 || (m_dataSize != (m_width*m_height))) {
 		throw ERROR_CORRUPT_FILE_FORMAT	;
 	}
 
 	Int numBytesX = (m_width+7)/8;	//how many bytes to fit all bitflags
-	Int numBytesY = m_height;	
+	Int numBytesY = m_height;
 	m_seismicUpdateWidth=numBytesX;
 	m_seismicUpdateFlag	= MSGNEW("WorldHeightMap::ParseHeightMapData _ m_seismicUpdateFlag allocated") UnsignedByte[numBytesX*numBytesY];
   clearSeismicUpdateFlags();
@@ -972,18 +972,24 @@ Bool WorldHeightMap::ParseHeightMapData(DataChunkInput &file, DataChunkInfo *inf
   fillSeismicZVelocities( 0 );
 
 
-	// TheSuperHackers @info feliwir In BFME upwards the heightmap is stored as 16-bit
+	// In BFME upwards the heightmap is stored as 16-bit. Rescale
+	// by /16 (not >>8) so the result stays in the same unit system as MAP_HEIGHT_SCALE already
+	// assumes for legacy 8-bit maps (0.625 / 0.0390625 == 16, see K_MAX_HEIGHT's comment).
 	if (info->version >= K_HEIGHT_MAP_VERSION_5) {
 		UnsignedShort* tempData = new UnsignedShort[m_dataSize];
-		file.readArrayOfBytes((char*)tempData, m_dataSize * 2);
-		// Rescale to UnsignedByte
+		file.readArrayOfBytes((char*)tempData, m_dataSize * sizeof(UnsignedShort));
 		for (Int i = 0; i < m_dataSize; ++i) {
-			m_data[i] = (UnsignedByte)(tempData[i] >> 8);
+			m_data[i] = tempData[i] / 16;
 		}
 		delete[] tempData;
 	}
 	else {
-		file.readArrayOfBytes((char*)m_data, m_dataSize);
+		UnsignedByte* tempData = new UnsignedByte[m_dataSize];
+		file.readArrayOfBytes((char*)tempData, m_dataSize);
+		for (Int i = 0; i < m_dataSize; ++i) {
+			m_data[i] = tempData[i];
+		}
+		delete[] tempData;
 	}
 	// Resize me.
 	if (info->version == K_HEIGHT_MAP_VERSION_1) {
@@ -1045,22 +1051,28 @@ Bool WorldHeightMap::ParseSizeOnly(DataChunkInput &file, DataChunkInfo *info, vo
 	}
 
 	m_dataSize = file.readInt();
-	m_data = MSGNEW("WorldHeightMap_ParseSizeOnly") UnsignedByte[m_dataSize];
+	m_data = MSGNEW("WorldHeightMap_ParseSizeOnly") UnsignedShort[m_dataSize];
 	if (m_dataSize <= 0 || (m_dataSize != (m_width*m_height))) {
 		throw ERROR_CORRUPT_FILE_FORMAT	;
 	}
-	// TheSuperHackers @info feliwir In BFME upwards the heightmap is stored as 16-bit
+	// In BFME upwards the heightmap is stored as 16-bit. Rescale
+	// by /16 (not >>8) so the result stays in the same unit system as MAP_HEIGHT_SCALE already
+	// assumes for legacy 8-bit maps (0.625 / 0.0390625 == 16, see K_MAX_HEIGHT's comment).
 	if (info->version >= K_HEIGHT_MAP_VERSION_5) {
 		UnsignedShort* tempData = new UnsignedShort[m_dataSize];
-		file.readArrayOfBytes((char*)tempData, m_dataSize * 2);
-		// Rescale to UnsignedByte
+		file.readArrayOfBytes((char*)tempData, m_dataSize * sizeof(UnsignedShort));
 		for (Int i = 0; i < m_dataSize; ++i) {
-			m_data[i] = (UnsignedByte)(tempData[i] >> 8);
+			m_data[i] = tempData[i] / 16;
 		}
 		delete[] tempData;
 	}
 	else {
-		file.readArrayOfBytes((char*)m_data, m_dataSize);
+		UnsignedByte* tempData = new UnsignedByte[m_dataSize];
+		file.readArrayOfBytes((char*)tempData, m_dataSize);
+		for (Int i = 0; i < m_dataSize; ++i) {
+			m_data[i] = tempData[i];
+		}
+		delete[] tempData;
 	}
 	// Resize me.
 	if (info->version == K_HEIGHT_MAP_VERSION_1) {
@@ -1366,7 +1378,7 @@ Bool WorldHeightMap::ParseObjectData(DataChunkInput &file, DataChunkInfo *info, 
 	loc.z = file.readReal();
 
 	Real minZ = -100*MAP_XY_FACTOR;
-	Real maxZ = (255*10)*MAP_HEIGHT_SCALE;
+	Real maxZ = (WorldHeightMap::getMaxHeightValue()*10)*MAP_HEIGHT_SCALE;
 
 	if (info->version <= K_OBJECTS_VERSION_2) {
 		loc.z = 0;
