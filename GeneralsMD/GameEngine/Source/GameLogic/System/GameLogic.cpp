@@ -3553,7 +3553,7 @@ void GameLogic::update( void )
 #endif
 
 	setFPMode();
-	
+
 	/// @todo remove this hack
 	if ( m_startNewGame && !TheDisplay->isMoviePlaying())
 	{

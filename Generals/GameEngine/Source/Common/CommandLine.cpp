@@ -638,7 +638,11 @@ Int parseFile(char *args[], int num)
 	if (TheWritableGlobalData && num > 1)
 	{
 		TheWritableGlobalData->m_initialFile = args[1];
-		ConvertShortMapPathToLongMapPath(TheWritableGlobalData->m_initialFile);
+		// ConvertShortMapPathToLongMapPath always appends ".map", corrupting .rep paths.
+		if (!TheWritableGlobalData->m_initialFile.endsWithNoCase(".rep"))
+		{
+			ConvertShortMapPathToLongMapPath(TheWritableGlobalData->m_initialFile);
+		}
 	}
 	return 2;
 }

@@ -451,7 +451,9 @@ void GameEngine::init( int argc, char *argv[] )
 		//TheShell->push( AsciiString("Menus/MainMenu.wnd") );
 		
 #if !defined(_PLAYTEST)
-		// This allows us to run a map/reply from the command line
+		// This allows us to run a map/reply from the command line. .rep is handled further
+		// down instead of here: resetAll() below would wipe RecorderClass's state right after
+		// playbackFile() sets it up. .map has no such dependency, so it stays here.
 		if (TheGlobalData->m_initialFile.isEmpty() == FALSE)
 		{
 			AsciiString fname = TheGlobalData->m_initialFile;
@@ -472,10 +474,6 @@ void GameEngine::init( int argc, char *argv[] )
 				msg->appendIntegerArgument(DIFFICULTY_NORMAL);
 				msg->appendIntegerArgument(0);
 				InitRandom(0);
-			}
-			else if (fname.endsWithNoCase(".rep"))
-			{
-				TheRecorder->playbackFile(fname);
 			}
 		}
 #endif
@@ -529,6 +527,15 @@ void GameEngine::init( int argc, char *argv[] )
 	initDamageTypeFlags();
 
 	TheSubsystemList->resetAll();
+
+#if !defined(_PLAYTEST)
+	// Must run after resetAll() -- see the .map comment above.
+	if (TheGlobalData->m_initialFile.endsWithNoCase(".rep"))
+	{
+		TheRecorder->playbackFile(TheGlobalData->m_initialFile);
+	}
+#endif
+
 	HideControlBar();
 }  // end init
 
