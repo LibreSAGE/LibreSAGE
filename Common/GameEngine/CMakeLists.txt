@@ -3,6 +3,8 @@ add_library(c_gameengine INTERFACE)
   
 target_sources(c_gameengine
     INTERFACE
+            Include/GameLogic/TerrainLogic.h
+            Source/GameLogic/Map/TerrainLogic.cpp
             Include/GameLogic/Module/GrantUpgradeCreate.h
             Source/GameLogic/Object/Upgrade/StatusBitsUpgrade.cpp
             Include/GameLogic/Module/StatusBitsUpgrade.h
