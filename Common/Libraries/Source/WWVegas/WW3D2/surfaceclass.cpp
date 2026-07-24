@@ -811,6 +811,10 @@ void SurfaceClass::DrawPixel(const unsigned int x,const unsigned int y, unsigned
 
 	unsigned int size=PixelSize(sd);
 
+	// TheSuperHackers @fix xezon 15/02/2026 Convert the ARGB color to the surface format
+	// instead of writing it out truncated, which produced wrong colors on non 32 bit surfaces.
+	color = ARGB_Color_To_WW3D_Color(sd.Format, color);
+
 	D3DLOCKED_RECT lock_rect;
 	::ZeroMemory(&lock_rect, sizeof(D3DLOCKED_RECT));
 	RECT rect;
@@ -859,11 +863,15 @@ void SurfaceClass::DrawPixel(const unsigned int x,const unsigned int y, unsigned
  *   4/9/2001   hy : Created.                                                                  *
  *=============================================================================================*/
 void SurfaceClass::DrawHLine(const unsigned int y,const unsigned int x1, const unsigned int x2, unsigned int color)
-{ 
+{
 	SurfaceDescription sd;
 	Get_Description(sd);
 
 	unsigned int size=PixelSize(sd);
+
+	// TheSuperHackers @fix xezon 15/02/2026 Convert the ARGB color to the surface format
+	// instead of writing it out truncated, which produced wrong colors on non 32 bit surfaces.
+	color = ARGB_Color_To_WW3D_Color(sd.Format, color);
 
 	D3DLOCKED_RECT lock_rect;
 	::ZeroMemory(&lock_rect, sizeof(D3DLOCKED_RECT));
