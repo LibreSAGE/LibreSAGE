@@ -62,7 +62,7 @@ class ChunkSaveClass;
 #ifdef DYN_MAT8
 class DynD3DMATERIAL8;
 #else
-struct _D3DMATERIAL8;
+struct _D3DMATERIAL9;
 #endif
 
 /**
@@ -249,7 +249,7 @@ private:
 #ifdef DYN_MAT8
 	DynD3DMATERIAL8 *			MaterialDyn;
 #else
-	_D3DMATERIAL8 *				MaterialOld;
+	_D3DMATERIAL9 *				MaterialOld;
 #endif
 	unsigned int					Flags;
 	unsigned int					AmbientColorSource;

@@ -1,4 +1,4 @@
-#include "d3dx8core.h"
+#include <d3dx9core.h>
 
 HRESULT WINAPI
 D3DXGetErrorStringA(

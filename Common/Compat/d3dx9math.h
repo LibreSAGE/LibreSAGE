@@ -1,6 +1,22 @@
 #pragma once
 
-#include <d3d8.h>
+// D3D9 compatibility shim -- math subset.
+//
+// This header deliberately shares the name of DXVK-Native's <d3dx9math.h> and
+// shadows it on the include path (Common/Compat is a -I dir, searched before the
+// DXVK -isystem dir). DXVK ships the Wine-derived D3DX9 headers, but they assume a
+// fuller Win32 environment than this toolchain provides (they need types such as
+// DOUBLE / LF_FACESIZE that our Common/Compat/windows.h shim does not define) and
+// there is no D3DX9 implementation library to link. So we declare only the small
+// subset of the D3DX math API the engine actually uses and implement it ourselves
+// (d3dx9math.cpp, on top of GLM).
+
+#include "windows.h"
+#include <d3d9.h>
+
+#ifndef D3DX_PI
+#define D3DX_PI 3.141592654f
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -33,8 +49,6 @@ typedef struct D3DXVECTOR4
   FLOAT x, y, z, w;
 } D3DXVECTOR4;
 
-#define D3DX_PI 3.141592654f
-
 D3DXMATRIX *WINAPI D3DXMatrixInverse(D3DXMATRIX *pOut, FLOAT *pDeterminant, CONST D3DXMATRIX *pM);
 D3DXMATRIX *WINAPI D3DXMatrixScaling(D3DXMATRIX *pOut, FLOAT sx, FLOAT sy, FLOAT sz);
 D3DXMATRIX *WINAPI D3DXMatrixTranslation(D3DXMATRIX *pOut, FLOAT x, FLOAT y, FLOAT z);
@@ -44,6 +58,11 @@ D3DXMATRIX *WINAPI D3DXMatrixTranspose(D3DXMATRIX *pOut, CONST D3DXMATRIX *pM);
 D3DXMATRIX *WINAPI D3DXMatrixRotationZ(D3DXMATRIX *pOut, FLOAT angle);
 D3DXVECTOR4 *WINAPI D3DXVec4Transform(D3DXVECTOR4 *pOut, CONST D3DXVECTOR4 *pV, CONST D3DXMATRIX *pM);
 FLOAT WINAPI D3DXVec4Dot(CONST D3DXVECTOR4 *pV1, CONST D3DXVECTOR4 *pV2);
+
+#ifdef __cplusplus
+}
+#endif
+
 #ifdef __cplusplus
 
 inline D3DXMATRIX D3DXMATRIX::operator*(const D3DXMATRIX &other) const
@@ -58,5 +77,4 @@ inline D3DXMATRIX D3DXMATRIX::operator *= (const D3DXMATRIX& other)
   return *this;
 }
 
-}
 #endif
