@@ -88,8 +88,8 @@ enum
 #include "WW3D2/matinfo.h"
 #include "WW3D2/mesh.h"
 #include "WW3D2/meshmdl.h"
-#include "d3dx8math.h"
-#include "d3dx8tex.h"
+#include <d3dx9math.h>
+#include <d3dx9tex.h>
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -139,7 +139,7 @@ int W3DTreeBuffer::W3DTreeTextureClass::update(W3DTreeBuffer *buffer)
 	Get_Filter().Set_U_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
 	Get_Filter().Set_V_Addr_Mode(TextureFilterClass::TEXTURE_ADDRESS_CLAMP);
 
-	IDirect3DSurface8 *surface_level;
+	IDirect3DSurface9 *surface_level;
 	D3DSURFACE_DESC surface_desc;
 	D3DLOCKED_RECT locked_rect;
 	DX8_ErrorCode(Peek_D3D_Texture()->GetSurfaceLevel(0, &surface_level));
@@ -1118,8 +1118,9 @@ W3DTreeBuffer::W3DTreeBuffer(void)
 		m_curNumTreeIndices[i]=0;
 	}
 	m_treeTexture = NULL;
-	m_dwTreeVertexShader = 0;
-	m_dwTreePixelShader = 0;
+	m_dwTreeVertexShader = NULL;
+	m_dwTreePixelShader = NULL;
+	m_pTreeVertexDeclaration = NULL;
 	clearAllTrees();
 	allocateTreeBuffers();
 	m_initialized = true;
@@ -1144,12 +1145,16 @@ void W3DTreeBuffer::freeTreeBuffers(void)
 	}
 	
 	if (m_dwTreePixelShader)
-		DX8Wrapper::_Get_D3D_Device8()->DeletePixelShader(m_dwTreePixelShader);
-	m_dwTreePixelShader = 0;
+		m_dwTreePixelShader->Release();
+	m_dwTreePixelShader = NULL;
+
+	if (m_pTreeVertexDeclaration)
+		m_pTreeVertexDeclaration->Release();
+	m_pTreeVertexDeclaration = NULL;
 
 	if (m_dwTreeVertexShader)
-		DX8Wrapper::_Get_D3D_Device8()->DeleteVertexShader(m_dwTreeVertexShader);
-	m_dwTreeVertexShader = 0;
+		m_dwTreeVertexShader->Release();
+	m_dwTreeVertexShader = NULL;
 }
 
 //=============================================================================
@@ -1253,24 +1258,42 @@ void W3DTreeBuffer::allocateTreeBuffers(void)
 
 		//shader decleration
 	// DX8_FVF_XYZNDUV1
-	DWORD Declaration[] =
+	D3DVERTEXELEMENT9 Declaration[] =
 	{
-		D3DVSD_STREAM( 0 ),
-		D3DVSD_REG( 0, D3DVSDT_FLOAT3 ),  // Position
-		D3DVSD_REG( 1, D3DVSDT_FLOAT3 ),  // Normal
-		D3DVSD_REG( 2, D3DVSDT_D3DCOLOR), // Diffuse color	
-		D3DVSD_REG( 7, D3DVSDT_FLOAT2 ),  // Tex coord
-		D3DVSD_END()
+		{0, 0,  D3DDECLTYPE_FLOAT3,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+		{0, 12, D3DDECLTYPE_FLOAT3,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL,   0},
+		{0, 24, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR,    0},
+		{0, 28, D3DDECLTYPE_FLOAT2,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+		D3DDECL_END()
 	};
 
-	HRESULT hr;
-	hr = W3DShaderManager::LoadAndCreateD3DShader("shaders\\Trees.vso", &Declaration[0], 0, true, &m_dwTreeVertexShader);
-	if (FAILED(hr))
-		return;
+	HRESULT hr = W3DShaderManager::LoadAndCreateD3DShader("shaders\\Trees.vso", &Declaration[0], 0, true, (void**)&m_dwTreeVertexShader);
 
-	hr = W3DShaderManager::LoadAndCreateD3DShader("shaders\\Trees.pso", &Declaration[0], 0, false, &m_dwTreePixelShader);
-	if (FAILED(hr))
-		return;
+	// D3D9: the vertex declaration is a standalone object, no longer fused into the
+	// vertex shader. Create it here so it can be bound alongside the vertex shader.
+	if (SUCCEEDED(hr))
+		hr = DX8Wrapper::_Get_D3D_Device8()->CreateVertexDeclaration(Declaration, &m_pTreeVertexDeclaration);
+
+	if (SUCCEEDED(hr))
+		hr = W3DShaderManager::LoadAndCreateD3DShader("shaders\\Trees.pso", &Declaration[0], 0, false, (void**)&m_dwTreePixelShader);
+
+	if (FAILED(hr)) {
+		// Release whatever was created so we neither leak COM objects nor leave the
+		// buffer half-initialised: drawTrees() keys off m_dwTreeVertexShader and would
+		// otherwise bind a null vertex declaration.
+		if (m_dwTreePixelShader) {
+			m_dwTreePixelShader->Release();
+			m_dwTreePixelShader = NULL;
+		}
+		if (m_pTreeVertexDeclaration) {
+			m_pTreeVertexDeclaration->Release();
+			m_pTreeVertexDeclaration = NULL;
+		}
+		if (m_dwTreeVertexShader) {
+			m_dwTreeVertexShader->Release();
+			m_dwTreeVertexShader = NULL;
+		}
+	}
 }
 
 //=============================================================================
@@ -1751,14 +1774,14 @@ void W3DTreeBuffer::drawTrees(CameraClass * camera, RefRenderObjListIterator *pD
 		D3DXMatrixTranspose( &mat, &mat );
 
 		// c4  - Composite World-View-Projection Matrix
-		DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstant(  4, &mat,  4 );
+		DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstantF(  4, (const float*)&mat,  4 );
 		Vector4 noSway(0,0,0,0);
-		DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstant(  8, &noSway,  1 );
+		DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstantF(  8, (const float*)&noSway,  1 );
 
 		// c8 - c8+MAX_SWAY_TYPES - the sway amount.
 		for	(i=0; i<MAX_SWAY_TYPES; i++) {
 			Vector4 sway4(swayFactor[i].X, swayFactor[i].Y, swayFactor[i].Z, 0);
-			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstant(  9+i, &sway4,  1 );
+			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstantF(  9+i, (const float*)&sway4,  1 );
 		}
 
 		W3DShroud *shroud;
@@ -1772,26 +1795,27 @@ void W3DTreeBuffer::drawTrees(CameraClass * camera, RefRenderObjListIterator *pD
 			xoffset = -(float)shroud->getDrawOriginX() + width;
 			yoffset = -(float)shroud->getDrawOriginY() + height;
 			Vector4 offset(xoffset, yoffset, 0, 0);
-			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstant(  32, &offset,  1 );
+			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstantF(  32, (const float*)&offset,  1 );
 			width = 1.0f/(width*shroud->getTextureWidth());
 			height = 1.0f/(height*shroud->getTextureHeight());
 			offset.Set(width, height, 1, 1);
-			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstant(  33, &offset,  1 );
+			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstantF(  33, (const float*)&offset,  1 );
 
 		} else {
 			Vector4 offset(0,0,0,0);
-			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstant(  32, &offset,  1 );
-			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstant(  33, &offset,  1 );
+			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstantF(  32, (const float*)&offset,  1 );
+			DX8Wrapper::_Get_D3D_Device8()->SetVertexShaderConstantF(  33, (const float*)&offset,  1 );
 		}
 
-		DX8Wrapper::Set_Vertex_Shader(m_dwTreeVertexShader);
+		DX8Wrapper::_Get_D3D_Device8()->SetVertexDeclaration(m_pTreeVertexDeclaration);
+		DX8Wrapper::_Get_D3D_Device8()->SetVertexShader(m_dwTreeVertexShader);
 #if 0
 		DX8Wrapper::Set_Pixel_Shader(m_dwTreePixelShader);
 		// a.c. 6/16 - allow switching between normal and 2X mode for terrain
 		Real mulTwoX = 0.5f;
 		if(TheGlobalData && TheGlobalData->m_useOverbright)
 			mulTwoX = 1.0f;	
-		DX8Wrapper::_Get_D3D_Device8()->SetPixelShaderConstant(1, D3DXVECTOR4(mulTwoX, mulTwoX, mulTwoX, mulTwoX), 1);
+		DX8Wrapper::_Get_D3D_Device8()->SetPixelShaderConstantF(1, D3DXVECTOR4(mulTwoX, mulTwoX, mulTwoX, mulTwoX), 1);
 #endif
 
 	} else {
@@ -1809,6 +1833,7 @@ void W3DTreeBuffer::drawTrees(CameraClass * camera, RefRenderObjListIterator *pD
 		// Render the waving grass
 		DX8Wrapper::Apply_Render_State_Changes();
 		if (m_dwTreeVertexShader) {
+			DX8Wrapper::_Get_D3D_Device8()->SetVertexDeclaration(m_pTreeVertexDeclaration);
 			DX8Wrapper::_Get_D3D_Device8()->SetVertexShader(m_dwTreeVertexShader);
 			DX8Wrapper::_Get_D3D_Device8()->SetTextureStageState(0,  D3DTSS_TEXCOORDINDEX, 0);
 			DX8Wrapper::_Get_D3D_Device8()->SetTextureStageState(1,  D3DTSS_TEXCOORDINDEX, 1);

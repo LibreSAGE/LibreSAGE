@@ -1,9 +1,8 @@
-#include "d3dx8tex.h"
+#include <d3dx9tex.h>
 #include <algorithm>
 #include <cstring>
 #include <cmath>
 #include <limits.h>
-#define D3DX_DEFAULT UINT_MAX
 
 namespace
 {
@@ -129,7 +128,7 @@ namespace
 
 HRESULT WINAPI
 D3DXFilterTexture(
-    LPDIRECT3DBASETEXTURE8 pBaseTexture,
+    LPDIRECT3DBASETEXTURE9 pBaseTexture,
     CONST PALETTEENTRY *pPalette,
     UINT SrcLevel,
     DWORD Filter)
@@ -155,9 +154,9 @@ D3DXFilterTexture(
     {
     case D3DRTYPE_TEXTURE:
     {
-        IDirect3DTexture8 *tex = (IDirect3DTexture8 *)pBaseTexture;
-        IDirect3DSurface8 *topsurf;
-        IDirect3DSurface8 *mipsurf;
+        IDirect3DTexture9 *tex = (IDirect3DTexture9 *)pBaseTexture;
+        IDirect3DSurface9 *topsurf;
+        IDirect3DSurface9 *mipsurf;
         if (Filter == D3DX_DEFAULT)
         {
             Filter = D3DX_FILTER_BOX;
@@ -198,10 +197,10 @@ D3DXFilterTexture(
 
 HRESULT WINAPI
 D3DXLoadSurfaceFromSurface(
-    LPDIRECT3DSURFACE8 pDestSurface,
+    LPDIRECT3DSURFACE9 pDestSurface,
     CONST PALETTEENTRY *pDestPalette,
     CONST RECT *pDestRect,
-    LPDIRECT3DSURFACE8 pSrcSurface,
+    LPDIRECT3DSURFACE9 pSrcSurface,
     CONST PALETTEENTRY *pSrcPalette,
     CONST RECT *pSrcRect,
     DWORD Filter,
@@ -369,7 +368,7 @@ D3DXLoadSurfaceFromSurface(
 
 HRESULT WINAPI
 D3DXCreateTextureFromFileExA(
-    LPDIRECT3DDEVICE8 pDevice,
+    LPDIRECT3DDEVICE9 pDevice,
     LPCSTR pSrcFile,
     UINT Width,
     UINT Height,
@@ -384,7 +383,7 @@ D3DXCreateTextureFromFileExA(
     D3DXIMAGE_INFO *pSrcInfo,
     PALETTEENTRY *pPalette,
 
-    LPDIRECT3DTEXTURE8 *ppTexture)
+    LPDIRECT3DTEXTURE9 *ppTexture)
 {
     [[maybe_unused]] HRESULT hr;
 
@@ -392,32 +391,32 @@ D3DXCreateTextureFromFileExA(
 }
 
 HRESULT WINAPI
-D3DXCreateTexture(LPDIRECT3DDEVICE8 pDevice,
+D3DXCreateTexture(LPDIRECT3DDEVICE9 pDevice,
                   UINT Width,
                   UINT Height,
                   UINT MipLevels,
                   DWORD Usage,
                   D3DFORMAT Format,
                   D3DPOOL Pool,
-                  LPDIRECT3DTEXTURE8 *ppTexture)
+                  LPDIRECT3DTEXTURE9 *ppTexture)
 {
-    return pDevice->CreateTexture(Width, Height, MipLevels, Usage, Format, Pool, ppTexture);
+    return pDevice->CreateTexture(Width, Height, MipLevels, Usage, Format, Pool, ppTexture, NULL);
 }
 
 HRESULT WINAPI
-D3DXCreateCubeTexture(LPDIRECT3DDEVICE8 pDevice,
+D3DXCreateCubeTexture(LPDIRECT3DDEVICE9 pDevice,
                       UINT Size,
                       UINT MipLevels,
                       DWORD Usage,
                       D3DFORMAT Format,
                       D3DPOOL Pool,
-                      LPDIRECT3DCUBETEXTURE8 *ppCubeTexture)
+                      LPDIRECT3DCUBETEXTURE9 *ppCubeTexture)
 {
-    return pDevice->CreateCubeTexture(Size, MipLevels, Usage, Format, Pool, ppCubeTexture);
+    return pDevice->CreateCubeTexture(Size, MipLevels, Usage, Format, Pool, ppCubeTexture, NULL);
 }
 
 HRESULT WINAPI
-D3DXCreateVolumeTexture(LPDIRECT3DDEVICE8 pDevice,
+D3DXCreateVolumeTexture(LPDIRECT3DDEVICE9 pDevice,
                         UINT Width,
                         UINT Height,
                         UINT Depth,
@@ -425,7 +424,7 @@ D3DXCreateVolumeTexture(LPDIRECT3DDEVICE8 pDevice,
                         DWORD Usage,
                         D3DFORMAT Format,
                         D3DPOOL Pool,
-                        LPDIRECT3DVOLUMETEXTURE8 *ppVolumeTexture)
+                        LPDIRECT3DVOLUMETEXTURE9 *ppVolumeTexture)
 {
-    return pDevice->CreateVolumeTexture(Width, Height, Depth, MipLevels, Usage, Format, Pool, ppVolumeTexture);
+    return pDevice->CreateVolumeTexture(Width, Height, Depth, MipLevels, Usage, Format, Pool, ppVolumeTexture, NULL);
 }

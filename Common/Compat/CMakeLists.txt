@@ -1,4 +1,4 @@
-add_library(c_compat STATIC d3dx8math.cpp d3dx8tex.cpp d3dx8core.cpp
+add_library(c_compat STATIC d3dx9math.cpp d3dx9tex.cpp d3dx9core.cpp
                             time_compat.cpp)
 target_include_directories(c_compat PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -10,10 +10,10 @@ if(UNIX)
     target_compile_definitions(c_compat PUBLIC -D_LINUX)
   endif()
   find_package(DXVK CONFIG REQUIRED)
-  target_link_libraries(c_compat PUBLIC DXVK::d3d8)
+  target_link_libraries(c_compat PUBLIC DXVK::d3d9)
 elseif(WIN32)
   target_compile_definitions(c_compat PUBLIC -D_WINDOWS)
-  target_link_libraries(c_compat PUBLIC d3d8)
+  target_link_libraries(c_compat PUBLIC d3d9)
 endif()
 
 if(NOT SAGE_USE_GLM)
