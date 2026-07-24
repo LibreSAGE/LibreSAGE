@@ -1,14 +1,25 @@
 #pragma once
 
-#include "windows.h"
-#include <d3d8.h>
+// D3D9 compatibility shim -- core/texture/shader subset.
+//
+// Shares the name of DXVK-Native's <d3dx9core.h> and shadows it on the include
+// path (see d3dx9math.h for why the real DXVK D3DX9 headers can't be used here).
+// Declares only the small subset of the D3DX API the engine actually uses; the
+// implementations live in d3dx9core.cpp / d3dx9tex.cpp.
 
+#include "windows.h"
+#include <d3d9.h>
+#include <limits.h>
+
+#ifndef D3DX_DEFAULT
 #define D3DX_DEFAULT                     UINT_MAX
+#endif
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
 typedef enum eD3DXFilters
 {
     D3DX_FILTER_NONE,
@@ -16,23 +27,19 @@ typedef enum eD3DXFilters
     D3DX_FILTER_BOX,
 } eD3DXFilters;
 
-// These defines belong into d3d8 of DXVK-Native
-#define D3DPRESENT_RATE_DEFAULT          0x00000000
-#define D3DSGR_CALIBRATE                 0x00000001
-#define D3DSGR_NO_CALIBRATION            0x00000002
-
-// Blatantly ripped from Wine:
-HRESULT WINAPID3DXGetErrorStringA(HRESULT hr, LPSTR pBuffer, UINT BufferLen);
+// ---------------------------------------------------------------------------
+// Textures / surfaces (d3dx9tex.cpp)
+// ---------------------------------------------------------------------------
 
 HRESULT WINAPI
-D3DXCreateTexture(LPDIRECT3DDEVICE8 pDevice,
+D3DXCreateTexture(LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
 	UINT MipLevels,
 	DWORD Usage,
 	D3DFORMAT Format,
 	D3DPOOL Pool,
-	LPDIRECT3DTEXTURE8 *ppTexture);
+	LPDIRECT3DTEXTURE9 *ppTexture);
 
 typedef enum _D3DXIMAGE_FILEFORMAT
 {
@@ -61,7 +68,7 @@ typedef struct D3DXIMAGE_INFO
 
 HRESULT WINAPI
 D3DXCreateTextureFromFileExA(
-	LPDIRECT3DDEVICE8 pDevice,
+	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcFile,
 	UINT Width,
 	UINT Height,
@@ -76,19 +83,21 @@ D3DXCreateTextureFromFileExA(
 	D3DXIMAGE_INFO *pSrcInfo,
 	PALETTEENTRY *pPalette,
 
-	LPDIRECT3DTEXTURE8 *ppTexture);
+	LPDIRECT3DTEXTURE9 *ppTexture);
 
 HRESULT WINAPI
 D3DXLoadSurfaceFromSurface(
-	LPDIRECT3DSURFACE8 pDestSurface,
+	LPDIRECT3DSURFACE9 pDestSurface,
 	CONST PALETTEENTRY *pDestPalette,
 	CONST RECT *pDestRect,
-	LPDIRECT3DSURFACE8 pSrcSurface,
+	LPDIRECT3DSURFACE9 pSrcSurface,
 	CONST PALETTEENTRY *pSrcPalette,
 	CONST RECT *pSrcRect,
 	DWORD Filter,
 	D3DCOLOR ColorKey);
 
+// D3DX8-era helper with no D3DX9 equivalent (D3D9 code is meant to use dxerr9's
+// DXGetErrorString9A). WW3D2's error logging still calls it, so keep the shim.
 HRESULT WINAPI
 D3DXGetErrorStringA(
 	HRESULT hr,
@@ -98,24 +107,24 @@ D3DXGetErrorStringA(
 // Taken and adopted from Wine 3.21
 HRESULT WINAPI
 D3DXFilterTexture(
-	LPDIRECT3DBASETEXTURE8 pBaseTexture,
+	LPDIRECT3DBASETEXTURE9 pBaseTexture,
 	CONST PALETTEENTRY *pPalette,
 	UINT SrcLevel,
 	DWORD Filter);
 
 HRESULT WINAPI
 D3DXCreateCubeTexture(
-	LPDIRECT3DDEVICE8 pDevice,
+	LPDIRECT3DDEVICE9 pDevice,
 	UINT Size,
 	UINT MipLevels,
 	DWORD Usage,
 	D3DFORMAT Format,
 	D3DPOOL Pool,
-	LPDIRECT3DCUBETEXTURE8 *ppCubeTexture);
+	LPDIRECT3DCUBETEXTURE9 *ppCubeTexture);
 
 HRESULT WINAPI
 D3DXCreateVolumeTexture(
-	LPDIRECT3DDEVICE8 pDevice,
+	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
 	UINT Depth,
@@ -123,7 +132,11 @@ D3DXCreateVolumeTexture(
 	DWORD Usage,
 	D3DFORMAT Format,
 	D3DPOOL Pool,
-	LPDIRECT3DVOLUMETEXTURE8 *ppVolumeTexture);
+	LPDIRECT3DVOLUMETEXTURE9 *ppVolumeTexture);
+
+// ---------------------------------------------------------------------------
+// Shaders / misc (d3dx9core.cpp)
+// ---------------------------------------------------------------------------
 
 typedef struct D3DXBUFFER *LPD3DXBUFFER;
 
@@ -143,7 +156,6 @@ D3DXAssembleShaderFromFileA(
 	LPD3DXBUFFER *ppConstants,
 	LPD3DXBUFFER *ppCompiledShader,
 	LPD3DXBUFFER *ppCompilationErrors);
-
 
 UINT WINAPI D3DXGetFVFVertexSize(DWORD FVF);
 

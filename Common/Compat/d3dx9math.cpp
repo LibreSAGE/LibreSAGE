@@ -1,7 +1,4 @@
-#include <windows.h>
-#include "d3dx8core.h"
-
-#include "d3dx8math.h"
+#include <d3dx9math.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
