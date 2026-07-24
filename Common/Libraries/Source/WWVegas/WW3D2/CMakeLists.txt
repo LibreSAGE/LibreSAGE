@@ -257,7 +257,7 @@ target_include_directories(c_ww3d2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(DXVK CONFIG REQUIRED)
 
-target_link_libraries(c_ww3d2 PUBLIC c_wwlib c_wwmath c_wwsaveload DXVK::d3d8)
+target_link_libraries(c_ww3d2 PUBLIC c_wwlib c_wwmath c_wwsaveload DXVK::d3d9)
 
 # SDL3
 find_package(SDL3 CONFIG REQUIRED)

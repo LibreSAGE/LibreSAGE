@@ -54,7 +54,7 @@
 #include "dx8caps.h"
 #include "missingtexture.h"
 #include "targa.h"
-#include <d3dx8tex.h>
+#include <d3dx9tex.h>
 #include <cstdio>
 #include "wwmemlog.h"
 #include "texture.h"
@@ -247,7 +247,7 @@ public:
 
 
 // TODO: Legacy - remove this call!
-IDirect3DTexture8* Load_Compressed_Texture(
+IDirect3DTexture9* Load_Compressed_Texture(
 	const StringClass& filename,
 	unsigned reduction_factor,
 	MipCountType mip_level_count,
@@ -267,7 +267,7 @@ IDirect3DTexture8* Load_Compressed_Texture(
 	// Note that the nearest valid format could be anything, even uncompressed.
 	if (dest_format==WW3D_FORMAT_UNKNOWN) dest_format=Get_Valid_Texture_Format(dds_file.Get_Format(),true);
 
-	IDirect3DTexture8* d3d_texture = DX8Wrapper::_Create_DX8_Texture
+	IDirect3DTexture9* d3d_texture = DX8Wrapper::_Create_DX8_Texture
 	(
 		width,
 		height,
@@ -276,7 +276,7 @@ IDirect3DTexture8* Load_Compressed_Texture(
 	);
 
 	for (unsigned level=0;level<mips;++level) {
-		IDirect3DSurface8* d3d_surface=NULL;
+		IDirect3DSurface9* d3d_surface=NULL;
 		WWASSERT(d3d_texture);
 		DX8_ErrorCode(d3d_texture->GetSurfaceLevel(level/*-reduction_factor*/,&d3d_surface));
 		dds_file.Copy_Level_To_Surface(level,d3d_surface);
@@ -369,7 +369,7 @@ void TextureLoader::Validate_Texture_Size
 	unsigned& depth
 )
 {
-	const D3DCAPS8& dx8caps=DX8Wrapper::Get_Current_Caps()->Get_DX8_Caps();
+	const D3DCAPS9& dx8caps=DX8Wrapper::Get_Current_Caps()->Get_DX8_Caps();
 
 	unsigned poweroftwowidth = 1;
 	while (poweroftwowidth < width) 
@@ -422,7 +422,7 @@ void TextureLoader::Validate_Texture_Size
 	depth=poweroftwodepth;
 }
 
-IDirect3DTexture8* TextureLoader::Load_Thumbnail(const StringClass& filename, const Vector3& hsv_shift)//,WW3DFormat texture_format)
+IDirect3DTexture9* TextureLoader::Load_Thumbnail(const StringClass& filename, const Vector3& hsv_shift)//,WW3DFormat texture_format)
 {
 	WWASSERT(Is_DX8_Thread());
 
@@ -446,7 +446,7 @@ IDirect3DTexture8* TextureLoader::Load_Thumbnail(const StringClass& filename, co
 		WWASSERT(dest_format==texture_format);
 	}
 
-	IDirect3DTexture8* sysmem_texture = DX8Wrapper::_Create_DX8_Texture(
+	IDirect3DTexture9* sysmem_texture = DX8Wrapper::_Create_DX8_Texture(
 		thumb->Get_Width(),
 		thumb->Get_Height(),
 		dest_format,
@@ -506,7 +506,7 @@ IDirect3DTexture8* TextureLoader::Load_Thumbnail(const StringClass& filename, co
 #ifdef USE_MANAGED_TEXTURES
 	return sysmem_texture;
 #else
-	IDirect3DTexture8* d3d_texture = DX8Wrapper::_Create_DX8_Texture(
+	IDirect3DTexture9* d3d_texture = DX8Wrapper::_Create_DX8_Texture(
 		thumb->Get_Width(),
 		thumb->Get_Height(),
 		dest_format,
@@ -528,7 +528,7 @@ IDirect3DTexture8* TextureLoader::Load_Thumbnail(const StringClass& filename, co
 // format and performs color space conversion.
 //
 // ----------------------------------------------------------------------------
-IDirect3DSurface8* TextureLoader::Load_Surface_Immediate(
+IDirect3DSurface9* TextureLoader::Load_Surface_Immediate(
 	const StringClass& filename,
 	WW3DFormat texture_format,
 	bool allow_compression)
@@ -538,9 +538,9 @@ IDirect3DSurface8* TextureLoader::Load_Surface_Immediate(
 	bool compressed=Is_Format_Compressed(texture_format,allow_compression);
 
 	if (compressed) {
-		IDirect3DTexture8* comp_tex=Load_Compressed_Texture(filename,0,MIP_LEVELS_1,WW3D_FORMAT_UNKNOWN);
+		IDirect3DTexture9* comp_tex=Load_Compressed_Texture(filename,0,MIP_LEVELS_1,WW3D_FORMAT_UNKNOWN);
 		if (comp_tex) {
-			IDirect3DSurface8* d3d_surface=NULL;
+			IDirect3DSurface9* d3d_surface=NULL;
 			DX8_ErrorCode(comp_tex->GetSurfaceLevel(0,&d3d_surface));
 			comp_tex->Release();
 			return d3d_surface;
@@ -605,7 +605,7 @@ IDirect3DSurface8* TextureLoader::Load_Surface_Immediate(
 
 	unsigned src_pitch=src_width*src_bpp;
 
-	IDirect3DSurface8* d3d_surface = DX8Wrapper::_Create_DX8_Surface(width,height,dest_format);
+	IDirect3DSurface9* d3d_surface = DX8Wrapper::_Create_DX8_Surface(width,height,dest_format);
 	WWASSERT(d3d_surface);
 	D3DLOCKED_RECT locked_rect;
 	DX8_ErrorCode(
@@ -966,7 +966,7 @@ void TextureLoader::Load_Thumbnail(TextureBaseClass *tc)
 	WWASSERT(Is_DX8_Thread());
 
 	// load thumbnail texture
-	IDirect3DTexture8 *d3d_texture = Load_Thumbnail(tc->Get_Full_Path(),tc->Get_HSV_Shift());
+	IDirect3DTexture9 *d3d_texture = Load_Thumbnail(tc->Get_Full_Path(),tc->Get_HSV_Shift());
 
 	// apply thumbnail to texture
 	if (tc->Get_Asset_Type()==TextureBaseClass::TEX_REGULAR)
@@ -1819,7 +1819,7 @@ void TextureLoadTaskClass::Unlock_Surfaces(void)
 	}
 
 #ifndef USE_MANAGED_TEXTURES
-	IDirect3DTexture8* tex = DX8Wrapper::_Create_DX8_Texture(Width, Height, Format, Texture->MipLevelCount,D3DPOOL_DEFAULT);
+	IDirect3DTexture9* tex = DX8Wrapper::_Create_DX8_Texture(Width, Height, Format, Texture->MipLevelCount,D3DPOOL_DEFAULT);
 	DX8CALL(UpdateTexture(Peek_D3D_Texture(),tex));
 	Peek_D3D_Texture()->Release();
 	D3DTexture=tex;
@@ -2207,7 +2207,7 @@ void CubeTextureLoadTaskClass::Unlock_Surfaces(void)
 	}
 
 #ifndef USE_MANAGED_TEXTURES
-	IDirect3DCubeTexture8* tex = DX8Wrapper::_Create_DX8_Cube_Texture
+	IDirect3DCubeTexture9* tex = DX8Wrapper::_Create_DX8_Cube_Texture
 	(
 		Width, 
 		Height, 
@@ -2574,7 +2574,7 @@ void VolumeTextureLoadTaskClass::Unlock_Surfaces()
 	}
 
 #ifndef USE_MANAGED_TEXTURES
-	IDirect3DTexture8* tex = DX8Wrapper::_Create_DX8_Volume_Texture(Width, Height, Depth, Format, Texture->MipLevelCount,D3DPOOL_DEFAULT);
+	IDirect3DTexture9* tex = DX8Wrapper::_Create_DX8_Volume_Texture(Width, Height, Depth, Format, Texture->MipLevelCount,D3DPOOL_DEFAULT);
 	DX8CALL(UpdateTexture(Peek_D3D_Volume_Texture(),tex));
 	Peek_D3D_Volume_Texture()->Release();
 	D3DTexture=tex;

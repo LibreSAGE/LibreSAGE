@@ -77,9 +77,9 @@ void ObjectPreview::setThingTemplate(const ThingTemplate *tTempl)
 // ----------------------------------------------------------------------------
 // Read a (non-lockable) render-target surface back into a QImage by copying it
 // into a system-memory image surface first, then locking that.
-static QImage readSurfaceToImage(IDirect3DSurface8 *surface)
+static QImage readSurfaceToImage(IDirect3DSurface9 *surface)
 {
-	IDirect3DDevice8 *dev = DX8Wrapper::_Get_D3D_Device8();
+	IDirect3DDevice9 *dev = DX8Wrapper::_Get_D3D_Device8();
 	if (dev == NULL || surface == NULL)
 		return QImage();
 
@@ -87,12 +87,14 @@ static QImage readSurfaceToImage(IDirect3DSurface8 *surface)
 	if (FAILED(surface->GetDesc(&desc)))
 		return QImage();
 
-	IDirect3DSurface8 *sysSurface = NULL;
-	if (FAILED(dev->CreateImageSurface(desc.Width, desc.Height, desc.Format, &sysSurface)) || !sysSurface)
+	IDirect3DSurface9 *sysSurface = NULL;
+	if (FAILED(dev->CreateOffscreenPlainSurface(desc.Width, desc.Height, desc.Format, D3DPOOL_SYSTEMMEM, &sysSurface, NULL)) || !sysSurface)
 		return QImage();
 
 	QImage image;
-	if (SUCCEEDED(dev->CopyRects(surface, NULL, 0, sysSurface, NULL)))
+	// D3D9 removed CopyRects; GetRenderTargetData reads a render target back into a
+	// system-memory surface of matching size/format.
+	if (SUCCEEDED(dev->GetRenderTargetData(surface, sysSurface)))
 	{
 		D3DLOCKED_RECT lrect;
 		if (SUCCEEDED(sysSurface->LockRect(&lrect, NULL, D3DLOCK_READONLY)))
@@ -162,7 +164,7 @@ QImage ObjectPreview::renderTemplate(const ThingTemplate *tt)
 		WW3D::End_Render(false);
 
 		// Restore the main back buffer as the render target.
-		DX8Wrapper::Set_Render_Target((IDirect3DSurface8 *)NULL);
+		DX8Wrapper::Set_Render_Target((IDirect3DSurface9 *)NULL);
 
 		SurfaceClass *surface = objectTexture->Get_Surface_Level();
 		if (surface) {

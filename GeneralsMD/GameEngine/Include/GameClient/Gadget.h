@@ -335,7 +335,7 @@ typedef struct _ListEntryRow
 	// The following fields are for internal use and
 	// should not be initialized by the user
 	Int							listHeight;		// calculated total Height at the bottom of this entry
-	Byte						height;				// Maintain the height of the row
+	Int							height;				// Maintain the height of the row
 	ListEntryCell		*cell;				// Holds the array of ListEntry Cells
 	
 } ListEntryRow;
@@ -376,11 +376,11 @@ typedef struct _ListboxData
 	Int					selectPos;				// Position of current selected entry (for SINGLE select)
 	Int					*selections;			// Pointer to array of selections (for MULTI select)
 
-	Short				displayHeight;		// Height in pixels of listbox display region
+	Int					displayHeight;		// Height in pixels of listbox display region
 																// this is computed based on the existance
 																// of a title or not.
 	UnsignedInt doubleClickTime;	//
-	Short				displayPos;				// Position of current display entry in pixels
+	Int					displayPos;				// Position of current display entry in pixels
 
 } ListboxData;
 
