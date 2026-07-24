@@ -1301,10 +1301,10 @@ Int W3DProjectedShadowManager::renderShadows(RenderInfoClass & rinfo)
 	static SphereClass sphere;
 	Int projectionCount=0;
 
-	if (!m_shadowList && !m_decalList)
-		return	projectionCount;	//there are no shadows to render.
-
 	//Find extents of visible terrain
+	// TheSuperHackers @bugfix xezon 04/07/2025 Update the terrain extents before the early return below,
+	// because tree shadow decals are queued outside of this function and rely on fresh extents,
+	// even when there are no object shadows or decals to render here.
 	if (TheTerrainRenderObject)
 	{
 		WorldHeightMap *hmap=TheTerrainRenderObject->getMap();
@@ -1320,6 +1320,9 @@ Int W3DProjectedShadowManager::renderShadows(RenderInfoClass & rinfo)
 	}
 	else
 		return projectionCount;
+
+	if (!m_shadowList && !m_decalList)
+		return	projectionCount;	//there are no shadows to render.
 
 	//According to Nvidia there's a D3D bug that happens if you don't start with a
  	//new dynamic VB each frame - so we force a DISCARD by overflowing the counter.
