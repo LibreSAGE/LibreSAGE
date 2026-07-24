@@ -241,7 +241,7 @@ set_target_properties(c_wwlib PROPERTIES OUTPUT_NAME "WWLib"
 
 target_include_directories(c_wwlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(DXVK CONFIG REQUIRED)
-target_link_libraries(c_wwlib PUBLIC c_library_include c_wwdebug DXVK::d3d8)
+target_link_libraries(c_wwlib PUBLIC c_library_include c_wwdebug DXVK::d3d9)
 
 # DirectDraw target_link_libraries(c_wwlib PRIVATE dxlib::ddraw)
 # LZO Compression library

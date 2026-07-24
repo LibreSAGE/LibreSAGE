@@ -42,7 +42,7 @@
 
 #include "dx8fvf.h"
 #include "wwstring.h"
-#include <d3dx8core.h>
+#include <d3dx9core.h>
 
 static unsigned Get_FVF_Vertex_Size(unsigned FVF)
 {
