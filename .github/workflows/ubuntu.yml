@@ -152,6 +152,7 @@ jobs:
           configurePreset: "${{ matrix.preset }}"
           buildPreset: "${{ matrix.preset }}"
           testPreset: "${{ matrix.preset }}"
+          testPresetAdditionalArgs: "['--parallel']"
           packagePreset: "${{ matrix.preset }}"
       
       - name: Upload code coverage to Codecov
