@@ -361,10 +361,10 @@ WaterRenderObjClass::WaterRenderObjClass(void)
 	m_whiteTexture=NULL;
 	m_waterNoiseTexture=NULL;
 	m_riverAlphaEdge=NULL;
-	m_waterPixelShader=0;		///<D3D handle to pixel shader.
-	m_riverWaterPixelShader=0;		///<D3D handle to pixel shader.
-	m_trapezoidWaterPixelShader=0;		///<D3D handle to pixel shader.
-	m_waterSparklesTexture=0;
+	m_waterPixelShader=NULL;		///<D3D handle to pixel shader.
+	m_riverWaterPixelShader=NULL;		///<D3D handle to pixel shader.
+	m_trapezoidWaterPixelShader=NULL;		///<D3D handle to pixel shader.
+	m_waterSparklesTexture=NULL;
 	m_riverXOffset=0;
 	m_riverYOffset=0;
 
@@ -829,12 +829,12 @@ void WaterRenderObjClass::ReleaseResources(void)
 	if (m_riverWaterPixelShader)
 		m_riverWaterPixelShader->Release();
 
-	m_dwWavePixelShader=0;
-	m_dwWaveVertexShader=0;
+	m_dwWavePixelShader=NULL;
+	m_dwWaveVertexShader=NULL;
 	m_pWaveVertexDeclaration=NULL;
-	m_waterPixelShader = 0;
-	m_trapezoidWaterPixelShader=0;
-	m_riverWaterPixelShader=0;
+	m_waterPixelShader = NULL;
+	m_trapezoidWaterPixelShader=NULL;
+	m_riverWaterPixelShader=NULL;
 }
 
 //-------------------------------------------------------------------------------------------------

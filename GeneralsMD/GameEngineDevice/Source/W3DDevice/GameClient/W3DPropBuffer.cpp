@@ -119,7 +119,7 @@ for the props. */
 //=============================================================================
 W3DPropBuffer::W3DPropBuffer(void)
 {
-	memset(this, sizeof(W3DPropBuffer), 0);
+	memset(this, 0, sizeof(W3DPropBuffer));
 	m_initialized = false;
 	m_numProps = 0;
 	m_numPropTypes = 0;
