@@ -1104,7 +1104,7 @@ for the trees. */
 //=============================================================================
 W3DTreeBuffer::W3DTreeBuffer(void)
 {
-	memset(this, sizeof(W3DTreeBuffer), 0);
+	memset(this, 0, sizeof(W3DTreeBuffer));
 	m_initialized = false;
 	Int i;
 	for	(i=0; i<MAX_BUFFERS; i++) {
@@ -1114,7 +1114,7 @@ W3DTreeBuffer::W3DTreeBuffer(void)
 		m_curNumTreeIndices[i]=0;
 	}
 	m_treeTexture = NULL;
-	m_dwTreeVertexShader = 0;
+	m_dwTreeVertexShader = NULL;
 	m_dwTreePixelShader = NULL;
 	m_pTreeVertexDeclaration = NULL;
 	clearAllTrees();
