@@ -123,12 +123,6 @@ FILE *g_UT_commaLog=NULL;
 #endif
 
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 // I'm making this larger now that we know how big our maps are going to be. 
 enum { OBJ_HASH_SIZE	= 8192 };
 
@@ -405,6 +399,7 @@ void GameLogic::reset( void )
 	m_inputEnabledMemory = TRUE;
 	m_mouseVisibleMemory = TRUE;
 	setFPMode();
+	m_startNewGame = FALSE;
 
 	// destroy all objects
 	destroyAllObjectsImmediate();

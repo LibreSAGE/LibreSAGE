@@ -35,12 +35,6 @@
 #include "GameClient/TerrainVisual.h" // for TERRAIN_LOD_MIN definition
 #include "GameClient/GameText.h"
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 
 
 Bool TheDebugIgnoreSyncErrors = FALSE;
@@ -652,6 +646,15 @@ Int parseDisplayDebug(char *args[], int)
 	return 1;
 }
 
+Int parseCampaign(char *args[], int num)
+{
+	if (TheWritableGlobalData && num > 1)
+	{
+		TheWritableGlobalData->m_initialCampaign = args[1];
+	}
+	return 2;
+}
+
 Int parseFile(char *args[], int num)
 {
 	if (TheWritableGlobalData && num > 1)
@@ -1229,6 +1232,7 @@ static CommandLineParam params[] =
 	{ "-munkee", parseMunkee },
 	{ "-displayDebug", parseDisplayDebug },
 	{ "-file", parseFile },
+	{ "-campaign", parseCampaign },
   
 //	{ "-preload", parsePreload },
 	

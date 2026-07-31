@@ -43,12 +43,6 @@
 #include "GameLogic/Module/TransportContain.h"
 #include "GameLogic/Object.h"
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 TransportContainModuleData::TransportContainModuleData()
@@ -206,9 +200,9 @@ Bool TransportContain::isValidContainerFor(const Object* rider, Bool checkCapaci
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
-void TransportContain::onContaining( Object *rider )
+void TransportContain::onContaining( Object *rider, Bool wasSelected )
 {
-	OpenContain::onContaining(rider);
+	OpenContain::onContaining( rider, wasSelected );
 	
 	// objects inside a transport are held
 	rider->setDisabled( DISABLED_HELD );

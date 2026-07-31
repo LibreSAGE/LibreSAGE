@@ -50,12 +50,6 @@
 const Real NO_START_Z = 1e10;
 
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 
 // PRIVATE ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -450,9 +444,9 @@ UpdateSleepTime ParachuteContain::update( void )
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
-void ParachuteContain::onContaining( Object *rider )
+void ParachuteContain::onContaining( Object *rider, Bool wasSelected )
 {
-	OpenContain::onContaining(rider);	
+	OpenContain::onContaining( rider, wasSelected );	
 
 	// objects inside a transport are held
 	rider->setDisabled( DISABLED_HELD );

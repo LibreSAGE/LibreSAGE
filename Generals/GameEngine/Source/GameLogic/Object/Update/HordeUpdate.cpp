@@ -47,12 +47,6 @@
 //-------------------------------------------------------------------------------------------------
 
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 
 static HordeUpdateInterface* getHUI(Object* obj)
 {
@@ -125,6 +119,7 @@ HordeUpdateModuleData::HordeUpdateModuleData() :
 	m_rubOffRadius(20.0f),
 	m_alliesOnly(true),
 	m_exactMatch(false),
+	m_allowedNationalism(TRUE),
 	m_action(HORDEACTION_HORDE)
 {
 }
@@ -145,6 +140,7 @@ HordeUpdateModuleData::HordeUpdateModuleData() :
 		{ "ExactMatch", INI::parseBool, NULL, offsetof(HordeUpdateModuleData, m_exactMatch) },
 		{ "Action", INI::parseIndexList, TheHordeActionTypeNames, offsetof(HordeUpdateModuleData, m_action) },
 		{ "FlagSubObjectNames", INI::parseAsciiStringVector, NULL, offsetof(HordeUpdateModuleData, m_flagSubObjNames) },
+		{ "AllowedNationalism", INI::parseBool, NULL, offsetof(HordeUpdateModuleData, m_allowedNationalism) },
 		{ 0, 0, 0, 0 }
 	};
 	p.add(dataFieldParse);
@@ -173,6 +169,13 @@ HordeUpdate::HordeUpdate( Thing *thing, const ModuleData* moduleData ) : UpdateM
 HordeUpdate::~HordeUpdate()
 {
 
+}
+
+//-------------------------------------------------------------------------------------------------
+Bool HordeUpdate::isAllowedNationalism() const
+{
+	const HordeUpdateModuleData *data = getHordeUpdateModuleData();
+	return data->m_allowedNationalism;
 }
 
 //-------------------------------------------------------------------------------------------------

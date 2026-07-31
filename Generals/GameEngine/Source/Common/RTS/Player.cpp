@@ -96,12 +96,6 @@
 #include "GameLogic/VictoryConditions.h"
 
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 //Grey for neutral.  
 #define NEUTRAL_PLAYER_COLOR 0xffffffff
 
@@ -1093,8 +1087,11 @@ void Player::becomingLocalPlayer(Bool yes)
 				if( contain )
 				{
 					contain->recalcApparentControllingPlayer();
-					TheRadar->removeObject( object );
-					TheRadar->addObject( object );
+					if( TheRadar )
+					{
+						TheRadar->removeObject( object );
+						TheRadar->addObject( object );
+					}
 				}
 
 				if( object->isKindOf( KINDOF_DISGUISER ) )

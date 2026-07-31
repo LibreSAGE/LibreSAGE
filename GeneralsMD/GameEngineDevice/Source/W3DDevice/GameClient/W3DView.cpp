@@ -92,12 +92,6 @@
 #include "WW3D2/ww3d.h"
 
 #include "W3DDevice/GameClient/camerashakesystem.h"
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 
 
 // 30 fps
@@ -188,6 +182,7 @@ W3DView::W3DView()
 //-------------------------------------------------------------------------------------------------
 W3DView::~W3DView()
 {
+	CameraShakerSystem.Flush();
 
 	REF_PTR_RELEASE( m_2DCamera );
 	REF_PTR_RELEASE( m_3DCamera );
@@ -676,6 +671,9 @@ const Coord3D& W3DView::get3DCameraPosition() const
 void W3DView::reset( void )
 {
 	View::reset();
+
+	// Don't carry camera shakes from the previous game into the next one.
+	CameraShakerSystem.Flush();
 
 	// Just in case...
 	setTimeMultiplier(1); // Set time rate back to 1.

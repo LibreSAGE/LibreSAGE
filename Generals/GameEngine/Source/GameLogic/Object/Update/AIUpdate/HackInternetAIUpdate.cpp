@@ -42,12 +42,6 @@
 #include "GameLogic/Object.h"
 //#include "GameLogic/PartitionManager.h"
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -168,6 +162,24 @@ void HackInternetAIUpdate::hackInternet()
 	//m_hackInternetStateMachine->setName("HackInternetSpecificAI");
 #endif
 		getStateMachine()->setState(UNPACKING);
+}
+
+// ------------------------------------------------------------------------------------------------
+UnsignedInt HackInternetAIUpdate::getUnpackTime() const
+{
+	return getHackInternetAIUpdateModuleData()->m_unpackTime;
+}
+
+// ------------------------------------------------------------------------------------------------
+UnsignedInt HackInternetAIUpdate::getPackTime() const
+{
+	return getHackInternetAIUpdateModuleData()->m_packTime; 
+}
+
+// ------------------------------------------------------------------------------------------------
+UnsignedInt HackInternetAIUpdate::getCashUpdateDelay() const
+{
+	return getHackInternetAIUpdateModuleData()->m_cashUpdateDelay; 
 }
 
 // ------------------------------------------------------------------------------------------------

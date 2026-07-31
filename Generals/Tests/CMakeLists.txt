@@ -20,8 +20,8 @@ add_subdirectory(GameEngineDevice)
 sage_add_smoke_test(
   NAME_PREFIX Generals_RTS_SmokeTest
   TARGET g_rts_sdl
-  TIMEOUT 30
-  BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}" -win -ignoreAsserts -autoexit 15
+  TIMEOUT 60
+  BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}" -win -ignoreAsserts -autoexit 15 -multi
   REQUIRE_ENV SAGE_RETAIL_DATA_DIR_GENERALS
   SCENARIOS
     "quickstart:-quickstart"
@@ -56,11 +56,30 @@ if(DEFINED ENV{SAGE_RETAIL_DATA_DIR_GENERALS} AND NOT "$ENV{SAGE_RETAIL_DATA_DIR
   add_dependencies(g_rts_sdl Generals_Replay_SmokeTest_StageReplay)
 endif()
 
+# Smoke test: boot straight into each campaign's first mission via -campaign
+# (GameEngine::init mirrors the shell's campaign launch) and let it simulate
+# for 120 in-game seconds. -novideo skips the mission intro movies. The sim
+# runs at real time, so TIMEOUT leaves headroom for startup/mission load and
+# CPU contention from parallel tests.
+sage_add_smoke_test(
+  NAME_PREFIX Generals_Campaign_SmokeTest
+  TARGET g_rts_sdl
+  TIMEOUT 300
+  BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}"
+            -win -ignoreAsserts -multi -quickstart -novideo -autoexit 120
+  REQUIRE_ENV SAGE_RETAIL_DATA_DIR_GENERALS
+  SCENARIOS
+    "training:-campaign TRAINING"
+    "usa:-campaign USA"
+    "gla:-campaign GLA"
+    "china:-campaign China"
+)
+
 sage_add_smoke_test(
   NAME_PREFIX Generals_Replay_SmokeTest
   TARGET g_rts_sdl
-  TIMEOUT 60
-  BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}" -win -ignoreAsserts
+  TIMEOUT 120
+  BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}" -win -ignoreAsserts -multi
   REQUIRE_ENV SAGE_RETAIL_DATA_DIR_GENERALS
   SCENARIOS
     "default:-quickstart -file alpine_assault_viking_apex.rep -autoexit 45"

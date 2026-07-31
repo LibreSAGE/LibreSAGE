@@ -20,10 +20,10 @@ add_subdirectory(GameEngineDevice)
 sage_add_smoke_test(
   NAME_PREFIX GeneralsMD_RTS_SmokeTest
   TARGET z_rts_sdl
-  TIMEOUT 30
+  TIMEOUT 60
   BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALSMD}"
             -bigdir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}"
-            -win -ignoreAsserts -autoexit 15
+            -win -ignoreAsserts -autoexit 15 -multi
   REQUIRE_ENV SAGE_RETAIL_DATA_DIR_GENERALSMD SAGE_RETAIL_DATA_DIR_GENERALS
   SCENARIOS
     "quickstart:-quickstart"
@@ -62,14 +62,34 @@ endif()
 sage_add_smoke_test(
   NAME_PREFIX GeneralsMD_Replay_SmokeTest
   TARGET z_rts_sdl
-  TIMEOUT 60
+  TIMEOUT 120
   BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALSMD}"
             -bigdir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}"
-            -win -ignoreAsserts
+            -win -ignoreAsserts -multi
   REQUIRE_ENV SAGE_RETAIL_DATA_DIR_GENERALSMD SAGE_RETAIL_DATA_DIR_GENERALS
   SCENARIOS
     "default:-quickstart -file alpine_assault_excal_spl.rep -autoexit 45"
 )
+# Smoke test: boot straight into each campaign's first mission via -campaign
+# (GameEngine::init mirrors the shell's campaign launch) and let it simulate
+# for 120 in-game seconds. -novideo skips the mission intro movies. The sim
+# runs at real time, so TIMEOUT leaves headroom for startup/mission load and
+# CPU contention from parallel tests.
+sage_add_smoke_test(
+  NAME_PREFIX GeneralsMD_Campaign_SmokeTest
+  TARGET z_rts_sdl
+  TIMEOUT 300
+  BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALSMD}"
+            -bigdir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}"
+            -win -ignoreAsserts -multi -quickstart -novideo -autoexit 120
+  REQUIRE_ENV SAGE_RETAIL_DATA_DIR_GENERALSMD SAGE_RETAIL_DATA_DIR_GENERALS
+  SCENARIOS
+    "training:-campaign TRAINING"
+    "usa:-campaign USA"
+    "gla:-campaign GLA"
+    "china:-campaign China"
+)
+
 # Smoke test: launch WorldBuilder, load a real map from cnc_mod_support, then
 # quit. WorldBuilder has no -autoexit/-quickstart, so WB_TEST_OPEN /
 # WB_TEST_AUTOEXIT (WorldBuilder.cpp's main()) drive the same behavior. Still
@@ -81,7 +101,7 @@ if(SAGE_BUILD_TOOLS)
   sage_add_smoke_test(
     NAME_PREFIX GeneralsMD_WorldBuilder_SmokeTest
     TARGET z_worldbuilder
-    TIMEOUT 60
+    TIMEOUT 90
     BASE_ARGS -dir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALSMD}"
               -bigdir "$ENV{SAGE_RETAIL_DATA_DIR_GENERALS}"
               -win

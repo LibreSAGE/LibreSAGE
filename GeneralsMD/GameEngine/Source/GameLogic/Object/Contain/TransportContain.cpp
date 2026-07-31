@@ -44,12 +44,6 @@
 #include "GameLogic/Object.h"
 #include "GameLogic/Weapon.h"
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 TransportContainModuleData::TransportContainModuleData()
@@ -492,7 +486,7 @@ UpdateSleepTime TransportContain::update()
 				ContainedItemsList::const_iterator it;
 				it = items->begin();
 
-				while( *it )
+				while( it != items->end() )
 				{
 					Object *object = *it;
 

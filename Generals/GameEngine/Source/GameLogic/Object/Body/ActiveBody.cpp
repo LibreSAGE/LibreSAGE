@@ -57,12 +57,6 @@
 #include "GameLogic/Module/DieModule.h"
 
 
-#ifdef _INTERNAL
-// for occasional debugging...
-//#pragma optimize("", off)
-//#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
-#endif
-
 #define YELLOW_DAMAGE_PERCENT (0.25f)
 
 // FORWARD REFERENCES /////////////////////////////////////////////////////////////////////////////
@@ -1073,7 +1067,7 @@ void ActiveBody::setIndestructible( Bool indestructible )
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
-void ActiveBody::onVeterancyLevelChanged( VeterancyLevel oldLevel, VeterancyLevel newLevel )
+void ActiveBody::onVeterancyLevelChanged( VeterancyLevel oldLevel, VeterancyLevel newLevel, Bool provideFeedback )
 {
 	if (oldLevel == newLevel)
 		return;
